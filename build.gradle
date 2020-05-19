@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'net.tirasa.connid:connector-test-common:1.5.0.0'
+
+    testImplementation 'junit:junit:4.12'
+}
