@@ -26,6 +26,7 @@ import java.util.Set;
  * this connector.  This implementation does not hold attribute values;
  * the ConnId Attribute type is still used to hold the actual values.
  */
+// TODO: make immutable class
 public interface ConnectorAttribute {
 
     String getName();
