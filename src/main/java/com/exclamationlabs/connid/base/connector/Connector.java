@@ -40,9 +40,9 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
 
     FilterTranslator<String> getConnectorFilterTranslator();
 
-    <U> Adapter getUsersAdapter();
+    <U> Adapter<U> getUsersAdapter();
 
-    <G> Adapter getGroupsAdapter();
+    <G> Adapter<G> getGroupsAdapter();
 
     Driver getDriver();
 
