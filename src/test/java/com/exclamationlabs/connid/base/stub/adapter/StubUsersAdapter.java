@@ -14,37 +14,38 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.adapter;
+package com.exclamationlabs.connid.base.stub.adapter;
 
 import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.adapter.UsersAdapter;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.connector.model.DefaultGroup;
-import com.exclamationlabs.connid.base.connector.model.DefaultUser;
+import com.exclamationlabs.connid.base.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import java.util.Set;
 
-import static com.exclamationlabs.connid.base.connector.attribute.DefaultUserAttribute.*;
+import static com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute.*;
 
-public class DefaultUsersAdapter implements UsersAdapter<DefaultUser, DefaultGroup>{
+public class StubUsersAdapter implements UsersAdapter<StubUser, StubGroup> {
 
-    protected Driver<DefaultUser, DefaultGroup> driver;
-    protected Connector<DefaultUser, DefaultGroup> connector;
+    protected Driver<StubUser, StubGroup> driver;
+    protected Connector<StubUser, StubGroup> connector;
 
-    public DefaultUsersAdapter(Connector<DefaultUser, DefaultGroup> input) {
+    public StubUsersAdapter(Connector<StubUser, StubGroup> input) {
         connector = input;
         driver = input.getDriver();
     }
 
     @Override
-    public Connector<DefaultUser, DefaultGroup> getConnector() {
+    public Connector<StubUser, StubGroup> getConnector() {
         return connector;
     }
 
     @Override
-    public DefaultUser constructModel(Set<Attribute> attributes, boolean creation) {
-        DefaultUser user = new DefaultUser();
+    public StubUser constructModel(Set<Attribute> attributes, boolean creation) {
+        StubUser user = new StubUser();
         user.setId(getSingleAttributeValue(String.class, attributes, USER_ID));
         user.setUserName(getSingleAttributeValue(String.class, attributes, USER_NAME));
         user.setEmail(getSingleAttributeValue(String.class, attributes, EMAIL));
@@ -52,7 +53,7 @@ public class DefaultUsersAdapter implements UsersAdapter<DefaultUser, DefaultGro
     }
 
     @Override
-    public ConnectorObject constructConnectorObject(DefaultUser user) {
+    public ConnectorObject constructConnectorObject(StubUser user) {
         return getConnectorObjectBuilder()
                 .setUid(user.getIdentityIdValue())
                 .setName(user.getIdentityNameValue())
@@ -63,7 +64,7 @@ public class DefaultUsersAdapter implements UsersAdapter<DefaultUser, DefaultGro
     }
 
     @Override
-    public Driver<DefaultUser, DefaultGroup> getDriver() {
+    public Driver<StubUser, StubGroup> getDriver() {
         return driver;
     }
 

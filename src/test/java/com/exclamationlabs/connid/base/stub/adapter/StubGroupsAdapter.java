@@ -14,45 +14,46 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.adapter;
+package com.exclamationlabs.connid.base.stub.adapter;
 
 import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.adapter.GroupsAdapter;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.connector.model.DefaultGroup;
-import com.exclamationlabs.connid.base.connector.model.DefaultUser;
+import com.exclamationlabs.connid.base.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 import java.util.Set;
 
-import static com.exclamationlabs.connid.base.connector.attribute.DefaultGroupAttribute.*;
+import static com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute.*;
 
-public class DefaultGroupsAdapter implements GroupsAdapter<DefaultUser, DefaultGroup>{
+public class StubGroupsAdapter implements GroupsAdapter<StubUser, StubGroup> {
 
-    protected Driver<DefaultUser, DefaultGroup> driver;
-    protected Connector<DefaultUser, DefaultGroup> connector;
+    protected Driver<StubUser, StubGroup> driver;
+    protected Connector<StubUser, StubGroup> connector;
 
-    public DefaultGroupsAdapter(Connector<DefaultUser, DefaultGroup> input) {
+    public StubGroupsAdapter(Connector<StubUser, StubGroup> input) {
         connector = input;
         driver = input.getDriver();
     }
 
     @Override
-    public Connector<DefaultUser, DefaultGroup> getConnector() {
+    public Connector<StubUser, StubGroup> getConnector() {
         return connector;
     }
 
     @Override
-    public DefaultGroup constructModel(Set<Attribute> attributes, boolean creation) {
-        DefaultGroup group = new DefaultGroup();
+    public StubGroup constructModel(Set<Attribute> attributes, boolean creation) {
+        StubGroup group = new StubGroup();
         group.setId(getSingleAttributeValue(String.class, attributes, GROUP_ID));
         group.setName(getSingleAttributeValue(String.class, attributes, GROUP_NAME));
         return group;
     }
 
     @Override
-    public ConnectorObject constructConnectorObject(DefaultGroup group) {
+    public ConnectorObject constructConnectorObject(StubGroup group) {
         return getConnectorObjectBuilder()
                 .setUid(group.getIdentityIdValue())
                 .setName(group.getIdentityNameValue())
@@ -62,7 +63,7 @@ public class DefaultGroupsAdapter implements GroupsAdapter<DefaultUser, DefaultG
     }
 
     @Override
-    public Driver<DefaultUser, DefaultGroup> getDriver() {
+    public Driver<StubUser, StubGroup> getDriver() {
         return driver;
     }
 

@@ -14,9 +14,11 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.stub.model;
 
-public class DefaultUser implements UserIdentityModel {
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
+
+public class StubUser implements UserIdentityModel {
 
     private String id;
     private String userName;
