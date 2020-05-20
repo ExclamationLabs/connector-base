@@ -1,9 +1,8 @@
-package com.exclamationlabs.connid.base.connector.adapter;
+package com.exclamationlabs.connid.base.connector.schema;
 
+import com.exclamationlabs.connid.base.connector.Connector;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.Schema;
-
-import java.util.Set;
 
 public interface ConnectorSchemaBuilder {
 
@@ -14,9 +13,5 @@ public interface ConnectorSchemaBuilder {
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.
      */
-    Schema build() throws ConfigurationException;
-
-    Set<ConnectorAttribute> getGroupAttributes();
-
-    Set<ConnectorAttribute> getUserAttributes();
+    Schema build(Connector connector) throws ConfigurationException;
 }
