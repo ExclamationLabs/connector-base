@@ -1,4 +1,4 @@
-package com.exclamationlabs.connid.base.connector.adapter;
+package com.exclamationlabs.connid.base.connector.attribute;
 
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -56,7 +56,7 @@ public enum ConnectorAttributeDataType {
 
     Class<?> classType;
 
-    Class<?> getClassType() {
+    public Class<?> getClassType() {
        return classType;
     }
 

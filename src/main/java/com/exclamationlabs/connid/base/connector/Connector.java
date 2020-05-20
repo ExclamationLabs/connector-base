@@ -17,9 +17,10 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.adapter.Adapter;
+import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.adapter.ConnectorSchemaBuilder;
+import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -30,21 +31,28 @@ import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.PoolableConnector;
 import org.identityconnectors.framework.spi.operations.*;
 
+import java.util.EnumMap;
 import java.util.Set;
 
-public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
+public interface Connector<T,U,G> extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
 
     Log LOG = Log.getLog(Connector.class);
+
+    String getName();
+
+    EnumMap<?, ConnectorAttribute> getUserAttributes();
+
+    EnumMap<?, ConnectorAttribute> getGroupAttributes();
 
     ConnectorSchemaBuilder getConnectorSchemaBuilder();
 
     FilterTranslator<String> getConnectorFilterTranslator();
 
-    <U> Adapter<U> getUsersAdapter();
+    Adapter<T,U,G> getUsersAdapter();
 
-    <G> Adapter<G> getGroupsAdapter();
+    Adapter<T,U,G> getGroupsAdapter();
 
-    Driver getDriver();
+    Driver<U,G> getDriver();
 
     Authenticator getAuthenticator();
 
@@ -60,7 +68,7 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
         if (getConnectorSchemaBuilder() == null) {
             throw new ConfigurationException("SchemaBuilder not setup for this connector");
         }
-        return getConnectorSchemaBuilder().build();
+        return getConnectorSchemaBuilder().build(this);
     }
 
     @Override
@@ -74,7 +82,7 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
 
     @Override
     default void init(Configuration configuration) {
-        LOG.info("Initializing a Connector");
+        LOG.info("Initializing Connector {0}", getName());
         if (configuration == null) {
             throw new ConfigurationException("Unable to find connector configuration");
         }
@@ -141,7 +149,7 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
          getAdapter(objectClass).delete(uid);
     }
 
-    default Adapter getAdapter(ObjectClass objectClass) {
+    default Adapter<T,U,G> getAdapter(ObjectClass objectClass) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             return getUsersAdapter();
         } else if (objectClass.is(ObjectClass.GROUP_NAME)) {

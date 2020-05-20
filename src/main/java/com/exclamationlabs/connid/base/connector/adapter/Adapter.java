@@ -16,34 +16,49 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.model.AccessManagementModel;
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.*;
 
+import java.util.EnumMap;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * Interface describing implementations that will translate ConnId Identity Access Management (IAM)
  * types to and from a destination system/service.
  */
-public interface Adapter<M> {
+public interface Adapter<T,U,G> {
 
-    void setType(ObjectClass objectClass);
+    Connector<T,U,G> getConnector();
 
-    ConnectorAttribute getIdAttribute();
+    ObjectClass getType();
 
-    ConnectorAttribute getNameAttribute();
+    T constructModel(Set<Attribute> attributes, boolean creation);
 
-    M constructModelFromAttributeSet(Set<Attribute> attributes, boolean creation);
+    ConnectorObject constructConnectorObject(T modelType);
 
-    Set<Attribute> constructAttributeSetFromModel(M modelType);
+    Driver<U,G> getDriver();
 
-    void setAttributes(Set<ConnectorAttribute> attributeSet);
+    boolean groupAdditionControlledByUpdate();
 
-    void setDriver(Driver driver);
+    boolean groupRemovalControlledByUpdate();
+
+    default ConnectorObjectBuilder getConnectorObjectBuilder() {
+        return new ConnectorObjectBuilder().setObjectClass(getType());
+    }
+
+    default Object getSingleAttributeValue(Set<Attribute> attributes, Enum<?> enumValue) {
+        if (attributes == null) {
+            return null;
+        }
+        Optional<Attribute> correctAttribute =
+                attributes.stream().filter(current -> current.getName().equals(enumValue.toString())).findFirst();
+        return correctAttribute.map(this::readAttributeValue).orElse(null);
+    }
 
     default Object readAttributeValue(Attribute input) {
         if (input != null && input.getValue() != null && input.getValue().get(0) != null) {
