@@ -14,9 +14,11 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.stub.model;
 
-public class DefaultGroup implements GroupIdentityModel {
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+
+public class StubGroup implements GroupIdentityModel {
 
     private String id;
     private String name;

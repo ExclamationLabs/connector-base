@@ -14,12 +14,13 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.driver;
+package com.exclamationlabs.connid.base.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.model.DefaultGroup;
-import com.exclamationlabs.connid.base.connector.model.DefaultUser;
+import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class DefaultDriver implements Driver<DefaultUser, DefaultGroup> {
+public class StubDriver implements Driver<StubUser, StubGroup> {
     @Override
     public void initialize(ConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
 
@@ -44,22 +45,22 @@ public class DefaultDriver implements Driver<DefaultUser, DefaultGroup> {
     }
 
     @Override
-    public String createUser(DefaultUser userModel) throws ConnectorException {
+    public String createUser(StubUser userModel) throws ConnectorException {
         return UUID.randomUUID().toString();
     }
 
     @Override
-    public String createGroup(DefaultGroup groupModel) throws ConnectorException {
+    public String createGroup(StubGroup groupModel) throws ConnectorException {
         return UUID.randomUUID().toString();
     }
 
     @Override
-    public void updateUser(String userId, DefaultUser userModel) throws ConnectorException {
+    public void updateUser(String userId, StubUser userModel) throws ConnectorException {
 
     }
 
     @Override
-    public void updateGroup(String groupId, DefaultGroup groupModel) throws ConnectorException {
+    public void updateGroup(String groupId, StubGroup groupModel) throws ConnectorException {
 
     }
 
@@ -74,13 +75,13 @@ public class DefaultDriver implements Driver<DefaultUser, DefaultGroup> {
     }
 
     @Override
-    public List<DefaultUser> getUsers() throws ConnectorException {
-        DefaultUser user1 = new DefaultUser();
+    public List<StubUser> getUsers() throws ConnectorException {
+        StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
         user1.setUserName("Ying");
         user1.setEmail("ying@yahoo.com");
 
-        DefaultUser user2 = new DefaultUser();
+        StubUser user2 = new StubUser();
         user2.setId(UUID.randomUUID().toString());
         user2.setUserName("Yang");
         user2.setEmail("yang@yahoo.com");
@@ -89,20 +90,20 @@ public class DefaultDriver implements Driver<DefaultUser, DefaultGroup> {
     }
 
     @Override
-    public List<DefaultGroup> getGroups() throws ConnectorException {
-        DefaultGroup group1 = new DefaultGroup();
+    public List<StubGroup> getGroups() throws ConnectorException {
+        StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());
         group1.setName("Uno");
 
-        DefaultGroup group2 = new DefaultGroup();
+        StubGroup group2 = new StubGroup();
         group2.setId(UUID.randomUUID().toString());
         group2.setName("Dos");
         return new ArrayList<>(Arrays.asList(group1, group2));
     }
 
     @Override
-    public DefaultUser getUser(String userId) throws ConnectorException {
-        DefaultUser user1 = new DefaultUser();
+    public StubUser getUser(String userId) throws ConnectorException {
+        StubUser user1 = new StubUser();
         user1.setId(userId);
         user1.setUserName("Ying");
         user1.setEmail("ying@yahoo.com");
@@ -110,8 +111,8 @@ public class DefaultDriver implements Driver<DefaultUser, DefaultGroup> {
     }
 
     @Override
-    public DefaultGroup getGroup(String groupId) throws ConnectorException {
-        DefaultGroup group1 = new DefaultGroup();
+    public StubGroup getGroup(String groupId) throws ConnectorException {
+        StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());
         group1.setName("Uno");
         return group1;

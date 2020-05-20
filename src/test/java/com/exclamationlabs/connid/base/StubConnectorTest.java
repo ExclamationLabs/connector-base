@@ -1,8 +1,8 @@
 package com.exclamationlabs.connid.base;
 
-import com.exclamationlabs.connid.base.connector.DefaultConnector;
-import com.exclamationlabs.connid.base.connector.attribute.DefaultGroupAttribute;
-import com.exclamationlabs.connid.base.connector.attribute.DefaultUserAttribute;
+import com.exclamationlabs.connid.base.stub.StubConnector;
+import com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute;
+import com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -17,21 +17,21 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class DefaultConnectorTest {
+public class StubConnectorTest {
 
-    private DefaultConnector connector;
+    private StubConnector connector;
 
     @Before
     public void setup() {
-        connector = new DefaultConnector();
+        connector = new StubConnector();
         connector.init();
     }
 
     @Test
     public void testUserCreate() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, (new OperationOptionsBuilder()).build());
         assertNotNull(newId);
@@ -41,8 +41,8 @@ public class DefaultConnectorTest {
     @Test(expected = InvalidAttributeValueException.class)
     public void testUserCreateBadDataType() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         connector.create(ObjectClass.ACCOUNT, attributes, (new OperationOptionsBuilder()).build());
     }
@@ -50,8 +50,8 @@ public class DefaultConnectorTest {
     @Test
     public void testUserModify() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
         assertNotNull(newId);
@@ -61,8 +61,8 @@ public class DefaultConnectorTest {
     @Test(expected = InvalidAttributeValueException.class)
     public void testUserModifyDataType() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
-        attributes.add(new AttributeBuilder().setName(DefaultUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
     }
@@ -107,7 +107,7 @@ public class DefaultConnectorTest {
     @Test
     public void testGroupCreate() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
+        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
 
         Uid newId = connector.create(ObjectClass.GROUP, attributes, (new OperationOptionsBuilder()).build());
         assertNotNull(newId);
@@ -117,7 +117,7 @@ public class DefaultConnectorTest {
     @Test(expected = InvalidAttributeValueException.class)
     public void testGroupCreateBadDataType() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
+        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
 
         connector.create(ObjectClass.GROUP, attributes, (new OperationOptionsBuilder()).build());
     }
@@ -125,7 +125,7 @@ public class DefaultConnectorTest {
     @Test
     public void testGroupModify() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
+        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
 
         Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
         assertNotNull(newId);
@@ -135,7 +135,7 @@ public class DefaultConnectorTest {
     @Test(expected = InvalidAttributeValueException.class)
     public void testGroupModifyDataType() {
         Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(DefaultGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
+        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
 
         connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
     }

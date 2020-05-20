@@ -14,9 +14,10 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.attribute;
+package com.exclamationlabs.connid.base.stub.attribute;
 
-public enum DefaultGroupAttribute {
-    GROUP_ID,
-    GROUP_NAME
+public enum StubUserAttribute {
+    USER_ID,
+    USER_NAME,
+    EMAIL;
 }

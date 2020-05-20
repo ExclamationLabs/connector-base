@@ -14,12 +14,13 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.configuration;
+package com.exclamationlabs.connid.base.stub.configuration;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.ConnectorMessages;
 
-public class DefaultConnectorConfiguration implements ConnectorConfiguration {
+public class StubConnectorConfiguration implements ConnectorConfiguration {
     private boolean validated;
     private ConnectorMessages connectorMessages;
 
