@@ -31,7 +31,7 @@ import java.util.List;
  * not allow you to delete a user, or assign him to a group).  In those cases, implementations
  * should throw UnsupportedOperationException to indicate it's not supported.
  */
-public interface Driver<U,G> {
+public interface Driver<U, G> {
 
     /**
      * Receives the configuration and authenticator objects that may be needed by the driver.

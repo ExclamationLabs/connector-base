@@ -14,10 +14,9 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.attribute;
+package com.exclamationlabs.connid.base.connector.model;
 
-public enum DefaultUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL;
+public enum IdentityModelType {
+    USER,
+    GROUP
 }

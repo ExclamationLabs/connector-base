@@ -23,16 +23,17 @@ import com.exclamationlabs.connid.base.connector.model.DefaultUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+
 import java.util.Set;
 
-import static com.exclamationlabs.connid.base.connector.attribute.DefaultUserAttribute.*;
+import static com.exclamationlabs.connid.base.connector.attribute.DefaultGroupAttribute.*;
 
-public class DefaultUsersAdapter implements UsersAdapter<DefaultUser, DefaultGroup>{
+public class DefaultGroupsAdapter implements GroupsAdapter<DefaultUser, DefaultGroup>{
 
     protected Driver<DefaultUser, DefaultGroup> driver;
     protected Connector<DefaultUser, DefaultGroup> connector;
 
-    public DefaultUsersAdapter(Connector<DefaultUser, DefaultGroup> input) {
+    public DefaultGroupsAdapter(Connector<DefaultUser, DefaultGroup> input) {
         connector = input;
         driver = input.getDriver();
     }
@@ -43,22 +44,20 @@ public class DefaultUsersAdapter implements UsersAdapter<DefaultUser, DefaultGro
     }
 
     @Override
-    public DefaultUser constructModel(Set<Attribute> attributes, boolean creation) {
-        DefaultUser user = new DefaultUser();
-        user.setId(getSingleAttributeValue(String.class, attributes, USER_ID));
-        user.setUserName(getSingleAttributeValue(String.class, attributes, USER_NAME));
-        user.setEmail(getSingleAttributeValue(String.class, attributes, EMAIL));
-        return user;
+    public DefaultGroup constructModel(Set<Attribute> attributes, boolean creation) {
+        DefaultGroup group = new DefaultGroup();
+        group.setId(getSingleAttributeValue(String.class, attributes, GROUP_ID));
+        group.setName(getSingleAttributeValue(String.class, attributes, GROUP_NAME));
+        return group;
     }
 
     @Override
-    public ConnectorObject constructConnectorObject(DefaultUser user) {
+    public ConnectorObject constructConnectorObject(DefaultGroup group) {
         return getConnectorObjectBuilder()
-                .setUid(user.getIdentityIdValue())
-                .setName(user.getIdentityNameValue())
-                .addAttribute(AttributeBuilder.build(USER_ID.name(), user.getId()))
-                .addAttribute(AttributeBuilder.build(USER_NAME.name(), user.getUserName()))
-                .addAttribute(AttributeBuilder.build(EMAIL.name(), user.getEmail()))
+                .setUid(group.getIdentityIdValue())
+                .setName(group.getIdentityNameValue())
+                .addAttribute(AttributeBuilder.build(GROUP_ID.name(), group.getId()))
+                .addAttribute(AttributeBuilder.build(GROUP_NAME.name(), group.getName()))
                 .build();
     }
 
