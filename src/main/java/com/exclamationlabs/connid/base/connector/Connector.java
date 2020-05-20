@@ -20,6 +20,9 @@ import com.exclamationlabs.connid.base.connector.adapter.Adapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import org.identityconnectors.common.logging.Log;
@@ -34,29 +37,37 @@ import org.identityconnectors.framework.spi.operations.*;
 import java.util.EnumMap;
 import java.util.Set;
 
-public interface Connector<T,U,G> extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
+public interface Connector<U extends UserIdentityModel,G extends GroupIdentityModel> extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
 
     Log LOG = Log.getLog(Connector.class);
 
-    String getName();
+    default String getName() {
+        return getClass().getName();
+    }
 
     EnumMap<?, ConnectorAttribute> getUserAttributes();
 
     EnumMap<?, ConnectorAttribute> getGroupAttributes();
 
-    ConnectorSchemaBuilder getConnectorSchemaBuilder();
+    ConnectorSchemaBuilder<U,G> getConnectorSchemaBuilder();
 
-    FilterTranslator<String> getConnectorFilterTranslator();
+    default FilterTranslator<String> getConnectorFilterTranslator() {
+        return new DefaultFilterTranslator();
+    }
 
-    Adapter<T,U,G> getUsersAdapter();
+    Adapter<U,G> getUsersAdapter();
 
-    Adapter<T,U,G> getGroupsAdapter();
+    Adapter<U,G> getGroupsAdapter();
 
     Driver<U,G> getDriver();
 
     Authenticator getAuthenticator();
 
     ConnectorConfiguration getConnectorConfiguration();
+
+    default void init() {
+        init(getConnectorConfiguration());
+    }
 
     @Override
     default Configuration getConfiguration() {
@@ -149,7 +160,7 @@ public interface Connector<T,U,G> extends PoolableConnector, SchemaOp, DeleteOp,
          getAdapter(objectClass).delete(uid);
     }
 
-    default Adapter<T,U,G> getAdapter(ObjectClass objectClass) {
+    default Adapter<U,G> getAdapter(ObjectClass objectClass) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             return getUsersAdapter();
         } else if (objectClass.is(ObjectClass.GROUP_NAME)) {

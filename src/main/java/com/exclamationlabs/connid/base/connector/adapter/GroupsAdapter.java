@@ -23,7 +23,7 @@ import org.identityconnectors.framework.common.objects.*;
 import java.util.List;
 import java.util.Set;
 
-public interface UsersAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
+public interface GroupsAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
         extends Adapter<U, G> {
 
     @Override
@@ -31,64 +31,49 @@ public interface UsersAdapter<U extends UserIdentityModel, G extends GroupIdenti
         return ObjectClass.ACCOUNT;
     }
 
-    U constructModel(Set<Attribute> attributes, boolean creation);
+    G constructModel(Set<Attribute> attributes, boolean creation);
 
-    ConnectorObject constructConnectorObject(U modelType);
+    ConnectorObject constructConnectorObject(G modelType);
 
     @Override
     default Uid create(Set<Attribute> attributes) {
-        U user = constructModel(attributes, true);
-        String newUserId = getDriver().createUser(user);
+        G group = constructModel(attributes, true);
+        String newGroupId = getDriver().createGroup(group);
 
-        // TODO: group update?
-        /*
-        if (! groupAdditionControlledByUpdate()) {
-            getDriver().addGroupToUser(carp, newUserId);
-        }
-        */
-
-        return new Uid(newUserId);
+        return new Uid(newGroupId);
     }
 
     @Override
     default Uid update(Uid uid, Set<Attribute> attributes) {
-        U user = constructModel(attributes, false);
-        getDriver().updateUser(uid.getUidValue(), user);
-
-        // TODO: group update?
-        /*
-        if (! groupAdditionControlledByUpdate()) {
-            getDriver().addGroupToUser(carp, newUserId);
-        }
-        */
-
+        G group = constructModel(attributes, false);
+        getDriver().updateGroup(uid.getUidValue(), group);
         return uid;
     }
 
     @Override
     default void delete(Uid uid) {
-        getDriver().deleteUser(uid.getUidValue());
+        getDriver().deleteGroup(uid.getUidValue());
     }
 
     @Override
     default void get(String query, ResultsHandler resultsHandler) {
         if (queryAllRecords(query)) {
-            // query for all users
-            List<U> allUsers = getDriver().getUsers();
+            // query for all groups
+            List<G> allGroups = getDriver().getGroups();
 
-            for (UserIdentityModel currentUser : allUsers) {
+            for (GroupIdentityModel currentGroup : allGroups) {
                 resultsHandler.handle(
                         new ConnectorObjectBuilder()
-                                .setUid(currentUser.getIdentityIdValue())
-                                .setName(currentUser.getIdentityNameValue())
+                                .setUid(currentGroup.getIdentityIdValue())
+                                .setName(currentGroup.getIdentityNameValue())
                                 .setObjectClass(getType())
                                 .build());
             }
         } else {
             // Query for single user
-            U singleUser = getDriver().getUser(query);
-            if (singleUser != null) {
-                resultsHandler.handle(constructConnectorObject(singleUser));
+            G singleGroup = getDriver().getGroup(query);
+            if (singleGroup != null) {
+                resultsHandler.handle(constructConnectorObject(singleGroup));
             }
         }
     }

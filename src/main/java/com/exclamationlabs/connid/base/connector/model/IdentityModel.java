@@ -14,10 +14,18 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.attribute;
+package com.exclamationlabs.connid.base.connector.model;
 
-public enum DefaultUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL;
+public interface IdentityModel {
+
+    IdentityModelType getIdentityType();
+
+    String getIdentityIdValue();
+
+    String getIdentityNameValue();
+
+    default String identityToString() {
+        return getIdentityType().name() + ";" + getIdentityIdValue() + ";" +
+                getIdentityNameValue();
+    }
 }

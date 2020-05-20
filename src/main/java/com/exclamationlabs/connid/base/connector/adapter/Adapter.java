@@ -17,13 +17,15 @@
 package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.Connector;
-import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.connector.model.AccessManagementModel;
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.EnumMap;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,15 +33,12 @@ import java.util.Set;
  * Interface describing implementations that will translate ConnId Identity Access Management (IAM)
  * types to and from a destination system/service.
  */
-public interface Adapter<T,U,G> {
+public interface Adapter<U extends UserIdentityModel,
+        G extends GroupIdentityModel> {
 
-    Connector<T,U,G> getConnector();
+    Connector<U,G> getConnector();
 
     ObjectClass getType();
-
-    T constructModel(Set<Attribute> attributes, boolean creation);
-
-    ConnectorObject constructConnectorObject(T modelType);
 
     Driver<U,G> getDriver();
 
@@ -51,13 +50,23 @@ public interface Adapter<T,U,G> {
         return new ConnectorObjectBuilder().setObjectClass(getType());
     }
 
-    default Object getSingleAttributeValue(Set<Attribute> attributes, Enum<?> enumValue) {
+    default <T> T getSingleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
         if (attributes == null) {
             return null;
         }
         Optional<Attribute> correctAttribute =
                 attributes.stream().filter(current -> current.getName().equals(enumValue.toString())).findFirst();
-        return correctAttribute.map(this::readAttributeValue).orElse(null);
+        Object value = correctAttribute.map(this::readAttributeValue).orElse(null);
+        if (value == null) {
+            return null;
+        } else {
+            if (returnType != value.getClass()) {
+                throw new InvalidAttributeValueException("Invalid data type for attribute " + enumValue.name() + "; received " +
+                        value.getClass().getName() + ", expected " + returnType.getName());
+            } else {
+                return (T) value;
+            }
+        }
     }
 
     default Object readAttributeValue(Attribute input) {

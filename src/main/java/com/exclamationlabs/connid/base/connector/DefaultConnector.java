@@ -7,12 +7,10 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.DefaultDriver;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.DefaultGroup;
 import com.exclamationlabs.connid.base.connector.model.DefaultUser;
 import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
 import com.exclamationlabs.connid.base.connector.schema.DefaultConnectorSchemaBuilder;
-import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 
 import java.util.EnumMap;
 
@@ -21,30 +19,18 @@ import static com.exclamationlabs.connid.base.connector.attribute.DefaultUserAtt
 import static com.exclamationlabs.connid.base.connector.attribute.DefaultGroupAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class DefaultConnector implements Connector<DefaultUser, DefaultUser, DefaultGroup> {
+public class DefaultConnector implements Connector<DefaultUser, DefaultGroup> {
 
     protected Driver<DefaultUser, DefaultGroup> driver;
-    protected FilterTranslator<String> filterTranslator;
-    protected ConnectorSchemaBuilder schemaBuilder;
-    protected Adapter<DefaultUser, DefaultUser, DefaultGroup> usersAdapter;
-    protected Adapter<DefaultUser, DefaultUser, DefaultGroup> groupsAdapter;
-    protected Authenticator authenticator;
-    protected ConnectorConfiguration configuration;
+    protected ConnectorSchemaBuilder<DefaultUser,DefaultGroup> schemaBuilder;
+    protected Adapter<DefaultUser, DefaultGroup> usersAdapter;
+    protected Adapter<DefaultUser, DefaultGroup> groupsAdapter;
 
     public DefaultConnector() {
         driver = new DefaultDriver();
-        filterTranslator = new DefaultFilterTranslator();
-        schemaBuilder = new DefaultConnectorSchemaBuilder();
+        schemaBuilder = new DefaultConnectorSchemaBuilder<>();
         usersAdapter = new DefaultUsersAdapter(this);
-        //groupsAdapter = new DefaultGroupsAdapter();
-
-        authenticator = configuration -> "NA";
-        configuration = new DefaultConnectorConfiguration();
-    }
-
-    @Override
-    public String getName() {
-        return getClass().getName();
+        groupsAdapter = new DefaultGroupsAdapter(this);
     }
 
     @Override
@@ -66,22 +52,17 @@ public class DefaultConnector implements Connector<DefaultUser, DefaultUser, Def
 
 
     @Override
-    public ConnectorSchemaBuilder getConnectorSchemaBuilder() {
+    public ConnectorSchemaBuilder<DefaultUser,DefaultGroup> getConnectorSchemaBuilder() {
         return schemaBuilder;
     }
 
     @Override
-    public FilterTranslator<String> getConnectorFilterTranslator() {
-        return filterTranslator;
-    }
-
-    @Override
-    public Adapter<DefaultUser, DefaultUser, DefaultGroup> getUsersAdapter() {
+    public Adapter<DefaultUser, DefaultGroup> getUsersAdapter() {
         return usersAdapter;
     }
 
     @Override
-    public Adapter<DefaultUser, DefaultUser, DefaultGroup> getGroupsAdapter() {
+    public Adapter<DefaultUser, DefaultGroup> getGroupsAdapter() {
         return groupsAdapter;
     }
 
@@ -92,11 +73,11 @@ public class DefaultConnector implements Connector<DefaultUser, DefaultUser, Def
 
     @Override
     public Authenticator getAuthenticator() {
-        return authenticator;
+        return configuration -> "NA";
     }
 
     @Override
     public ConnectorConfiguration getConnectorConfiguration() {
-        return configuration;
+        return new DefaultConnectorConfiguration();
     }
 }
