@@ -14,18 +14,10 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.stub.configuration;
 
-/**
- * All Connectors developed using the base framework
- * must define a concrete class (probably a POJO) that inherits
- * UserIdentityModel, so that the base connector framework
- * has a User model definition to transmit and utilize.
- */
-public interface UserIdentityModel extends IdentityModel {
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 
-    @Override
-    default IdentityModelType getIdentityType() {
-        return IdentityModelType.USER;
-    }
+public class StubConfiguration extends BaseConnectorConfiguration {
+    public StubConfiguration() {}
 }

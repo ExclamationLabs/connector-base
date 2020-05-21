@@ -16,9 +16,7 @@
 
 package com.exclamationlabs.connid.base.stub.adapter;
 
-import com.exclamationlabs.connid.base.connector.Connector;
-import com.exclamationlabs.connid.base.connector.adapter.GroupsAdapter;
-import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.adapter.BaseGroupsAdapter;
 import com.exclamationlabs.connid.base.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -29,20 +27,7 @@ import java.util.Set;
 
 import static com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute.*;
 
-public class StubGroupsAdapter implements GroupsAdapter<StubUser, StubGroup> {
-
-    protected Driver<StubUser, StubGroup> driver;
-    protected Connector<StubUser, StubGroup> connector;
-
-    public StubGroupsAdapter(Connector<StubUser, StubGroup> input) {
-        connector = input;
-        driver = input.getDriver();
-    }
-
-    @Override
-    public Connector<StubUser, StubGroup> getConnector() {
-        return connector;
-    }
+public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
 
     @Override
     public StubGroup constructModel(Set<Attribute> attributes, boolean creation) {
@@ -54,26 +39,10 @@ public class StubGroupsAdapter implements GroupsAdapter<StubUser, StubGroup> {
 
     @Override
     public ConnectorObject constructConnectorObject(StubGroup group) {
-        return getConnectorObjectBuilder()
-                .setUid(group.getIdentityIdValue())
-                .setName(group.getIdentityNameValue())
+        return getConnectorObjectBuilder(group)
                 .addAttribute(AttributeBuilder.build(GROUP_ID.name(), group.getId()))
                 .addAttribute(AttributeBuilder.build(GROUP_NAME.name(), group.getName()))
                 .build();
     }
 
-    @Override
-    public Driver<StubUser, StubGroup> getDriver() {
-        return driver;
-    }
-
-    @Override
-    public boolean groupAdditionControlledByUpdate() {
-        return true;
-    }
-
-    @Override
-    public boolean groupRemovalControlledByUpdate() {
-        return true;
-    }
 }

@@ -53,7 +53,7 @@ public interface Driver<U, G> {
      *
      * NOTE: Midpoint systems tend to invoke this often, so be cautious this is a relatively
      * inexpensive operation.
-     * @throws ConnectorException
+     * @throws ConnectorException if connector test failed in some way
      */
     void test() throws ConnectorException;
 

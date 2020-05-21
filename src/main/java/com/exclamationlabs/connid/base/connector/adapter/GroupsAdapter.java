@@ -70,7 +70,7 @@ public interface GroupsAdapter<U extends UserIdentityModel, G extends GroupIdent
                                 .build());
             }
         } else {
-            // Query for single user
+            // Query for single group
             G singleGroup = getDriver().getGroup(query);
             if (singleGroup != null) {
                 resultsHandler.handle(constructConnectorObject(singleGroup));

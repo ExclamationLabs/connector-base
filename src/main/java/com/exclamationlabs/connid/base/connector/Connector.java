@@ -17,8 +17,11 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.adapter.Adapter;
+import com.exclamationlabs.connid.base.connector.adapter.GroupsAdapter;
+import com.exclamationlabs.connid.base.connector.adapter.UsersAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
@@ -41,30 +44,35 @@ public interface Connector<U extends UserIdentityModel,G extends GroupIdentityMo
 
     Log LOG = Log.getLog(Connector.class);
 
-    default String getName() {
-        return getClass().getName();
-    }
-
     EnumMap<?, ConnectorAttribute> getUserAttributes();
 
     EnumMap<?, ConnectorAttribute> getGroupAttributes();
 
     ConnectorSchemaBuilder<U,G> getConnectorSchemaBuilder();
+    void setConnectorSchemaBuilder(ConnectorSchemaBuilder<U,G> input);
+
+    UsersAdapter<U,G> getUsersAdapter();
+
+    GroupsAdapter<U,G> getGroupsAdapter();
+
+    Driver<U,G> getDriver();
+
+    Authenticator getAuthenticator();
+    void setAuthenticator(Authenticator in);
+
+    ConnectorConfiguration getConnectorConfiguration();
 
     default FilterTranslator<String> getConnectorFilterTranslator() {
         return new DefaultFilterTranslator();
     }
 
-    Adapter<U,G> getUsersAdapter();
+    default String getName() {
+        return getClass().getSimpleName();
+    }
 
-    Adapter<U,G> getGroupsAdapter();
-
-    Driver<U,G> getDriver();
-
-    Authenticator getAuthenticator();
-
-    ConnectorConfiguration getConnectorConfiguration();
-
+    /**
+     * Convenience method for unit testing connector initialization.
+     */
     default void init() {
         init(getConnectorConfiguration());
     }
@@ -91,38 +99,65 @@ public interface Connector<U extends UserIdentityModel,G extends GroupIdentityMo
         }
     }
 
+    /**
+     * Midpoint calls this method to initialize a connector.  It has
+     * some way of looking up the Configuration class (probably by inspecting the
+     * package).  So need to be very careful to have 1 (and exactly 1) concrete
+     * Configuration class per Connector project.
+     * @param configuration Configuration concrete class found by Midpoint at runtime.
+     */
     @Override
     default void init(Configuration configuration) {
-        LOG.info("Initializing Connector {0}", getName());
-        if (configuration == null) {
-            throw new ConfigurationException("Unable to find connector configuration");
+        LOG.info("Initializing Connector {0} ...", getName());
+        if (! (this instanceof BaseConnector)) {
+            throw new ConfigurationException("Connector does not inherit BaseConnector: " + this.getName());
         }
 
-        if (!(configuration instanceof ConnectorConfiguration)) {
-            throw new ConfigurationException("Connector configuration does not adhere to base framework.");
+        if (configuration == null) {
+            throw new ConfigurationException("Unable to find configuration for connector " + this.getName());
+        }
+
+        if (!(configuration instanceof BaseConnectorConfiguration)) {
+            throw new ConfigurationException("Connector configuration does not use base framework " +
+                    "for connector " + this.getName());
         }
 
         ConnectorConfiguration connectorConfiguration = (ConnectorConfiguration) configuration;
+        LOG.info("Using configuration {0} for connector {1}", connectorConfiguration.getClass().getName(),
+                this.getName());
 
         if (!connectorConfiguration.isValidated()) {
             connectorConfiguration.validate();
-            LOG.info("Connector {0} successfully validated", connectorConfiguration.getName());
+            LOG.info("Connector {0} successfully validated", this.getName());
         } else {
-            LOG.info("Connector {0} validation bypassed, already validated", connectorConfiguration.getName());
+            LOG.info("Connector {0} validation bypassed, already validated", this.getName());
         }
 
         if (getAuthenticator() == null) {
-            throw new ConfigurationException("Authenticator not setup for this connector");
+            LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}ed, already validated", connectorConfiguration.getName());
+            setAuthenticator(authenticatorConfiguration -> "NA");
+        } else {
+            LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
+                    this.getName());
         }
         getAuthenticator().authenticate(getConnectorConfiguration());
-        LOG.info("Connector {0} successfully authenticated", connectorConfiguration.getName());
+        LOG.info("Connector {0} successfully authenticated", this.getName());
 
         if (getDriver() == null) {
-            throw new ConfigurationException("Driver not setup for this connector");
+            throw new ConfigurationException("Driver not setup for connector " + this.getName());
         }
         getDriver().initialize(getConnectorConfiguration(), getAuthenticator());
-        LOG.info("Connector {0} driver successfully initialized", connectorConfiguration.getName());
+        LOG.info("Connector {0} driver successfully initialized", this.getName());
 
+        if (getUsersAdapter() == null) {
+            throw new ConfigurationException("UsersAdapter not setup for connector " + this.getName());
+        }
+        getUsersAdapter().setDriver(getDriver());
+
+        if (getGroupsAdapter() == null) {
+            throw new ConfigurationException("GroupsAdapter not setup for connector " + this.getName());
+        }
+        getGroupsAdapter().setDriver(getDriver());
     }
 
     @Override

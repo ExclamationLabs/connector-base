@@ -20,14 +20,37 @@ import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 import java.util.*;
 
+/**
+ * Builder to aid with the definition of connector attributes.  Attributes
+ * are needed by Midpoint to setup the schema and lay out all the data elements
+ * available for Users and Groups in a connector.
+ * @param <C> Your own enum type needs to be supplied here that gives
+ *           the names of attributes (for a group or for a user)
+ */
 public class ConnectorAttributeMapBuilder<C extends Enum<C>> {
 
     protected EnumMap<C, ConnectorAttribute> map;
 
+    private ConnectorAttributeMapBuilder() {}
+
+    /**
+     * You must create the builder with your own enum class
+     * that gives attribute names (for a group or for a user)
+     * @param enumClass Class object for your custom enum with attribute names
+     */
     public ConnectorAttributeMapBuilder(Class<C> enumClass) {
         map = new EnumMap<C, ConnectorAttribute>(enumClass);
     }
 
+    /**
+     * Method to append another attribute definition to the builder.
+     * @param enumClass Enum value representing a connector attribute name
+     * @param dataType Acceptable data type for ConnId.
+     * @param flags Optional. Any number of flags restricing or describing ConnId usage for
+     *              this attribute. Possible flags are ...
+     *              REQUIRED, MULTIVALUED, NOT_CREATABLE, NOT_UPDATEABLE, NOT_READABLE, NOT_RETURNED_BY_DEFAULT
+     * @return builder object in progress
+     */
     public ConnectorAttributeMapBuilder<C> add(C enumClass, ConnectorAttributeDataType dataType,
                                                AttributeInfo.Flags... flags) {
         Set<AttributeInfo.Flags> dataFlags = new HashSet<>(Arrays.asList(flags));
@@ -35,6 +58,12 @@ public class ConnectorAttributeMapBuilder<C extends Enum<C>> {
         return this;
     }
 
+    /**
+     * When you are all done calling add() methods for all attribute,
+     * call build() to produce the EnumMap that will hold the attribute
+     * types (for a user or for a group).
+     * @return EnumMap containing all attribute definitions (for a user or for a group)
+     */
     public EnumMap<?, ConnectorAttribute> build() {
         return map;
     }

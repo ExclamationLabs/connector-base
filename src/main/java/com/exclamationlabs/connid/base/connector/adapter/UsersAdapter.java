@@ -31,6 +31,10 @@ public interface UsersAdapter<U extends UserIdentityModel, G extends GroupIdenti
         return ObjectClass.ACCOUNT;
     }
 
+    boolean groupAdditionControlledByUpdate();
+
+    boolean groupRemovalControlledByUpdate();
+
     U constructModel(Set<Attribute> attributes, boolean creation);
 
     ConnectorObject constructConnectorObject(U modelType);
