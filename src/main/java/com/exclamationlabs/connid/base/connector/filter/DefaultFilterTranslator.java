@@ -27,6 +27,13 @@ import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 
 // TODO: refine for general use
+
+/**
+ * A filter translator can be used in Midpoint to filter by a field on a resource
+ * in the Midpoint UI.  This implementation is very clumsy, however, and has not
+ * been leveraged often up to this point, so we have defined a simple default
+ * behavior Midpoint can use.
+ */
 public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
     private static final Log LOG = Log.getLog(DefaultFilterTranslator.class);

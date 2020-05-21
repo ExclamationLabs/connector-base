@@ -16,6 +16,12 @@
 
 package com.exclamationlabs.connid.base.connector.model;
 
+/**
+ * All Connectors developed using the base framework
+ * must define a concrete class (probably a POJO) that inherits
+ * GroupIdentityModel, so that the base connector framework
+ * has a Group model definition to transmit and utilize.
+ */
 public interface GroupIdentityModel extends IdentityModel {
 
     @Override

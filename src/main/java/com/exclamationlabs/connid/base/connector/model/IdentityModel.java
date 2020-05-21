@@ -16,6 +16,10 @@
 
 package com.exclamationlabs.connid.base.connector.model;
 
+/**
+ * Interface to describe User and Group model objects belonging
+ * to this base connector implementation.
+ */
 public interface IdentityModel {
 
     IdentityModelType getIdentityType();

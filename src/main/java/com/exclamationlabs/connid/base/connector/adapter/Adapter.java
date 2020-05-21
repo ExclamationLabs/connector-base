@@ -16,13 +16,11 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
-import com.exclamationlabs.connid.base.connector.Connector;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
 
@@ -36,18 +34,17 @@ import java.util.Set;
 public interface Adapter<U extends UserIdentityModel,
         G extends GroupIdentityModel> {
 
-    Connector<U,G> getConnector();
-
     ObjectClass getType();
 
     Driver<U,G> getDriver();
 
-    boolean groupAdditionControlledByUpdate();
+    void setDriver(Driver<U,G> driver);
 
-    boolean groupRemovalControlledByUpdate();
-
-    default ConnectorObjectBuilder getConnectorObjectBuilder() {
-        return new ConnectorObjectBuilder().setObjectClass(getType());
+    default ConnectorObjectBuilder getConnectorObjectBuilder(IdentityModel identity) {
+        return new ConnectorObjectBuilder()
+                .setObjectClass(getType())
+                .setUid(identity.getIdentityIdValue())
+                .setName(identity.getIdentityNameValue());
     }
 
     default <T> T getSingleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
@@ -64,7 +61,7 @@ public interface Adapter<U extends UserIdentityModel,
                 throw new InvalidAttributeValueException("Invalid data type for attribute " + enumValue.name() + "; received " +
                         value.getClass().getName() + ", expected " + returnType.getName());
             } else {
-                return (T) value;
+                return (T) value; // Have to cast, last resort
             }
         }
     }

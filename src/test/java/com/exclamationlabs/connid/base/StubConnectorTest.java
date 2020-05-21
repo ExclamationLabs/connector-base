@@ -1,8 +1,28 @@
+/*
+    Copyright 2020 Exclamation Labs
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
 package com.exclamationlabs.connid.base;
 
+import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.stub.StubConnector;
 import com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -14,12 +34,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import static org.junit.Assert.*;
 
 public class StubConnectorTest {
 
-    private StubConnector connector;
+    private Connector<StubUser, StubGroup> connector;
 
     @Before
     public void setup() {
@@ -175,5 +194,44 @@ public class StubConnectorTest {
         assertEquals(1, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+    }
+
+    @Test
+    public void testConstruction() {
+        assertNotNull(connector.getConnectorFilterTranslator());
+        assertTrue(connector.getConnectorFilterTranslator() instanceof DefaultFilterTranslator);
+
+        assertTrue(connector.getGroupAttributes().containsKey(StubGroupAttribute.GROUP_ID));
+        assertTrue(connector.getUserAttributes().containsKey(StubUserAttribute.USER_ID));
+
+        assertNotNull(connector.getConnectorSchemaBuilder());
+        assertNotNull(connector.getAuthenticator());
+        assertNotNull(connector.getConnectorConfiguration());
+        assertTrue(connector.getConnectorConfiguration().isValidated());
+
+        assertEquals("StubConnector", connector.getName());
+        assertEquals("StubConfiguration", connector.getConnectorConfiguration().getName());
+    }
+
+    @Test
+    public void testDummyAuthentication() {
+        assertEquals("NA", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+
+    }
+
+    @Test
+    public void testSchema() {
+        Schema schemaResult = connector.schema();
+        assertNotNull(schemaResult);
+
+        ObjectClassInfo userSchema = schemaResult.findObjectClassInfo(ObjectClass.ACCOUNT_NAME);
+        assertNotNull(userSchema);
+        assertNotNull(userSchema.getAttributeInfo());
+        assertEquals(4, userSchema.getAttributeInfo().size());
+
+        ObjectClassInfo groupSchema = schemaResult.findObjectClassInfo(ObjectClass.GROUP_NAME);
+        assertNotNull(groupSchema);
+        assertNotNull(groupSchema.getAttributeInfo());
+        assertEquals(3, groupSchema.getAttributeInfo().size());
     }
 }

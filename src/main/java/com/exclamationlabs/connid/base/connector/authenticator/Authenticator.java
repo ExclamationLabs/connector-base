@@ -27,7 +27,7 @@ public interface Authenticator {
      * @return String containing an access token or other value produced as a result of
      * authentication.  In some implementations this could return a String flag of some kind
      * or null if authenticator has no meaningful output or actual authentication.
-     * @throws ConnectorSecurityException
+     * @throws ConnectorSecurityException if could not authentication or permissions was denied
      */
     String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException;
 }
