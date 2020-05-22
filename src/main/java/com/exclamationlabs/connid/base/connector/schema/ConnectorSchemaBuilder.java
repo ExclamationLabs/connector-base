@@ -27,7 +27,7 @@ public interface ConnectorSchemaBuilder<U extends UserIdentityModel,G extends Gr
     /**
      * Build and define the schema, capturing all the Attribute definitions for user
      * and group types for this connector.
-     * @return Schema object needed for ConnId identity management system (normally Midpoint)
+     * @return Schema object needed for ConnId identity management system (normally MidPoint)
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.
      */
