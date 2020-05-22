@@ -19,5 +19,4 @@ package com.exclamationlabs.connid.base.stub.configuration;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 
 public class StubConfiguration extends BaseConnectorConfiguration {
-    public StubConfiguration() {}
 }

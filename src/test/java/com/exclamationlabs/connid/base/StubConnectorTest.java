@@ -53,7 +53,7 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
-        Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, (new OperationOptionsBuilder()).build());
+        Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
     }
@@ -64,7 +64,7 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
-        connector.create(ObjectClass.ACCOUNT, attributes, (new OperationOptionsBuilder()).build());
+        connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
     }
 
     @Test
@@ -73,7 +73,7 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
+        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
     }
@@ -84,25 +84,21 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
-        connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
+        connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
     }
 
     @Test
     public void testUserDelete() {
-        connector.delete(ObjectClass.ACCOUNT, new Uid("1234"), (new OperationOptionsBuilder()).build());
+        connector.delete(ObjectClass.ACCOUNT, new Uid("1234"), new OperationOptionsBuilder().build());
     }
 
     @Test
     public void testUsersGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = (ConnectorObject connectorObject)->{
-            idValues.add(connectorObject.getUid().getUidValue());
-            nameValues.add(connectorObject.getName().getNameValue());
-            return true;
-        };
+        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
 
-        connector.executeQuery(ObjectClass.ACCOUNT, "", resultsHandler, (new OperationOptionsBuilder()).build());
+        connector.executeQuery(ObjectClass.ACCOUNT, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(new StubDriver().getUsers().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
@@ -112,13 +108,9 @@ public class StubConnectorTest {
     public void testUserGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = (ConnectorObject connectorObject)->{
-            idValues.add(connectorObject.getUid().getUidValue());
-            nameValues.add(connectorObject.getName().getNameValue());
-            return true;
-        };
+        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
 
-        connector.executeQuery(ObjectClass.ACCOUNT, "1234", resultsHandler, (new OperationOptionsBuilder()).build());
+        connector.executeQuery(ObjectClass.ACCOUNT, "1234", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(1, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
@@ -129,7 +121,7 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
 
-        Uid newId = connector.create(ObjectClass.GROUP, attributes, (new OperationOptionsBuilder()).build());
+        Uid newId = connector.create(ObjectClass.GROUP, attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
     }
@@ -139,7 +131,7 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
 
-        connector.create(ObjectClass.GROUP, attributes, (new OperationOptionsBuilder()).build());
+        connector.create(ObjectClass.GROUP, attributes, new OperationOptionsBuilder().build());
     }
 
     @Test
@@ -157,7 +149,7 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
 
-        connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
+        connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
     }
 
     @Test
@@ -169,11 +161,7 @@ public class StubConnectorTest {
     public void testGroupsGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = (ConnectorObject connectorObject)->{
-            idValues.add(connectorObject.getUid().getUidValue());
-            nameValues.add(connectorObject.getName().getNameValue());
-            return true;
-        };
+        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(new StubDriver().getGroups().size(), idValues.size());
@@ -185,11 +173,7 @@ public class StubConnectorTest {
     public void testGroupGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = (ConnectorObject connectorObject)->{
-            idValues.add(connectorObject.getUid().getUidValue());
-            nameValues.add(connectorObject.getName().getNameValue());
-            return true;
-        };
+        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "1234", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(1, idValues.size());
@@ -234,5 +218,15 @@ public class StubConnectorTest {
         assertNotNull(groupSchema);
         assertNotNull(groupSchema.getAttributeInfo());
         assertEquals(3, groupSchema.getAttributeInfo().size());
+    }
+
+    private ResultsHandler buildResultsHandler(List<String> idValues, List<String> nameValues) {
+
+        return (ConnectorObject connectorObject) -> {
+            idValues.add(connectorObject.getUid().getUidValue());
+            nameValues.add(connectorObject.getName().getNameValue());
+            return true;
+        };
+
     }
 }

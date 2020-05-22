@@ -27,6 +27,7 @@ import org.identityconnectors.framework.common.objects.*;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * Default Connector Schema builder for Base Connector framework.  This will likely
@@ -61,19 +62,26 @@ public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extend
         ObjectClassInfoBuilder builder = new ObjectClassInfoBuilder();
         builder.setType(classType);
 
-        Collection<AttributeInfo> attributeInfoSet = new HashSet<>();
-
-        for (ConnectorAttribute current : attributes.values()) {
-            AttributeInfoBuilder attributeInfo = new AttributeInfoBuilder(current.getName());
-            attributeInfo.setType(current.getDataType().getClassType());
-            attributeInfo.setFlags(current.getFlags());
-            attributeInfoSet.add(attributeInfo.build());
-            LOG.info("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
-                    current.getDataType().getClassType(),current.getFlags());
-        }
+        Collection<AttributeInfo> attributeInfoSet =
+                attributes.values()
+                        .stream()
+                        .map(DefaultConnectorSchemaBuilder::buildAttributeInfo)
+                        .collect(Collectors.toSet());
         builder.addAllAttributeInfo(attributeInfoSet);
         LOG.info("Added {0} schema elements", attributeInfoSet.size());
 
         return builder.build();
+    }
+
+    private static AttributeInfo buildAttributeInfo(ConnectorAttribute current) {
+
+        LOG.info("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
+                current.getDataType().getClassType(), current.getFlags());
+
+        return new AttributeInfoBuilder(current.getName())
+                .setType(current.getDataType().getClassType())
+                .setFlags(current.getFlags())
+                .build();
+
     }
 }
