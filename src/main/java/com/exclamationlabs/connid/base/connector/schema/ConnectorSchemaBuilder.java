@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.schema;
 
-import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
@@ -34,6 +34,6 @@ public interface ConnectorSchemaBuilder<U extends UserIdentityModel,G extends Gr
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.
      */
-    Schema build(Connector<U,G> connector, EnumMap<?, ConnectorAttribute> userAttributes,
+    Schema build(BaseConnector<U,G> connector, EnumMap<?, ConnectorAttribute> userAttributes,
                  EnumMap<?, ConnectorAttribute> groupAttributes) throws ConfigurationException;
 }
