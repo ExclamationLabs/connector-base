@@ -31,8 +31,7 @@ import java.util.Set;
  * Interface describing implementations that will translate ConnId Identity Access Management (IAM)
  * types to and from a destination system/service.
  */
-public interface Adapter<U extends UserIdentityModel,
-        G extends GroupIdentityModel> {
+public interface Adapter<U extends UserIdentityModel, G extends GroupIdentityModel> {
 
     ObjectClass getType();
 
