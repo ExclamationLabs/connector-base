@@ -19,5 +19,5 @@ package com.exclamationlabs.connid.base.stub.attribute;
 public enum StubUserAttribute {
     USER_ID,
     USER_NAME,
-    EMAIL;
+    EMAIL
 }
