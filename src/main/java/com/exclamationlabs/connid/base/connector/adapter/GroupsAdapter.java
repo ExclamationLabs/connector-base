@@ -23,6 +23,11 @@ import org.identityconnectors.framework.common.objects.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This interface orchestrates the creating, reading, updating and deleting
+ * of user groups that needs to be integrated between ConnId/Midpoint
+ * and a data system holding IAM data (accessed via a Driver)
+ */
 public interface GroupsAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
         extends Adapter<U, G> {
 

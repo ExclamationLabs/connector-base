@@ -26,7 +26,6 @@ import org.identityconnectors.framework.common.objects.*;
 
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -40,17 +39,19 @@ public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extend
     private static final Log LOG = Log.getLog(Connector.class);
 
     @Override
-    public Schema build(Connector<U,G> connector) throws ConfigurationException {
+    public Schema build(Connector<U, G> connector, EnumMap<?, ConnectorAttribute>
+                        userAttributes, EnumMap<?, ConnectorAttribute> groupAttributes)
+            throws ConfigurationException {
         LOG.info("Building schema for connector {0} ...", connector.getName());
         SchemaBuilder schemaBuilder = new SchemaBuilder(connector.getClass());
 
         LOG.info("Determining user schema elements for connector {0} ...", connector.getName());
         schemaBuilder.defineObjectClass(buildObjectClassInfo(ObjectClass.ACCOUNT_NAME,
-                connector.getUserAttributes()));
+                userAttributes));
 
         LOG.info("Determining group schema elements for connector {0} ...", connector.getName());
         schemaBuilder.defineObjectClass(buildObjectClassInfo(ObjectClass.GROUP_NAME,
-                connector.getGroupAttributes()));
+                groupAttributes));
 
         LOG.info("Finished building schema for connector {0}", connector.getName());
 
@@ -84,4 +85,6 @@ public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extend
                 .build();
 
     }
+
+
 }

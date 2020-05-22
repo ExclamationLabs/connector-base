@@ -14,16 +14,14 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base;
-
-import com.exclamationlabs.connid.base.connector.Connector;
+package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
-import com.exclamationlabs.connid.base.stub.StubConnector;
-import com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute;
-import com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute;
-import com.exclamationlabs.connid.base.stub.driver.StubDriver;
-import com.exclamationlabs.connid.base.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.StubConnector;
+import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
+import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -39,7 +37,7 @@ import static org.junit.Assert.*;
 
 public class StubConnectorTest {
 
-    private Connector<StubUser, StubGroup> connector;
+    private BaseConnector<StubUser, StubGroup> connector;
 
     @Before
     public void setup() {

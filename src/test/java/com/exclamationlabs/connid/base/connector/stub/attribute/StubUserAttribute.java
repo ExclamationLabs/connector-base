@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub.attribute;
+package com.exclamationlabs.connid.base.connector.stub.attribute;
 
 public enum StubUserAttribute {
     USER_ID,

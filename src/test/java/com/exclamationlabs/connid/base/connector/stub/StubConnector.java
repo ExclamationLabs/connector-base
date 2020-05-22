@@ -14,23 +14,23 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub;
+package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeMapBuilder;
-import com.exclamationlabs.connid.base.stub.adapter.StubGroupsAdapter;
-import com.exclamationlabs.connid.base.stub.adapter.StubUsersAdapter;
-import com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute;
-import com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute;
-import com.exclamationlabs.connid.base.stub.configuration.StubConfiguration;
-import com.exclamationlabs.connid.base.stub.driver.StubDriver;
-import com.exclamationlabs.connid.base.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
+import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
+import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
+import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
-import static com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute.GROUP_ID;
-import static com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute.GROUP_NAME;
-import static com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute.*;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_ID;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_NAME;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
 public class StubConnector extends BaseConnector<StubUser, StubGroup> {
