@@ -134,7 +134,7 @@ public interface Connector<U extends UserIdentityModel,G extends GroupIdentityMo
         }
 
         if (getAuthenticator() == null) {
-            LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}ed, already validated", connectorConfiguration.getName());
+            LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", connectorConfiguration.getName());
             setAuthenticator(authenticatorConfiguration -> "NA");
         } else {
             LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),

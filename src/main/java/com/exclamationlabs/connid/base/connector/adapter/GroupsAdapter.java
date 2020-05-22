@@ -28,7 +28,7 @@ public interface GroupsAdapter<U extends UserIdentityModel, G extends GroupIdent
 
     @Override
     default ObjectClass getType() {
-        return ObjectClass.ACCOUNT;
+        return ObjectClass.GROUP;
     }
 
     G constructModel(Set<Attribute> attributes, boolean creation);

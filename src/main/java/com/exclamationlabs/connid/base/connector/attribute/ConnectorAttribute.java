@@ -28,11 +28,11 @@ import java.util.Set;
  */
 public final class ConnectorAttribute {
 
-    final String name;
+    private final String name;
 
-    final ConnectorAttributeDataType dataType;
+    private final ConnectorAttributeDataType dataType;
 
-    final Set<AttributeInfo.Flags> flags;
+    private final Set<AttributeInfo.Flags> flags;
 
 
     public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
