@@ -161,7 +161,7 @@ public class StubConnectorTest {
 
     @Test
     public void testGroupDelete() {
-        connector.delete(ObjectClass.GROUP, new Uid("1234"), (new OperationOptionsBuilder()).build());
+        connector.delete(ObjectClass.GROUP, new Uid("1234"), new OperationOptionsBuilder().build());
     }
 
     @Test
