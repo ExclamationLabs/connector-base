@@ -89,7 +89,7 @@ public class StubConnectorTest {
 
     @Test
     public void testUserDelete() {
-        connector.delete(ObjectClass.ACCOUNT, new Uid("1234"), (new OperationOptionsBuilder()).build());
+        connector.delete(ObjectClass.ACCOUNT, new Uid("1234"), new OperationOptionsBuilder().build());
     }
 
     @Test
