@@ -146,7 +146,7 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
 
-        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
+        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
     }
