@@ -21,6 +21,7 @@ import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.stub.StubConnector;
 import com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.stub.model.StubUser;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +103,7 @@ public class StubConnectorTest {
         };
 
         connector.executeQuery(ObjectClass.ACCOUNT, "", resultsHandler, (new OperationOptionsBuilder()).build());
-        assertEquals(2, idValues.size());
+        assertEquals(new StubDriver().getUsers().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
     }
@@ -175,7 +176,7 @@ public class StubConnectorTest {
         };
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, (new OperationOptionsBuilder()).build());
-        assertEquals(2, idValues.size());
+        assertEquals(new StubDriver().getGroups().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
     }
