@@ -39,7 +39,7 @@ public class ConnectorAttributeMapBuilder<C extends Enum<C>> {
      * @param enumClass Class object for your custom enum with attribute names
      */
     public ConnectorAttributeMapBuilder(Class<C> enumClass) {
-        map = new EnumMap<C, ConnectorAttribute>(enumClass);
+        map = new EnumMap<>(enumClass);
     }
 
     /**
