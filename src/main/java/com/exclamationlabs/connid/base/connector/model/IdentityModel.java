@@ -24,8 +24,18 @@ public interface IdentityModel {
 
     IdentityModelType getIdentityType();
 
+    /**
+     * Implement this method to return the id value applicable to the
+     * concrete User or Group model.
+     * @return String version of Id value recognized by model
+     */
     String getIdentityIdValue();
 
+    /**
+     * Implement this method to return the name applicable to the
+     * concrete User or Group model.
+     * @return String version of the name recognized by model
+     */
     String getIdentityNameValue();
 
     default String identityToString() {

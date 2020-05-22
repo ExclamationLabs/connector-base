@@ -27,7 +27,11 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
     }
 
     @Override
-    public void setupAndValidate() throws ConfigurationException {
+    public void setup() throws ConfigurationException {
+    }
+
+    @Override
+    public void validateConfiguration() throws ConfigurationException {
         setValidated(true);
     }
 
