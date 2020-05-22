@@ -31,7 +31,7 @@ import java.util.HashSet;
 /**
  * Default Connector Schema builder for Base Connector framework.  This will likely
  * fit the needs for all future connectors developed; but if a custom solution is needed,
- * use BaseConnector setConnectorSchemaBuilder()
+ * use {@link com.exclamationlabs.connid.base.connector.BaseConnector#setConnectorSchemaBuilder}
  */
 public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extends GroupIdentityModel>
         implements ConnectorSchemaBuilder<U,G> {
