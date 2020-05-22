@@ -174,7 +174,7 @@ public class StubConnectorTest {
             return true;
         };
 
-        connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, (new OperationOptionsBuilder()).build());
+        connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(2, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
