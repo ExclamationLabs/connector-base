@@ -36,16 +36,25 @@ public interface ConnectorConfiguration extends Configuration {
 
     /**
      * The validate method should load all applicable configuration input (input file(s),
-     * properties, etc.) AND validate all configuration input.
-     * If any problems occur while loading or validating a reliable configuration for this
+     * properties, etc.).
+     * If any problems occur while loading a reliable configuration for this
      * connector, then ConfigurationException should be thrown.
      * @throws ConfigurationException If configuration input could not be loaded or failed validation.
      */
-    void setupAndValidate() throws ConfigurationException;
+    void setup() throws ConfigurationException;
+
+    /**
+     * Validate all configuration input.
+     * If any problems occur while validating a reliable configuration for this
+     * connector, then ConfigurationException should be thrown.
+     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
+     */
+    void validateConfiguration() throws ConfigurationException;
 
     @Override
     default void validate() {
-        setupAndValidate();
+        setup();
+        validateConfiguration();
     }
 
 
