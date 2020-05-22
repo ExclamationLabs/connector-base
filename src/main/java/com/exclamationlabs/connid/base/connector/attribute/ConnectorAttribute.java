@@ -14,24 +14,45 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.adapter;
+package com.exclamationlabs.connid.base.connector.attribute;
 
 import org.identityconnectors.framework.common.objects.AttributeInfo;
 import java.util.Set;
 
 /**
- * Describes a Connector Attribute definition - it's name, data type
+ * Describes an immutable Connector Attribute definition - it's name, data type
  * and ConnId Flags.  This needs to be in place so the ConnId Schema can
  * be built, and also inform the Adapter of the attribute types applicable to
  * this connector.  This implementation does not hold attribute values;
  * the ConnId Attribute type is still used to hold the actual values.
  */
-// TODO: make immutable class
-public interface ConnectorAttribute {
+public final class ConnectorAttribute {
 
-    String getName();
+    private final String name;
 
-    ConnectorAttributeDataType getDataType();
+    private final ConnectorAttributeDataType dataType;
 
-    Set<AttributeInfo.Flags> getFlags();
+    private final Set<AttributeInfo.Flags> flags;
+
+
+    public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
+            attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
+        name = attributeName;
+        dataType = attributeDataType;
+        flags = attributeFlags;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ConnectorAttributeDataType getDataType() {
+        return dataType;
+    }
+
+    public Set<AttributeInfo.Flags> getFlags() {
+        return flags;
+    }
+
+
 }
