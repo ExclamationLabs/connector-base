@@ -14,18 +14,18 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub.adapter;
+package com.exclamationlabs.connid.base.connector.stub.adapter;
 
 import com.exclamationlabs.connid.base.connector.adapter.BaseGroupsAdapter;
-import com.exclamationlabs.connid.base.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 import java.util.Set;
 
-import static com.exclamationlabs.connid.base.stub.attribute.StubGroupAttribute.*;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
 
 public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
 

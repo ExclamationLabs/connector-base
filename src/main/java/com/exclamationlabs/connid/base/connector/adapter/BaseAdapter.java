@@ -9,6 +9,8 @@ import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
  * Since the Adapter is the glue between the Connector (which communicates
  * with Midpoint) and the Driver (which communicates with an external IAM data source),
  * it has to hold a reference to the Driver so it can communicate with it.
+ *
+ * Do not subclass this type, instead subclass BaseGroupsAdapter or BaseUsersAdapter.
  */
 public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
         implements Adapter<U,G>  {

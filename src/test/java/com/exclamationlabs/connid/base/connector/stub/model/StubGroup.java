@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub.model;
+package com.exclamationlabs.connid.base.connector.stub.model;
 
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 

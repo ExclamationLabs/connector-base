@@ -14,13 +14,13 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub.driver;
+package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.ArrayList;

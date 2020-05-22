@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * Interface describing implementations that will translate ConnId Identity Access Management (IAM)
- * types to and from a destination system/service.
+ * types to and from a destination data system (accessed via a Driver).
  */
 public interface Adapter<U extends UserIdentityModel, G extends GroupIdentityModel> {
 

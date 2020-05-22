@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.stub.configuration;
+package com.exclamationlabs.connid.base.connector.stub.configuration;
 
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 
