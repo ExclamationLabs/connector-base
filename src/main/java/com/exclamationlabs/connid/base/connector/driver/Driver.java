@@ -31,7 +31,7 @@ import java.util.List;
  * not allow you to delete a user, or assign him to a group).  In those cases, implementations
  * should throw UnsupportedOperationException to indicate it's not supported.
  */
-public interface Driver {
+public interface Driver<U, G> {
 
     /**
      * Receives the configuration and authenticator objects that may be needed by the driver.
@@ -53,7 +53,7 @@ public interface Driver {
      *
      * NOTE: Midpoint systems tend to invoke this often, so be cautious this is a relatively
      * inexpensive operation.
-     * @throws ConnectorException
+     * @throws ConnectorException if connector test failed in some way
      */
     void test() throws ConnectorException;
 
@@ -63,29 +63,25 @@ public interface Driver {
      */
     void close();
 
-    <U> String createUser(U userModel) throws ConnectorException;
+    String createUser(U userModel) throws ConnectorException;
 
-    <G> String createGroup(G groupModel) throws ConnectorException;
+    String createGroup(G groupModel) throws ConnectorException;
 
-    <U> void updateUser(String userId, U userModel) throws ConnectorException;
+    void updateUser(String userId, U userModel) throws ConnectorException;
 
-    <G> void updateGroup(String groupId, G groupModel) throws ConnectorException;
+    void updateGroup(String groupId, G groupModel) throws ConnectorException;
 
     void deleteUser(String userId) throws ConnectorException;
 
     void deleteGroup(String groupId) throws ConnectorException;
 
-    <U> List<U> getUsers() throws ConnectorException;
+    List<U> getUsers() throws ConnectorException;
 
-    <G> List<G> getGroups() throws ConnectorException;
+    List<G> getGroups() throws ConnectorException;
 
-    <U> U getUser(String userId) throws ConnectorException;
+    U getUser(String userId) throws ConnectorException;
 
-    <G> G getGroup(String groupId) throws ConnectorException;
-
-    boolean groupAdditionControlledByUpdate();
-
-    boolean groupRemovalControlledByUpdate();
+    G getGroup(String groupId) throws ConnectorException;
 
     void addGroupToUser(String groupId, String userId) throws ConnectorException;
 

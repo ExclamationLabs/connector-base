@@ -17,33 +17,53 @@
 package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
+import org.identityconnectors.framework.common.objects.*;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * Interface describing implementations that will translate ConnId Identity Access Management (IAM)
- * types to and from a destination system/service.
+ * types to and from a destination data system (accessed via a Driver).
  */
-public interface Adapter<M> {
+public interface Adapter<U extends UserIdentityModel, G extends GroupIdentityModel> {
 
-    void setType(ObjectClass objectClass);
+    ObjectClass getType();
 
-    ConnectorAttribute getIdAttribute();
+    Driver<U,G> getDriver();
 
-    ConnectorAttribute getNameAttribute();
+    void setDriver(Driver<U,G> driver);
 
-    M constructModelFromAttributeSet(Set<Attribute> attributes, boolean creation);
+    default ConnectorObjectBuilder getConnectorObjectBuilder(IdentityModel identity) {
+        return new ConnectorObjectBuilder()
+                .setObjectClass(getType())
+                .setUid(identity.getIdentityIdValue())
+                .setName(identity.getIdentityNameValue());
+    }
 
-    Set<Attribute> constructAttributeSetFromModel(M modelType);
-
-    void setAttributes(Set<ConnectorAttribute> attributeSet);
-
-    void setDriver(Driver driver);
+    default <T> T getSingleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
+        if (attributes == null) {
+            return null;
+        }
+        Optional<Attribute> correctAttribute =
+                attributes.stream().filter(current -> current.getName().equals(enumValue.toString())).findFirst();
+        Object value = correctAttribute.map(this::readAttributeValue).orElse(null);
+        if (value == null) {
+            return null;
+        } else {
+            if (returnType != value.getClass()) {
+                throw new InvalidAttributeValueException("Invalid data type for attribute " + enumValue.name() + "; received " +
+                        value.getClass().getName() + ", expected " + returnType.getName());
+            } else {
+                return (T) value; // Have to cast, last resort
+            }
+        }
+    }
 
     default Object readAttributeValue(Attribute input) {
         if (input != null && input.getValue() != null && input.getValue().get(0) != null) {

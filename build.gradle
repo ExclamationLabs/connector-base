@@ -12,4 +12,5 @@ dependencies {
     implementation 'net.tirasa.connid:connector-test-common:1.5.0.0'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
 }

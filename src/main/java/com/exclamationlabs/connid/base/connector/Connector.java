@@ -17,12 +17,9 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.adapter.Adapter;
-import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.adapter.ConnectorSchemaBuilder;
-import com.exclamationlabs.connid.base.connector.driver.Driver;
-import org.identityconnectors.common.logging.Log;
-import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
@@ -32,36 +29,24 @@ import org.identityconnectors.framework.spi.operations.*;
 
 import java.util.Set;
 
-public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
+public interface Connector<U extends UserIdentityModel,G extends GroupIdentityModel> extends PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
 
-    Log LOG = Log.getLog(Connector.class);
 
-    ConnectorSchemaBuilder getConnectorSchemaBuilder();
+    /**
+     * Convenience method needed for unit testing connector initialization.
+     * MidPoint will normally invoke init(Configuration).
+     */
+    void init();
 
-    FilterTranslator<String> getConnectorFilterTranslator();
-
-    <U> Adapter<U> getUsersAdapter();
-
-    <G> Adapter<G> getGroupsAdapter();
-
-    Driver getDriver();
-
-    Authenticator getAuthenticator();
-
-    ConnectorConfiguration getConnectorConfiguration();
-
-    @Override
-    default Configuration getConfiguration() {
-        return getConnectorConfiguration();
+    default FilterTranslator<String> getConnectorFilterTranslator() {
+        return new DefaultFilterTranslator();
     }
 
-    @Override
-    default Schema schema() {
-        if (getConnectorSchemaBuilder() == null) {
-            throw new ConfigurationException("SchemaBuilder not setup for this connector");
-        }
-        return getConnectorSchemaBuilder().build();
+    default String getName() {
+        return getClass().getSimpleName();
     }
+
+    Adapter<U,G> getAdapter(ObjectClass objectClass);
 
     @Override
     default FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
@@ -73,52 +58,8 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
     }
 
     @Override
-    default void init(Configuration configuration) {
-        LOG.info("Initializing a Connector");
-        if (configuration == null) {
-            throw new ConfigurationException("Unable to find connector configuration");
-        }
-
-        if (!(configuration instanceof ConnectorConfiguration)) {
-            throw new ConfigurationException("Connector configuration does not adhere to base framework.");
-        }
-
-        ConnectorConfiguration connectorConfiguration = (ConnectorConfiguration) configuration;
-
-        if (!connectorConfiguration.isValidated()) {
-            connectorConfiguration.validate();
-            LOG.info("Connector {0} successfully validated", connectorConfiguration.getName());
-        } else {
-            LOG.info("Connector {0} validation bypassed, already validated", connectorConfiguration.getName());
-        }
-
-        if (getAuthenticator() == null) {
-            throw new ConfigurationException("Authenticator not setup for this connector");
-        }
-        getAuthenticator().authenticate(getConnectorConfiguration());
-        LOG.info("Connector {0} successfully authenticated", connectorConfiguration.getName());
-
-        if (getDriver() == null) {
-            throw new ConfigurationException("Driver not setup for this connector");
-        }
-        getDriver().initialize(getConnectorConfiguration(), getAuthenticator());
-        LOG.info("Connector {0} driver successfully initialized", connectorConfiguration.getName());
-
-    }
-
-    @Override
     default void checkAlive() {
         test();
-    }
-
-    @Override
-    default void test() {
-        getDriver().test();
-    }
-
-    @Override
-    default void dispose() {
-        getDriver().close();
     }
 
     @Override
@@ -133,22 +74,27 @@ public interface Connector extends PoolableConnector, SchemaOp, DeleteOp, Create
 
     @Override
     default Uid update(final ObjectClass objectClass, final Uid uid, final Set<Attribute> attributes, final OperationOptions options) {
-         return getAdapter(objectClass).update(uid, attributes);
+        return getAdapter(objectClass).update(uid, attributes);
     }
 
     @Override
     default void delete(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-         getAdapter(objectClass).delete(uid);
+        getAdapter(objectClass).delete(uid);
     }
 
-    default Adapter getAdapter(ObjectClass objectClass) {
-        if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
-            return getUsersAdapter();
-        } else if (objectClass.is(ObjectClass.GROUP_NAME)) {
-            return getGroupsAdapter();
-        } else {
-            throw new ConnectorException("Adapter resolution, unsupported object class: " + objectClass);
-        }
+    void initializeBaseConnector(Configuration configuration);
+
+    /**
+     * MidPoint calls this method to initialize a connector.  It has
+     * some way of looking up the Configuration class (probably by inspecting the
+     * package).  So need to be very careful to have 1 (and exactly 1) concrete
+     * Configuration class per Connector project.
+     * @param configuration Configuration concrete class found by Midpoint at runtime.
+     */
+    @Override
+    default void init(Configuration configuration) {
+        initializeBaseConnector(configuration);
     }
+
 
 }
