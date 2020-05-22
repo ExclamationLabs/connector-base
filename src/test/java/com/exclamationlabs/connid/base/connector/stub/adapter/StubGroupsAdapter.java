@@ -30,7 +30,7 @@ import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroup
 public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
 
     @Override
-    public StubGroup constructModel(Set<Attribute> attributes, boolean creation) {
+    protected StubGroup constructModel(Set<Attribute> attributes, boolean creation) {
         StubGroup group = new StubGroup();
         group.setId(getSingleAttributeValue(String.class, attributes, GROUP_ID));
         group.setName(getSingleAttributeValue(String.class, attributes, GROUP_NAME));
@@ -38,7 +38,7 @@ public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
     }
 
     @Override
-    public ConnectorObject constructConnectorObject(StubGroup group) {
+    protected ConnectorObject constructConnectorObject(StubGroup group) {
         return getConnectorObjectBuilder(group)
                 .addAttribute(AttributeBuilder.build(GROUP_ID.name(), group.getId()))
                 .addAttribute(AttributeBuilder.build(GROUP_NAME.name(), group.getName()))

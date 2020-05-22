@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.connector.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public interface Driver<U, G> {
      * @throws ConnectorException If a problem occurred that prevented Driver
      * from completing it's initialization.
      */
-    void initialize(ConnectorConfiguration configuration, Authenticator authenticator)
+    void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator)
             throws ConnectorException;
 
     /**
