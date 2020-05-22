@@ -100,7 +100,7 @@ public interface Connector<U extends UserIdentityModel,G extends GroupIdentityMo
     }
 
     /**
-     * Midpoint calls this method to initialize a connector.  It has
+     * MidPoint calls this method to initialize a connector.  It has
      * some way of looking up the Configuration class (probably by inspecting the
      * package).  So need to be very careful to have 1 (and exactly 1) concrete
      * Configuration class per Connector project.

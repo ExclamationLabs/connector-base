@@ -147,7 +147,7 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
 
-        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, (new OperationOptionsBuilder()).build());
+        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
     }
@@ -162,7 +162,7 @@ public class StubConnectorTest {
 
     @Test
     public void testGroupDelete() {
-        connector.delete(ObjectClass.GROUP, new Uid("1234"), (new OperationOptionsBuilder()).build());
+        connector.delete(ObjectClass.GROUP, new Uid("1234"), new OperationOptionsBuilder().build());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class StubConnectorTest {
             return true;
         };
 
-        connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, (new OperationOptionsBuilder()).build());
+        connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(new StubDriver().getGroups().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
@@ -191,7 +191,7 @@ public class StubConnectorTest {
             return true;
         };
 
-        connector.executeQuery(ObjectClass.GROUP, "1234", resultsHandler, (new OperationOptionsBuilder()).build());
+        connector.executeQuery(ObjectClass.GROUP, "1234", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(1, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
