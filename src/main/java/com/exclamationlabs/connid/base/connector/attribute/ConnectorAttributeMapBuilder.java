@@ -46,7 +46,7 @@ public class ConnectorAttributeMapBuilder<C extends Enum<C>> {
      * Method to append another attribute definition to the builder.
      * @param enumClass Enum value representing a connector attribute name
      * @param dataType Acceptable data type for ConnId.
-     * @param flags Optional. Any number of flags restricing or describing ConnId usage for
+     * @param flags Optional. Any number of flags restricting or describing ConnId usage for
      *              this attribute. Possible flags are ...
      *              REQUIRED, MULTIVALUED, NOT_CREATABLE, NOT_UPDATEABLE, NOT_READABLE, NOT_RETURNED_BY_DEFAULT
      * @return builder object in progress
