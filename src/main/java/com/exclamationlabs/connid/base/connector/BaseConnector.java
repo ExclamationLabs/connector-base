@@ -1,13 +1,11 @@
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.adapter.Adapter;
-import com.exclamationlabs.connid.base.connector.adapter.GroupsAdapter;
-import com.exclamationlabs.connid.base.connector.adapter.UsersAdapter;
+import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
@@ -16,24 +14,97 @@ import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
+import org.identityconnectors.framework.spi.PoolableConnector;
+import org.identityconnectors.framework.spi.operations.*;
 
 import java.util.EnumMap;
+import java.util.Set;
 
+/**
+ * Abstract base class for defining Identity Access Management connectors.
+ * In order to with MidPoint or ConnId system, this class MUST be annotated
+ * with org.identityconnectors.framework.spi.ConnectorClass, supplying
+ * a displayNameKey and configurationClass. Example:
+ *
+ * {@literal @}ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
+ *
+ * The constructor for your concrete class should also call these setters...
+ * MANDATORY:
+ * setDriver();
+ * setUsersAdapter();
+ * setGroupsAdapter();
+ * setUserAttributes();
+ * setGroupAttributes();
+ *
+ * OPTIONAL:
+ * setAuthenticator();
+ * setConnectorSchemaBuilder();
+ *
+ * @param <U> UserIdentityModel implementation relating to your User model type
+ * @param <G> GroupIdentityModel implementation relating to your Group model type
+ */
 public abstract class BaseConnector<U extends UserIdentityModel, G extends GroupIdentityModel>
-        implements Connector<U,G> {
+        implements PoolableConnector, SchemaOp, DeleteOp, CreateOp, UpdateOp, SearchOp<String>, TestOp {
 
-    private static final Log LOG = Log.getLog(Connector.class);
+    private static final Log LOG = Log.getLog(BaseConnector.class);
 
     protected Driver<U,G> driver;
     protected ConnectorSchemaBuilder<U,G> schemaBuilder;
-    protected UsersAdapter<U,G> usersAdapter;
-    protected GroupsAdapter<U,G> groupsAdapter;
+    protected BaseUsersAdapter<U,G> usersAdapter;
+    protected BaseGroupsAdapter<U,G> groupsAdapter;
     protected Authenticator authenticator;
-    protected ConnectorConfiguration configuration;
+    protected BaseConnectorConfiguration configuration;
 
     protected EnumMap<?, ConnectorAttribute> userAttributes;
     protected EnumMap<?, ConnectorAttribute> groupAttributes;
+
+    @Override
+    public FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
+        if (objectClass.is(ObjectClass.ACCOUNT_NAME) || objectClass.is(ObjectClass.GROUP_NAME)) {
+            return getConnectorFilterTranslator();
+        } else {
+            throw new ConnectorException("Unsupported object class for filter translator: " + objectClass);
+        }
+    }
+
+    @Override
+    public void checkAlive() {
+        test();
+    }
+
+    @Override
+    public void executeQuery(final ObjectClass objectClass, final String query, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
+        getAdapter(objectClass).get(query, resultsHandler);
+    }
+
+    @Override
+    public Uid create(final ObjectClass objectClass, final Set<Attribute> attributes, final OperationOptions options) {
+        return getAdapter(objectClass).create(attributes);
+    }
+
+    @Override
+    public Uid update(final ObjectClass objectClass, final Uid uid, final Set<Attribute> attributes, final OperationOptions options) {
+        return getAdapter(objectClass).update(uid, attributes);
+    }
+
+    @Override
+    public void delete(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
+        getAdapter(objectClass).delete(uid);
+    }
+
+    /**
+     * MidPoint calls this method to initialize a connector on startup.
+     * @param configuration Configuration concrete class (Midpoint determines
+     *                      this by looking at configurationClass of
+     *                      {@literal @}ConnectorClass annotation on your
+     *                      concrete connector class)
+     */
+    @Override
+    public void init(Configuration configuration) {
+        initializeBaseConnector(configuration);
+    }
 
     /**
      * Required for ConnId Connector interface
@@ -41,6 +112,32 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public void test() {
+        driver.test();
+    }
+
+    @Override
+    public void dispose() {
+        driver.close();
+    }
+
+    @Override
+    public Schema schema() {
+        if (getConnectorSchemaBuilder() == null) {
+            throw new ConfigurationException("SchemaBuilder not setup for this connector");
+        }
+        return getConnectorSchemaBuilder().build(this, userAttributes, groupAttributes);
+    }
+
+    public String getName() {
+        return getClass().getSimpleName();
+    }
+
+    protected FilterTranslator<String> getConnectorFilterTranslator() {
+        return new DefaultFilterTranslator();
     }
 
     protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder<U,G> input) {
@@ -54,7 +151,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         return schemaBuilder;
     }
 
-    public void setAuthenticator(Authenticator in) {
+    protected void setAuthenticator(Authenticator in) {
         authenticator = in;
     }
 
@@ -62,15 +159,15 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         return authenticator;
     }
 
-    public void setConnectorConfiguration(ConnectorConfiguration in) {
+    private void setConnectorConfiguration(BaseConnectorConfiguration in) {
         configuration = in;
     }
 
-    ConnectorConfiguration getConnectorConfiguration() {
+    BaseConnectorConfiguration getConnectorConfiguration() {
         return configuration;
     }
 
-    public void setUserAttributes(EnumMap<?, ConnectorAttribute> input) {
+    protected void setUserAttributes(EnumMap<?, ConnectorAttribute> input) {
         userAttributes = input;
     }
 
@@ -78,7 +175,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         return userAttributes;
     }
 
-    public void setGroupAttributes(EnumMap<?, ConnectorAttribute> input) {
+    protected void setGroupAttributes(EnumMap<?, ConnectorAttribute> input) {
         groupAttributes = input;
     }
 
@@ -94,23 +191,23 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         return driver;
     }
 
-    protected void setUsersAdapter(UsersAdapter<U, G> input) {
+    protected void setUsersAdapter(BaseUsersAdapter<U, G> input) {
         usersAdapter = input;
     }
 
-    UsersAdapter<U, G> getUsersAdapter() {
+    BaseUsersAdapter<U, G> getUsersAdapter() {
         return usersAdapter;
     }
 
-    protected void setGroupsAdapter(GroupsAdapter<U, G> input) {
+    protected void setGroupsAdapter(BaseGroupsAdapter<U, G> input) {
         groupsAdapter = input;
     }
 
-    GroupsAdapter<U, G> getGroupsAdapter() {
+    BaseGroupsAdapter<U, G> getGroupsAdapter() {
         return groupsAdapter;
     }
 
-    public Adapter<U,G> getAdapter(ObjectClass objectClass) {
+    protected BaseAdapter<U,G> getAdapter(ObjectClass objectClass) {
         if (objectClass.is(ObjectClass.ACCOUNT_NAME)) {
             return getUsersAdapter();
         } else if (objectClass.is(ObjectClass.GROUP_NAME)) {
@@ -121,8 +218,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         }
     }
 
-    @Override
-    public void initializeBaseConnector(Configuration inputConfiguration) {
+    protected void initializeBaseConnector(Configuration inputConfiguration) {
         if (getConnectorConfiguration()==null) {
             LOG.info("Initializing Connector {0} ...", getName());
 
@@ -135,7 +231,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
                         "for connector " + this.getName());
             }
 
-            setConnectorConfiguration((ConnectorConfiguration) inputConfiguration);
+            setConnectorConfiguration((BaseConnectorConfiguration) inputConfiguration);
         }
 
         LOG.info("Using configuration {0} for connector {1}", getConnectorConfiguration().getClass().getName(),
@@ -179,26 +275,4 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
 
     }
 
-    @Override
-    public void test() {
-        driver.test();
-    }
-
-    @Override
-    public void dispose() {
-        driver.close();
-    }
-
-    @Override
-    public void init() {
-        init(configuration);
-    }
-
-    @Override
-    public Schema schema() {
-        if (getConnectorSchemaBuilder() == null) {
-            throw new ConfigurationException("SchemaBuilder not setup for this connector");
-        }
-        return getConnectorSchemaBuilder().build(this, userAttributes, groupAttributes);
-    }
 }

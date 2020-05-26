@@ -15,10 +15,12 @@
 */
 
 package com.exclamationlabs.connid.base.connector;
+
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import static org.junit.Assert.*;
 
 public class StubConnectorTest {
@@ -42,7 +45,7 @@ public class StubConnectorTest {
     @Before
     public void setup() {
         connector = new StubConnector();
-        connector.init();
+        connector.init(new StubConfiguration());
     }
 
     @Test

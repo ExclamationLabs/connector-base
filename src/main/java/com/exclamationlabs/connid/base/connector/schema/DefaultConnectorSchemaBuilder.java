@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.schema;
 
-import com.exclamationlabs.connid.base.connector.Connector;
+import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
 public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extends GroupIdentityModel>
         implements ConnectorSchemaBuilder<U,G> {
 
-    private static final Log LOG = Log.getLog(Connector.class);
+    private static final Log LOG = Log.getLog(DefaultConnectorSchemaBuilder.class);
 
     @Override
-    public Schema build(Connector<U, G> connector, EnumMap<?, ConnectorAttribute>
+    public Schema build(BaseConnector<U, G> connector, EnumMap<?, ConnectorAttribute>
                         userAttributes, EnumMap<?, ConnectorAttribute> groupAttributes)
             throws ConfigurationException {
         LOG.info("Building schema for connector {0} ...", connector.getName());

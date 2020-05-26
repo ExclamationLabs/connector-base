@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 public interface Authenticator {
@@ -29,5 +29,5 @@ public interface Authenticator {
      * or null if authenticator has no meaningful output or actual authentication.
      * @throws ConnectorSecurityException if could not authenticate or permissions was denied
      */
-    String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException;
+    String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;
 }
