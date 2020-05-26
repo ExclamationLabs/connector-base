@@ -29,7 +29,7 @@ import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserA
 public class StubUsersAdapter extends BaseUsersAdapter<StubUser, StubGroup> {
 
     @Override
-    public StubUser constructModel(Set<Attribute> attributes, boolean creation) {
+    public StubUser constructUser(Set<Attribute> attributes, boolean creation) {
         StubUser user = new StubUser();
         user.setId(getSingleAttributeValue(String.class, attributes, USER_ID));
         user.setUserName(getSingleAttributeValue(String.class, attributes, USER_NAME));

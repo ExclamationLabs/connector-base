@@ -15,7 +15,7 @@ import java.util.Set;
 public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
         extends BaseAdapter<U,G> {
 
-    protected abstract G constructModel(Set<Attribute> attributes, boolean creation);
+    protected abstract G constructGroup(Set<Attribute> attributes, boolean creation);
 
     protected abstract ConnectorObject constructConnectorObject(G modelType);
 
@@ -26,7 +26,7 @@ public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends G
 
     @Override
     public Uid create(Set<Attribute> attributes) {
-        G group = constructModel(attributes, true);
+        G group = constructGroup(attributes, true);
         String newGroupId = getDriver().createGroup(group);
 
         return new Uid(newGroupId);
@@ -34,7 +34,7 @@ public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends G
 
     @Override
     public Uid update(Uid uid, Set<Attribute> attributes) {
-        G group = constructModel(attributes, false);
+        G group = constructGroup(attributes, false);
         getDriver().updateGroup(uid.getUidValue(), group);
         return uid;
     }
