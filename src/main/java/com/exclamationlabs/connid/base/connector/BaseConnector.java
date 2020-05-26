@@ -28,7 +28,7 @@ import java.util.Set;
  * with org.identityconnectors.framework.spi.ConnectorClass, supplying
  * a displayNameKey and configurationClass. Example:
  *
- * @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
+ * {@literal @}ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
  *
  * The constructor for your concrete class should also call these setters...
  * MANDATORY:
