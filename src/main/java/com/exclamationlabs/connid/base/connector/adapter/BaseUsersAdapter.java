@@ -21,13 +21,13 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
         return ObjectClass.ACCOUNT;
     }
 
-    protected abstract U constructModel(Set<Attribute> attributes, boolean creation);
+    protected abstract U constructUser(Set<Attribute> attributes, boolean creation);
 
     protected abstract ConnectorObject constructConnectorObject(U modelType);
 
     @Override
     public Uid create(Set<Attribute> attributes) {
-        U user = constructModel(attributes, true);
+        U user = constructUser(attributes, true);
         String newUserId = getDriver().createUser(user);
 
         // TODO: group update?
@@ -42,7 +42,7 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
 
     @Override
     public Uid update(Uid uid, Set<Attribute> attributes) {
-        U user = constructModel(attributes, false);
+        U user = constructUser(attributes, false);
         getDriver().updateUser(uid.getUidValue(), user);
 
         // TODO: group update?
