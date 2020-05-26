@@ -98,7 +98,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
      * MidPoint calls this method to initialize a connector on startup.
      * @param configuration Configuration concrete class (Midpoint determines
      *                      this by looking at configurationClass of
-     *                      @ConnectorClass annotation on your
+     *                      {@literal @}ConnectorClass annotation on your
      *                      concrete connector class)
      */
     @Override
