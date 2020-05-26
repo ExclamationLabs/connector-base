@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -30,7 +30,7 @@ import java.util.UUID;
 
 public class StubDriver implements Driver<StubUser, StubGroup> {
     @Override
-    public void initialize(ConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
+    public void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
 
     }
 

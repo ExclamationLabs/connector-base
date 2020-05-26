@@ -26,6 +26,7 @@ import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfigur
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import org.identityconnectors.framework.spi.ConnectorClass;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_ID;
@@ -33,10 +34,10 @@ import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroup
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
+@ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
 public class StubConnector extends BaseConnector<StubUser, StubGroup> {
 
     public StubConnector() {
-        setConnectorConfiguration(new StubConfiguration());
         setDriver(new StubDriver());
         setUsersAdapter(new StubUsersAdapter());
         setGroupsAdapter(new StubGroupsAdapter());
