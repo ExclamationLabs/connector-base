@@ -17,12 +17,36 @@
 package com.exclamationlabs.connid.base.connector.stub.model;
 
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
+import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
+
+import java.util.List;
 
 public class StubUser implements UserIdentityModel {
 
     private String id;
     private String userName;
     private String email;
+    private List<String> groupIds;
+
+    @Override
+    public String getIdentityIdValue() {
+        return getId();
+    }
+
+    @Override
+    public String getIdentityNameValue() {
+        return getUserName();
+    }
+
+    @Override
+    public String getAssignedGroupsAttributeName() {
+        return StubUserAttribute.GROUP_IDS.name();
+    }
+
+    @Override
+    public List<String> getAssignedGroupIds() {
+        return getGroupIds();
+    }
 
     public String getId() {
         return id;
@@ -48,13 +72,11 @@ public class StubUser implements UserIdentityModel {
         this.email = email;
     }
 
-    @Override
-    public String getIdentityIdValue() {
-        return getId();
+    public List<String> getGroupIds() {
+        return groupIds;
     }
 
-    @Override
-    public String getIdentityNameValue() {
-        return getUserName();
+    public void setGroupIds(List<String> groupIds) {
+        this.groupIds = groupIds;
     }
 }

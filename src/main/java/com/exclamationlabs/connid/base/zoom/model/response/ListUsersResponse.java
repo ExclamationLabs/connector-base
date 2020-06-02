@@ -14,11 +14,21 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model.response;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+import com.exclamationlabs.connid.base.zoom.model.ZoomUser;
+
+import java.util.List;
+
+public class ListUsersResponse {
+
+    private List<ZoomUser> users;
+
+    public List<ZoomUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<ZoomUser> users) {
+        this.users = users;
+    }
 }

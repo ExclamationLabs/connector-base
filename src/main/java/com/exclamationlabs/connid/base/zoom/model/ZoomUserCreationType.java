@@ -14,11 +14,22 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+public enum ZoomUserCreationType {
+
+    CREATE("create"),
+    AUTO_CREATE("autoCreate"),
+    CUSTOM_CREATE("custCreate"),
+    SSO_CREATE("ssoCreate");
+
+    private String zoomName;
+
+    ZoomUserCreationType(String name) {
+        zoomName = name;
+    }
+
+    public String getZoomName() {
+        return zoomName;
+    }
 }
