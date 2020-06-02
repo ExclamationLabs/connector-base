@@ -14,11 +14,25 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model.response.fault;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+public class ErrorData {
+    private String field;
+    private String message;
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

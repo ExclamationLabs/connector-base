@@ -14,11 +14,28 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model.request;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+import com.exclamationlabs.connid.base.zoom.model.ZoomUser;
+import com.google.gson.annotations.SerializedName;
+
+public final class UserCreationRequest {
+
+    private final String action;
+
+    @SerializedName("user_info")
+    private final ZoomUser user;
+
+    public UserCreationRequest(String actionInput, ZoomUser userInput) {
+        action = actionInput;
+        user = userInput;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public ZoomUser getUser() {
+        return user;
+    }
 }

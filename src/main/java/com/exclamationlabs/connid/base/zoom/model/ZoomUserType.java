@@ -14,11 +14,11 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+public interface ZoomUserType {
+
+    int BASIC = 1;
+    int LICENSED = 2;
+    int ON_PREM = 3;
 }
