@@ -1,17 +1,115 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.ConnectorMessages;
-import org.identityconnectors.framework.spi.Configuration;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * All configuration classes in the Base connector framework need to subclass this
  * abstract type.  This is an overlay for ConnId's configuration class, which
  * can be confusing and uninviting to use, and we needed something more streamlined.
  */
-public abstract class BaseConnectorConfiguration implements Configuration {
+public abstract class BaseConnectorConfiguration implements ConnectorConfiguration {
+    private static final Log LOG = Log.getLog(BaseConnectorConfiguration.class);
+
     private boolean validated;
     private ConnectorMessages connectorMessages;
+
+    private String midPointConfigurationFilePath;
+
+    private String credentialAccessToken;
+
+    private Properties connectorProperties;
+
+    private final Set<ConnectorProperty> requiredPropertyNames;
+
+    public BaseConnectorConfiguration() {
+        LOG.info("Empty required properties configuration");
+        requiredPropertyNames = new HashSet<>();
+    }
+
+    @SafeVarargs
+    public BaseConnectorConfiguration(Set<ConnectorProperty>... sets) {
+        LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
+        requiredPropertyNames = new HashSet<>();
+        if (sets != null) {
+            for (Set<ConnectorProperty> currentSet : sets) {
+                requiredPropertyNames.addAll(currentSet);
+            }
+        }
+        LOG.info("Required properties configuration loaded count {0}", requiredPropertyNames.size());
+    }
+
+    /**
+     * Override this method and return a path to configuration file
+     * if the configuration for this Connector is file-based (most will be).
+     * @return file path/name (relative or absolute) for Connector configuration file
+     */
+    abstract public String getConfigurationFilePath();
+
+    @SuppressWarnings("unused")
+    public void setConfigurationFilePath(String path) {
+        LOG.info("setting configuration file path {0} for {1}", path, getName());
+        setMidPointConfigurationFilePath(path);
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    protected void setValidated() {
+        validated = true;
+    }
+
+    @Override
+    public boolean isValidated() {
+        return validated;
+    }
+
+    @Override
+    public void setup() throws ConfigurationException {
+        LOG.info("invoking configuration setup for {0}", getClass().getSimpleName());
+        if (getConfigurationFilePath() != null) {
+            LOG.info("using configuration path {0}", getConfigurationFilePath());
+            connectorProperties = new Properties();
+            try {
+                connectorProperties.load(new FileReader(getConfigurationFilePath()));
+                LOG.info("configuration properties loaded for for {0}", getClass().getSimpleName());
+            } catch (IOException ex) {
+                throw new ConfigurationException("Failed to read configuration file from location " +
+                        getConfigurationFilePath(), ex);
+            }
+        }
+
+    }
+
+    public String getProperty(ConnectorProperty propertyIn) {
+        if (connectorProperties != null) {
+            return connectorProperties.getProperty(propertyIn.name());
+        }
+        return null;
+    }
+
+    @Override
+    public void validateConfiguration() throws ConfigurationException {
+        setValidated();
+    }
+
+    public String getCredentialAccessToken() {
+        return credentialAccessToken;
+    }
+
+    public void setCredentialAccessToken(String credentialAccessToken) {
+        this.credentialAccessToken = credentialAccessToken;
+    }
 
     @Override
     public ConnectorMessages getConnectorMessages() {
@@ -23,52 +121,18 @@ public abstract class BaseConnectorConfiguration implements Configuration {
         connectorMessages = messages;
     }
 
-    @Override
-    public void validate() {
-        setup();
-        validateConfiguration();
+    public String getMidPointConfigurationFilePath() {
+        LOG.info("getting getMidPointConfigurationFilePath {0}", midPointConfigurationFilePath);
+        return midPointConfigurationFilePath;
     }
 
-    /**
-     * Get the connector configuration name
-     * @return String containing a name representation for this connector's configuration
-     */
-    public String getName() {
-        return this.getClass().getSimpleName();
+    public void setMidPointConfigurationFilePath(String inputPath) {
+        if (inputPath != null) {
+            LOG.info("setting getMidPointConfigurationFilePath, old {0}, new {1}",
+                    midPointConfigurationFilePath, inputPath);
+
+            this.midPointConfigurationFilePath = inputPath;
+        }
+
     }
-
-    /**
-     * Get whether of not the connector has already been validated
-     * @return true if validation has already been run and was successful, false if it hasn't been
-     * attempted.
-     */
-    public boolean isValidated() {
-        return validated;
-    }
-
-    protected void setValidated(boolean in) {
-        validated = in;
-    }
-
-    /**
-     * The validate method should load all applicable configuration input (input file(s),
-     * properties, etc.).
-     * If any problems occur while loading a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    public void setup() throws ConfigurationException {
-    }
-
-    /**
-     * Validate all configuration input.
-     * If any problems occur while validating a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    public void validateConfiguration() throws ConfigurationException {
-        setValidated(true);
-    }
-
-
 }

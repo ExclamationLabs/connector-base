@@ -24,6 +24,7 @@ import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfigur
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.util.ConnectorTestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -31,10 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -53,6 +51,8 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValue(
+                Arrays.asList("id1", "id2")).build());
 
         Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
@@ -73,6 +73,8 @@ public class StubConnectorTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValue(
+                Arrays.asList("id1", "id2")).build());
 
         Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
@@ -97,7 +99,7 @@ public class StubConnectorTest {
     public void testUsersGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(new StubDriver().getUsers().size(), idValues.size());
@@ -109,7 +111,7 @@ public class StubConnectorTest {
     public void testUserGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT, "1234", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(1, idValues.size());
@@ -162,7 +164,7 @@ public class StubConnectorTest {
     public void testGroupsGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(new StubDriver().getGroups().size(), idValues.size());
@@ -174,7 +176,7 @@ public class StubConnectorTest {
     public void testGroupGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
-        ResultsHandler resultsHandler = buildResultsHandler(idValues, nameValues);
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "1234", resultsHandler, new OperationOptionsBuilder().build());
         assertEquals(1, idValues.size());
@@ -219,15 +221,5 @@ public class StubConnectorTest {
         assertNotNull(groupSchema);
         assertNotNull(groupSchema.getAttributeInfo());
         assertEquals(3, groupSchema.getAttributeInfo().size());
-    }
-
-    private ResultsHandler buildResultsHandler(List<String> idValues, List<String> nameValues) {
-
-        return (ConnectorObject connectorObject) -> {
-            idValues.add(connectorObject.getUid().getUidValue());
-            nameValues.add(connectorObject.getName().getNameValue());
-            return true;
-        };
-
     }
 }

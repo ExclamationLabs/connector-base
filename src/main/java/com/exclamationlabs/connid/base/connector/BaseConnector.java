@@ -251,7 +251,8 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
             LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
                     this.getName());
         }
-        getAuthenticator().authenticate(getConnectorConfiguration());
+        getConnectorConfiguration().setCredentialAccessToken(
+                getAuthenticator().authenticate(getConnectorConfiguration()));
         LOG.info("Connector {0} successfully authenticated", this.getName());
 
         if (getDriver() == null) {

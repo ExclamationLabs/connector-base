@@ -19,4 +19,9 @@ package com.exclamationlabs.connid.base.connector.stub.configuration;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 
 public class StubConfiguration extends BaseConnectorConfiguration {
+
+    @Override
+    public String getConfigurationFilePath() {
+        return null;
+    }
 }

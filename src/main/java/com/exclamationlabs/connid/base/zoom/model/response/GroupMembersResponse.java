@@ -14,11 +14,30 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.stub.attribute;
+package com.exclamationlabs.connid.base.zoom.model.response;
 
-public enum StubUserAttribute {
-    USER_ID,
-    USER_NAME,
-    EMAIL,
-    GROUP_IDS
+import com.google.gson.annotations.SerializedName;
+
+public class GroupMembersResponse {
+
+    private String ids;
+
+    @SerializedName("added_at")
+    private String addedAt;
+
+    public String getIds() {
+        return ids;
+    }
+
+    public void setIds(String ids) {
+        this.ids = ids;
+    }
+
+    public String getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(String addedAt) {
+        this.addedAt = addedAt;
+    }
 }
