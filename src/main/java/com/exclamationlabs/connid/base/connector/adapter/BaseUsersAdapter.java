@@ -2,10 +2,14 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
+import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Base users adapter that needs to be subclassed in order to map a specific user model
@@ -15,6 +19,7 @@ import java.util.Set;
 public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends GroupIdentityModel>
         extends BaseAdapter<U,G> {
 
+    private static final Log LOG = Log.getLog(BaseUsersAdapter.class);
 
     @Override
     protected ObjectClass getType() {
@@ -30,12 +35,17 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
         U user = constructUser(attributes, true);
         String newUserId = getDriver().createUser(user);
 
-        // TODO: group update?
-        /*
-        if (! groupAdditionControlledByUpdate()) {
-            getDriver().addGroupToUser(carp, newUserId);
+        if ((! groupAdditionControlledByUpdate()) &&
+                groupMembershipAttributePresent(attributes, user.getAssignedGroupsAttributeName())) {
+            Optional<Attribute> groupIds = attributes.stream().filter(current ->
+                    current.getName().equals(user.getAssignedGroupsAttributeName())).findFirst();
+
+            if (groupIds.isPresent() && groupIds.get().getValue() != null) {
+                for (Object currentGroupId : groupIds.get().getValue()) {
+                    getDriver().addGroupToUser(currentGroupId.toString(), newUserId);
+                }
+            }
         }
-        */
 
         return new Uid(newUserId);
     }
@@ -45,12 +55,23 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
         U user = constructUser(attributes, false);
         getDriver().updateUser(uid.getUidValue(), user);
 
-        // TODO: group update?
-        /*
-        if (! groupAdditionControlledByUpdate()) {
-            getDriver().addGroupToUser(carp, newUserId);
+        if ((! groupAdditionControlledByUpdate()) &&
+                groupMembershipAttributePresent(attributes, user.getAssignedGroupsAttributeName())) {
+            // get current set of assigned groups
+            U checkUser = getDriver().getUser(uid.getUidValue());
+
+            Optional<Attribute> gatherUpdatedGroupIds = attributes.stream().filter(current ->
+                    current.getName().equals(user.getAssignedGroupsAttributeName())).findFirst();
+
+            List<String> updatedGroupIds = (gatherUpdatedGroupIds.isPresent() &&
+                    gatherUpdatedGroupIds.get().getValue() != null)
+                    ? gatherUpdatedGroupIds.get().getValue().stream().map(
+                    Object::toString).collect(Collectors.toList())
+                    : new ArrayList<>();
+
+            updateGroupsForUser(uid.getUidValue(), checkUser.getAssignedGroupIds(), updatedGroupIds);
+
         }
-        */
 
         return uid;
     }
@@ -81,6 +102,32 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
                 resultsHandler.handle(constructConnectorObject(singleUser));
             }
         }
+    }
+
+    private static boolean groupMembershipAttributePresent(Set<Attribute> attributes, String groupName) {
+        Optional<Attribute> hasUpdatedGroupIds = attributes.stream().filter(current ->
+                current.getName().equals(groupName)).findFirst();
+        return hasUpdatedGroupIds.isPresent();
+    }
+
+    private void updateGroupsForUser(String userId, List<String> currentGroupIds,
+                                     List<String> updatedGroupIds) {
+
+        for (String groupId : currentGroupIds) {
+            if (! updatedGroupIds.contains(groupId)) {
+                // group was removed
+                getDriver().removeGroupFromUser(groupId, userId);
+                LOG.info("Successfully removed group id {0} from user id {1}", groupId, userId);
+            }
+        }
+
+        for (String groupId : updatedGroupIds) {
+            if (! currentGroupIds.contains(groupId)) {
+                getDriver().addGroupToUser(groupId, userId);
+                LOG.info("Successfully added group id {0} to user id {1}", groupId, userId);
+            }
+        }
+
     }
 
     protected boolean groupAdditionControlledByUpdate() {

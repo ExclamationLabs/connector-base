@@ -16,6 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector.model;
 
+import java.util.List;
+
 /**
  * All Connectors developed using the base framework
  * must define a concrete class (probably a POJO) that inherits
@@ -28,4 +30,20 @@ public interface UserIdentityModel extends IdentityModel {
     default IdentityModelType getIdentityType() {
         return IdentityModelType.USER;
     }
+
+    /**
+     * Implement this method to return the connector attribute name that
+     * holds group id(s) that the user currently belongs to.
+     * @return String version of attribute name
+     */
+    String getAssignedGroupsAttributeName();
+
+    /**
+     * Implement this method to return a list of group id's
+     * that the user is assigned to.  This needs to be implemented
+     * so the base API can automate adding/removing groups from the user.
+     * @return List of Strings holding group ids that the user is currently
+     * assigned to.
+     */
+    List<String> getAssignedGroupIds();
 }

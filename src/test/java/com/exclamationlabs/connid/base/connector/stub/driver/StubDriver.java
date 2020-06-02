@@ -107,6 +107,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
         user1.setId(userId);
         user1.setUserName("Ying");
         user1.setEmail("ying@yahoo.com");
+        user1.setGroupIds(Arrays.asList("alpha", "beta"));
         return user1;
     }
 
