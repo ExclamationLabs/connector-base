@@ -7,10 +7,10 @@ repositories {
     jcenter()
 }
 
-compileJava   {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-}
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+version="${project_version}"
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.8.1'
@@ -30,40 +30,11 @@ dependencies {
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
 }
 
-task copyExternalJar(type: Copy) {
-   from file("externalLib/connector-common-1.5.0.0.jar")
-   into file("custom/lib")
+task testJar(type: Jar) {
+    archiveName("connector-base-test-${project_version}.jar")
+    from sourceSets.test.output
+    exclude('**/ConnectorBundleTest*', '**/stub/*',
+            '**/stub', '**/Stub*')
 }
 
-task copyDependencyJars(type: Copy, dependsOn: 'copyExternalJar') {
-    from configurations.compile.collect {
-        if(it.isFile() && it.getCanonicalFile().getCanonicalPath().endsWith('.jar') &&
-                (!it.getCanonicalFile().getCanonicalPath().contains("connector-framework"))) {
-            it
-        }
-    }
-    into file("custom/lib")
-}
-
-test {
-    exclude '**/*IntegrationTest*'
-}
-
-task baseClean(type: Delete) {
-    delete 'custom/lib'
-}
-
-task toJar(type: Jar, dependsOn:['copyDependencyJars']) {
-    archiveName('connector-base-zoom-0.1-connector.jar')
-    from 'custom', 'build/classes/java/main', 'src/main/resources'
-
-    manifest {
-        attributes("ConnectorBundle-FrameworkVersion": "1.4.3.11",
-                "ConnectorBundle-Version": "0.1",
-                "ConnectorBundle-Name": "connector-base-zoom")
-    }
-}
-
-clean.dependsOn('baseClean')
-
-jar.dependsOn('toJar')
+jar.dependsOn('testJar')

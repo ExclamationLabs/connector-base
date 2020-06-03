@@ -12,10 +12,9 @@ public class TrustStoreConfiguration {
 
     public static void clearJdkProperties() {
 
-        LOG.info("Authentication to Zoom starting, obtaining new access token ...");
-        LOG.info("Clearing out property {0} for Zoom auth support.  Value was {1}",
+        LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
                 TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY));
-        LOG.info("Clearing out property {0} for Zoom auth support.  Value was {1}",
+        LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
                 TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY));
 
         System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
