@@ -8,10 +8,12 @@ import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -33,8 +35,6 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
 
     protected ConnectorConfiguration configuration;
     protected Authenticator authenticator;
-
-    protected String baseServiceUrl;
 
     @Override
     public void initialize(BaseConnectorConfiguration config, Authenticator auth)
@@ -107,30 +107,19 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
 
         HttpClient client = createClient();
         HttpResponse response;
-        T result = null;
 
         try {
-
             LOG.info("Request details: {0} to {1}", request.getMethod(),
                     request.getURI());
             response = client.execute(request);
+            LOG.info("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
+                    request.getMethod(), request.getURI());
+
             int statusCode = response.getStatusLine().getStatusCode();
             LOG.info("Response status code is {0}", statusCode);
-
             if (statusCode >= HttpStatus.SC_BAD_REQUEST) {
                 LOG.info("request execution failed; status code is {0}", statusCode);
                 getFaultProcessor().process(response, gsonBuilder);
-            }
-
-            // TODO: improve exception handling of response.getEntity()
-            // and gson.fromJson and handful empty responses and other conditions more gracefully
-            if (returnType != null && statusCode != HttpStatus.SC_NOT_FOUND) {
-                String rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
-                LOG.info("Received {0} response for {1} {2}, raw JSON: {3}", statusCode,
-                        request.getMethod(), request.getURI(), rawJson);
-
-                Gson gson = gsonBuilder.create();
-                result = gson.fromJson(rawJson, returnType);
             }
 
         } catch (ClientProtocolException e) {
@@ -141,7 +130,7 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
                     "Unexpected IOException occurred while attempting call: " + e.getMessage(), e);
         }
 
-        return result;
+        return interpretResponse(response, returnType);
     }
 
     protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType) {
@@ -223,6 +212,42 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
                 throw new ConnectorException("Request body encoding failed for data: " + json, e);
             }
         }
+    }
+
+    private <T>T interpretResponse(HttpResponse response, Class<T> returnType) {
+        T result;
+        String rawJson;
+
+        try {
+            if (returnType == null) {
+                LOG.info("No response expected or needed from this invocation, returning null type");
+                return null;
+            }
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+                rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
+                LOG.info("Received raw JSON: {0}", rawJson);
+            } else {
+                LOG.info("Received HTTP Not Found for call, returning empty response type");
+                return null;
+            }
+        } catch (ParseException pe) {
+            throw new ConnectorException(
+                    "ParseException while reading raw JSON body from response: " + pe.getMessage(), pe);
+        } catch (IOException ioe) {
+            throw new ConnectorException(
+                    "IOException while reading raw JSON body from response:" + ioe.getMessage(), ioe);
+        }
+
+        Gson gson = gsonBuilder.create();
+        try {
+            result = gson.fromJson(rawJson, returnType);
+            LOG.info("Successfully populated model type {0} from JSON response body", returnType.getName());
+        } catch (JsonSyntaxException jse) {
+            throw new ConnectorException("JSON syntax error occurred while trying to interpret JSON response " +
+                    "into type " + returnType.getName(), jse);
+        }
+
+        return result;
     }
 
 }
