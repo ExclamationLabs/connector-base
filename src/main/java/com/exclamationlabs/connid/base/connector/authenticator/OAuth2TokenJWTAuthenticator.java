@@ -1,6 +1,5 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.google.gson.GsonBuilder;
@@ -37,7 +36,10 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
 
     @Override
     public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
+        Set<ConnectorProperty> names = new HashSet<>();
+        names.addAll(PROPERTY_NAMES);
+        names.addAll(jwtAuthenticator.getRequiredPropertyNames());
+        return names;
     }
 
     @Override
