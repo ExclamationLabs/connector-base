@@ -1,15 +1,13 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.ConnectorMessages;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * All configuration classes in the Base connector framework need to subclass this
@@ -26,15 +24,28 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     private String credentialAccessToken;
 
+    /**
+     * Map to hold extra JWT claim data to be posted to the claim.  Can be null if not used.
+     */
+    private Map<String, String> extraJWTClaimData;
+
+    /**
+     * If OAuth2 authentication is used for this connector, this object
+     * is used to hold additional OAuth2 response information, which
+     * could be needed for the implementation.
+     */
+    private OAuth2AccessTokenContainer oauth2Information;
+
     private Properties connectorProperties;
 
-    private final Set<ConnectorProperty> requiredPropertyNames;
+    private Set<ConnectorProperty> requiredPropertyNames;
 
     public BaseConnectorConfiguration() {
         LOG.info("Empty required properties configuration");
         requiredPropertyNames = new HashSet<>();
     }
 
+    /*
     @SafeVarargs
     public BaseConnectorConfiguration(Set<ConnectorProperty>... sets) {
         LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
@@ -45,6 +56,23 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
             }
         }
         LOG.info("Required properties configuration loaded count {0}", requiredPropertyNames.size());
+    }
+
+     */
+
+    @SafeVarargs
+    public final void setRequiredPropertyNames(Set<ConnectorProperty>... sets) {
+        LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
+        requiredPropertyNames = new HashSet<>();
+        if (sets != null) {
+            for (Set<ConnectorProperty> currentSet : sets) {
+                if (currentSet != null) {
+                    requiredPropertyNames.addAll(currentSet);
+                }
+            }
+        }
+        LOG.info("Required property names loaded for connector, count {0}, values {1}",
+                requiredPropertyNames.size(), requiredPropertyNames);
     }
 
     /**
@@ -98,6 +126,15 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         return null;
     }
 
+    /**
+     * For testing/stubbing
+     * @param testProperties Populateed Properties object w/ test
+     *                       properties needed
+     */
+    protected void setConnectorProperties(Properties testProperties) {
+        connectorProperties = testProperties;
+    }
+
     @Override
     public void validateConfiguration() throws ConfigurationException {
         setValidated();
@@ -134,5 +171,21 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
             this.midPointConfigurationFilePath = inputPath;
         }
 
+    }
+
+    public OAuth2AccessTokenContainer getOauth2Information() {
+        return oauth2Information;
+    }
+
+    public void setOauth2Information(OAuth2AccessTokenContainer oauth2Information) {
+        this.oauth2Information = oauth2Information;
+    }
+
+    public Map<String, String> getExtraJWTClaimData() {
+        return extraJWTClaimData;
+    }
+
+    public void setExtraJWTClaimData(Map<String, String> extraJWTClaimData) {
+        this.extraJWTClaimData = extraJWTClaimData;
     }
 }

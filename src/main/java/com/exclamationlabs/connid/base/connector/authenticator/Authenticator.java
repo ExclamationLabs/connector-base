@@ -20,10 +20,20 @@ import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConf
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public interface Authenticator {
+
+    /**
+     * Implement this method and return the names of the properties for properties
+     * that must be present in order for this Authenticator to function.
+     * This method should return the required property names for any sub-authenticators
+     * or key loaders that it uses.
+     * @return Set containing property names, represented as a set of enum values.
+     * Returning null or an empty set is also allowed if there are no properties for
+     * this driver.
+     */
+    Set<ConnectorProperty> getRequiredPropertyNames();
 
     /**
      * Perform all required authentication needed for this connector.

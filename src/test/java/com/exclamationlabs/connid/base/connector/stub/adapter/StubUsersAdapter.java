@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.stub.adapter;
 
+import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -31,9 +32,9 @@ public class StubUsersAdapter extends BaseUsersAdapter<StubUser, StubGroup> {
     @Override
     public StubUser constructUser(Set<Attribute> attributes, boolean creation) {
         StubUser user = new StubUser();
-        user.setId(getSingleAttributeValue(String.class, attributes, USER_ID));
-        user.setUserName(getSingleAttributeValue(String.class, attributes, USER_NAME));
-        user.setEmail(getSingleAttributeValue(String.class, attributes, EMAIL));
+        user.setId(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_ID));
+        user.setUserName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_NAME));
+        user.setEmail(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, EMAIL));
         return user;
     }
 

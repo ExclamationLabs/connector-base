@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.filter;
 
 import org.identityconnectors.common.StringUtil;
-import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
@@ -25,8 +24,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.AbstractFilterTranslator;
 import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
-
-// TODO: refine for general use
 
 /**
  * A filter translator can be used in Midpoint to filter by a field on a resource
@@ -36,18 +33,9 @@ import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
  */
 public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
-    private static final Log LOG = Log.getLog(DefaultFilterTranslator.class);
-
     @Override
     protected String createEqualsExpression(EqualsFilter filter, boolean not) {
-
-        LOG.info("### Entered filter equals");
-
-        if (not) { // no way (natively) to search for "NotEquals"
-            return null;
-        }
-
-        if (filter == null) {
+        if (not || filter == null) {
             return null;
         }
 
@@ -55,30 +43,17 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
         if (!attr.is(Name.NAME) && !attr.is(Uid.NAME)) {
             return null;
         }
-        String name = attr.getName();
         String value = AttributeUtil.getAsStringValue(attr);
 
-        LOG.info("### Filter name and value {0}, {1}", name, value);
-        if (checkSearchValue(value) == null) {
-            return null;
-        } else {
-            return value;
-        }
+        return (checkSearchValue(value) == null) ? null : value;
     }
 
     @Override
     protected String createContainsExpression(ContainsFilter filter, boolean not) {
-        LOG.info("### Entered filter contains, name: {0}, value {1}",
-                filter.getName(), filter.getValue());
-        if (filter.getAttribute() != null) {
-            LOG.info("### Attr Entered filter contains, name: {0}, value {1}",
-                    filter.getAttribute().getName(), filter.getAttribute().getValue());
-        }
-
         return null;
     }
 
-    private static String checkSearchValue(java.lang.String value) {
+    private static String checkSearchValue(String value) {
         if (StringUtil.isEmpty(value)) {
             return null;
         }
