@@ -7,16 +7,19 @@ repositories {
     jcenter()
 }
 
+startScripts.enabled = false
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
 version="${project_version}"
 
 dependencies {
+
+    ////// Begin - Vital dependencies for Base Connector
     compile 'org.apache.commons:commons-lang3:3.8.1'
     compile 'net.tirasa.connid:connector-test-common:1.5.0.0'
-
-    compile 'org.codehaus.groovy:groovy:2.5.2'
+    ////// End - Vital dependencies for Base Connector
 
     // HTTP/RESTful support
     compile 'com.google.code.gson:gson:2.8.6'
@@ -24,6 +27,9 @@ dependencies {
 
     // JWT.io auth API for JWT
     compile 'com.auth0:java-jwt:3.10.3'
+
+    // PEM Private key support
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.58'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.1.0'

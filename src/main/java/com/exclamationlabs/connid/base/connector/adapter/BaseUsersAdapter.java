@@ -133,8 +133,4 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
     protected boolean groupAdditionControlledByUpdate() {
         return false;
     }
-
-    protected boolean groupRemovalControlledByUpdate() {
-        return false;
-    }
 }
