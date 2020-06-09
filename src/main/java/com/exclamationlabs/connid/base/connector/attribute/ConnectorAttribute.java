@@ -34,7 +34,6 @@ public final class ConnectorAttribute {
 
     private final Set<AttributeInfo.Flags> flags;
 
-
     public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
             attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
         name = attributeName;

@@ -18,9 +18,11 @@ package com.exclamationlabs.connid.base.connector.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Classes that implement Driver should be able to connect to some kind of data system
@@ -34,11 +36,24 @@ import java.util.List;
 public interface Driver<U, G> {
 
     /**
+     * Returns the names of the properties for properties
+     * that must be present in order for this Driver to function.
+     * @return Set containing property names, represented as a set of enum values.
+     * Returning null or an empty set is also allowed if there are no properties for
+     * this driver.
+     */
+    Set<ConnectorProperty> getRequiredPropertyNames();
+
+    /**
      * Receives the configuration and authenticator objects that may be needed by the driver.
      * In this method, any additional initialization that needs to be done to
      * prep the Driver for repeated usage should also be done.
-     * @param configuration
-     * @param authenticator
+     * @param configuration Reference to Configuration object so that
+     *                      this driver has access to configuration properties
+     *                      and the access token.
+     * @param authenticator Reference to the Authenticator object
+     *                      in case this Driver needs to make a call to reauthenticate
+     *                      (often because of a timeout or token expiration condition).
      * @throws ConnectorException If a problem occurred that prevented Driver
      * from completing it's initialization.
      */
