@@ -31,10 +31,6 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
         jwtAuthenticator = inputJwtAuthenticator;
     }
 
-    public OAuth2TokenJWTAuthenticator(Authenticator inputJwtAuthenticator) {
-        jwtAuthenticator = inputJwtAuthenticator;
-    }
-
     @Override
     public Set<ConnectorProperty> getRequiredPropertyNames() {
         Set<ConnectorProperty> names = new HashSet<>();
