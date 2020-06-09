@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.stub.adapter;
 
+import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -32,8 +33,8 @@ public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
     @Override
     protected StubGroup constructGroup(Set<Attribute> attributes, boolean creation) {
         StubGroup group = new StubGroup();
-        group.setId(getSingleAttributeValue(String.class, attributes, GROUP_ID));
-        group.setName(getSingleAttributeValue(String.class, attributes, GROUP_NAME));
+        group.setId(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_ID));
+        group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
         return group;
     }
 

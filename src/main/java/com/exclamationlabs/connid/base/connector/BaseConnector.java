@@ -3,7 +3,9 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
@@ -13,6 +15,7 @@ import com.exclamationlabs.connid.base.connector.schema.DefaultConnectorSchemaBu
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
@@ -219,6 +222,20 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
     }
 
     protected void initializeBaseConnector(Configuration inputConfiguration) {
+        if (getDriver() == null) {
+            throw new ConfigurationException("Driver not setup for connector " + getName());
+        }
+        Set<ConnectorProperty> driverProperties = getDriver().getRequiredPropertyNames();
+
+        if (getAuthenticator() == null) {
+            LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getName());
+            setAuthenticator(new DefaultAuthenticator());
+        } else {
+            LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
+                    this.getName());
+        }
+        Set<ConnectorProperty> authenticatorProperties = getAuthenticator().getRequiredPropertyNames();
+
         if (getConnectorConfiguration()==null) {
             LOG.info("Initializing Connector {0} ...", getName());
 
@@ -232,6 +249,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
             }
 
             setConnectorConfiguration((BaseConnectorConfiguration) inputConfiguration);
+            getConnectorConfiguration().setRequiredPropertyNames(authenticatorProperties, driverProperties);
         }
 
         LOG.info("Using configuration {0} for connector {1}", getConnectorConfiguration().getClass().getName(),
@@ -244,20 +262,11 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
             LOG.info("Connector {0} validation bypassed, already validated", this.getName());
         }
 
-        if (getAuthenticator() == null) {
-            LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getConnectorConfiguration().getName());
-            setAuthenticator(authenticatorConfiguration -> "NA");
-        } else {
-            LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
-                    this.getName());
-        }
         getConnectorConfiguration().setCredentialAccessToken(
                 getAuthenticator().authenticate(getConnectorConfiguration()));
         LOG.info("Connector {0} successfully authenticated", this.getName());
 
-        if (getDriver() == null) {
-            throw new ConfigurationException("Driver not setup for connector " + this.getName());
-        }
+
         getDriver().initialize(getConnectorConfiguration(), getAuthenticator());
         LOG.info("Connector {0} driver {1} successfully initialized", this.getName(), getDriver().getClass().getName());
 
