@@ -25,7 +25,7 @@ import java.util.Set;
 public interface Authenticator {
 
     /**
-     * Implement this method and return the names of the properties for properties
+     * Returns the names of the properties for properties
      * that must be present in order for this Authenticator to function.
      * This method should return the required property names for any sub-authenticators
      * or key loaders that it uses.
