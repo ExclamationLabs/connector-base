@@ -65,11 +65,8 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
 
     }
 
-
-
     protected HttpClient createClient() {
         return HttpClients.createDefault();
     }
-
 
 }
