@@ -56,10 +56,12 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
     @SafeVarargs
     public final void setRequiredPropertyNames(Set<ConnectorProperty>... sets) {
         LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
-        requiredPropertyNames = Arrays.stream(sets)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        if (sets != null) {
+            requiredPropertyNames = Arrays.stream(sets)
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
         LOG.info("Required property names loaded for connector, count {0}, values {1}",
                 requiredPropertyNames.size(), requiredPropertyNames);
     }
