@@ -34,9 +34,8 @@ public class PFXKeyStoreLoader implements KeyStoreLoader {
         final String KEYSTORE_PASSWORD = configuration.getProperty(CONNECTOR_BASE_AUTH_PFX_PASSWORD);
         final String KEYSTORE_PATH = configuration.getProperty(CONNECTOR_BASE_AUTH_PFX_FILE);
 
-        try {
+        try(InputStream inputStream = new FileInputStream(new File(KEYSTORE_PATH))) {
             KeyStore keystore = KeyStore.getInstance("PKCS12");
-            InputStream inputStream = new FileInputStream(new File(KEYSTORE_PATH));
             keystore.load(inputStream, KEYSTORE_PASSWORD.toCharArray());
             return keystore;
         } catch (FileNotFoundException fnfe) {
