@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class JWTHS256AuthenticatorTest {
     // TODO: Using Mike's development account for Zoom.  Find a way to tuck this away
-    private static final BaseConnectorConfiguration configuration;
+    protected static BaseConnectorConfiguration configuration;
 
     static {
         Properties testProperties = new Properties();

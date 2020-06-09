@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class DirectAccessTokenAuthenticatorTest {
 
-    private static final BaseConnectorConfiguration configuration;
+    protected static BaseConnectorConfiguration configuration;
 
     static {
         Properties testProperties = new Properties();
