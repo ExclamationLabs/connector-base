@@ -3,6 +3,7 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
@@ -228,18 +229,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
 
         if (getAuthenticator() == null) {
             LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getName());
-            setAuthenticator(
-                    new Authenticator() {
-                        @Override
-                        public Set<ConnectorProperty> getRequiredPropertyNames() {
-                            return null;
-                        }
-
-                        @Override
-                        public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
-                            return "NA";
-                        }
-                    });
+            setAuthenticator(new DefaultAuthenticator());
         } else {
             LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
                     this.getName());
