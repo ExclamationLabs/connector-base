@@ -4,7 +4,16 @@ plugins {
 }
 
 repositories {
-    jcenter()
+   jcenter()
+/*
+    maven {
+        //url "https://artifactory.exclamationlabs.com/artifactory/libs-snapshot-local" // The Artifactory (preferably virtual) repository to resolve from
+
+        //url "https://artifactory.exclamationlabs.com/artifactory/jcenter" // The Artifactory (preferably virtual) repository to resolve from
+
+
+    }
+*/
 }
 
 startScripts.enabled = false
@@ -19,17 +28,25 @@ dependencies {
     ////// Begin - Vital dependencies for Base Connector
     compile 'org.apache.commons:commons-lang3:3.8.1'
     compile 'net.tirasa.connid:connector-test-common:1.5.0.0'
+    compile 'com.auth0:java-jwt:3.10.3'
     ////// End - Vital dependencies for Base Connector
 
     // HTTP/RESTful support
     compile 'com.google.code.gson:gson:2.8.6'
     compile 'org.apache.httpcomponents:httpclient:4.5.10'
 
-    // JWT.io auth API for JWT
-    compile 'com.auth0:java-jwt:3.10.3'
-
     // PEM Private key support
     compile 'org.bouncycastle:bcpkix-jdk15on:1.58'
+
+    /// NOTE: test referencing eLabs artifacts
+    //compile 'com.exclamationlabs.connector:connector-base-test:0.1'
+    //compile 'com.exclamationlabs.connector:connector-base-test:8529'
+
+    //compile(group: 'com.evolveum.icf', name: 'dummy-connector', version: '3.8-SNAPSHOT', classifier: 'sources')
+
+    //compile(group: 'com.evolveum.icf', name: 'dummy-resource', version: '3.8-20180329.150050-1', classifier: 'sources')
+    //compile 'com.evolveum.icf:dummy-resource:3.8-20180329.150050-1:sources'
+    //compile 'com.google.guava:guava:10.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.1.0'

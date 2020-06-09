@@ -24,6 +24,9 @@ public class OAuth2AccessTokenContainer {
     @SerializedName("refresh_token")
     private String refreshToken;
 
+    @SerializedName("refresh_token_expires_in")
+    private String refreshTokenExpiresIn;
+
     private String id;
 
     private String scope;
@@ -92,5 +95,13 @@ public class OAuth2AccessTokenContainer {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public String getRefreshTokenExpiresIn() {
+        return refreshTokenExpiresIn;
+    }
+
+    public void setRefreshTokenExpiresIn(String refreshTokenExpiresIn) {
+        this.refreshTokenExpiresIn = refreshTokenExpiresIn;
     }
 }
