@@ -20,9 +20,8 @@ public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator 
     private static final Log LOG = Log.getLog(AbstractOAuth2TokenAuthenticator.class);
 
     protected static String executeRequest(BaseConnectorConfiguration configuration, HttpClient client, HttpPost request, UrlEncodedFormEntity entity, GsonBuilder gsonBuilder) throws IOException {
-        HttpResponse response;
         request.setEntity(entity);
-        response = client.execute(request);
+        HttpResponse response = client.execute(request);
         int statusCode = response.getStatusLine().getStatusCode();
         LOG.info("OAuth2 Received {0} response for {1} {2}", statusCode,
                 request.getMethod(), request.getURI());
