@@ -93,12 +93,5 @@ public abstract class JWTRS256Authenticator extends JWTAuthenticator {
             throw new ConnectorSecurityException("Unable to generate bearer token for authentication.", authE);
         }
 
-
-    }
-
-
-    public static Set<ConnectorProperty> getRequiredProperties() {
-        return new HashSet<>(Arrays.asList(CONNECTOR_BASE_AUTH_JWT_ISSUER, CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD,
-                CONNECTOR_BASE_AUTH_JWT_SUBJECT, CONNECTOR_BASE_AUTH_JWT_AUDIENCE, CONNECTOR_BASE_AUTH_JWT_USE_ISSUED_AT));
     }
 }
