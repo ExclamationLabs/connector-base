@@ -35,4 +35,4 @@ and shouldn't need to include these dependencies in your connector project.
 
 The 'connector-h2-example' project (forthcoming) is intended as an example
 to show you a relatively simple implementation of an end-use connector and how it
-is can be built in Gradle to be utilized in MidPoint.
+it can be built in Gradle to be utilized in MidPoint.
