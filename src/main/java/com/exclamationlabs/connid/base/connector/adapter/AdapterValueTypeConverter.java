@@ -22,12 +22,8 @@ public class AdapterValueTypeConverter {
         }
         Optional<Attribute> correctAttribute =
                 attributes.stream().filter(current -> current.getName().equals(attributeName)).findFirst();
-        Object value;
-        if (singleValue) {
-            value = correctAttribute.map(AdapterValueTypeConverter::readSingleAttributeValue).orElse(null);
-        } else {
-            value = correctAttribute.map(AdapterValueTypeConverter::readMultipleAttributeValue).orElse(null);
-        }
+        Function<Attribute, Object> readAttributeFunction = singleValue ? AdapterValueTypeConverter::readSingleAttributeValue : AdapterValueTypeConverter::readMultipleAttributeValue;
+        Object value = correctAttribute.map(readAttributeFunction).orElse(null);
         if (value == null) {
             return null;
         } else {
