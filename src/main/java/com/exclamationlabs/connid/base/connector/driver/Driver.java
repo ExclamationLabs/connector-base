@@ -36,7 +36,7 @@ import java.util.Set;
 public interface Driver<U, G> {
 
     /**
-     * Implement this method and return the names of the properties for properties
+     * Returns the names of the properties for properties
      * that must be present in order for this Driver to function.
      * @return Set containing property names, represented as a set of enum values.
      * Returning null or an empty set is also allowed if there are no properties for
