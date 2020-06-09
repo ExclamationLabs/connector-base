@@ -17,18 +17,19 @@ import java.util.*;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticator {
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
 
     protected static GsonBuilder gsonBuilder;
+    private static final Set<ConnectorProperty> PROPERTY_NAMES;
+    private final Authenticator jwtAuthenticator;
 
     static {
-        PROPERTY_NAMES = new HashSet<>(Collections.singletonList(
-                CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
-
+        PROPERTY_NAMES = new HashSet<>(Collections.singletonList(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
         gsonBuilder = new GsonBuilder();
     }
 
-    private final Authenticator jwtAuthenticator;
+    public OAuth2TokenJWTAuthenticator(Authenticator inputJwtAuthenticator) {
+        jwtAuthenticator = inputJwtAuthenticator;
+    }
 
     public OAuth2TokenJWTAuthenticator(Authenticator inputJwtAuthenticator) {
         jwtAuthenticator = inputJwtAuthenticator;
