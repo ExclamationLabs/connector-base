@@ -84,9 +84,7 @@ public abstract class JWTRS256Authenticator extends JWTAuthenticator {
             }
 
             if (configuration.getExtraJWTClaimData() != null && (!configuration.getExtraJWTClaimData().isEmpty())) {
-                for (Map.Entry<String, String> entry : configuration.getExtraJWTClaimData().entrySet()) {
-                    builder.withClaim(entry.getKey(), entry.getValue());
-                }
+                configuration.getExtraJWTClaimData().forEach(builder::withClaim);
             }
 
             return builder.sign(algorithm);
