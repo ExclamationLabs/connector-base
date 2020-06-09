@@ -7,7 +7,15 @@ import org.identityconnectors.framework.common.objects.ConnectorMessages;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 /**
  * All configuration classes in the Base connector framework need to subclass this
@@ -45,32 +53,13 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         requiredPropertyNames = new HashSet<>();
     }
 
-    /*
-    @SafeVarargs
-    public BaseConnectorConfiguration(Set<ConnectorProperty>... sets) {
-        LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
-        requiredPropertyNames = new HashSet<>();
-        if (sets != null) {
-            for (Set<ConnectorProperty> currentSet : sets) {
-                requiredPropertyNames.addAll(currentSet);
-            }
-        }
-        LOG.info("Required properties configuration loaded count {0}", requiredPropertyNames.size());
-    }
-
-     */
-
     @SafeVarargs
     public final void setRequiredPropertyNames(Set<ConnectorProperty>... sets) {
         LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
-        requiredPropertyNames = new HashSet<>();
-        if (sets != null) {
-            for (Set<ConnectorProperty> currentSet : sets) {
-                if (currentSet != null) {
-                    requiredPropertyNames.addAll(currentSet);
-                }
-            }
-        }
+        requiredPropertyNames = Arrays.stream(sets)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
         LOG.info("Required property names loaded for connector, count {0}, values {1}",
                 requiredPropertyNames.size(), requiredPropertyNames);
     }
@@ -128,7 +117,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     /**
      * For testing/stubbing
-     * @param testProperties Populateed Properties object w/ test
+     * @param testProperties Populated Properties object w/ test
      *                       properties needed
      */
     protected void setConnectorProperties(Properties testProperties) {

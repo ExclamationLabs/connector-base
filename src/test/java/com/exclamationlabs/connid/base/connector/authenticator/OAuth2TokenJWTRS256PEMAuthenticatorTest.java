@@ -25,9 +25,9 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest {
     // TODO: Using Mike's DocuSign dev account info to test.  Figure out a strategy
     // to tuck this away
 
-    private static final BaseConnectorConfiguration configuration;
+    protected static BaseConnectorConfiguration configuration;
 
-    private Authenticator oauth2Authenticator;
+    protected Authenticator oauth2Authenticator;
 
     static {
         Properties testProperties = new Properties();

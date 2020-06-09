@@ -14,7 +14,7 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest {
     // TODO: Using Mike's Webex dev account info to test.  Figure out a strategy
     // to tuck this away
 
-    private static final BaseConnectorConfiguration configuration;
+    protected static BaseConnectorConfiguration configuration;
 
     static {
         Properties testProperties = new Properties();
