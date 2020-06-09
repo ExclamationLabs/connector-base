@@ -16,7 +16,7 @@ If you need to fully clean the prior build first, then run -
 
 `gradle clean build`
 
-The build command will produce two small JAR's, connector-base-{version}.jar
+The build command will produce two small JARs, connector-base-{version}.jar
 and connector-base-test-{version}.jar.  The first jar contains Connector Base
 framework API/code classes.  The second jar contains test abstractions and utilities
 to help Connectors keep their test classes more simple and concise.
