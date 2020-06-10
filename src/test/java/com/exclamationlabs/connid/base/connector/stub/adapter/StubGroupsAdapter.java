@@ -33,7 +33,7 @@ public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
     @Override
     protected StubGroup constructGroup(Set<Attribute> attributes, boolean creation) {
         StubGroup group = new StubGroup();
-        group.setId(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_ID));
+        group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
         return group;
     }

@@ -2,6 +2,7 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -32,6 +33,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         Authenticator authenticator = new OAuth2TokenAuthorizationCodeAuthenticator();
         String response = authenticator.authenticate(configuration);

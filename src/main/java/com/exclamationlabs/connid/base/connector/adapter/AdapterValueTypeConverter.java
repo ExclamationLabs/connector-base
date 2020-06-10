@@ -2,6 +2,8 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.Uid;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -15,6 +17,14 @@ public class AdapterValueTypeConverter {
 
     public static <T> T getSingleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
         return getAttributeValue(returnType, attributes, enumValue.toString(), true);
+    }
+
+    public static String getIdentityIdAttributeValue(Set<Attribute> attributes) {
+        return getIdentityFixedAttributeValue(attributes, Uid.NAME);
+    }
+
+    public static String getIdentityNameAttributeValue(Set<Attribute> attributes) {
+        return getIdentityFixedAttributeValue(attributes, Name.NAME);
     }
 
     static <T> T getAttributeValue(Class<T> returnType, Set<Attribute> attributes, String attributeName, boolean singleValue) {
@@ -98,5 +108,15 @@ public class AdapterValueTypeConverter {
             throw new InvalidAttributeValueException("Invalid type " + returnType + " cannot be parsed from string", nfe);
         }
         throw new InvalidAttributeValueException("Unexpected return type " + returnType);
+    }
+
+    private static String getIdentityFixedAttributeValue(Set<Attribute> attributes, String identitiyName) {
+        if (attributes == null) {
+            return null;
+        } else {
+            Optional<Attribute> correctAttribute = attributes.stream().filter((current) -> current.getName().equals(identitiyName)).findFirst();
+            Object value = correctAttribute.map(AdapterValueTypeConverter::readSingleAttributeValue).orElse(null);
+            return value == null ? null : value.toString();
+        }
     }
 }
