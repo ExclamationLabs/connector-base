@@ -32,7 +32,7 @@ public class StubUsersAdapter extends BaseUsersAdapter<StubUser, StubGroup> {
     @Override
     public StubUser constructUser(Set<Attribute> attributes, boolean creation) {
         StubUser user = new StubUser();
-        user.setId(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_ID));
+        user.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         user.setUserName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_NAME));
         user.setEmail(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, EMAIL));
         return user;
