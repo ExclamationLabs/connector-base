@@ -22,6 +22,7 @@ import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConf
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -50,6 +51,7 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorI
     }
 */
     @Test
+    @Ignore
     public void test() {
         Authenticator authenticator = new OAuth2TokenRefreshTokenAuthenticator();
         String response = authenticator.authenticate(configuration);
