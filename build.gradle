@@ -21,7 +21,8 @@ startScripts.enabled = false
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-project.version="${software_version}-${BUILD_NUMBER}"
+def build_version = System.getenv('BUILD_NUMBER') == null ? 'SNAPSHOT' : System.getenv('BUILD_NUMBER')
+project.version="${software_version}-${build_version}"
 
 dependencies {
 
