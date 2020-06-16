@@ -1,3 +1,5 @@
+// TODO: split test harness (util/*, IntegrationTest, configuration/*) into its own subproject
+
 plugins {
     id 'java'
     id 'maven'
