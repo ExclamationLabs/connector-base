@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'application'
 }
 
 repositories {
@@ -15,8 +14,6 @@ repositories {
     }
 */
 }
-
-startScripts.enabled = false
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -74,3 +71,4 @@ task testJar(type: Jar) {
 
 
 jar.dependsOn('testJar')
+
