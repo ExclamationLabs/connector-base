@@ -24,7 +24,7 @@ import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfigur
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
-import com.exclamationlabs.connid.base.connector.util.ConnectorTestUtils;
+import com.exclamationlabs.connid.base.connector.test.util.ConnectorTestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
