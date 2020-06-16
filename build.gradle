@@ -1,19 +1,11 @@
 plugins {
     id 'java'
     id 'maven'
+    id 'maven-publish'
 }
 
 repositories {
    jcenter()
-/*
-    maven {
-      // url "https://artifactory.exclamationlabs.com/artifactory/libs-snapshot-local" // The Artifactory (preferably virtual) repository to resolve from
-
-        //url "https://artifactory.exclamationlabs.com/artifactory/jcenter" // The Artifactory (preferably virtual) repository to resolve from
-
-
-    }
-*/
 }
 
 sourceCompatibility = '1.8'
@@ -71,7 +63,6 @@ task testJar(type: Jar) {
             '**/stub', '**/Stub*')
 }
 
-
 jar.dependsOn('testJar')
 
 artifacts {
@@ -81,7 +72,11 @@ artifacts {
 task generatePom {
     doLast {
         pom().writeTo("build/libs/${project.name}-${project.version}.pom")
+
+        pom {
+            artifactId = 'connector-base-test'
+        }.writeTo("build/libs/${project.name}-${project.version}-test.pom")
+
     }
 }
 build.dependsOn(generatePom)
-
