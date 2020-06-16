@@ -69,6 +69,17 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         requiredPropertyNames = new HashSet<>();
     }
 
+    public BaseConnectorConfiguration(String configurationName) {
+        LOG.info("Configuration with location {0} specified");
+        requiredPropertyNames = new HashSet<>();
+        if (System.getenv(configurationName) != null) {
+            setMidPointConfigurationFilePath(System.getenv(configurationName));
+        } else {
+            setMidPointConfigurationFilePath("src/test/resources/" +
+                    configurationName + ".properties");
+        }
+    }
+
     @SafeVarargs
     public final void setRequiredPropertyNames(Set<ConnectorProperty>... sets) {
         LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
