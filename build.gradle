@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven'
 }
 
 repositories {
@@ -75,4 +76,11 @@ jar.dependsOn('testJar')
 artifacts {
     archives testJar
 }
+
+task generatePom {
+    doLast {
+        pom().writeTo("build/libs/${project.name}-${project.version}.pom")
+    }
+}
+build.dependsOn(generatePom)
 
