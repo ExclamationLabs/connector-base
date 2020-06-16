@@ -72,3 +72,7 @@ task testJar(type: Jar) {
 
 jar.dependsOn('testJar')
 
+artifacts {
+    archives testJar
+}
+
