@@ -1,47 +1,38 @@
-package com.exclamationlabs.connid.base.connector.authenticator;
+package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
+import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenClientCredentialsAuthenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.client.HttpsKeystoreCertificateClientLoader;
 import com.exclamationlabs.connid.base.connector.authenticator.client.SecureClientLoader;
 import com.exclamationlabs.connid.base.connector.authenticator.keys.KeyStoreLoader;
 import com.exclamationlabs.connid.base.connector.authenticator.keys.PFXKeyStoreLoader;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.*;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Properties;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static org.junit.Assert.assertNotNull;
 
-public class OAuth2TokenClientCredentialsAuthenticatorTest {
+/**
+ * Test for OAuth2TokenClientCredentialsAuthenticator, using Dev 1U FIS configuration
+ */
+public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
+
+    @Override
+    public String getConfigurationName() {
+        return new ConfigurationNameBuilder().
+                withConnector(ConfigurationConnector.FIS).
+                withOwner(ConfigurationOwner.FIRST_UNITED).build();
+    }
 
     // TODO: Using ExclamationLabs FIS dev account info to test.  Figure out a strategy
     // to tuck this away
 
-    protected static BaseConnectorConfiguration configuration;
-
     protected Authenticator oauth2Authenticator;
-
-    static {
-        Properties testProperties = new Properties();
-        testProperties.put(CONNECTOR_BASE_AUTH_PFX_FILE.name(),
-                "/Users/mneugebauer/Documents/fis/ibsopenapi-api-gw1-prod1.fisglobal.com.pfx");
-        testProperties.put(CONNECTOR_BASE_AUTH_PFX_PASSWORD.name(), "N6uEaqcrYeTG7Pqp");
-
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID.name(),
-                "o_n8oXF7znZWWDvTNcTWHQNsx1ga");
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET.name(),
-                "UbfmzTOwBCtS2EAgQv_whWPhvI8a");
-
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL.name(),
-                "https://api-gw1-prod1.fisglobal.com/token");
-        configuration = new TestConnectorConfiguration(testProperties);
-    }
 
     @Before
     public void setup() {
+        super.setup();
         KeyStoreLoader keyStoreLoader = new PFXKeyStoreLoader();
         SecureClientLoader clientLoader = new HttpsKeystoreCertificateClientLoader();
 
