@@ -7,7 +7,7 @@ repositories {
    jcenter()
 /*
     maven {
-        //url "https://artifactory.exclamationlabs.com/artifactory/libs-snapshot-local" // The Artifactory (preferably virtual) repository to resolve from
+      // url "https://artifactory.exclamationlabs.com/artifactory/libs-snapshot-local" // The Artifactory (preferably virtual) repository to resolve from
 
         //url "https://artifactory.exclamationlabs.com/artifactory/jcenter" // The Artifactory (preferably virtual) repository to resolve from
 
@@ -40,7 +40,7 @@ dependencies {
 
     /// NOTE: test referencing eLabs artifacts
     //compile 'com.exclamationlabs.connector:connector-base-test:0.1'
-    //compile 'com.exclamationlabs.connector:connector-base-test:8529'
+    //compile 'com.exclamationlabs.connector:connector-base-test:8563'
 
     //compile(group: 'com.evolveum.icf', name: 'dummy-connector', version: '3.8-SNAPSHOT', classifier: 'sources')
 
@@ -53,11 +53,23 @@ dependencies {
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
 }
 
+// TODO: remove this later, simulating Jenkins secretfile
+/*
+test {
+    environment "__bcon__development__exclamation_labs__gotomeeting", "/Users/mneugebauer/Documents/test/simsecret.txt"
+}
+ */
+
+test {
+   exclude '**/authenticator/integration/*'
+}
+
 task testJar(type: Jar) {
-    archiveName("connector-base-test-${project_version}.jar")
+    archiveClassifier = 'test'
     from sourceSets.test.output
     exclude('**/ConnectorBundleTest*', '**/stub/*',
             '**/stub', '**/Stub*')
 }
+
 
 jar.dependsOn('testJar')

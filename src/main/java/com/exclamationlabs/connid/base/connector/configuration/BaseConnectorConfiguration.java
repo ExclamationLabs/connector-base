@@ -84,7 +84,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         return this.getClass().getSimpleName();
     }
 
-    protected void setValidated() {
+    public void setValidated() {
         validated = true;
     }
 
