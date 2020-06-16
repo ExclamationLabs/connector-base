@@ -21,7 +21,7 @@ startScripts.enabled = false
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-version="${project_version}"
+project.version="${software_version}-${BUILD_NUMBER}"
 
 dependencies {
 
