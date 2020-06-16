@@ -30,26 +30,16 @@ import java.util.Properties;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Test for OAuth2TokenAuthorizationCodeAuthenticator, using Dev ELabs Webex configuration
+ */
 public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
 
     @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.WEBEX).build();
     }
-/*
-    static {
-        Properties testProperties = new Properties();
 
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL.name(), "https://webexapis.com/v1/access_token");
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_REFRESH_TOKEN.name(),
-                "YjNlMzRjZWMtZjRmNC00YWNkLThiM2YtYzFhMGJjZmYxOTY2MjRhNWVhOTgtY2Q2_P0A1_176a65f5-8855-4a07-a005-1ab2959c9962");
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID.name(),
-                "C2502cef016ccf4fe573e0614b9d075d1008ebfc73085849b95a9820886e2db16");
-        testProperties.put(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET.name(),
-                "b0ecd9ebe028383bbe380823603a4801c97368cf26393c25f2a5543094c250db");
-        configuration = new TestConnectorConfiguration(testProperties);
-    }
-*/
     @Test
     @Ignore
     public void test() {
