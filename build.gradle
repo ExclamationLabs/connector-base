@@ -18,6 +18,7 @@ repositories {
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
+group = 'com.exclamationlabs.connid'
 
 def build_version = System.getenv('BUILD_NUMBER') == null ? 'SNAPSHOT' : System.getenv('BUILD_NUMBER')
 project.version="${software_version}-${build_version}"
