@@ -2,6 +2,8 @@ package com.exclamationlabs.connid.base.connector.configuration;
 
 public enum ConnectorProperty {
 
+    CONNECTOR_BASE_CONFIGURATION_ACTIVE,
+
     // Direct access token stored in configuration, no other auth
     CONNECTOR_BASE_AUTH_DIRECT_TOKEN,
 
