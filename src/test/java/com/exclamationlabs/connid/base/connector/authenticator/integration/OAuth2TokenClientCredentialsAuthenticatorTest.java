@@ -25,6 +25,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.keys.PFXKeyStoreL
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -62,6 +63,7 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
     }
 
     @Test
+    @Ignore
     public void test() {
         String response = oauth2Authenticator.authenticate(configuration);
         assertNotNull(response);

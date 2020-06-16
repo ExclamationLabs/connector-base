@@ -22,6 +22,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAut
 import com.exclamationlabs.connid.base.connector.authenticator.keys.JKSRSAPrivateKeyLoader;
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -63,6 +64,7 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends BaseAuthenticatorIn
     }
 
     @Test
+    @Ignore
     public void test() {
         String response = oauth2Authenticator.authenticate(configuration);
         assertNotNull(response);

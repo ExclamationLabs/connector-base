@@ -32,7 +32,7 @@ dependencies {
     // PEM Private key support
     compile 'org.bouncycastle:bcpkix-jdk15on:1.58'
 
-    testCompile 'com.exclamationlabs.connid:connector-base-test-support:0.1-2'
+    testCompile 'com.exclamationlabs.connid:connector-base-test-support:0.1-+'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.1.0'
@@ -44,11 +44,8 @@ dependencies {
 test {
     environment "__bcon__development__exclamation_labs__gotomeeting", "/Users/mneugebauer/Documents/test/simsecret.txt"
 }
- */
 
-test {
-   exclude '**/authenticator/integration/*'
-}
+ */
 
 task generatePom {
     doLast {
