@@ -7,6 +7,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -17,6 +18,10 @@ public class AdapterValueTypeConverter {
 
     public static <T> T getSingleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
         return getAttributeValue(returnType, attributes, enumValue.toString(), true);
+    }
+
+    public static <T> T getMultipleAttributeValue(Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
+        return getAttributeValue(returnType, attributes, enumValue.toString(), false);
     }
 
     public static String getIdentityIdAttributeValue(Set<Attribute> attributes) {
@@ -40,6 +45,9 @@ public class AdapterValueTypeConverter {
         } else {
             if (value instanceof String) {
                 return (T) AdapterValueTypeConverter.convertStringToType(returnType, value.toString());
+            }
+            if (value instanceof List) {
+                return (T) value;
             }
             if (returnType != value.getClass()) {
                 throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName + "; received " +
