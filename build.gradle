@@ -1,13 +1,13 @@
-// TODO: split test harness (util/*, IntegrationTest, configuration/*) into its own subproject
-
 plugins {
     id 'java'
     id 'maven'
-    id 'maven-publish'
 }
 
 repositories {
    jcenter()
+    maven {
+        url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
+    }
 }
 
 sourceCompatibility = '1.8'
@@ -32,15 +32,7 @@ dependencies {
     // PEM Private key support
     compile 'org.bouncycastle:bcpkix-jdk15on:1.58'
 
-    /// NOTE: test referencing eLabs artifacts
-    //compile 'com.exclamationlabs.connector:connector-base-test:0.1'
-    //compile 'com.exclamationlabs.connector:connector-base-test:8563'
-
-    //compile(group: 'com.evolveum.icf', name: 'dummy-connector', version: '3.8-SNAPSHOT', classifier: 'sources')
-
-    //compile(group: 'com.evolveum.icf', name: 'dummy-resource', version: '3.8-20180329.150050-1', classifier: 'sources')
-    //compile 'com.evolveum.icf:dummy-resource:3.8-20180329.150050-1:sources'
-    //compile 'com.google.guava:guava:10.0'
+    testCompile 'com.exclamationlabs.connid:connector-base-test-support:0.1-2'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:3.1.0'
@@ -58,27 +50,9 @@ test {
    exclude '**/authenticator/integration/*'
 }
 
-task testJar(type: Jar) {
-    archiveClassifier = 'test'
-    from sourceSets.test.output
-    exclude('**/ConnectorBundleTest*', '**/stub/*',
-            '**/stub', '**/Stub*')
-}
-
-jar.dependsOn('testJar')
-
-artifacts {
-    archives testJar
-}
-
 task generatePom {
     doLast {
         pom().writeTo("build/libs/${project.name}-${project.version}.pom")
-
-        pom {
-            artifactId = 'connector-base-test'
-        }.writeTo("build/libs/${project.name}-${project.version}-test.pom")
-
     }
 }
 build.dependsOn(generatePom)
