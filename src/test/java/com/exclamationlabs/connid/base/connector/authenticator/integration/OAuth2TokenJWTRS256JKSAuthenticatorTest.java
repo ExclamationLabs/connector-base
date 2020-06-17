@@ -46,9 +46,15 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends BaseAuthenticatorIn
     }
 
     protected Authenticator oauth2Authenticator;
+
+    @Override
+    Authenticator getAuthenticator() {
+        return oauth2Authenticator;
+    }
+
     @Before
     public void setup() {
-        super.setup();
+
         Authenticator jwtAuthenticator = new JWTRS256Authenticator() {
             @Override
             protected RSAPrivateKey getPrivateKey() {
@@ -61,12 +67,13 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends BaseAuthenticatorIn
             }
         };
         oauth2Authenticator = new OAuth2TokenJWTAuthenticator(jwtAuthenticator);
+        super.setup();
     }
 
     @Test
     @Ignore
     public void test() {
-        String response = oauth2Authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());

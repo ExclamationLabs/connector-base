@@ -17,8 +17,18 @@
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+
+import java.util.Properties;
 
 public class StubConfiguration extends BaseConnectorConfiguration {
+
+    public StubConfiguration() {
+        Properties properties = new Properties();
+        properties.setProperty(
+                ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE.name(), "Y");
+        setConnectorProperties(properties);
+    }
 
     @Override
     public String getConfigurationFilePath() {
