@@ -29,15 +29,20 @@ import static org.junit.Assert.assertNotNull;
 public class JWTHS256AuthenticatorTest extends BaseAuthenticatorIntegrationTest {
 
     @Override
+    Authenticator getAuthenticator() {
+        return new JWTHS256Authenticator();
+    }
+
+    @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.ZOOM).build();
     }
 
     @Test
     public void test() {
-        Authenticator jwtAuthenticator = new JWTHS256Authenticator();
-        String response = jwtAuthenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
     }
+
 
 }

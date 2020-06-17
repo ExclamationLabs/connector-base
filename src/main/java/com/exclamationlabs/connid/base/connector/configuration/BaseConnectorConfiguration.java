@@ -64,19 +64,22 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     private Set<ConnectorProperty> requiredPropertyNames;
 
+    private String qualifiedConfigurationName;
+
     public BaseConnectorConfiguration() {
         LOG.info("Empty required properties configuration");
-        requiredPropertyNames = new HashSet<>();
+        initializeRequiredPropertyNames();
     }
 
     public BaseConnectorConfiguration(String configurationName) {
-        LOG.info("Configuration with location {0} specified");
-        requiredPropertyNames = new HashSet<>();
-        if (System.getenv(configurationName) != null) {
-            setMidPointConfigurationFilePath(System.getenv(configurationName));
+        LOG.info("Configuration with location {0} specified", configurationName);
+        qualifiedConfigurationName = configurationName;
+        initializeRequiredPropertyNames();
+        if (System.getenv(qualifiedConfigurationName) != null) {
+            setMidPointConfigurationFilePath(System.getenv(qualifiedConfigurationName));
         } else {
             setMidPointConfigurationFilePath("src/test/resources/" +
-                    configurationName + ".properties");
+                    qualifiedConfigurationName + ".properties");
         }
     }
 
@@ -84,10 +87,11 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
     public final void setRequiredPropertyNames(Set<ConnectorProperty>... sets) {
         LOG.info("Required properties configuration, received {0}", Arrays.toString(sets));
         if (sets != null) {
-            requiredPropertyNames = Arrays.stream(sets)
+            Set<ConnectorProperty> moreProperties = Arrays.stream(sets)
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
+            requiredPropertyNames.addAll(moreProperties);
         }
         LOG.info("Required property names loaded for connector, count {0}, values {1}",
                 requiredPropertyNames.size(), requiredPropertyNames);
@@ -144,6 +148,17 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         return null;
     }
 
+    public String getPropertyFile(ConnectorProperty propertyIn) {
+        if (qualifiedConfigurationName != null) {
+            String fullIdentifier = qualifiedConfigurationName + "__" +
+                    propertyIn.name();
+            if (System.getenv(fullIdentifier) != null) {
+                return System.getenv(fullIdentifier);
+            }
+        }
+        return getProperty(propertyIn);
+    }
+
     /**
      * For testing/stubbing
      * @param testProperties Populated Properties object w/ test
@@ -155,7 +170,21 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     @Override
     public void validateConfiguration() throws ConfigurationException {
-        setValidated();
+        for (ConnectorProperty current : requiredPropertyNames) {
+            if (getProperty(current) == null) {
+                throw new ConfigurationException("Connector configuration is missing required property: " +
+                        current.name());
+            }
+        }
+        if ("Y".equalsIgnoreCase(getProperty(
+                ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE))) {
+            setValidated();
+            LOG.info("All {0} configuration properties successfully validated for {1}", requiredPropertyNames.size(),
+                    getName());
+        } else {
+            throw new ConfigurationException("Connector configuration is currently disabled for " +
+                    getName());
+        }
     }
 
     public String getCredentialAccessToken() {
@@ -205,5 +234,10 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     public void setExtraJWTClaimData(Map<String, String> extraJWTClaimData) {
         this.extraJWTClaimData = extraJWTClaimData;
+    }
+
+    private void initializeRequiredPropertyNames() {
+        requiredPropertyNames = new HashSet<>();
+        requiredPropertyNames.add(ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE);
     }
 }
