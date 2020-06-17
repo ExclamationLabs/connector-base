@@ -46,12 +46,13 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends BaseAuthenticatorIn
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.DOCUSIGN).build();
     }
 
+    @Override
+    Authenticator getAuthenticator() {
+        return oauth2Authenticator;
+    }
+
     @Before
     public void setup() {
-        super.setup();
-        Map<String, String> extraData = new HashMap<>();
-        extraData.put("scope", "signature impersonation");
-        configuration.setExtraJWTClaimData(extraData);
 
         Authenticator jwtAuthenticator = new JWTRS256Authenticator() {
             @Override
@@ -65,12 +66,16 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends BaseAuthenticatorIn
             }
         };
         oauth2Authenticator = new OAuth2TokenJWTAuthenticator(jwtAuthenticator);
+
+        super.setup();
+        Map<String, String> extraData = new HashMap<>();
+        extraData.put("scope", "signature impersonation");
+        configuration.setExtraJWTClaimData(extraData);
     }
 
     @Test
-    @Ignore
     public void test() {
-        String response = oauth2Authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());

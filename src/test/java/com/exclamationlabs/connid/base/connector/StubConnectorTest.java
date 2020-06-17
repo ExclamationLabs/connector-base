@@ -204,7 +204,6 @@ public class StubConnectorTest {
     @Test
     public void testDummyAuthentication() {
         assertEquals("NA", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
-
     }
 
     @Test

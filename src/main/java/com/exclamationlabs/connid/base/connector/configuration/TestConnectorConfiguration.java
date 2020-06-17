@@ -18,25 +18,22 @@ package com.exclamationlabs.connid.base.connector.configuration;
 
 import java.util.Properties;
 
+/**
+ * Minimal Test configuration used for Authenticator integration testing
+ * and any other isolated integration testing.
+ */
 public class TestConnectorConfiguration extends BaseConnectorConfiguration {
-
-    private String configurationFileLocation;
 
     public TestConnectorConfiguration(Properties testProperties) {
         setConnectorProperties(testProperties);
     }
 
     public TestConnectorConfiguration(String configurationName) {
-        if (System.getenv(configurationName) != null) {
-            configurationFileLocation = System.getenv(configurationName);
-        } else {
-            configurationFileLocation = "src/test/resources/" +
-                    configurationName + ".properties";
-        }
+        super(configurationName);
     }
 
     @Override
     public String getConfigurationFilePath() {
-        return configurationFileLocation;
+        return getMidPointConfigurationFilePath();
     }
 }

@@ -18,16 +18,10 @@ package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenRefreshTokenAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
-import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
-import org.junit.Ignore;
+
 import org.junit.Test;
-
-import java.util.Properties;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -36,19 +30,24 @@ import static org.junit.Assert.assertNotNull;
 public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
 
     @Override
+    Authenticator getAuthenticator() {
+        return new OAuth2TokenRefreshTokenAuthenticator();
+    }
+
+    @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.WEBEX).build();
     }
 
     @Test
-    @Ignore
     public void test() {
-        Authenticator authenticator = new OAuth2TokenRefreshTokenAuthenticator();
-        String response = authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());
         assertNotNull(configuration.getOauth2Information().getRefreshToken());
         assertNotNull(configuration.getOauth2Information().getExpiresIn());
     }
+
+
 }
