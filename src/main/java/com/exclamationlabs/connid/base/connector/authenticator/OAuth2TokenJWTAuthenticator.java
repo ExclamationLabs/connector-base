@@ -36,7 +36,7 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
 
     protected static GsonBuilder gsonBuilder;
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
-    private final Authenticator jwtAuthenticator;
+    protected final Authenticator jwtAuthenticator;
 
     static {
         PROPERTY_NAMES = new HashSet<>(Collections.singletonList(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));

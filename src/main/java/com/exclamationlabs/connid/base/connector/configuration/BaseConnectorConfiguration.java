@@ -236,6 +236,10 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         this.extraJWTClaimData = extraJWTClaimData;
     }
 
+    public Set<ConnectorProperty> getRequiredPropertyNames() {
+        return requiredPropertyNames;
+    }
+
     private void initializeRequiredPropertyNames() {
         requiredPropertyNames = new HashSet<>();
         requiredPropertyNames.add(ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE);
