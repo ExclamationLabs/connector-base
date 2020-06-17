@@ -31,17 +31,23 @@ import static org.junit.Assert.assertNotNull;
 public class OAuth2TokenPasswordAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
 
     @Override
+    Authenticator getAuthenticator() {
+        return new OAuth2TokenPasswordAuthenticator();
+    }
+
+    @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.GOTOMEETING).build();
     }
 
     @Test
     public void test() {
-        Authenticator authenticator = new OAuth2TokenPasswordAuthenticator();
-        String response = authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());
         assertNotNull(configuration.getOauth2Information().getTokenType());
     }
+
+
 }

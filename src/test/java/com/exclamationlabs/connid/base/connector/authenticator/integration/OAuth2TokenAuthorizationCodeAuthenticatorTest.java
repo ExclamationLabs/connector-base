@@ -20,7 +20,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenAuthorizationCodeAuthenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -38,8 +38,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
     @Test
     @Ignore
     public void test() {
-        Authenticator authenticator = new OAuth2TokenAuthorizationCodeAuthenticator();
-        String response = authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());
@@ -47,4 +46,8 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
         assertNotNull(configuration.getOauth2Information().getExpiresIn());
     }
 
+    @Override
+    Authenticator getAuthenticator() {
+        return new OAuth2TokenAuthorizationCodeAuthenticator();
+    }
 }

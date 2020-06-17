@@ -25,7 +25,6 @@ import com.exclamationlabs.connid.base.connector.authenticator.keys.PFXKeyStoreL
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -42,14 +41,15 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
                 withOwner(ConfigurationOwner.FIRST_UNITED).build();
     }
 
-    // TODO: Using ExclamationLabs FIS dev account info to test.  Figure out a strategy
-    // to tuck this away
-
     protected Authenticator oauth2Authenticator;
+
+    @Override
+    Authenticator getAuthenticator() {
+        return oauth2Authenticator;
+    }
 
     @Before
     public void setup() {
-        super.setup();
         KeyStoreLoader keyStoreLoader = new PFXKeyStoreLoader();
         SecureClientLoader clientLoader = new HttpsKeystoreCertificateClientLoader();
 
@@ -60,12 +60,12 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
                         keyStoreLoader.load(configuration));
             }
         };
+        super.setup();
     }
 
     @Test
-    @Ignore
     public void test() {
-        String response = oauth2Authenticator.authenticate(configuration);
+        String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
         assertNotNull(configuration.getOauth2Information().getAccessToken());
