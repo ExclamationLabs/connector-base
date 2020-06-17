@@ -18,6 +18,11 @@ package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeMapBuilder;
+import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.JWTAuthenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
@@ -26,9 +31,15 @@ import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfigur
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
+import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_ID;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_NAME;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
@@ -36,11 +47,47 @@ import static org.identityconnectors.framework.common.objects.AttributeInfo.Flag
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class StubConnector extends BaseConnector<StubUser, StubGroup> {
+public class ComplexStubConnector extends BaseConnector<StubUser, StubGroup> {
 
-    public StubConnector() {
-        setDriver(new StubDriver());
-        setUsersAdapter(new StubUsersAdapter());
+    public ComplexStubConnector() {
+        Authenticator innerAuthenticator = new JWTAuthenticator() {
+            @Override
+            public Set<ConnectorProperty> getRequiredPropertyNames() {
+                return new HashSet<>(Arrays.asList(
+                        CONNECTOR_BASE_AUTH_PFX_FILE,
+                        CONNECTOR_BASE_AUTH_PFX_PASSWORD));
+            }
+
+            @Override
+            public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+                return "yang";
+            }
+        };
+
+        Authenticator outerAuthenticator = new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
+            @Override
+            public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+                return "ying-" + jwtAuthenticator.authenticate(configuration);
+            }
+        };
+
+        setAuthenticator(outerAuthenticator);
+        setDriver(new StubDriver() {
+            @Override
+            public Set<ConnectorProperty> getRequiredPropertyNames() {
+                return new HashSet<>(Arrays.asList(
+                        CONNECTOR_BASE_AUTH_JKS_ALIAS,
+                        CONNECTOR_BASE_AUTH_JKS_FILE,
+                        CONNECTOR_BASE_AUTH_JKS_PASSWORD));
+            }
+        });
+
+        setUsersAdapter(new StubUsersAdapter() {
+            @Override
+            protected boolean groupAdditionControlledByUpdate() {
+                return true;
+            }
+        });
         setGroupsAdapter(new StubGroupsAdapter());
         setUserAttributes( new ConnectorAttributeMapBuilder<>(StubUserAttribute.class)
                 .add(USER_ID, STRING, NOT_UPDATEABLE)

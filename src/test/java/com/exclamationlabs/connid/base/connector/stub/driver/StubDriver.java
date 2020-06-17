@@ -27,6 +27,12 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import java.util.*;
 
 public class StubDriver implements Driver<StubUser, StubGroup> {
+
+    private String methodInvoked;
+    private Object methodParameter1;
+    private Object methodParameter2;
+    private boolean initializeInvoked = false;
+
     @Override
     public Set<ConnectorProperty> getRequiredPropertyNames() {
         return null;
@@ -34,7 +40,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
-
+        initializeInvoked = true;
     }
 
     @Override
@@ -49,36 +55,47 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public String createUser(StubUser userModel) throws ConnectorException {
+        setMethodInvoked("createUser");
+        setMethodParameter1(userModel);
         return UUID.randomUUID().toString();
     }
 
     @Override
     public String createGroup(StubGroup groupModel) throws ConnectorException {
+        setMethodInvoked("createGroup");
+        setMethodParameter1(groupModel);
         return UUID.randomUUID().toString();
     }
 
     @Override
     public void updateUser(String userId, StubUser userModel) throws ConnectorException {
-
+        setMethodInvoked("updateUser");
+        setMethodParameter1(userId);
+        setMethodParameter2(userModel);
     }
 
     @Override
     public void updateGroup(String groupId, StubGroup groupModel) throws ConnectorException {
-
+        setMethodInvoked("updateGroup");
+        setMethodParameter1(groupId);
+        setMethodParameter2(groupModel);
     }
 
     @Override
     public void deleteUser(String userId) throws ConnectorException {
-
+        setMethodInvoked("deleteUser");
+        setMethodParameter1(userId);
     }
 
     @Override
     public void deleteGroup(String groupId) throws ConnectorException {
-
+        setMethodInvoked("deleteGroup");
+        setMethodParameter1(groupId);
     }
 
     @Override
     public List<StubUser> getUsers() throws ConnectorException {
+        setMethodInvoked("getUsers");
         StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
         user1.setUserName("Ying");
@@ -94,6 +111,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public List<StubGroup> getGroups() throws ConnectorException {
+        setMethodInvoked("getGroups");
         StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());
         group1.setName("Uno");
@@ -106,6 +124,8 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public StubUser getUser(String userId) throws ConnectorException {
+        setMethodInvoked("getUser");
+        setMethodParameter1(userId);
         StubUser user1 = new StubUser();
         user1.setId(userId);
         user1.setUserName("Ying");
@@ -116,6 +136,8 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public StubGroup getGroup(String groupId) throws ConnectorException {
+        setMethodInvoked("getGroup");
+        setMethodParameter1(groupId);
         StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());
         group1.setName("Uno");
@@ -124,11 +146,44 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public void addGroupToUser(String groupId, String userId) throws ConnectorException {
-
+        setMethodInvoked("addGroupToUser");
+        setMethodParameter1(groupId);
+        setMethodParameter2(userId);
     }
 
     @Override
     public void removeGroupFromUser(String groupId, String userId) throws ConnectorException {
-
+        setMethodInvoked("removeGroupFromUser");
+        setMethodParameter1(groupId);
+        setMethodParameter2(userId);
     }
+
+    public String getMethodInvoked() {
+        return methodInvoked;
+    }
+
+    private void setMethodInvoked(String methodInvoked) {
+        this.methodInvoked = methodInvoked;
+    }
+
+    public Object getMethodParameter1() {
+        return methodParameter1;
+    }
+
+    private void setMethodParameter1(Object methodParameter1) {
+        this.methodParameter1 = methodParameter1;
+    }
+
+    public Object getMethodParameter2() {
+        return methodParameter2;
+    }
+
+    private void setMethodParameter2(Object methodParameter2) {
+        this.methodParameter2 = methodParameter2;
+    }
+
+    public boolean isInitializeInvoked() {
+        return initializeInvoked;
+    }
+
 }

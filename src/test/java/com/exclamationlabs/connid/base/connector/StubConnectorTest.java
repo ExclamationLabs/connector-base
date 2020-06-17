@@ -17,6 +17,8 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
+import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
+import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
@@ -39,15 +41,36 @@ import static org.junit.Assert.*;
 public class StubConnectorTest {
 
     private BaseConnector<StubUser, StubGroup> connector;
+    private StubDriver driver;
 
     @Before
     public void setup() {
         connector = new StubConnector();
         connector.init(new StubConfiguration());
+        driver = (StubDriver) connector.getDriver();
     }
 
     @Test
-    public void testUserCreate() {
+    public void testUserCreateNoGroups() {
+        Set<Attribute> attributes = new HashSet<>();
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+
+        Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
+        assertNotNull(newId);
+        assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("createUser", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertTrue(driver.getMethodParameter1() instanceof StubUser);
+        UserIdentityModel userParameter = (UserIdentityModel) driver.getMethodParameter1();
+        assertNull(userParameter.getIdentityIdValue());
+        assertNotNull(userParameter.getIdentityNameValue());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testUserCreateWithGroups() {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
@@ -57,6 +80,10 @@ public class StubConnectorTest {
         Uid newId = connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("addGroupToUser", driver.getMethodInvoked());
+        assertEquals("id2", driver.getMethodParameter1().toString());
+        assertNotNull(driver.getMethodParameter2());
     }
 
     @Test(expected = InvalidAttributeValueException.class)
@@ -66,10 +93,33 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         connector.create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
+        assertTrue(driver.isInitializeInvoked());
     }
 
     @Test
-    public void testUserModify() {
+    public void testUserModifyNoGroups() {
+        Set<Attribute> attributes = new HashSet<>();
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+
+        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
+        assertNotNull(newId);
+        assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("updateUser", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertTrue(driver.getMethodParameter1() instanceof String);
+        assertEquals("1234", driver.getMethodParameter1().toString());
+
+        assertNotNull(driver.getMethodParameter2());
+        assertTrue(driver.getMethodParameter2() instanceof StubUser);
+        UserIdentityModel userParameter = (UserIdentityModel) driver.getMethodParameter2();
+        assertNull(userParameter.getIdentityIdValue());
+        assertNotNull(userParameter.getIdentityNameValue());
+    }
+
+    @Test
+    public void testUserModifyWithGroups() {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
@@ -79,6 +129,10 @@ public class StubConnectorTest {
         Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("addGroupToUser", driver.getMethodInvoked());
+        assertEquals("id2", driver.getMethodParameter1().toString());
+        assertNotNull(driver.getMethodParameter2());
     }
 
     @Test(expected = InvalidAttributeValueException.class)
@@ -88,11 +142,16 @@ public class StubConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
+        assertTrue(driver.isInitializeInvoked());
     }
 
     @Test
     public void testUserDelete() {
         connector.delete(ObjectClass.ACCOUNT, new Uid("1234"), new OperationOptionsBuilder().build());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("deleteUser", driver.getMethodInvoked());
+        assertEquals("1234", driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -105,6 +164,10 @@ public class StubConnectorTest {
         assertEquals(new StubDriver().getUsers().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("getUsers", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -117,6 +180,10 @@ public class StubConnectorTest {
         assertEquals(1, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("getUser", driver.getMethodInvoked());
+        assertEquals("1234", driver.getMethodParameter1().toString());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -127,6 +194,17 @@ public class StubConnectorTest {
         Uid newId = connector.create(ObjectClass.GROUP, attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertNotNull(newId);
+        assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("createGroup", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertTrue(driver.getMethodParameter1() instanceof StubGroup);
+        GroupIdentityModel groupParameter = (GroupIdentityModel) driver.getMethodParameter1();
+        assertNull(groupParameter.getIdentityIdValue());
+        assertNotNull(groupParameter.getIdentityNameValue());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test(expected = InvalidAttributeValueException.class)
@@ -145,6 +223,16 @@ public class StubConnectorTest {
         Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
         assertNotNull(newId);
         assertNotNull(newId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("updateGroup", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertEquals("1234", driver.getMethodParameter1().toString());
+
+        assertNotNull(driver.getMethodParameter2());
+        assertTrue(driver.getMethodParameter2() instanceof StubGroup);
+        GroupIdentityModel groupParameter = (GroupIdentityModel) driver.getMethodParameter2();
+        assertNull(groupParameter.getIdentityIdValue());
+        assertNotNull(groupParameter.getIdentityNameValue());
     }
 
     @Test(expected = InvalidAttributeValueException.class)
@@ -158,6 +246,11 @@ public class StubConnectorTest {
     @Test
     public void testGroupDelete() {
         connector.delete(ObjectClass.GROUP, new Uid("1234"), new OperationOptionsBuilder().build());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("deleteGroup", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertEquals("1234", driver.getMethodParameter1().toString());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -170,6 +263,10 @@ public class StubConnectorTest {
         assertEquals(new StubDriver().getGroups().size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("getGroups", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -182,6 +279,10 @@ public class StubConnectorTest {
         assertEquals(1, idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("getGroup", driver.getMethodInvoked());
+        assertEquals("1234", driver.getMethodParameter1().toString());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -196,6 +297,10 @@ public class StubConnectorTest {
         assertNotNull(connector.getAuthenticator());
         assertNotNull(connector.getConnectorConfiguration());
         assertTrue(connector.getConnectorConfiguration().isValidated());
+
+        assertNotNull(connector.getConnectorConfiguration().getRequiredPropertyNames());
+        assertEquals(1,
+                connector.getConnectorConfiguration().getRequiredPropertyNames().size());
 
         assertEquals("StubConnector", connector.getName());
         assertEquals("StubConfiguration", connector.getConnectorConfiguration().getName());
@@ -214,7 +319,7 @@ public class StubConnectorTest {
         ObjectClassInfo userSchema = schemaResult.findObjectClassInfo(ObjectClass.ACCOUNT_NAME);
         assertNotNull(userSchema);
         assertNotNull(userSchema.getAttributeInfo());
-        assertEquals(4, userSchema.getAttributeInfo().size());
+        assertEquals(5, userSchema.getAttributeInfo().size());
 
         ObjectClassInfo groupSchema = schemaResult.findObjectClassInfo(ObjectClass.GROUP_NAME);
         assertNotNull(groupSchema);
