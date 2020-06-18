@@ -240,6 +240,14 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         return requiredPropertyNames;
     }
 
+    public void setTestConfiguration() {
+        if (connectorProperties == null) {
+            connectorProperties = new Properties();
+        }
+        connectorProperties.setProperty(
+                ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE.name(), "Y");
+    }
+
     private void initializeRequiredPropertyNames() {
         requiredPropertyNames = new HashSet<>();
         requiredPropertyNames.add(ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE);

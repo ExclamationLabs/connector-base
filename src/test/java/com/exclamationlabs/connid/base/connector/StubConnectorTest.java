@@ -46,7 +46,9 @@ public class StubConnectorTest {
     @Before
     public void setup() {
         connector = new StubConnector();
-        connector.init(new StubConfiguration());
+        StubConfiguration configuration = new StubConfiguration();
+        configuration.setTestConfiguration();
+        connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
     }
 
