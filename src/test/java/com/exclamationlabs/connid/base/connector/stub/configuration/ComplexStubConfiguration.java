@@ -16,17 +16,14 @@
 
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 
 import java.util.Properties;
 
-public class ComplexStubConfiguration extends BaseConnectorConfiguration {
+public class ComplexStubConfiguration extends StubConfiguration {
 
     public ComplexStubConfiguration() {
         Properties properties = new Properties();
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE.name(), "Y");
         properties.setProperty(
                 ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_FILE.name(), "abcd");
         properties.setProperty(
@@ -41,10 +38,5 @@ public class ComplexStubConfiguration extends BaseConnectorConfiguration {
                 ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_FILE.name(), "url2");
 
         setConnectorProperties(properties);
-    }
-
-    @Override
-    public String getConfigurationFilePath() {
-        return null;
     }
 }

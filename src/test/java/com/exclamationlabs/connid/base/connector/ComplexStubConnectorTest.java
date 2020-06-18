@@ -23,6 +23,7 @@ import com.exclamationlabs.connid.base.connector.stub.ComplexStubConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -42,7 +43,9 @@ public class ComplexStubConnectorTest {
     @Before
     public void setup() {
         connector = new ComplexStubConnector();
-        connector.init(new ComplexStubConfiguration());
+        ComplexStubConfiguration configuration = new ComplexStubConfiguration();
+        configuration.setTestConfiguration();
+        connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
     }
 

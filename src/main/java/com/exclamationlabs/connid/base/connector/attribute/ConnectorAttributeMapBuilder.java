@@ -18,7 +18,11 @@ package com.exclamationlabs.connid.base.connector.attribute;
 
 import org.identityconnectors.framework.common.objects.AttributeInfo;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * Builder to aid with the definition of connector attributes.  Attributes
