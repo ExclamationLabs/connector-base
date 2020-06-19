@@ -48,7 +48,7 @@ public class PFXKeyStoreLoader implements KeyStoreLoader {
     @Override
     public KeyStore load(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
         final String KEYSTORE_PASSWORD = configuration.getProperty(CONNECTOR_BASE_AUTH_PFX_PASSWORD);
-        final String KEYSTORE_PATH = configuration.getProperty(CONNECTOR_BASE_AUTH_PFX_FILE);
+        final String KEYSTORE_PATH = configuration.getPropertyFile(CONNECTOR_BASE_AUTH_PFX_FILE);
 
         try(InputStream inputStream = new FileInputStream(new File(KEYSTORE_PATH))) {
             KeyStore keystore = KeyStore.getInstance("PKCS12");
