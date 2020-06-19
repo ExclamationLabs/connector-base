@@ -22,7 +22,6 @@ import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAut
 import com.exclamationlabs.connid.base.connector.authenticator.keys.PEMRSAPrivateKeyLoader;
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.interfaces.RSAPrivateKey;

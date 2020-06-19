@@ -35,6 +35,10 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
         return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.WEBEX).build();
     }
 
+    // This is an intermediary step for Webex; Webex should be able to use the Refres
+    // token long-term.  So it's best not to run this test as part of integration
+    // because we can't rely on it working because of manual browser authentication step
+    // this needs for Webex
     @Test
     @Ignore
     public void test() {
