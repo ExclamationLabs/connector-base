@@ -53,7 +53,7 @@ public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader {
             keystore = KeyStore.getInstance("JKS");
             char[] keystorePassword = configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_PASSWORD).toCharArray();
             keystore.load(
-                    new FileInputStream(configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_FILE)),
+                    new FileInputStream(configuration.getPropertyFile(CONNECTOR_BASE_AUTH_JKS_FILE)),
                     keystorePassword
             );
 
