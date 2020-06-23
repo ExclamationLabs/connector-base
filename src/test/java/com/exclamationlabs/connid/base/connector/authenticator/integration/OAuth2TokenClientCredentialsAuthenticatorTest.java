@@ -37,8 +37,8 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
     @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().
-                withConnector(ConfigurationConnector.FIS).
-                withOwner(ConfigurationOwner.FIRST_UNITED).build();
+                withConnector(() -> "FIS").
+                withOwner(() -> "FIRST_UNITED").build();
     }
 
     protected Authenticator oauth2Authenticator;

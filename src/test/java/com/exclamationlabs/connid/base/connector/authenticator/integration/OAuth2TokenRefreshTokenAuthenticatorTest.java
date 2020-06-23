@@ -36,7 +36,7 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorI
 
     @Override
     public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.WEBEX).build();
+        return new ConfigurationNameBuilder().withConnector(() -> "WEBEX").build();
     }
 
     @Test
