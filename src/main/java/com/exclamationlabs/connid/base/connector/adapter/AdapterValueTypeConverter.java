@@ -22,12 +22,30 @@ import org.identityconnectors.framework.common.objects.Uid;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
+/**
+ * This class contains static utility methods that allow us to efficiently convert ConnId Attribute values
+ * (often stored as List<Object>) to specific supported concrete Java class types.
+ */
 public class AdapterValueTypeConverter {
+
+    private static final Map<Class<?>, Function<String, ?>> conversionMap;
+
+    static {
+        conversionMap = new HashMap<>();
+        conversionMap.put(String.class, s -> s);
+        conversionMap.put(Integer.class, wrapDataType(Integer::parseInt));
+        conversionMap.put(BigDecimal.class, wrapDataType(BigDecimal::new));
+        conversionMap.put(BigInteger.class, wrapDataType(BigInteger::new));
+        conversionMap.put(Boolean.class, Boolean::parseBoolean);
+        conversionMap.put(Byte.class, Byte::parseByte);
+        conversionMap.put(Double.class, wrapDataType(Double::parseDouble));
+        conversionMap.put(Long.class, wrapDataType(Long::parseLong));
+        conversionMap.put(Float.class, wrapDataType(Float::parseFloat));
+        conversionMap.put(Character.class, AdapterValueTypeConverter::toChar);
+    }
 
     private AdapterValueTypeConverter() {}
 
@@ -59,16 +77,13 @@ public class AdapterValueTypeConverter {
             return null;
         } else {
             if (value instanceof String) {
-                return (T) AdapterValueTypeConverter.convertStringToType(returnType, value.toString());
+                Object obj = AdapterValueTypeConverter.convertStringToType(returnType, value.toString());
+                return returnType.cast(obj);
             }
-            if (value instanceof List) {
-                return (T) value;
+            if (returnType.isInstance(value)) {
+                return returnType.cast(value);
             }
-            if (returnType != value.getClass()) {
-                throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName + "; received " +
-                        value.getClass().getName() + ", expected " + returnType.getName());
-            }
-            return (T) value; // Have to cast, last resort
+            throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName + "; received " + value.getClass().getName() + ", expected " + returnType.getName());
         }
     }
 
@@ -88,49 +103,34 @@ public class AdapterValueTypeConverter {
         }
     }
 
-    static <T> Object convertStringToType(Class<T> returnType, String value)
-        throws InvalidAttributeValueException {
+    static <T> Object convertStringToType(Class<T> returnType, String value) throws InvalidAttributeValueException {
+        Function<String, ?> stringConverter = buildStringConverter(returnType);
+        return stringConverter.apply(value);
+    }
 
-        if (returnType == String.class) {
-            return value;
+    private static <T> Function<String, ?> buildStringConverter(Class<T> klass) {
+        if (conversionMap.containsKey(klass))
+            return conversionMap.get(klass);
+        throw new InvalidAttributeValueException("Unexpected return type " + klass);
+    }
+
+    private static Function<String, ?> wrapDataType(Function<String, ?> func) {
+        return s -> {
+            try {
+                return func.apply(s);
+            } catch (NumberFormatException ex) {
+                throw new InvalidAttributeValueException(ex);
+            }
+        };
+    }
+
+    private static Character toChar(String value) {
+        if (value != null && (!value.isEmpty())) {
+            char[] characters = new char[1];
+            value.getChars(0, 1, characters, 0);
+            return characters[0];
         }
-        try {
-            if (returnType == Integer.class) {
-                return Integer.parseInt(value);
-            }
-            if (returnType == BigDecimal.class) {
-                return new BigDecimal(value);
-            }
-            if (returnType == BigInteger.class) {
-                return new BigInteger(value);
-            }
-            if (returnType == Boolean.class) {
-                return Boolean.parseBoolean(value);
-            }
-            if (returnType == Byte.class) {
-                return Byte.parseByte(value);
-            }
-            if (returnType == Character.class) {
-                if (value != null && (!value.isEmpty())) {
-                    char[] characters = new char[1];
-                    value.getChars(0, 1, characters, 0);
-                    return characters[0];
-                }
-                throw new InvalidAttributeValueException("Empty/null string cannot convert to character type");
-            }
-            if (returnType == Double.class) {
-                return Double.parseDouble(value);
-            }
-            if (returnType == Long.class) {
-                return Long.parseLong(value);
-            }
-            if (returnType == Float.class) {
-                return Float.parseFloat(value);
-            }
-        } catch (NumberFormatException nfe) {
-            throw new InvalidAttributeValueException("Invalid type " + returnType + " cannot be parsed from string", nfe);
-        }
-        throw new InvalidAttributeValueException("Unexpected return type " + returnType);
+        throw new InvalidAttributeValueException("Empty/null string cannot convert to character type");
     }
 
     private static String getIdentityFixedAttributeValue(Set<Attribute> attributes, String identitiyName) {

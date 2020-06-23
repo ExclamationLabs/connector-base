@@ -32,7 +32,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
 
     @Override
     public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.WEBEX).build();
+        return new ConfigurationNameBuilder().withConnector(() -> "WEBEX").build();
     }
 
     // This is an intermediary step for Webex; Webex should be able to use the Refres
