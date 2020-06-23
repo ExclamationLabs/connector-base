@@ -37,7 +37,7 @@ public class OAuth2TokenPasswordAuthenticatorTest extends BaseAuthenticatorInteg
 
     @Override
     public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.GOTOMEETING).build();
+        return new ConfigurationNameBuilder().withConnector(() -> "GOTOMEETING").build();
     }
 
     @Test

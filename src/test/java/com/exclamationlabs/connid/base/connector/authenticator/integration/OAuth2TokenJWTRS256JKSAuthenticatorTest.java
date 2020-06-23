@@ -38,7 +38,7 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends BaseAuthenticatorIn
 
     @Override
     public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.SALESFORCE).build();
+        return new ConfigurationNameBuilder().withConnector(() -> "SALESFORCE").build();
     }
 
     protected Authenticator oauth2Authenticator;
