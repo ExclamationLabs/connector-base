@@ -26,7 +26,7 @@ import org.junit.Before;
  * Abstract base class for running integration tests for various Authenticator
  * implementations in conjuction with existing developer connector credentials.
  */
-abstract public class BaseAuthenticatorIntegrationTest implements IntegrationTest {
+abstract public class BaseAuthenticatorIntegrationTest extends IntegrationTest {
 
     protected static BaseConnectorConfiguration configuration;
 

@@ -59,16 +59,13 @@ public class AdapterValueTypeConverter {
             return null;
         } else {
             if (value instanceof String) {
-                return (T) AdapterValueTypeConverter.convertStringToType(returnType, value.toString());
+                Object obj = AdapterValueTypeConverter.convertStringToType(returnType, value.toString());
+                return returnType.cast(obj);
             }
-            if (value instanceof List) {
-                return (T) value;
+            if (returnType.isInstance(value)) {
+                return returnType.cast(value);
             }
-            if (returnType != value.getClass()) {
-                throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName + "; received " +
-                        value.getClass().getName() + ", expected " + returnType.getName());
-            }
-            return (T) value; // Have to cast, last resort
+            throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName + "; received " + value.getClass().getName() + ", expected " + returnType.getName());
         }
     }
 

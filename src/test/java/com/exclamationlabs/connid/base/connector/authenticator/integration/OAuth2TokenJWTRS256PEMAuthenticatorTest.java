@@ -42,7 +42,7 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends BaseAuthenticatorIn
 
     @Override
     public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(ConfigurationConnector.DOCUSIGN).build();
+        return new ConfigurationNameBuilder().withConnector(() -> "DOCUSIGN").build();
     }
 
     @Override
