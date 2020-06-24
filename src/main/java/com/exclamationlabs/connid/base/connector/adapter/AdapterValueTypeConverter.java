@@ -76,8 +76,7 @@ public class AdapterValueTypeConverter {
         if (attributes == null || returnType == null || attributeName == null) {
             return null;
         }
-        Optional<Attribute> correctAttribute =
-                attributes.stream().filter(current -> current.getName().equals(attributeName)).findFirst();
+        Optional<Attribute> correctAttribute = findFirstNameMatchIn(attributes).apply(attributeName);
         Function<Attribute, Object> readAttributeFunction = singleValue ?
                 AdapterValueTypeConverter::readSingleAttributeValue :
                 AdapterValueTypeConverter::readMultipleAttributeValue;
@@ -147,10 +146,17 @@ public class AdapterValueTypeConverter {
         if (attributes == null) {
             return null;
         } else {
-            Optional<Attribute> correctAttribute = attributes.stream().filter((current) ->
-                    current.getName().equals(identitiyName)).findFirst();
+            Optional<Attribute> correctAttribute = findFirstNameMatchIn(attributes).apply(identitiyName);
             Object value = correctAttribute.map(AdapterValueTypeConverter::readSingleAttributeValue).orElse(null);
             return value == null ? null : value.toString();
         }
+    }
+
+    private static Function<String, Optional<Attribute>> findFirstNameMatchIn(Set<Attribute> attributes) {
+        return attributeName ->
+                attributes
+                        .stream()
+                        .filter(a -> a.getName().equals(attributeName))
+                        .findFirst();
     }
 }

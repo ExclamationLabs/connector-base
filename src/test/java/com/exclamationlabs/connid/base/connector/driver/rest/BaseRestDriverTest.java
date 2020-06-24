@@ -82,33 +82,33 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     public void getOneUser() {
         prepareMockResponse(SINGLE_USER_RESPONSE);
         StubUser user = driver.getUser(USER_ID);
-        assertEquals(user.getUserName(), USER_NAME);
-        assertEquals(user.getEmail(), USER_EMAIL);
+        assertEquals(USER_NAME, user.getUserName());
+        assertEquals(USER_EMAIL, user.getEmail());
     }
 
     @Test
     public void getUsers() {
         prepareMockResponse(MULTI_USER_RESPONSE);
-        List<StubUser> user = driver.getUsers();
-        assertEquals(user.get(0).getUserName(), USER_NAME);
-        assertEquals(user.get(0).getEmail(), USER_EMAIL);
-        assertEquals(user.get(1).getUserName(), USER_NAME2);
-        assertEquals(user.get(1).getEmail(), USER_EMAIL2);
+        List<StubUser> users = driver.getUsers();
+        assertEquals(USER_NAME, users.get(0).getUserName());
+        assertEquals(USER_EMAIL, users.get(0).getEmail());
+        assertEquals(USER_NAME2, users.get(1).getUserName());
+        assertEquals(USER_EMAIL2, users.get(1).getEmail());
     }
 
     @Test
     public void getOneGroup() {
         prepareMockResponse(SINGLE_GROUP_RESPONSE);
         StubGroup group = driver.getGroup(GROUP_ID);
-        assertEquals(group.getName(), GROUP_NAME);
+        assertEquals(GROUP_NAME, group.getName());
     }
 
     @Test
     public void getGroups() {
         prepareMockResponse(MULTI_GROUP_RESPONSE);
-        List<StubGroup> group = driver.getGroups();
-        assertEquals(group.get(0).getName(), GROUP_NAME);
-        assertEquals(group.get(1).getName(), GROUP_NAME2);
+        List<StubGroup> groups = driver.getGroups();
+        assertEquals(GROUP_NAME, groups.get(0).getName());
+        assertEquals(GROUP_NAME2, groups.get(1).getName());
     }
 
     @Test

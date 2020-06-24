@@ -9,45 +9,36 @@ public class ConfigurationNameBuilderTest {
     @Test
     public void connectorWithDefaults() {
         ConfigurationNameBuilder builder = new ConfigurationNameBuilder();
-        assertEquals("__bcon__development__exclamation_labs__bubba",
-                builder.withConnector("BUBBA").build());
+        String actualName = builder.withEnvironment("UAT")
+                .withConnector("BUBBA").withOwner("ME").build();
+        String expectedName = "__bcon__uat__me__bubba";
+        assertEquals(expectedName, actualName);
     }
 
     @Test
     public void connectorWithEnvironmentDefault() {
         ConfigurationNameBuilder builder = new ConfigurationNameBuilder();
-        assertEquals("__bcon__development__me__bubba",
-                builder.withConnector("BUBBA").withOwner("ME").build());
+        String actualName = builder.withConnector("BUBBA").withOwner("ME").build();
+        String expectedName = "__bcon__development__me__bubba";
+        assertEquals(expectedName, actualName);
     }
 
     @Test
     public void connectorFullStrings() {
         ConfigurationNameBuilder builder = new ConfigurationNameBuilder();
-        assertEquals("__bcon__uat__me__bubba",
-                builder.withEnvironment("UAT").withConnector("BUBBA").withOwner("ME").build());
+        String actualName = builder.withEnvironment("UAT").
+                withConnector("BUBBA").withOwner("ME").build();
+        String expectedName = "__bcon__uat__me__bubba";
+        assertEquals(expectedName, actualName);
     }
 
     @Test
-    public void connectorWithTypees() {
+    public void connectorWithTypes() {
         ConfigurationNameBuilder builder = new ConfigurationNameBuilder();
-        assertEquals("__bcon__production__bob__awesome",
-                builder.withEnvironment(ConfigurationEnvironment.PRODUCTION).
-                        withConnector(new MyConnector()).withOwner(new MyOwner()).build());
+        String actualName = builder.withEnvironment(ConfigurationEnvironment.PRODUCTION).
+                withConnector(() -> "awesome").withOwner(() -> "bob").build();
+        String expectedName = "__bcon__production__bob__awesome";
+        assertEquals(expectedName, actualName);
     }
 
-    static class MyOwner implements ConfigurationOwner {
-
-        @Override
-        public String getName() {
-            return "bob";
-        }
-    }
-
-    static class MyConnector implements ConfigurationConnector {
-
-        @Override
-        public String getName() {
-            return "awesome";
-        }
-    }
 }
