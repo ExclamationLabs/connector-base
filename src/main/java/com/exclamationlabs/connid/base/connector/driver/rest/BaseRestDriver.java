@@ -64,7 +64,6 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     /**
      * Return the fault processor that will be used to analyze and respond
      * to HTTP error responses.
-     * @return
      */
     abstract protected RestFaultProcessor getFaultProcessor();
 
@@ -73,7 +72,6 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
      * If need arises for a secure HTTPS Client backed by a cert/keystore, etc.
      * such as with FIS, a separate utility class should be added to possibly provide
      * that support (look at FIS codebase for an example).
-     * @return
      */
     protected HttpClient createClient() {
         return HttpClients.createDefault();
@@ -84,7 +82,6 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
      * require Authorization: Bearer [token] in the HTTP header. If true,
      * this header will be added to all requests, with the token coming from
      * value stored in ConnectorConfiguration getCredentialAccessToken().
-     * @return
      */
     protected boolean usesBearerAuthorization() {
         return false;
@@ -99,20 +96,6 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
      * URL that will need to be invoked
      */
     abstract protected String getBaseServiceUrl();
-
-    /**
-     * If the RESTful service returns a JSON response type that is different than and not
-     * embedded in normal service response types, supply the JSON-serializable data type
-     * here.
-     *
-     * If not overriden, then this will remain null and any error handling will be left up
-     * to HTTP response codes, or you'll need to read error response body on your own (if you
-     * expect it to be embedded within normal JSON types.
-     */
-    protected <T> Class<T> getErrorResponseType() {
-        return null;
-    }
-
 
     public <T>T executeRequest(HttpRequestBase request, Class<T> returnType) {
         if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
