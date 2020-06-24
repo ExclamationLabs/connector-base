@@ -27,13 +27,13 @@ public class DefaultFilterTranslatorTest {
     }
 
     @Test
-    public void createEqualsExpressionNot() {
+    public void createEqualsExpressionNotReturnsNull() {
         assertNull(filter.createEqualsExpression(
                 new EqualsFilter(AttributeBuilder.build("x")), true));
     }
 
     @Test
-    public void createEqualsExpressionNotUidOrName() {
+    public void createEqualsExpressionNotUidOrNameReturnsNull() {
         assertNull(filter.createEqualsExpression(
                 new EqualsFilter(AttributeBuilder.build("x")), false));
     }

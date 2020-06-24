@@ -5,7 +5,6 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -40,53 +39,12 @@ public class AdapterValueTypeConverterTest {
     private static final Character CHAR_VALUE = 'F';
     private Set<Attribute> attributeSet;
 
-    @Before
-    public void setup() {
-        attributeSet = new HashSet<>();
-        attributeSet.add(AttributeBuilder.build(TestAttribute.TEST_ID.name(), TEST_ID1));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.MULTI.name(),
-                Arrays.asList(MULTI_ID1, MULTI_ID2)));
-        attributeSet.add(AttributeBuilder.build(Uid.NAME, UID_VALUE));
-        attributeSet.add(AttributeBuilder.build(Name.NAME, NAME_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.TEST_NAME.name(), TEST_NAME));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), INT_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), BIGDEC_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), BIGINT_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), BOOL_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), BYTE_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), DOUBLE_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), LONG_VALUE_STR));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), CHAR_VALUE_STR));
-    }
-
-    private void setupRawTypes() {
-        attributeSet = new HashSet<>();
-        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), INT_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), BIGDEC_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), BIGINT_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), BOOL_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), BYTE_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), DOUBLE_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), LONG_VALUE));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), CHAR_VALUE));
-    }
-
-    private void setupBadTypes() {
-        attributeSet = new HashSet<>();
-        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), "55.88"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), "xyz"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), "333.222"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), -44));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), "484848"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), "abc"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), "9090.55555"));
-        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), "XYZ"));
-    }
-
     @Test
     public void conversionMapValid() {
+        setupStringTypes();
         assertNotNull(AdapterValueTypeConverter.conversionMap);
         assertFalse(AdapterValueTypeConverter.conversionMap.isEmpty());
+        assertEquals(10, AdapterValueTypeConverter.conversionMap.size());
         assertTrue(AdapterValueTypeConverter.conversionMap.containsKey(String.class));
         assertTrue(AdapterValueTypeConverter.conversionMap.containsKey(Integer.class));
         assertTrue(AdapterValueTypeConverter.conversionMap.containsKey(BigDecimal.class));
@@ -101,12 +59,14 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueString() {
+        setupStringTypes();
         assertEquals(TEST_ID1, AdapterValueTypeConverter.getSingleAttributeValue(
                 String.class, attributeSet, TestAttribute.TEST_ID));
     }
 
     @Test
     public void getSingleAttributeValueInteger() {
+        setupStringTypes();
         assertEquals(INT_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Integer.class, attributeSet, TestAttribute.INT_ATTR));
     }
@@ -120,6 +80,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueBigDecimal() {
+        setupStringTypes();
         assertEquals(BIGDEC_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 BigDecimal.class, attributeSet, TestAttribute.BIGDEC_ATTR));
     }
@@ -133,6 +94,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueBigInteger() {
+        setupStringTypes();
         assertEquals(BIGINT_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 BigInteger.class, attributeSet, TestAttribute.BIGINT_ATTR));
     }
@@ -146,6 +108,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueBoolean() {
+        setupStringTypes();
         assertEquals(BOOL_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Boolean.class, attributeSet, TestAttribute.BOOL_ATTR));
     }
@@ -159,6 +122,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueByte() {
+        setupStringTypes();
         assertEquals(BYTE_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Byte.class, attributeSet, TestAttribute.BYTE_ATTR));
     }
@@ -172,6 +136,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueDouble() {
+        setupStringTypes();
         assertEquals(DOUBLE_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Double.class, attributeSet, TestAttribute.DOUBLE_ATTR));
     }
@@ -185,6 +150,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueLong() {
+        setupStringTypes();
         assertEquals(LONG_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Long.class, attributeSet, TestAttribute.LONG_ATTR));
     }
@@ -198,6 +164,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueCharacter() {
+        setupStringTypes();
         assertEquals(CHAR_VALUE, AdapterValueTypeConverter.getSingleAttributeValue(
                 Character.class, attributeSet, TestAttribute.CHAR_ATTR));
     }
@@ -211,6 +178,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getSingleAttributeValueUnmatchedAttribute() {
+        setupStringTypes();
         assertNull(AdapterValueTypeConverter.getSingleAttributeValue(
                 String.class, attributeSet, TestAttribute.BOGUS));
     }
@@ -266,6 +234,7 @@ public class AdapterValueTypeConverterTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void badTypeFromMethodCall() {
+        setupStringTypes();
         AdapterValueTypeConverter.getSingleAttributeValue(
                 List.class, attributeSet, TestAttribute.LONG_ATTR);
     }
@@ -279,12 +248,14 @@ public class AdapterValueTypeConverterTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void wrongType2() {
+        setupStringTypes();
         AdapterValueTypeConverter.getSingleAttributeValue(
                 Integer.class, attributeSet, TestAttribute.DOUBLE_ATTR);
     }
 
     @Test(expected = InvalidAttributeValueException.class)
     public void emptyCharacterInvalid() {
+        setupStringTypes();
         attributeSet = new HashSet<>();
         attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), ""));
         AdapterValueTypeConverter.getSingleAttributeValue(
@@ -293,24 +264,28 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void nullInputReturnType() {
+        setupStringTypes();
         assertNull(AdapterValueTypeConverter.getSingleAttributeValue(
                 null, attributeSet, TestAttribute.CHAR_ATTR));
     }
 
     @Test
     public void nullInputEnumType() {
+        setupStringTypes();
         assertNull(AdapterValueTypeConverter.getSingleAttributeValue(
                 Character.class, attributeSet, null));
     }
 
     @Test
     public void nullInputEnumTypeMultiple() {
+        setupStringTypes();
         assertNull(AdapterValueTypeConverter.getMultipleAttributeValue(
                 Character.class, attributeSet, null));
     }
 
     @Test
     public void getMultipleAttributeValueString() {
+        setupStringTypes();
         @SuppressWarnings("unchecked")
         List<String> response = AdapterValueTypeConverter.getMultipleAttributeValue(
                 List.class, attributeSet, TestAttribute.MULTI);
@@ -323,14 +298,59 @@ public class AdapterValueTypeConverterTest {
 
     @Test
     public void getIdentityIdAttributeValue() {
+        setupStringTypes();
         assertEquals(UID_VALUE,
                 AdapterValueTypeConverter.getIdentityIdAttributeValue(attributeSet));
     }
 
     @Test
     public void getIdentityNameAttributeValue() {
+        setupStringTypes();
         assertEquals(NAME_VALUE,
                 AdapterValueTypeConverter.getIdentityNameAttributeValue(attributeSet));
+    }
+
+
+    private void setupStringTypes() {
+        attributeSet = new HashSet<>();
+        attributeSet.add(AttributeBuilder.build(TestAttribute.TEST_ID.name(), TEST_ID1));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.MULTI.name(),
+                Arrays.asList(MULTI_ID1, MULTI_ID2)));
+        attributeSet.add(AttributeBuilder.build(Uid.NAME, UID_VALUE));
+        attributeSet.add(AttributeBuilder.build(Name.NAME, NAME_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.TEST_NAME.name(), TEST_NAME));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), INT_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), BIGDEC_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), BIGINT_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), BOOL_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), BYTE_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), DOUBLE_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), LONG_VALUE_STR));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), CHAR_VALUE_STR));
+    }
+
+    private void setupRawTypes() {
+        attributeSet = new HashSet<>();
+        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), INT_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), BIGDEC_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), BIGINT_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), BOOL_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), BYTE_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), DOUBLE_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), LONG_VALUE));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), CHAR_VALUE));
+    }
+
+    private void setupBadTypes() {
+        attributeSet = new HashSet<>();
+        attributeSet.add(AttributeBuilder.build(TestAttribute.INT_ATTR.name(), "55.88"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGDEC_ATTR.name(), "xyz"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BIGINT_ATTR.name(), "333.222"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BOOL_ATTR.name(), -44));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.BYTE_ATTR.name(), "484848"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.DOUBLE_ATTR.name(), "abc"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.LONG_ATTR.name(), "9090.55555"));
+        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), "XYZ"));
     }
 
     private enum TestAttribute {
