@@ -19,8 +19,8 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 import org.identityconnectors.common.logging.Log;
 
 public class TrustStoreConfiguration {
-    private static final String TRUST_STORE_TYPE_PROPERTY = "javax.net.ssl.trustStoreType";
-    private static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";
+    static final String TRUST_STORE_TYPE_PROPERTY = "javax.net.ssl.trustStoreType";
+    static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";
 
     private static final Log LOG = Log.getLog(TrustStoreConfiguration.class);
 
