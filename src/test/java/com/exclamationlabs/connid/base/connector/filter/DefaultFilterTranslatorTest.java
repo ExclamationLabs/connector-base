@@ -28,8 +28,10 @@ public class DefaultFilterTranslatorTest {
 
     @Test
     public void createEqualsExpressionNotReturnsNull() {
+        final String idValue = "id1";
+        List<String> data = Collections.singletonList(idValue);
         assertNull(filter.createEqualsExpression(
-                new EqualsFilter(AttributeBuilder.build("x")), true));
+                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), true));
     }
 
     @Test
