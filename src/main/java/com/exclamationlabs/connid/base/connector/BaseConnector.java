@@ -154,6 +154,62 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         return getClass().getSimpleName();
     }
 
+    /**
+     * Convenience method for testing
+     */
+    public void getUsers(final String query, final ResultsHandler resultsHandler) {
+        executeQuery(ObjectClass.ACCOUNT, query, resultsHandler, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public Uid createUser(final Set<Attribute> attributes) {
+        return create(ObjectClass.ACCOUNT, attributes, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public Uid updateUser(final String uid, final Set<Attribute> attributes) {
+        return update(ObjectClass.ACCOUNT, new Uid(uid), attributes, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public void deleteUser(final String uid) {
+        delete(ObjectClass.ACCOUNT, new Uid(uid), new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public void getGroups(final String query, final ResultsHandler resultsHandler) {
+        executeQuery(ObjectClass.GROUP, query, resultsHandler, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public Uid createGroup(final Set<Attribute> attributes) {
+        return create(ObjectClass.GROUP, attributes, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public Uid updateGroup(final String uid, final Set<Attribute> attributes) {
+        return update(ObjectClass.GROUP, new Uid(uid), attributes, new OperationOptionsBuilder().build());
+    }
+
+    /**
+     * Convenience method for testing
+     */
+    public void deleteGroup(final String uid) {
+        delete(ObjectClass.GROUP, new Uid(uid), new OperationOptionsBuilder().build());
+    }
+
     protected FilterTranslator<String> getConnectorFilterTranslator() {
         return new DefaultFilterTranslator();
     }
