@@ -128,6 +128,9 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
 
     private void updateGroupsForUser(String userId, List<String> currentGroupIds,
                                      List<String> updatedGroupIds) {
+        if (currentGroupIds == null) {
+            currentGroupIds = new ArrayList<>();
+        }
 
         for (String groupId : currentGroupIds) {
             if (! updatedGroupIds.contains(groupId)) {
