@@ -21,10 +21,7 @@ import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,7 +78,7 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
 
             List<String> updatedGroupIds = (gatherUpdatedGroupIds.isPresent() &&
                     gatherUpdatedGroupIds.get().getValue() != null)
-                    ? gatherUpdatedGroupIds.get().getValue().stream().map(
+                    ? gatherUpdatedGroupIds.get().getValue().stream().filter(Objects::nonNull).map(
                     Object::toString).collect(Collectors.toList())
                     : new ArrayList<>();
 
