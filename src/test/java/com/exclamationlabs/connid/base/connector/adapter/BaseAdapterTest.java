@@ -71,7 +71,7 @@ public class BaseAdapterTest {
         }
 
         @Override
-        public void get(String query, ResultsHandler resultsHandler) {
+        public void get(String query, ResultsHandler resultsHandler, OperationOptions options) {
         }
 
         @Override

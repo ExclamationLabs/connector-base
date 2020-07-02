@@ -94,7 +94,9 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
 
     @Override
     public void executeQuery(final ObjectClass objectClass, final String query, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
-        getAdapter(objectClass).get(query, resultsHandler);
+        LOG.info("executeQuery, object class: {0}, query: {1}, resultsHandler class: {2}, oo: {3}",
+                objectClass.toString(), query, resultsHandler.getClass().getName(), operationOptions);
+        getAdapter(objectClass).get(query, resultsHandler, operationOptions);
     }
 
     @Override

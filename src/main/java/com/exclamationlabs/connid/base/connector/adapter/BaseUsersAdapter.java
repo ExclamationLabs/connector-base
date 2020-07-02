@@ -16,10 +16,13 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.adapter.result.IdentityResult;
+import com.exclamationlabs.connid.base.connector.adapter.result.IdentityResultRecord;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,6 +36,8 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
         extends BaseAdapter<U,G> {
 
     private static final Log LOG = Log.getLog(BaseUsersAdapter.class);
+
+    private final Map<String, IdentityResult> identityResultMap = new HashMap<>();
 
     @Override
     protected ObjectClass getType() {
@@ -95,19 +100,69 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
     }
 
     @Override
-    public void get(String query, ResultsHandler resultsHandler) {
+    public void get(String query, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(query)) {
-            // query for all users
-            List<U> allUsers = getDriver().getUsers();
+            LOG.info("Operation options for query: {0}", options);
+            List<IdentityResultRecord> recordList;
+            String currentSearchCookie;
+            if (options.getPagedResultsCookie() != null &&
+                    identityResultMap.containsKey(options.getPagedResultsCookie())) {
+                LOG.info("Cookie found for search: {0}", options.getPagedResultsCookie());
+                recordList = identityResultMap.get(
+                        options.getPagedResultsCookie()).getCachedResults();
+                currentSearchCookie = options.getPagedResultsCookie();
+            } else {
+                IdentityResult newResult = new IdentityResult();
+                // query for all users
+                List<U> allUsers = getDriver().getUsers();
+                for (UserIdentityModel currentUser : allUsers) {
+                    newResult.addResult(currentUser.getIdentityIdValue(),
+                            currentUser.getIdentityNameValue());
+                }
+                recordList = newResult.getCachedResults();
+                currentSearchCookie = newResult.getUuid();
+                identityResultMap.put(currentSearchCookie, newResult);
+            }
+            LOG.info("Total result records: {0}", recordList.size());
 
-            for (UserIdentityModel currentUser : allUsers) {
+            int currentPageSize = options.getPageSize() != null && options.getPageSize() > 1
+                    ? options.getPageSize() : DEFAULT_PAGE_SIZE;
+            int currentOffset = options.getPagedResultsOffset() != null
+                    ? options.getPagedResultsOffset() - 1 : 0;
+            LOG.info("In use page size {0}, offset {1}",
+                    currentPageSize, currentOffset);
+            int stopOffset = Math.min(currentOffset + currentPageSize, recordList.size());
+            LOG.info("Start and stop offsets {0}, {1}",
+                    currentOffset, stopOffset);
+           // for (int xx=currentOffset; xx < stopOffset; xx++) {
+            for (int xx=0; xx < recordList.size(); xx++) {
                 resultsHandler.handle(
                         new ConnectorObjectBuilder()
-                                .setUid(currentUser.getIdentityIdValue())
-                                .setName(currentUser.getIdentityNameValue())
+                                .setUid(recordList.get(xx).getId())
+                                .setName(recordList.get(xx).getName())
                                 .setObjectClass(getType())
                                 .build());
             }
+
+            boolean allResultsReturned = currentOffset + currentPageSize >= recordList.size();
+            int remainingResults = allResultsReturned ? 0
+                    : recordList.size() - currentOffset - currentPageSize;
+
+            if (resultsHandler instanceof SearchResultsHandler) {
+                LOG.info("AAA Constructing SearchResult with cookie {0}, remainingResults {1}, "
+                                + "allResultsReturned {2}", currentSearchCookie, remainingResults,
+                        allResultsReturned);
+                /*
+                SearchResult searchResult = new SearchResult(currentSearchCookie, remainingResults,
+                        allResultsReturned);
+
+                 */
+                SearchResult searchResult = new SearchResult(currentSearchCookie, 0);
+                ((SearchResultsHandler) resultsHandler).handleResult(searchResult);
+            } else {
+                LOG.info("ResultsHandler not a SearchResultsHandler");
+            }
+
         } else {
             // Query for single user
             U singleUser = getDriver().getUser(query);

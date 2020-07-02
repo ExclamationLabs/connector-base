@@ -61,7 +61,7 @@ public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends G
     }
 
     @Override
-    public void get(String query, ResultsHandler resultsHandler) {
+    public void get(String query, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(query)) {
             // query for all groups
             List<G> allGroups = getDriver().getGroups();

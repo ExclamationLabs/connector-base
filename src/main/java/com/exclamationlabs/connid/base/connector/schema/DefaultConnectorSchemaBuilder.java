@@ -23,6 +23,7 @@ import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.spi.operations.SearchOp;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -52,6 +53,16 @@ public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extend
         LOG.info("Determining group schema elements for connector {0} ...", connector.getName());
         schemaBuilder.defineObjectClass(buildObjectClassInfo(ObjectClass.GROUP_NAME,
                 groupAttributes));
+
+        LOG.info("Define schema operation options ...", connector.getName());
+        schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAttributesToGet(),
+                SearchOp.class);
+        schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPageSize(),
+                SearchOp.class);
+        schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPagedResultsCookie(),
+                SearchOp.class);
+        schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildSortKeys(),
+                SearchOp.class);
 
         LOG.info("Finished building schema for connector {0}", connector.getName());
 

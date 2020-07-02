@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupIdentityModel> {
 
+    protected static final int DEFAULT_PAGE_SIZE = 20;
+
     private Driver<U,G> driver;
 
     protected abstract ObjectClass getType();
@@ -66,8 +68,9 @@ public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupId
      * Service a request from IAM to get one, some, or all items of a data type from the destination system.
      * @param query Query string to help identify which item(s) need to be retrieved.
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
+     * @param operationOptions Object holding search and paging information
      */
-    public abstract void get(String query, ResultsHandler resultsHandler);
+    public abstract void get(String query, ResultsHandler resultsHandler, OperationOptions operationOptions);
 
     public final void setDriver(Driver<U,G> component) {
         driver = component;
