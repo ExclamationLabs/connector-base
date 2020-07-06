@@ -59,6 +59,8 @@ public class OAuth2TokenClientCredentialsAuthenticator extends AbstractOAuth2Tok
     @Override
     public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
         try {
+            initializeForHttp();
+
             HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
 
             List<NameValuePair> params = new ArrayList<>();
