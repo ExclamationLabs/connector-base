@@ -16,6 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+/**
+ * Abstract class for JWT authenticators.
+ */
 public abstract class JWTAuthenticator implements Authenticator {
 
 }

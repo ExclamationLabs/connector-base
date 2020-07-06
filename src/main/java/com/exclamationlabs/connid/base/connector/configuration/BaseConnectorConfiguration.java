@@ -160,7 +160,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
     }
 
     /**
-     * For testing/stubbing
+     * For testing/stubbing or Configuration not loaded from file.
      * @param testProperties Populated Properties object w/ test
      *                       properties needed
      */

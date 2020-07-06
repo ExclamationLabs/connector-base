@@ -16,6 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
@@ -43,7 +45,12 @@ public class ComplexStubConnectorTest {
     @Before
     public void setup() {
         connector = new ComplexStubConnector();
-        ComplexStubConfiguration configuration = new ComplexStubConfiguration();
+        ComplexStubConfiguration configuration = new ComplexStubConfiguration(
+                new ConfigurationNameBuilder()
+                        .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
+                        .withOwner("ComplexTest")
+                        .withConnector("Stub").build()
+        );
         configuration.setTestConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();

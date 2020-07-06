@@ -25,6 +25,9 @@ import org.identityconnectors.framework.common.objects.Schema;
 
 import java.util.EnumMap;
 
+/**
+ * Interface for building a ConnId schema using the base connector framework.
+ */
 public interface ConnectorSchemaBuilder<U extends UserIdentityModel,G extends GroupIdentityModel> {
 
     /**

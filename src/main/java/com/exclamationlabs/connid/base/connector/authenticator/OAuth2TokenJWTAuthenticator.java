@@ -32,6 +32,9 @@ import java.util.*;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * This implementation performs the OAuth2 "jwt-bearer" grant type.
+ */
 public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticator {
 
     protected static GsonBuilder gsonBuilder;

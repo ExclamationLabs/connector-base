@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 /**
  * This class contains static utility methods that allow us to efficiently convert ConnId Attribute values
- * (often stored as List<Object>) to specific supported concrete Java class types.
+ * (often stored as List of Object) to specific supported concrete Java class types.
  */
 public class AdapterValueTypeConverter {
 

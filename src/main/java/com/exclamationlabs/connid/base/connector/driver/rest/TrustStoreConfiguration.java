@@ -18,6 +18,12 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import org.identityconnectors.common.logging.Log;
 
+/**
+ * This utility class is used to clear out Java system properties for
+ * trust store setup.  This seems to be needed in current MidPoint versions
+ * where these default Java system property values cause problems
+ * with any usage of HttpClient from a connector.
+ */
 public class TrustStoreConfiguration {
     static final String TRUST_STORE_TYPE_PROPERTY = "javax.net.ssl.trustStoreType";
     static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";

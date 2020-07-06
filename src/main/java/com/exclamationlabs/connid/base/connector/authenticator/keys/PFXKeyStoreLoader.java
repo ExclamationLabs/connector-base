@@ -31,6 +31,9 @@ import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * Implementation to load a KeyStore from a PFX file.
+ */
 public class PFXKeyStoreLoader implements KeyStoreLoader {
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
 

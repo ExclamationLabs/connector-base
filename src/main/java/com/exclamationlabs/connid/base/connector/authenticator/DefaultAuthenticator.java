@@ -22,6 +22,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 import java.util.Set;
 
+/**
+ * Internal do-nothing Authenticator which is used if a connector
+ * does not specify an authenticator using setAuthenticator() in its constructor.
+ */
 public class DefaultAuthenticator implements Authenticator {
     @Override
     public Set<ConnectorProperty> getRequiredPropertyNames() {
