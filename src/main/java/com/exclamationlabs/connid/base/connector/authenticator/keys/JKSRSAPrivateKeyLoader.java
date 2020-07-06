@@ -31,6 +31,9 @@ import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * Implementation to load a RSAPrivateKey from JKS information (file, password, alias).
+ */
 public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader {
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
 

@@ -31,7 +31,7 @@ import java.util.*;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 /**
- * This implementation implements thw HS256 strategy.
+ * This JWT authenticator implementation performs the HS256 strategy.
  *
  * Private key is required. This implementation does not utilize a
  * public key since only the private key is needed for signing.

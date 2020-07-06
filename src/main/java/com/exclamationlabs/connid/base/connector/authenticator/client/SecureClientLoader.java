@@ -24,6 +24,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.security.KeyStore;
 import java.util.Set;
 
+/**
+ * A SecureClientLoader can be used to create a secure HttpClient, leveraging
+ * a KeyStore and configuration information.
+ */
 public interface SecureClientLoader {
     Set<ConnectorProperty> getRequiredPropertyNames();
 

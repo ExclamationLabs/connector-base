@@ -31,6 +31,9 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 import java.io.IOException;
 
+/**
+ * Abstract class for several specific OAuth2 grant type implementations.
+ */
 public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator {
 
     private static final Log LOG = Log.getLog(AbstractOAuth2TokenAuthenticator.class);

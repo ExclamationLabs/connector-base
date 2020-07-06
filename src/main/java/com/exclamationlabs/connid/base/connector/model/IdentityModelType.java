@@ -16,6 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.model;
 
+/**
+ * Internal enumeration to help identify whether a model is a user or group type.
+ */
 public enum IdentityModelType {
     USER,
     GROUP

@@ -16,6 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
@@ -46,7 +48,12 @@ public class StubConnectorTest {
     @Before
     public void setup() {
         connector = new StubConnector();
-        StubConfiguration configuration = new StubConfiguration();
+        StubConfiguration configuration = new StubConfiguration(
+            new ConfigurationNameBuilder()
+                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
+                    .withOwner("Test")
+                    .withConnector("Stub").build()
+        );
         configuration.setTestConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();

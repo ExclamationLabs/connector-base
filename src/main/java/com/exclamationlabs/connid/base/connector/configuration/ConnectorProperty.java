@@ -16,6 +16,11 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+/**
+ * An enumeration describing all possible connector properties that
+ * identify configuration items that the Base Connector framework
+ * actively supports.
+ */
 public enum ConnectorProperty {
 
     CONNECTOR_BASE_CONFIGURATION_ACTIVE,

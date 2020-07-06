@@ -35,6 +35,9 @@ import java.util.*;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * This implementation performs the OAuth2 "authorization_code" grant type.
+ */
 public class OAuth2TokenAuthorizationCodeAuthenticator extends AbstractOAuth2TokenAuthenticator {
 
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
