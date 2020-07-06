@@ -1,4 +1,4 @@
-package com.exclamationlabs.connid.base.connector.driver.rest;
+package com.exclamationlabs.connid.base.connector.configuration;
 
 import org.junit.Test;
 

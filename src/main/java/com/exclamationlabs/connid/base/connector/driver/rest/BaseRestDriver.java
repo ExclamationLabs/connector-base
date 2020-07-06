@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;

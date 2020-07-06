@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.driver.rest;
+package com.exclamationlabs.connid.base.connector.configuration;
 
 import org.identityconnectors.common.logging.Log;
 
@@ -30,16 +30,22 @@ public class TrustStoreConfiguration {
 
     private static final Log LOG = Log.getLog(TrustStoreConfiguration.class);
 
+    private static boolean propertiesCleared = false;
+
     private TrustStoreConfiguration() {}
 
     public static void clearJdkProperties() {
+        if (!propertiesCleared) {
+            LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
+                    TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY));
+            LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
+                    TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY));
 
-        LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
-                TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY));
-        LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
-                TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY));
-
-        System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
-        System.clearProperty(TRUST_STORE_PROPERTY);
+            System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
+            System.clearProperty(TRUST_STORE_PROPERTY);
+            propertiesCleared = true;
+        } else {
+            LOG.info("Trust store properties already cleared for connector.");
+        }
     }
 }
