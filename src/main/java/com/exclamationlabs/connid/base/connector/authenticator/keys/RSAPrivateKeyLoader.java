@@ -23,6 +23,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Set;
 
+/**
+ * A RSAPrivateKeyLoader can be used to load a RSAPrivateKey, given
+ * configuration information.
+ */
 public interface RSAPrivateKeyLoader {
     Set<ConnectorProperty> getRequiredPropertyNames();
 

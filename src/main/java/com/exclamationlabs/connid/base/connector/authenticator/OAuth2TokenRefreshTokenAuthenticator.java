@@ -35,6 +35,9 @@ import java.util.*;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * This implementation performs the OAuth2 "refresh_token" grant type.
+ */
 public class OAuth2TokenRefreshTokenAuthenticator extends AbstractOAuth2TokenAuthenticator {
 
     private static final Set<ConnectorProperty> PROPERTY_NAMES;

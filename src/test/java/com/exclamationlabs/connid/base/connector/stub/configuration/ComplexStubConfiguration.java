@@ -17,12 +17,25 @@
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import org.identityconnectors.framework.spi.ConfigurationClass;
 
 import java.util.Properties;
 
+@ConfigurationClass(skipUnsupported = true)
 public class ComplexStubConfiguration extends StubConfiguration {
 
+    public ComplexStubConfiguration(String configName) {
+        super(configName);
+        setupCustomProperties();
+    }
+
+    @SuppressWarnings("unused")
     public ComplexStubConfiguration() {
+        super();
+        setupCustomProperties();
+    }
+
+    private void setupCustomProperties() {
         Properties properties = new Properties();
         properties.setProperty(
                 ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_FILE.name(), "abcd");

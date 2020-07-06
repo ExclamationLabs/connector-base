@@ -35,6 +35,9 @@ import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
+/**
+ * Implementation to load a RSAPrivateKey from a PEM file.
+ */
 public class PEMRSAPrivateKeyLoader implements RSAPrivateKeyLoader {
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
 

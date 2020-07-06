@@ -36,6 +36,9 @@ import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_PASSWORD;
 
+/**
+ * Workhorse to create a secure HttpClient using a supplied KeyStore.
+ */
 public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader {
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
 

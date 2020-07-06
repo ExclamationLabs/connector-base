@@ -22,6 +22,11 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 import java.util.Set;
 
+/**
+ * An Authenticator is an object that might be needed by a connector implementation
+ * in order to obtain some kind of access token (String) required to
+ * authenticate to its destination system (usually via a Driver).
+ */
 public interface Authenticator {
 
     /**

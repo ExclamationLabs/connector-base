@@ -43,6 +43,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * Abstract class for drivers that need to make calls to RESTful web services
+ * to manage user and group information.
+ */
 public abstract class BaseRestDriver<U extends UserIdentityModel, G extends GroupIdentityModel> implements Driver<U,G> {
 
     private static final Log LOG = Log.getLog(BaseRestDriver.class);
