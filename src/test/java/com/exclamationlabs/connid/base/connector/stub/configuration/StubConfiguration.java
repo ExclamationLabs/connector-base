@@ -17,11 +17,29 @@
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import org.identityconnectors.framework.spi.ConfigurationClass;
+import org.identityconnectors.framework.spi.ConfigurationProperty;
 
+@ConfigurationClass(skipUnsupported = true)
 public class StubConfiguration extends BaseConnectorConfiguration {
 
+    public StubConfiguration() {
+        super();
+    }
+
+    public StubConfiguration(String configurationName) {
+        super(configurationName);
+    }
+
     @Override
+    @ConfigurationProperty(
+            displayMessageKey = "Stub Configuration File Path",
+            helpMessageKey = "File path for the Stub Configuration File",
+            required = true)
     public String getConfigurationFilePath() {
+        // NOTE: concrete non-test configurations should use the following line -
+        // return getMidPointConfigurationFilePath();
         return null;
     }
+
 }

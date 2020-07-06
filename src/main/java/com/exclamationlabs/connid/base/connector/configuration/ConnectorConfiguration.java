@@ -16,6 +16,10 @@ package com.exclamationlabs.connid.base.connector.configuration;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.Configuration;
 
+/**
+ * Architectural interface used to wrap ConnId's Configuration interface,
+ * which the BaseConnectorConfiguration implements.
+ */
 public interface ConnectorConfiguration extends Configuration {
 
     /**

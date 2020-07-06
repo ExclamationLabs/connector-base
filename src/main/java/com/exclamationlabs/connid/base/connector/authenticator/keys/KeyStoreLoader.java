@@ -23,6 +23,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.security.KeyStore;
 import java.util.Set;
 
+/**
+ * A KeyStoreLoader can be used to load a KeyStore (of various kinds), given
+ * configuration information.
+ */
 public interface KeyStoreLoader {
     Set<ConnectorProperty> getRequiredPropertyNames();
     KeyStore load(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;

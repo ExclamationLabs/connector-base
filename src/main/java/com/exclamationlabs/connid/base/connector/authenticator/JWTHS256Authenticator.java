@@ -28,6 +28,12 @@ import java.util.*;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD;
 
+/**
+ * This implementation performs the HS256 strategy.
+ * JWS: HS256
+ * Algorithm: HMAC256
+ * Description: HMAC with SHA-256
+ */
 public class JWTHS256Authenticator extends JWTAuthenticator {
 
     private static final Set<ConnectorProperty> PROPERTY_NAMES;
@@ -43,12 +49,6 @@ public class JWTHS256Authenticator extends JWTAuthenticator {
         return PROPERTY_NAMES;
     }
 
-    /**
-     * This implementation implements thw HS256 strategy.
-     * JWS: HS256
-     * Algorithm: HMAC256
-     * Description: HMAC with SHA-256
-     */
     @Override
     public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
         try {

@@ -36,9 +36,22 @@ dependencies {
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
 }
 
+
 task generatePom {
     doLast {
         pom().writeTo("build/libs/${project.name}-${project.version}.pom")
     }
 }
-build.dependsOn(generatePom)
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+task storeJavadoc(type: Copy, dependsOn: javadoc) {
+    from 'build/docs/javadoc'
+    into 'javadoc'
+}
+
+task cleanJavadoc(type: Delete) {
+    delete 'javadoc'
+}
+
+clean.dependsOn(cleanJavadoc)
+build.dependsOn(generatePom, storeJavadoc)
