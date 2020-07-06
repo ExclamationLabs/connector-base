@@ -56,6 +56,7 @@ public class OAuth2TokenPasswordAuthenticator extends AbstractOAuth2TokenAuthent
 
     @Override
     public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+        initializeForHttp();
         HttpClient client = createClient();
 
         try {

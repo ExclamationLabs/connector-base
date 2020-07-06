@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
@@ -60,5 +61,9 @@ public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator 
         } else {
             throw new ConnectorSecurityException("Invalid/empty response received from OAuth2: " + rawJson);
         }
+    }
+
+    protected static void initializeForHttp() {
+        TrustStoreConfiguration.clearJdkProperties();
     }
 }
