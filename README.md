@@ -45,7 +45,7 @@ and shouldn't need to include these dependencies in your connector project.
 
 ## Developer Guide
 
-Also see the (Javadocs for Connector Base Framework)[https://exclamationlabs.github.io/connector-base/]
+Also see the [Javadocs for Connector Base Framework](https://exclamationlabs.github.io/connector-base/)
 
 The Base Connector consists of many interfaces and abstract base classes and is focused
 on providing reusability as well as customization opportunities.   We use the term 'destination system' to describe any
