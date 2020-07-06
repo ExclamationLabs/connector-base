@@ -60,6 +60,7 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
 
     @Override
     public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+        initializeForHttp();
         String bearerToken = jwtAuthenticator.authenticate(configuration);
 
         HttpClient client = createClient();

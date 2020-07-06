@@ -60,6 +60,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticator extends AbstractOAuth2Tok
 
     @Override
     public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+        initializeForHttp();
         HttpClient client = createClient();
 
         try {
@@ -86,6 +87,8 @@ public class OAuth2TokenAuthorizationCodeAuthenticator extends AbstractOAuth2Tok
         }
 
     }
+
+
 
     protected HttpClient createClient() {
         return HttpClients.createDefault();
