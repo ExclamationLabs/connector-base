@@ -46,11 +46,11 @@ task generatePom {
 javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 task storeJavadoc(type: Copy, dependsOn: javadoc) {
     from 'build/docs/javadoc'
-    into 'javadoc'
+    into 'docs'
 }
 
 task cleanJavadoc(type: Delete) {
-    delete 'javadoc'
+    delete 'docs'
 }
 
 clean.dependsOn(cleanJavadoc)
