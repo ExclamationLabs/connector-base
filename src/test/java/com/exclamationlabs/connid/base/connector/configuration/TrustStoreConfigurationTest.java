@@ -17,7 +17,7 @@ public class TrustStoreConfigurationTest {
         String test = System.getProperty(TrustStoreConfiguration.TRUST_STORE_PROPERTY);
         assertEquals("test_truststoretype", testType);
         assertEquals("test_truststore", test);
-        TrustStoreConfiguration.clearJdkProperties();
+        TrustStoreConfiguration.clearJdkPropertiesForce();
         assertNull( System.getProperty(TrustStoreConfiguration.TRUST_STORE_TYPE_PROPERTY));
         assertNull( System.getProperty(TrustStoreConfiguration.TRUST_STORE_PROPERTY));
     }

@@ -34,6 +34,11 @@ public class TrustStoreConfiguration {
 
     private TrustStoreConfiguration() {}
 
+    static void clearJdkPropertiesForce() {
+        propertiesCleared = false;
+        clearJdkProperties();
+    }
+
     public static void clearJdkProperties() {
         if (!propertiesCleared) {
             LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
