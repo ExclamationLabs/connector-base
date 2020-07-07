@@ -23,6 +23,12 @@ import org.identityconnectors.framework.spi.Configuration;
 public interface ConnectorConfiguration extends Configuration {
 
     /**
+     * Get connector configuration property value
+     * @return String containing configuration value for input property
+     */
+    String getProperty(String input);
+
+    /**
      * Get the connector configuration name
      * @return String containing a name representation for this connector's configuration
      */

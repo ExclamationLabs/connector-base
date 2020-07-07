@@ -135,6 +135,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     }
 
+    @Override
     public String getProperty(String nameIn) {
         if (connectorProperties != null) {
             return connectorProperties.getProperty(nameIn);
