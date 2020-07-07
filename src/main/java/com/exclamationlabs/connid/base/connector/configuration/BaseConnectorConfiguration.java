@@ -23,13 +23,7 @@ import org.identityconnectors.framework.common.objects.ConnectorMessages;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -141,6 +135,13 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     }
 
+    public String getProperty(String nameIn) {
+        if (connectorProperties != null) {
+            return connectorProperties.getProperty(nameIn);
+        }
+        return null;
+    }
+
     public String getProperty(ConnectorProperty propertyIn) {
         if (connectorProperties != null) {
             return connectorProperties.getProperty(propertyIn.name());
@@ -168,8 +169,25 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         connectorProperties = testProperties;
     }
 
+    /**
+     * Return any non-standard custom configuration property names for a specific connector.  This method
+     * should be overridden if your connector requires any additional property names loaded from
+     * its configuration properties file that aren't already defined in ConnectorProperty enum.
+     * @return List of Strings containing any additional property names than an implementing connector uses.
+     */
+    public List<String> getAdditionalPropertyNames() {
+        return new ArrayList<>();
+    }
+
     @Override
     public void validateConfiguration() throws ConfigurationException {
+        for (String current : getAdditionalPropertyNames()) {
+            if (getProperty(current) == null) {
+                throw new ConfigurationException("Connector configuration is missing required custom property: " +
+                        current);
+            }
+        }
+
         for (ConnectorProperty current : requiredPropertyNames) {
             if (getProperty(current) == null) {
                 throw new ConfigurationException("Connector configuration is missing required property: " +
