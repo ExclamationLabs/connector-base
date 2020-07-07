@@ -29,6 +29,13 @@ public interface ConnectorConfiguration extends Configuration {
     String getProperty(String input);
 
     /**
+     * Set a connector configuration property value
+     * @param key Configuration property name to set
+     * @param value Configuration property value to set
+     */
+    void setProperty(String key, String value);
+
+    /**
      * Get the connector configuration name
      * @return String containing a name representation for this connector's configuration
      */
