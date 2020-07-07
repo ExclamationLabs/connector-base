@@ -75,6 +75,33 @@ public class BaseConnectorConfigurationTest {
 
     }
 
+    @Test
+    public void testAdditionalConfigurationValidProperty() {
+        ConnectorConfiguration configuration = new BaseConnectorConfiguration() {
+            @Override
+            public List<String> getAdditionalPropertyNames() {
+                return Collections.singletonList("ANOTHER_ONE");
+            }
+
+            @Override
+            public String getConfigurationFilePath() {
+                return null;
+            }
+
+            @Override
+            public void setup() {
+                Properties properties = new Properties();
+                properties.setProperty(
+                        ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE.name(), "Y");
+                setConnectorProperties(properties);
+                setProperty("ANOTHER_ONE", "GOOD");
+                super.setup();
+            }
+        };
+        configuration.setup();
+        new StubConnector().init(configuration);
+    }
+
     @Test(expected=ConfigurationException.class)
     public void testMissingConfiguration() {
         ConnectorConfiguration configuration = new BaseConnectorConfiguration() {

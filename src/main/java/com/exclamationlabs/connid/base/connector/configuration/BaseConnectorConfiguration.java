@@ -143,6 +143,18 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         return null;
     }
 
+    /**
+     * Most often used for testing purposes.
+     * @param nameIn Name of configuration property to set
+     * @param valueIn Configuration value to set
+     */
+    @Override
+    public void setProperty(String nameIn, String valueIn) {
+        if (connectorProperties != null) {
+            connectorProperties.setProperty(nameIn, valueIn);
+        }
+    }
+
     public String getProperty(ConnectorProperty propertyIn) {
         if (connectorProperties != null) {
             return connectorProperties.getProperty(propertyIn.name());
