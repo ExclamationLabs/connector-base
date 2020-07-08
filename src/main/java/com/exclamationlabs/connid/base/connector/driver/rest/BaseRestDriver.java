@@ -94,6 +94,16 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     }
 
     /**
+     * Override this and return true if the RESTful services you are calling
+     * require Authorization: Token token=[token] in the HTTP header. If true,
+     * this header will be added to all requests, with the token coming from
+     * value stored in ConnectorConfiguration getCredentialAccessToken().
+     */
+    protected boolean usesTokenAuthorization() {
+        return false;
+    }
+
+    /**
      * This method should return the base Service URL
      * for RESTful endpoints that this driver invokes.
      * If not used and full URL needs to be fully reconstructed for every diffect
@@ -231,6 +241,10 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         if (usesBearerAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " +
+                    configuration.getCredentialAccessToken());
+        }
+        else if (usesTokenAuthorization()) {
+            request.setHeader(HttpHeaders.AUTHORIZATION, "Token token=" +
                     configuration.getCredentialAccessToken());
         }
 
