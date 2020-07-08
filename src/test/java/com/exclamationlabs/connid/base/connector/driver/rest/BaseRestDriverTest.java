@@ -19,7 +19,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -61,6 +63,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
                     SECOND_GROUP_RESPONSE + " ]}";
 
     private BaseRestDriver<StubUser, StubGroup> driver;
+    private final Map<String, String> moreHeaders = new HashMap<>();
 
     @Before
     public void setup() {
@@ -76,6 +79,8 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
                 return "good";
             }
         });
+        moreHeaders.put("uno", "one");
+        moreHeaders.put("dos", "two");
     }
 
     @Test
@@ -208,56 +213,56 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
         @Override
         public String createUser(StubUser userModel) throws ConnectorException {
-            StubUser response = executePostRequest("/users", StubUser.class, userModel);
+            StubUser response = executePostRequest("/users", StubUser.class, userModel, moreHeaders);
             return response.getId();
         }
 
         @Override
         public String createGroup(StubGroup groupModel) throws ConnectorException {
-            StubGroup response = executePostRequest("/groups", StubGroup.class, groupModel);
+            StubGroup response = executePostRequest("/groups", StubGroup.class, groupModel, moreHeaders);
             return response.getId();
         }
 
         @Override
         public void updateUser(String userId, StubUser userModel) throws ConnectorException {
-            executePatchRequest("/users/" + userId, null, userModel);
+            executePatchRequest("/users/" + userId, null, userModel, moreHeaders);
         }
 
         @Override
         public void updateGroup(String groupId, StubGroup groupModel) throws ConnectorException {
-            executePutRequest("/groups/" + groupId, null, groupModel);
+            executePutRequest("/groups/" + groupId, null, groupModel, moreHeaders);
         }
 
         @Override
         public void deleteUser(String userId) throws ConnectorException {
-            executeDeleteRequest("/users/" + userId, null);
+            executeDeleteRequest("/users/" + userId, null, moreHeaders);
         }
 
         @Override
         public void deleteGroup(String groupId) throws ConnectorException {
-            executeDeleteRequest("/groups/" + groupId, null);
+            executeDeleteRequest("/groups/" + groupId, null, moreHeaders);
         }
 
         @Override
         public List<StubUser> getUsers() throws ConnectorException {
-            TestUsersResponse usersResponse = executeGetRequest("/users", TestUsersResponse.class);
+            TestUsersResponse usersResponse = executeGetRequest("/users", TestUsersResponse.class, moreHeaders);
             return usersResponse.getPeople();
         }
 
         @Override
         public List<StubGroup> getGroups() throws ConnectorException {
-            TestGroupsResponse usersResponse = executeGetRequest("/groups", TestGroupsResponse.class);
+            TestGroupsResponse usersResponse = executeGetRequest("/groups", TestGroupsResponse.class, moreHeaders);
             return usersResponse.getGroups();
         }
 
         @Override
         public StubUser getUser(String userId) throws ConnectorException {
-            return executeGetRequest("/users/" + userId, StubUser.class);
+            return executeGetRequest("/users/" + userId, StubUser.class, moreHeaders);
         }
 
         @Override
         public StubGroup getGroup(String groupId) throws ConnectorException {
-            return executeGetRequest("/groups/" + groupId, StubGroup.class);
+            return executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders);
         }
 
         @Override

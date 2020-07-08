@@ -43,6 +43,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 /**
  * Abstract class for drivers that need to make calls to RESTful web services
@@ -138,27 +139,57 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     }
 
     protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType) {
-        HttpGet get = createGetRequest(restUri);
-        return executeRequest(get, expectedResponseType);
+        return executeGetRequest(restUri, expectedResponseType, null);
     }
 
     protected <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
-        HttpPost post = createPostRequest(restUri, requestBody);
-        return executeRequest(post, expectedResponseType);
+        return executePostRequest(restUri, expectedResponseType, requestBody, null);
     }
 
     protected <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
-        HttpPut post = createPutRequest(restUri, requestBody);
-        return executeRequest(post, expectedResponseType);
+        return executePutRequest(restUri, expectedResponseType, requestBody, null);
     }
 
     protected <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
-        HttpPatch post = createPatchRequest(restUri, requestBody);
-        return executeRequest(post, expectedResponseType);
+        return executePatchRequest(restUri, expectedResponseType, requestBody, null);
     }
 
     protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType) {
+        return executeDeleteRequest(restUri, expectedResponseType, null);
+    }
+
+    protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType,
+                                     Map<String, String> additionalHeaders) {
+        HttpGet get = createGetRequest(restUri);
+        setAdditionalHeaders(get, additionalHeaders);
+        return executeRequest(get, expectedResponseType);
+    }
+
+    protected <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+                                      Map<String, String> additionalHeaders) {
+        HttpPost post = createPostRequest(restUri, requestBody);
+        setAdditionalHeaders(post, additionalHeaders);
+        return executeRequest(post, expectedResponseType);
+    }
+
+    protected <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+                                     Map<String, String> additionalHeaders) {
+        HttpPut put = createPutRequest(restUri, requestBody);
+        setAdditionalHeaders(put, additionalHeaders);
+        return executeRequest(put, expectedResponseType);
+    }
+
+    protected <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+                                       Map<String, String> additionalHeaders) {
+        HttpPatch patch = createPatchRequest(restUri, requestBody);
+        setAdditionalHeaders(patch, additionalHeaders);
+        return executeRequest(patch, expectedResponseType);
+    }
+
+    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+                                        Map<String, String> additionalHeaders) {
         HttpDelete delete = createDeleteRequest(restUri);
+        setAdditionalHeaders(delete, additionalHeaders);
         return executeRequest(delete, expectedResponseType);
     }
 
@@ -203,6 +234,12 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
                     configuration.getCredentialAccessToken());
         }
 
+    }
+
+    private void setAdditionalHeaders(HttpRequestBase request, Map<String, String> headers) {
+        if (headers != null) {
+            headers.forEach(request::addHeader);
+        }
     }
 
     private void setupJsonRequestBody(HttpEntityEnclosingRequestBase request, Object requestBody) {
