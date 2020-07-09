@@ -231,6 +231,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><a href="com/exclamationlabs/connid/base/connector/driver/rest/package-summary.html">com.exclamationlabs.connid.base.connector.driver.rest</a> - package com.exclamationlabs.connid.base.connector.driver.rest</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/package-summary.html">com.exclamationlabs.connid.base.connector.driver.rest.util</a> - package com.exclamationlabs.connid.base.connector.driver.rest.util</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/exclamationlabs/connid/base/connector/filter/package-summary.html">com.exclamationlabs.connid.base.connector.filter</a> - package com.exclamationlabs.connid.base.connector.filter</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/exclamationlabs/connid/base/connector/model/package-summary.html">com.exclamationlabs.connid.base.connector.model</a> - package com.exclamationlabs.connid.base.connector.model</dt>
@@ -459,6 +461,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dl>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html#executeDeleteRequest(java.lang.String,java.lang.Class)">executeDeleteRequest(String, Class&lt;T&gt;)</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.<a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest">BaseRestDriver</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html#executeDeleteRequest(java.lang.String,java.lang.Class,java.lang.Object,java.util.Map)">executeDeleteRequest(String, Class&lt;T&gt;, Object, Map&lt;String, String&gt;)</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.<a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest">BaseRestDriver</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html#executeDeleteRequest(java.lang.String,java.lang.Class,java.util.Map)">executeDeleteRequest(String, Class&lt;T&gt;, Map&lt;String, String&gt;)</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.<a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest">BaseRestDriver</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html#executeGetRequest(java.lang.String,java.lang.Class)">executeGetRequest(String, Class&lt;T&gt;)</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.<a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest">BaseRestDriver</a></dt>
@@ -600,6 +604,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/authenticator/model/OAuth2AccessTokenContainer.html#getInstanceUrl()">getInstanceUrl()</a></span> - Method in class com.exclamationlabs.connid.base.connector.authenticator.model.<a href="com/exclamationlabs/connid/base/connector/authenticator/model/OAuth2AccessTokenContainer.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.model">OAuth2AccessTokenContainer</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html#getMethod()">getMethod()</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.util.<a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/configuration/BaseConnectorConfiguration.html#getMidPointConfigurationFilePath()">getMidPointConfigurationFilePath()</a></span> - Method in class com.exclamationlabs.connid.base.connector.configuration.<a href="com/exclamationlabs/connid/base/connector/configuration/BaseConnectorConfiguration.html" title="class in com.exclamationlabs.connid.base.connector.configuration">BaseConnectorConfiguration</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/adapter/AdapterValueTypeConverter.html#getMultipleAttributeValue(java.lang.Class,java.util.Set,java.lang.Enum)">getMultipleAttributeValue(Class&lt;T&gt;, Set&lt;Attribute&gt;, Enum&lt;?&gt;)</a></span> - Static method in class com.exclamationlabs.connid.base.connector.adapter.<a href="com/exclamationlabs/connid/base/connector/adapter/AdapterValueTypeConverter.html" title="class in com.exclamationlabs.connid.base.connector.adapter">AdapterValueTypeConverter</a></dt>
@@ -739,6 +745,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">H</h2>
 <dl>
+<dt><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util"><span class="typeNameLink">HttpDeleteWithBody</span></a> - Class in <a href="com/exclamationlabs/connid/base/connector/driver/rest/util/package-summary.html">com.exclamationlabs.connid.base.connector.driver.rest.util</a></dt>
+<dd>
+<div class="block">HTTP Delete with request body is non-standard but there are
+ minority of API's that might still require this behavior.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html#%3Cinit%3E()">HttpDeleteWithBody()</a></span> - Constructor for class com.exclamationlabs.connid.base.connector.driver.rest.util.<a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html#%3Cinit%3E(java.lang.String)">HttpDeleteWithBody(String)</a></span> - Constructor for class com.exclamationlabs.connid.base.connector.driver.rest.util.<a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html#%3Cinit%3E(java.net.URI)">HttpDeleteWithBody(URI)</a></span> - Constructor for class com.exclamationlabs.connid.base.connector.driver.rest.util.<a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/exclamationlabs/connid/base/connector/authenticator/client/HttpsKeystoreCertificateClientLoader.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.client"><span class="typeNameLink">HttpsKeystoreCertificateClientLoader</span></a> - Class in <a href="com/exclamationlabs/connid/base/connector/authenticator/client/package-summary.html">com.exclamationlabs.connid.base.connector.authenticator.client</a></dt>
 <dd>
 <div class="block">Workhorse to create a secure HttpClient using a supplied KeyStore.</div>
@@ -858,6 +875,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/attribute/ConnectorAttributeMapBuilder.html#map">map</a></span> - Variable in class com.exclamationlabs.connid.base.connector.attribute.<a href="com/exclamationlabs/connid/base/connector/attribute/ConnectorAttributeMapBuilder.html" title="class in com.exclamationlabs.connid.base.connector.attribute">ConnectorAttributeMapBuilder</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/attribute/ConnectorAttributeDataType.html#MAP">MAP</a></span> - com.exclamationlabs.connid.base.connector.attribute.<a href="com/exclamationlabs/connid/base/connector/attribute/ConnectorAttributeDataType.html" title="enum in com.exclamationlabs.connid.base.connector.attribute">ConnectorAttributeDataType</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html#METHOD_NAME">METHOD_NAME</a></span> - Static variable in class com.exclamationlabs.connid.base.connector.driver.rest.util.<a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a id="I:O">
@@ -1102,6 +1121,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Override this and return true if the RESTful services you are calling
  require Authorization: Bearer [token] in the HTTP header.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html#usesTokenAuthorization()">usesTokenAuthorization()</a></span> - Method in class com.exclamationlabs.connid.base.connector.driver.rest.<a href="com/exclamationlabs/connid/base/connector/driver/rest/BaseRestDriver.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest">BaseRestDriver</a></dt>
+<dd>
+<div class="block">Override this and return true if the RESTful services you are calling
+ require Authorization: Token token=[token] in the HTTP header.</div>
 </dd>
 </dl>
 <a id="I:V">
