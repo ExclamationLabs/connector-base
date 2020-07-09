@@ -21,6 +21,7 @@ import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConf
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.google.gson.Gson;
@@ -203,6 +204,13 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
         return executeRequest(delete, expectedResponseType);
     }
 
+    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+                                                Object requestBody, Map<String, String> additionalHeaders) {
+        HttpDeleteWithBody delete = createDeleteRequest(restUri, requestBody);
+        setAdditionalHeaders(delete, additionalHeaders);
+        return executeRequest(delete, expectedResponseType);
+    }
+
     private HttpGet createGetRequest(String restUri) {
         HttpGet request = new HttpGet(getBaseServiceUrl() + restUri);
         prepareHeaders(request);
@@ -212,6 +220,13 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     private HttpDelete createDeleteRequest(String restUri) {
         HttpDelete request = new HttpDelete(getBaseServiceUrl() + restUri);
         prepareHeaders(request);
+        return request;
+    }
+
+    private HttpDeleteWithBody createDeleteRequest(String restUri, Object requestBody) {
+        HttpDeleteWithBody request = new HttpDeleteWithBody(getBaseServiceUrl() + restUri);
+        prepareHeaders(request);
+        setupJsonRequestBody(request, requestBody);
         return request;
     }
 
