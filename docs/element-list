@@ -8,6 +8,7 @@ com.exclamationlabs.connid.base.connector.authenticator.model
 com.exclamationlabs.connid.base.connector.configuration
 com.exclamationlabs.connid.base.connector.driver
 com.exclamationlabs.connid.base.connector.driver.rest
+com.exclamationlabs.connid.base.connector.driver.rest.util
 com.exclamationlabs.connid.base.connector.filter
 com.exclamationlabs.connid.base.connector.model
 com.exclamationlabs.connid.base.connector.schema

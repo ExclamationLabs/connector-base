@@ -169,6 +169,10 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
         return executeDeleteRequest(restUri, expectedResponseType, null);
     }
 
+    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+        return executeDeleteRequest(restUri, expectedResponseType, requestBody, null);
+    }
+
     protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType,
                                      Map<String, String> additionalHeaders) {
         HttpGet get = createGetRequest(restUri);
