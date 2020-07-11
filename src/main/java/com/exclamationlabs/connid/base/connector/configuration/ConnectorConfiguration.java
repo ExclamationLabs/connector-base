@@ -13,6 +13,7 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.Configuration;
 
@@ -67,6 +68,10 @@ public interface ConnectorConfiguration extends Configuration {
 
 
     String getCredentialAccessToken();
+
+    default OAuth2AccessTokenContainer getOauth2Information() {
+        return null;
+    }
 
     @Override
     default void validate() {
