@@ -19,7 +19,7 @@
 <script type="text/javascript" src="../../../../../../script-dir/jquery-ui.js"></script>
 </head>
 <body class="class-declaration">
-<script type="text/javascript">var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":18,"i7":6};
+<script type="text/javascript">var data = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6,"i5":6,"i6":6,"i7":18,"i8":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -139,20 +139,25 @@ extends org.identityconnectors.framework.spi.Configuration</pre>
 </td>
 </tr>
 <tr class="altColor" id="i2">
+<td class="colFirst"><code>default <a href="../authenticator/model/OAuth2AccessTokenContainer.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.model">OAuth2AccessTokenContainer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOauth2Information()">getOauth2Information</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor" id="i3">
 <td class="colFirst"><code><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProperty(java.lang.String)">getProperty</a></span>&#8203;(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;input)</code></th>
 <td class="colLast">
 <div class="block">Get connector configuration property value</div>
 </td>
 </tr>
-<tr class="rowColor" id="i3">
+<tr class="altColor" id="i4">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isValidated()">isValidated</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Get whether of not the connector has already been validated</div>
 </td>
 </tr>
-<tr class="altColor" id="i4">
+<tr class="rowColor" id="i5">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProperty(java.lang.String,java.lang.String)">setProperty</a></span>&#8203;(<a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;key,
 <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;value)</code></th>
@@ -160,7 +165,7 @@ extends org.identityconnectors.framework.spi.Configuration</pre>
 <div class="block">Set a connector configuration property value</div>
 </td>
 </tr>
-<tr class="rowColor" id="i5">
+<tr class="altColor" id="i6">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setup()">setup</a></span>()</code></th>
 <td class="colLast">
@@ -168,12 +173,12 @@ extends org.identityconnectors.framework.spi.Configuration</pre>
  properties, etc.).</div>
 </td>
 </tr>
-<tr class="altColor" id="i6">
+<tr class="rowColor" id="i7">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validate()">validate</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr class="rowColor" id="i7">
+<tr class="altColor" id="i8">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#validateConfiguration()">validateConfiguration</a></span>()</code></th>
 <td class="colLast">
@@ -282,6 +287,12 @@ extends org.identityconnectors.framework.spi.Configuration</pre>
 <section class="detail">
 <h3><a id="getCredentialAccessToken()">getCredentialAccessToken</a></h3>
 <div class="memberSignature"><span class="returnType"><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a></span>&nbsp;<span class="memberName">getCredentialAccessToken</span>()</div>
+</section>
+</li>
+<li class="blockList">
+<section class="detail">
+<h3><a id="getOauth2Information()">getOauth2Information</a></h3>
+<div class="memberSignature"><span class="modifiers">default</span>&nbsp;<span class="returnType"><a href="../authenticator/model/OAuth2AccessTokenContainer.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.model">OAuth2AccessTokenContainer</a></span>&nbsp;<span class="memberName">getOauth2Information</span>()</div>
 </section>
 </li>
 <li class="blockList">

@@ -251,6 +251,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
 
     }
 
+    @Override
     public OAuth2AccessTokenContainer getOauth2Information() {
         return oauth2Information;
     }
