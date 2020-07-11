@@ -19,8 +19,8 @@
 <script type="text/javascript" src="script-dir/jquery-ui.js"></script>
 </head>
 <body class="all-classes-index">
-<script type="text/javascript">var data = {"i0":2,"i1":2,"i2":1,"i3":2,"i4":2,"i5":2,"i6":2,"i7":2,"i8":2,"i9":1,"i10":4,"i11":2,"i12":1,"i13":2,"i14":4,"i15":2,"i16":1,"i17":4,"i18":1,"i19":2,"i20":2,"i21":2,"i22":2,"i23":1,"i24":1,"i25":2,"i26":2,"i27":1,"i28":4,"i29":2,"i30":2,"i31":2,"i32":2,"i33":1,"i34":2,"i35":2,"i36":2,"i37":2,"i38":2,"i39":2,"i40":2,"i41":2,"i42":1,"i43":1,"i44":1,"i45":2,"i46":1};
-var tabs = {65535:["t0","All Classes"],1:["t1","Interface Summary"],2:["t2","Class Summary"],4:["t3","Enum Summary"]};
+<script type="text/javascript">var data = {"i0":2,"i1":2,"i2":1,"i3":2,"i4":2,"i5":2,"i6":2,"i7":2,"i8":2,"i9":1,"i10":4,"i11":2,"i12":1,"i13":2,"i14":4,"i15":2,"i16":1,"i17":4,"i18":1,"i19":2,"i20":2,"i21":2,"i22":2,"i23":1,"i24":8,"i25":1,"i26":2,"i27":2,"i28":1,"i29":4,"i30":2,"i31":2,"i32":2,"i33":2,"i34":1,"i35":2,"i36":2,"i37":2,"i38":2,"i39":2,"i40":2,"i41":2,"i42":2,"i43":1,"i44":1,"i45":1,"i46":2,"i47":1};
+var tabs = {65535:["t0","All Classes"],1:["t1","Interface Summary"],2:["t2","Class Summary"],4:["t3","Enum Summary"],8:["t4","Exception Summary"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -75,7 +75,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 <div class="allClassesContainer">
 <div class="typeSummary">
-<div role="tablist" aria-orientation="horizontal"><button role="tab" aria-selected="true" aria-controls="typeSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Classes</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t1" class="tableTab" onclick="show(1);">Interface Summary</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t2" class="tableTab" onclick="show(2);">Class Summary</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t3" class="tableTab" onclick="show(4);">Enum Summary</button></div>
+<div role="tablist" aria-orientation="horizontal"><button role="tab" aria-selected="true" aria-controls="typeSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Classes</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t1" class="tableTab" onclick="show(1);">Interface Summary</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t2" class="tableTab" onclick="show(2);">Class Summary</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t3" class="tableTab" onclick="show(4);">Enum Summary</button><button role="tab" aria-selected="false" aria-controls="typeSummary_tabpanel" tabindex="-1" onkeydown="switchTab(event)" id="t4" class="tableTab" onclick="show(8);">Exception Summary</button></div>
 <div id="typeSummary_tabpanel" role="tabpanel">
 <table aria-labelledby="t0">
 <thead>
@@ -240,6 +240,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </th>
 </tr>
 <tr class="altColor" id="i24">
+<td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/driver/DriverDataNotFoundException.html" title="class in com.exclamationlabs.connid.base.connector.driver">DriverDataNotFoundException</a></td>
+<th class="colLast" scope="row">
+<div class="block">This exception can be thrown/caught/handled by Drivers and FaultProcessors
+ as needed to gracefully handle not found exceptions.</div>
+</th>
+</tr>
+<tr class="rowColor" id="i25">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/model/GroupIdentityModel.html" title="interface in com.exclamationlabs.connid.base.connector.model">GroupIdentityModel</a></td>
 <th class="colLast" scope="row">
 <div class="block">All Connectors developed using the base framework
@@ -248,140 +255,140 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  has a Group model definition to transmit and utilize.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i25">
+<tr class="altColor" id="i26">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/driver/rest/util/HttpDeleteWithBody.html" title="class in com.exclamationlabs.connid.base.connector.driver.rest.util">HttpDeleteWithBody</a></td>
 <th class="colLast" scope="row">
 <div class="block">HTTP Delete with request body is non-standard but there are
  minority of API's that might still require this behavior.</div>
 </th>
 </tr>
-<tr class="altColor" id="i26">
+<tr class="rowColor" id="i27">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/client/HttpsKeystoreCertificateClientLoader.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.client">HttpsKeystoreCertificateClientLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">Workhorse to create a secure HttpClient using a supplied KeyStore.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i27">
+<tr class="altColor" id="i28">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/model/IdentityModel.html" title="interface in com.exclamationlabs.connid.base.connector.model">IdentityModel</a></td>
 <th class="colLast" scope="row">
 <div class="block">Interface to describe User and Group model objects belonging
  to this base connector implementation.</div>
 </th>
 </tr>
-<tr class="altColor" id="i28">
+<tr class="rowColor" id="i29">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/model/IdentityModelType.html" title="enum in com.exclamationlabs.connid.base.connector.model">IdentityModelType</a></td>
 <th class="colLast" scope="row">
 <div class="block">Internal enumeration to help identify whether a model is a user or group type.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i29">
+<tr class="altColor" id="i30">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/keys/JKSRSAPrivateKeyLoader.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.keys">JKSRSAPrivateKeyLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">Implementation to load a RSAPrivateKey from JKS information (file, password, alias).</div>
 </th>
 </tr>
-<tr class="altColor" id="i30">
+<tr class="rowColor" id="i31">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/JWTAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">JWTAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">Abstract class for JWT authenticators.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i31">
+<tr class="altColor" id="i32">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/JWTHS256Authenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">JWTHS256Authenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the HS256 strategy.</div>
 </th>
 </tr>
-<tr class="altColor" id="i32">
+<tr class="rowColor" id="i33">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/JWTRS256Authenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">JWTRS256Authenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This JWT authenticator implementation performs the HS256 strategy.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i33">
+<tr class="altColor" id="i34">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/keys/KeyStoreLoader.html" title="interface in com.exclamationlabs.connid.base.connector.authenticator.keys">KeyStoreLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">A KeyStoreLoader can be used to load a KeyStore (of various kinds), given
  configuration information.</div>
 </th>
 </tr>
-<tr class="altColor" id="i34">
+<tr class="rowColor" id="i35">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/model/OAuth2AccessTokenContainer.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.model">OAuth2AccessTokenContainer</a></td>
 <th class="colLast" scope="row">
 <div class="block">Model holding possible OAuth2 response data.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i35">
+<tr class="altColor" id="i36">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/OAuth2TokenAuthorizationCodeAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">OAuth2TokenAuthorizationCodeAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the OAuth2 "authorization_code" grant type.</div>
 </th>
 </tr>
-<tr class="altColor" id="i36">
+<tr class="rowColor" id="i37">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/OAuth2TokenClientCredentialsAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">OAuth2TokenClientCredentialsAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the OAuth2 "client_credentials" grant type.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i37">
+<tr class="altColor" id="i38">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/OAuth2TokenJWTAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">OAuth2TokenJWTAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the OAuth2 "jwt-bearer" grant type.</div>
 </th>
 </tr>
-<tr class="altColor" id="i38">
+<tr class="rowColor" id="i39">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/OAuth2TokenPasswordAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">OAuth2TokenPasswordAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the OAuth2 "password" grant type.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i39">
+<tr class="altColor" id="i40">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/OAuth2TokenRefreshTokenAuthenticator.html" title="class in com.exclamationlabs.connid.base.connector.authenticator">OAuth2TokenRefreshTokenAuthenticator</a></td>
 <th class="colLast" scope="row">
 <div class="block">This implementation performs the OAuth2 "refresh_token" grant type.</div>
 </th>
 </tr>
-<tr class="altColor" id="i40">
+<tr class="rowColor" id="i41">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/keys/PEMRSAPrivateKeyLoader.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.keys">PEMRSAPrivateKeyLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">Implementation to load a RSAPrivateKey from a PEM file.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i41">
+<tr class="altColor" id="i42">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/keys/PFXKeyStoreLoader.html" title="class in com.exclamationlabs.connid.base.connector.authenticator.keys">PFXKeyStoreLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">Implementation to load a KeyStore from a PFX file.</div>
 </th>
 </tr>
-<tr class="altColor" id="i42">
+<tr class="rowColor" id="i43">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/driver/rest/RestFaultProcessor.html" title="interface in com.exclamationlabs.connid.base.connector.driver.rest">RestFaultProcessor</a></td>
 <th class="colLast" scope="row">
 <div class="block">Interface to handle faults that occur during execution of subclasses
  of BaseRestDriver.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i43">
+<tr class="altColor" id="i44">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/keys/RSAPrivateKeyLoader.html" title="interface in com.exclamationlabs.connid.base.connector.authenticator.keys">RSAPrivateKeyLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">A RSAPrivateKeyLoader can be used to load a RSAPrivateKey, given
  configuration information.</div>
 </th>
 </tr>
-<tr class="altColor" id="i44">
+<tr class="rowColor" id="i45">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/authenticator/client/SecureClientLoader.html" title="interface in com.exclamationlabs.connid.base.connector.authenticator.client">SecureClientLoader</a></td>
 <th class="colLast" scope="row">
 <div class="block">A SecureClientLoader can be used to create a secure HttpClient, leveraging
  a KeyStore and configuration information.</div>
 </th>
 </tr>
-<tr class="rowColor" id="i45">
+<tr class="altColor" id="i46">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/configuration/TrustStoreConfiguration.html" title="class in com.exclamationlabs.connid.base.connector.configuration">TrustStoreConfiguration</a></td>
 <th class="colLast" scope="row">
 <div class="block">This utility class is used to clear out Java system properties for
  trust store setup.</div>
 </th>
 </tr>
-<tr class="altColor" id="i46">
+<tr class="rowColor" id="i47">
 <td class="colFirst"><a href="com/exclamationlabs/connid/base/connector/model/UserIdentityModel.html" title="interface in com.exclamationlabs.connid.base.connector.model">UserIdentityModel</a></td>
 <th class="colLast" scope="row">
 <div class="block">All Connectors developed using the base framework
