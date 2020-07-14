@@ -269,7 +269,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         usersAdapter = input;
     }
 
-    BaseUsersAdapter<U, G> getUsersAdapter() {
+    protected BaseUsersAdapter<U, G> getUsersAdapter() {
         return usersAdapter;
     }
 
@@ -277,7 +277,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         groupsAdapter = input;
     }
 
-    BaseGroupsAdapter<U, G> getGroupsAdapter() {
+    protected BaseGroupsAdapter<U, G> getGroupsAdapter() {
         return groupsAdapter;
     }
 
