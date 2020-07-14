@@ -261,7 +261,7 @@ public abstract class BaseConnector<U extends UserIdentityModel, G extends Group
         driver = input;
     }
 
-    Driver<U, G> getDriver() {
+    protected Driver<U, G> getDriver() {
         return driver;
     }
 
