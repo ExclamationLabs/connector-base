@@ -20,6 +20,8 @@ import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConf
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,4 +51,15 @@ public interface Authenticator {
      * @throws ConnectorSecurityException if could not authenticate or permissions was denied
      */
     String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;
+
+    /**
+     * Define any additional authentication headers needed during authentication.  Usually these are HTTP
+     * headers.
+     * @param configuration Reference to Configuration to aid implementing authentications setup proper
+     *                      authentication values.
+     * @return Map containg key/value pairs of additional authentication values.
+     */
+    default Map<String, String> getAdditionalAuthenticationHeaders(BaseConnectorConfiguration configuration) {
+        return new HashMap<>();
+    }
 }
