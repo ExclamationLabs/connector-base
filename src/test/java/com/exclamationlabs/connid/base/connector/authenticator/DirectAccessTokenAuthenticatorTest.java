@@ -33,6 +33,11 @@ public class DirectAccessTokenAuthenticatorTest {
     static {
         Properties testProperties = new Properties();
         testProperties.put(CONNECTOR_BASE_AUTH_DIRECT_TOKEN.name(), "cooltoken");
+
+        // Test usage of custom authenticator properties
+        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_DOMAIN.name(), "mysub");
+        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_SUBDOMAIN.name(), "hello.com");
+
         configuration = new TestConnectorConfiguration(testProperties);
     }
 
