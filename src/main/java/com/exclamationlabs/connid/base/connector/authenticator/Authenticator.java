@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
@@ -50,7 +50,7 @@ public interface Authenticator {
      * or null if authenticator has no meaningful output or actual authentication.
      * @throws ConnectorSecurityException if could not authenticate or permissions was denied
      */
-    String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;
+    String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException;
 
     /**
      * Define any additional authentication headers needed during authentication.  Usually these are HTTP
@@ -59,7 +59,7 @@ public interface Authenticator {
      *                      authentication values.
      * @return Map containg key/value pairs of additional authentication values.
      */
-    default Map<String, String> getAdditionalAuthenticationHeaders(BaseConnectorConfiguration configuration) {
+    default Map<String, String> getAdditionalAuthenticationHeaders(ConnectorConfiguration configuration) {
         return new HashMap<>();
     }
 }

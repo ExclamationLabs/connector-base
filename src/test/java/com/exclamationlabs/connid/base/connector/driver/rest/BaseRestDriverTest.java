@@ -1,8 +1,10 @@
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
+import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
@@ -75,7 +77,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
             }
 
             @Override
-            public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
                 return "good";
             }
         });
@@ -176,6 +178,18 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Test(expected = ConnectorException.class)
     public void getOneUserFatalClientIOException() {
         prepareClientException(new IOException());
+        driver.getUser(USER_ID);
+    }
+
+    @Test(expected = ConnectorException.class)
+    public void getOneUserFatalTokenExpirationException() {
+        prepareClientException(new DriverTokenExpiredException());
+        driver.getUser(USER_ID);
+    }
+
+    @Test(expected = ConnectorException.class)
+    public void getOneUserRenewableTokenExpirationException() {
+        prepareClientException(new DriverRenewableTokenExpiredException());
         driver.getUser(USER_ID);
     }
 

@@ -20,7 +20,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
@@ -74,7 +74,7 @@ public abstract class JWTRS256Authenticator extends JWTAuthenticator {
     protected abstract Set<ConnectorProperty> getPrivateKeyLoaderPropertyNames();
 
     @Override
-    public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
         try {
             long expirationLength = Long.parseLong(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD));
             Date expirationDate = new Date(System.currentTimeMillis() + expirationLength);
