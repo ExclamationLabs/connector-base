@@ -17,11 +17,19 @@ import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2Acces
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.Configuration;
 
+import java.util.Map;
+
 /**
  * Architectural interface used to wrap ConnId's Configuration interface,
  * which the BaseConnectorConfiguration implements.
  */
 public interface ConnectorConfiguration extends Configuration {
+
+    /**
+     * Get connector configuration property value
+     * @return String containing configuration value for input property
+     */
+    String getProperty(ConnectorProperty propertyIn);
 
     /**
      * Get connector configuration property value
@@ -69,7 +77,16 @@ public interface ConnectorConfiguration extends Configuration {
 
     String getCredentialAccessToken();
 
+    void setCredentialAccessToken(String token);
+
     default OAuth2AccessTokenContainer getOauth2Information() {
+        return null;
+    }
+
+    default void setOauth2Information(OAuth2AccessTokenContainer oauth2Information) {
+    }
+
+    default Map<String, String> getExtraJWTClaimData() {
         return null;
     }
 

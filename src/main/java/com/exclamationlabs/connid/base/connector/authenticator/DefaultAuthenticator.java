@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
@@ -33,7 +33,7 @@ public class DefaultAuthenticator implements Authenticator {
     }
 
     @Override
-    public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
         return "NA";
     }
 }

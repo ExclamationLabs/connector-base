@@ -16,9 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
-import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -59,7 +58,7 @@ public class OAuth2TokenRefreshTokenAuthenticator extends AbstractOAuth2TokenAut
     }
 
     @Override
-    public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
         initializeForHttp();
         HttpClient client = createClient();
 
