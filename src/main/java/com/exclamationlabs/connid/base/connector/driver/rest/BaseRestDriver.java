@@ -21,6 +21,8 @@ import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConf
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
+import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
 import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
@@ -107,7 +109,7 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     /**
      * This method should return the base Service URL
      * for RESTful endpoints that this driver invokes.
-     * If not used and full URL needs to be fully reconstructed for every diffect
+     * If not used and full URL needs to be fully reconstructed for every different
      * RESTful API call, have this method return empty string (not null).
      * @return Empty string or String containing a beginning portion of the RESTful
      * URL that will need to be invoked
@@ -115,6 +117,10 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
     abstract protected String getBaseServiceUrl();
 
     public <T>T executeRequest(HttpRequestBase request, Class<T> returnType) {
+        return executeRequest(request, returnType, false);
+    }
+
+    public <T>T executeRequest(HttpRequestBase request, Class<T> returnType, boolean isRetry) {
         if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
             throw new ConnectionBrokenException("Connection invalidated or disposed, request cannot " +
                     "be performed.  Gsonbuilder: " + gsonBuilder + "; faultProcessor: " +
@@ -138,6 +144,20 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
                 getFaultProcessor().process(response, gsonBuilder);
             }
 
+        } catch (DriverRenewableTokenExpiredException retryE) {
+          if (isRetry) {
+              LOG.error("Driver {0} token {1} still invalid after re-authentication, should investigate", this.getClass().getSimpleName(),
+                      configuration.getCredentialAccessToken());
+              throw new ConnectorException("Service rejected re-authenticated token for driver", retryE);
+          } else {
+              LOG.info("Driver {0} encountered token expiration and will attempt to reauthenticate.", this.getClass().getSimpleName());
+              configuration.setCredentialAccessToken(authenticator.authenticate(configuration));
+              LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
+              return executeRequest(request, returnType, true);
+          }
+        } catch (DriverTokenExpiredException tokenE) {
+            LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(), configuration.getCredentialAccessToken());
+            throw new ConnectorException("Token expired or rejected during driver usage", tokenE);
         } catch (ClientProtocolException e) {
             throw new ConnectorException(
                     "Unexpected ClientProtocolException occurred while attempting call: " + e.getMessage(), e);

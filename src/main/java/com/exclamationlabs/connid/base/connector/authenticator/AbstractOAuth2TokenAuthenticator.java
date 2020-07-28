@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.Charsets;
@@ -39,7 +39,7 @@ public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator 
 
     private static final Log LOG = Log.getLog(AbstractOAuth2TokenAuthenticator.class);
 
-    protected String executeRequest(BaseConnectorConfiguration configuration, HttpClient client, HttpPost request, UrlEncodedFormEntity entity, GsonBuilder gsonBuilder) throws IOException {
+    protected String executeRequest(ConnectorConfiguration configuration, HttpClient client, HttpPost request, UrlEncodedFormEntity entity, GsonBuilder gsonBuilder) throws IOException {
         request.setEntity(entity);
         getAdditionalAuthenticationHeaders(configuration).forEach(request::setHeader);
         HttpResponse response = client.execute(request);

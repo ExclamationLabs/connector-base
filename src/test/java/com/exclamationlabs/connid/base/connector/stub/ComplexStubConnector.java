@@ -21,7 +21,7 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeMap
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTAuthenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
@@ -59,14 +59,14 @@ public class ComplexStubConnector extends BaseConnector<StubUser, StubGroup> {
             }
 
             @Override
-            public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
                 return "yang";
             }
         };
 
         Authenticator outerAuthenticator = new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
             @Override
-            public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
                 return "ying-" + jwtAuthenticator.authenticate(configuration);
             }
         };
