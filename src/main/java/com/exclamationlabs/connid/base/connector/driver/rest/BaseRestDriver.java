@@ -153,6 +153,7 @@ public abstract class BaseRestDriver<U extends UserIdentityModel, G extends Grou
               LOG.info("Driver {0} encountered token expiration and will attempt to reauthenticate.", this.getClass().getSimpleName());
               configuration.setCredentialAccessToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
+              prepareHeaders(request);
               return executeRequest(request, returnType, true);
           }
         } catch (DriverTokenExpiredException tokenE) {
