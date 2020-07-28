@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.google.gson.GsonBuilder;
 import org.apache.http.*;
@@ -59,7 +59,7 @@ public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticato
     }
 
     @Override
-    public String authenticate(BaseConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
         initializeForHttp();
         String bearerToken = jwtAuthenticator.authenticate(configuration);
 

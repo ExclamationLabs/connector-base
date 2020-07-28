@@ -19,7 +19,6 @@ package com.exclamationlabs.connid.base.connector.authenticator.integration;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenAuthorizationCodeAuthenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
         return new ConfigurationNameBuilder().withConnector(() -> "WEBEX").build();
     }
 
-    // This is an intermediary step for Webex; Webex should be able to use the Refres
+    // This is an intermediary step for Webex; Webex should be able to use the Refresh
     // token long-term.  So it's best not to run this test as part of integration
     // because we can't rely on it working because of manual browser authentication step
     // this needs for Webex
