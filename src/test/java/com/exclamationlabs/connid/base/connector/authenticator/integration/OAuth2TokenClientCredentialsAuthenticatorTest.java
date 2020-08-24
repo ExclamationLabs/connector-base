@@ -55,7 +55,7 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
 
         oauth2Authenticator = new OAuth2TokenClientCredentialsAuthenticator() {
             @Override
-            protected HttpClient getHttpClient() {
+            public HttpClient getHttpClient() {
                 return clientLoader.load(configuration,
                         keyStoreLoader.load(configuration));
             }
