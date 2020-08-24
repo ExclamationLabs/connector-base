@@ -84,7 +84,7 @@ public class OAuth2TokenClientCredentialsAuthenticator extends AbstractOAuth2Tok
         }
     }
 
-    protected HttpClient getHttpClient() {
+    public HttpClient getHttpClient() {
         return HttpClients.createDefault();
     }
 }
