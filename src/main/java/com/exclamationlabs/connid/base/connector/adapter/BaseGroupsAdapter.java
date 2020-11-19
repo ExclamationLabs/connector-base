@@ -33,7 +33,7 @@ public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends G
 
     protected abstract G constructGroup(Set<Attribute> attributes, boolean creation);
 
-    protected abstract ConnectorObject constructConnectorObject(G modelType);
+    protected abstract ConnectorObject constructConnectorObject(G modelType, OperationOptions options);
 
     @Override
     protected ObjectClass getType() {
@@ -61,24 +61,19 @@ public abstract class BaseGroupsAdapter<U extends UserIdentityModel, G extends G
     }
 
     @Override
-    public void get(String query, ResultsHandler resultsHandler) {
+    public void get(String query, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(query)) {
             // query for all groups
             List<G> allGroups = getDriver().getGroups();
 
-            for (GroupIdentityModel currentGroup : allGroups) {
-                resultsHandler.handle(
-                        new ConnectorObjectBuilder()
-                                .setUid(currentGroup.getIdentityIdValue())
-                                .setName(currentGroup.getIdentityNameValue())
-                                .setObjectClass(getType())
-                                .build());
+            for (G currentGroup : allGroups) {
+                resultsHandler.handle(constructConnectorObject(currentGroup, options));
             }
         } else {
             // Query for single group
             G singleGroup = getDriver().getGroup(query);
             if (singleGroup != null) {
-                resultsHandler.handle(constructConnectorObject(singleGroup));
+                resultsHandler.handle(constructConnectorObject(singleGroup, options));
             }
         }
     }

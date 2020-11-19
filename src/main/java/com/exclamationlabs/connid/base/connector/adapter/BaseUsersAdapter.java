@@ -41,7 +41,7 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
 
     protected abstract U constructUser(Set<Attribute> attributes, boolean creation);
 
-    protected abstract ConnectorObject constructConnectorObject(U modelType);
+    protected abstract ConnectorObject constructConnectorObject(U modelType, OperationOptions options);
 
     @Override
     public Uid create(Set<Attribute> attributes) {
@@ -95,24 +95,19 @@ public abstract class BaseUsersAdapter<U extends UserIdentityModel, G extends Gr
     }
 
     @Override
-    public void get(String query, ResultsHandler resultsHandler) {
+    public void get(String query, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(query)) {
             // query for all users
             List<U> allUsers = getDriver().getUsers();
 
-            for (UserIdentityModel currentUser : allUsers) {
-                resultsHandler.handle(
-                        new ConnectorObjectBuilder()
-                                .setUid(currentUser.getIdentityIdValue())
-                                .setName(currentUser.getIdentityNameValue())
-                                .setObjectClass(getType())
-                                .build());
+            for (U currentUser : allUsers) {
+                resultsHandler.handle(constructConnectorObject(currentUser, options));
             }
         } else {
             // Query for single user
             U singleUser = getDriver().getUser(query);
             if (singleUser != null) {
-                resultsHandler.handle(constructConnectorObject(singleUser));
+                resultsHandler.handle(constructConnectorObject(singleUser, options));
             }
         }
     }
