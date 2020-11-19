@@ -23,6 +23,7 @@ import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class StubGroupsAdapter extends BaseGroupsAdapter<StubUser, StubGroup> {
     }
 
     @Override
-    protected ConnectorObject constructConnectorObject(StubGroup group) {
+    protected ConnectorObject constructConnectorObject(StubGroup group, OperationOptions options) {
         return getConnectorObjectBuilder(group)
                 .addAttribute(AttributeBuilder.build(GROUP_ID.name(), group.getId()))
                 .addAttribute(AttributeBuilder.build(GROUP_NAME.name(), group.getName()))

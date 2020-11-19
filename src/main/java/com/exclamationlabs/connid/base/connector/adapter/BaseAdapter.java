@@ -67,7 +67,7 @@ public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupId
      * @param query Query string to help identify which item(s) need to be retrieved.
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
      */
-    public abstract void get(String query, ResultsHandler resultsHandler);
+    public abstract void get(String query, ResultsHandler resultsHandler, OperationOptions operationOptions);
 
     public final void setDriver(Driver<U,G> component) {
         driver = component;
