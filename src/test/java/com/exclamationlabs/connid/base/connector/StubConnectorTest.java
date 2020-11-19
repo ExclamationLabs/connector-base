@@ -334,5 +334,9 @@ public class StubConnectorTest {
         assertNotNull(groupSchema);
         assertNotNull(groupSchema.getAttributeInfo());
         assertEquals(3, groupSchema.getAttributeInfo().size());
+
+        Set<OperationOptionInfo> info = schemaResult.getOperationOptionInfo();
+        assertNotNull(info);
+        assertEquals(3, info.size());
     }
 }
