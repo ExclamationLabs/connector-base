@@ -35,17 +35,6 @@ public class ConnectorAttributeMapBuilder<C extends Enum<C>> {
 
     protected EnumMap<C, ConnectorAttribute> map;
 
-    private ConnectorAttributeMapBuilder() {}
-
-    /**
-     * You must create the builder with your own enum class
-     * that gives attribute names (for a group or for a user)
-     * @param enumClass Class object for your custom enum with attribute names
-     */
-    public ConnectorAttributeMapBuilder(Class<C> enumClass) {
-        map = new EnumMap<>(enumClass);
-    }
-
     /**
      * Method to append another attribute definition to the builder.
      * @param enumClass Enum value representing a connector attribute name

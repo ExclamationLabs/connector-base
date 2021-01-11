@@ -14,18 +14,15 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.connector.driver.rest;
 
-/**
- * All Connectors developed using the base framework
- * must define a concrete class (probably a POJO) that inherits
- * GroupIdentityModel, so that the base connector framework
- * has a Group model definition to transmit and utilize.
- */
-public interface GroupIdentityModel extends IdentityModel {
+import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 
-    @Override
-    default IdentityModelType getIdentityType() {
-        return IdentityModelType.GROUP;
+public interface RestDriverInvocator extends DriverInvocator {
+
+    default BaseRestDriver getRestDriver(Driver driver) {
+        return (BaseRestDriver) driver;
     }
+
 }

@@ -14,12 +14,9 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.connector.stub.attribute;
 
-/**
- * Internal enumeration to help identify whether a model is a user or group type.
- */
-public enum IdentityModelType {
-    USER,
-    GROUP
+public enum StubSupergroupAttribute {
+    SUPERGROUP_ID,
+    SUPERGROUP_NAME
 }
