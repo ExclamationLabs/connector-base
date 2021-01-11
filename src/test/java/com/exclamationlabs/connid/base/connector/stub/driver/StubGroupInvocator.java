@@ -18,16 +18,15 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubGroupInvocator implements DriverInvocator {
+public class StubGroupInvocator implements DriverInvocator<StubGroup> {
 
     @Override
-    public String create(Driver driver, IdentityModel model, Map<String,
+    public String create(Driver driver, StubGroup model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("group create");
@@ -41,7 +40,7 @@ public class StubGroupInvocator implements DriverInvocator {
     }
 
     @Override
-    public void update(Driver driver, String userId, IdentityModel model, Map<String,
+    public void update(Driver driver, String userId, StubGroup model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("group update");
@@ -57,7 +56,7 @@ public class StubGroupInvocator implements DriverInvocator {
     }
 
     @Override
-    public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+    public List<StubGroup> getAll(Driver driver) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("group getAll");
         StubGroup group1 = new StubGroup();
@@ -67,7 +66,7 @@ public class StubGroupInvocator implements DriverInvocator {
         StubGroup group2 = new StubGroup();
         group2.setId(UUID.randomUUID().toString());
         group2.setName("Group Dos");
-        return new ArrayList<>(Arrays.asList(group1, group2));
+        return Arrays.asList(group1, group2);
     }
 
     @Override

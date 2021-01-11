@@ -18,16 +18,15 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubUserInvocator implements DriverInvocator {
+public class StubUserInvocator implements DriverInvocator<StubUser> {
 
     @Override
-    public String create(Driver driver, IdentityModel model,
+    public String create(Driver driver, StubUser model,
                          Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("user create");
@@ -44,7 +43,7 @@ public class StubUserInvocator implements DriverInvocator {
     }
 
     @Override
-    public void update(Driver driver, String userId, IdentityModel model,
+    public void update(Driver driver, String userId, StubUser model,
                        Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("user update");
@@ -63,7 +62,7 @@ public class StubUserInvocator implements DriverInvocator {
     }
 
     @Override
-    public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+    public List<StubUser> getAll(Driver driver) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("user getAll");
         StubUser user1 = new StubUser();
@@ -73,7 +72,7 @@ public class StubUserInvocator implements DriverInvocator {
         StubUser user2 = new StubUser();
         user2.setId(UUID.randomUUID().toString());
         user2.setUserName("User Dos");
-        return new ArrayList<>(Arrays.asList(user1, user2));
+        return Arrays.asList(user1, user2);
     }
 
     @Override

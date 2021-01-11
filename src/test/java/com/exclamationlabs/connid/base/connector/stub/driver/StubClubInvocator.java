@@ -18,16 +18,15 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubClubInvocator implements DriverInvocator {
+public class StubClubInvocator implements DriverInvocator<StubClub> {
 
     @Override
-    public String create(Driver driver, IdentityModel model, Map<String,
+    public String create(Driver driver, StubClub model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("club create");
@@ -36,7 +35,7 @@ public class StubClubInvocator implements DriverInvocator {
     }
 
     @Override
-    public void update(Driver driver, String userId, IdentityModel model, Map<String,
+    public void update(Driver driver, String userId, StubClub model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("club update");
@@ -52,7 +51,7 @@ public class StubClubInvocator implements DriverInvocator {
     }
 
     @Override
-    public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+    public List<StubClub> getAll(Driver driver) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("club getAll");
         StubClub item1 = new StubClub();
@@ -62,7 +61,7 @@ public class StubClubInvocator implements DriverInvocator {
         StubClub item2 = new StubClub();
         item2.setId(UUID.randomUUID().toString());
         item2.setName("Club Dos");
-        return new ArrayList<>(Arrays.asList(item1, item2));
+        return Arrays.asList(item1, item2);
     }
 
     @Override

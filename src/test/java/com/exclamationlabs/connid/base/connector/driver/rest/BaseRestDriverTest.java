@@ -247,10 +247,10 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     }
 
-    static class TestRestUserInvocator implements RestDriverInvocator {
+    static class TestRestUserInvocator implements RestDriverInvocator<StubUser> {
 
         @Override
-        public String create(Driver driver, IdentityModel userModel,
+        public String create(Driver driver, StubUser userModel,
                              Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
             StubUser response = getRestDriver(driver).executePostRequest(
                     "/users", StubUser.class, userModel, moreHeaders);
@@ -258,7 +258,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public void update(Driver driver, String userId, IdentityModel userModel,
+        public void update(Driver driver, String userId, StubUser userModel,
                            Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
             getRestDriver(driver).executePatchRequest(
                     "/users/" + userId, null, userModel, moreHeaders);
@@ -270,10 +270,10 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+        public List<StubUser> getAll(Driver driver) throws ConnectorException {
             TestUsersResponse usersResponse = getRestDriver(driver).executeGetRequest(
                     "/users", TestUsersResponse.class, moreHeaders);
-            return new ArrayList<>(usersResponse.getPeople());
+            return usersResponse.getPeople();
         }
 
         @Override
@@ -282,10 +282,10 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
     }
 
-    static class TestRestGroupInvocator implements RestDriverInvocator {
+    static class TestRestGroupInvocator implements RestDriverInvocator<StubGroup> {
 
         @Override
-        public String create(Driver driver, IdentityModel userModel,
+        public String create(Driver driver, StubGroup userModel,
                              Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
             StubGroup response = getRestDriver(driver).executePostRequest(
                     "/groups", StubGroup.class, userModel, moreHeaders);
@@ -293,7 +293,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public void update(Driver driver, String userId, IdentityModel userModel,
+        public void update(Driver driver, String userId, StubGroup userModel,
                            Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
             getRestDriver(driver).executePatchRequest(
                     "/groups/" + userId, null, userModel, moreHeaders);
@@ -305,7 +305,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+        public List<StubGroup> getAll(Driver driver) throws ConnectorException {
             TestGroupsResponse groupsResponse = getRestDriver(driver).executeGetRequest(
                     "/groups", TestGroupsResponse.class, moreHeaders);
             return new ArrayList<>(groupsResponse.getGroups());
