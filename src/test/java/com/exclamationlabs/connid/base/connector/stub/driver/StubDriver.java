@@ -19,19 +19,28 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
-import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
+import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubDriver implements Driver<StubUser, StubGroup> {
+public class StubDriver extends BaseDriver {
 
     private String methodInvoked;
     private Object methodParameter1;
     private Object methodParameter2;
     private boolean initializeInvoked = false;
+
+    public StubDriver() {
+        addInvocator(StubUser.class, new StubUserInvocator());
+        addInvocator(StubGroup.class, new StubGroupInvocator());
+        addInvocator(StubClub.class, new StubClubInvocator());
+        addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
+    }
 
     @Override
     public Set<ConnectorProperty> getRequiredPropertyNames() {
@@ -45,7 +54,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     @Override
     public void test() throws ConnectorException {
-
+        setMethodInvoked("test");
     }
 
     @Override
@@ -53,116 +62,12 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
 
     }
 
-    @Override
-    public String createUser(StubUser userModel) throws ConnectorException {
-        setMethodInvoked("createUser");
-        setMethodParameter1(userModel);
-        return UUID.randomUUID().toString();
-    }
-
-    @Override
-    public String createGroup(StubGroup groupModel) throws ConnectorException {
-        setMethodInvoked("createGroup");
-        setMethodParameter1(groupModel);
-        return UUID.randomUUID().toString();
-    }
-
-    @Override
-    public void updateUser(String userId, StubUser userModel) throws ConnectorException {
-        setMethodInvoked("updateUser");
-        setMethodParameter1(userId);
-        setMethodParameter2(userModel);
-    }
-
-    @Override
-    public void updateGroup(String groupId, StubGroup groupModel) throws ConnectorException {
-        setMethodInvoked("updateGroup");
-        setMethodParameter1(groupId);
-        setMethodParameter2(groupModel);
-    }
-
-    @Override
-    public void deleteUser(String userId) throws ConnectorException {
-        setMethodInvoked("deleteUser");
-        setMethodParameter1(userId);
-    }
-
-    @Override
-    public void deleteGroup(String groupId) throws ConnectorException {
-        setMethodInvoked("deleteGroup");
-        setMethodParameter1(groupId);
-    }
-
-    @Override
-    public List<StubUser> getUsers() throws ConnectorException {
-        setMethodInvoked("getUsers");
-        StubUser user1 = new StubUser();
-        user1.setId(UUID.randomUUID().toString());
-        user1.setUserName("Ying");
-        user1.setEmail("ying@yahoo.com");
-
-        StubUser user2 = new StubUser();
-        user2.setId(UUID.randomUUID().toString());
-        user2.setUserName("Yang");
-        user2.setEmail("yang@yahoo.com");
-
-        return new ArrayList<>(Arrays.asList(user1, user2));
-    }
-
-    @Override
-    public List<StubGroup> getGroups() throws ConnectorException {
-        setMethodInvoked("getGroups");
-        StubGroup group1 = new StubGroup();
-        group1.setId(UUID.randomUUID().toString());
-        group1.setName("Uno");
-
-        StubGroup group2 = new StubGroup();
-        group2.setId(UUID.randomUUID().toString());
-        group2.setName("Dos");
-        return new ArrayList<>(Arrays.asList(group1, group2));
-    }
-
-    @Override
-    public StubUser getUser(String userId) throws ConnectorException {
-        setMethodInvoked("getUser");
-        setMethodParameter1(userId);
-        StubUser user1 = new StubUser();
-        user1.setId(userId);
-        user1.setUserName("Ying");
-        user1.setEmail("ying@yahoo.com");
-        user1.setGroupIds(Arrays.asList("alpha", "beta"));
-        return user1;
-    }
-
-    @Override
-    public StubGroup getGroup(String groupId) throws ConnectorException {
-        setMethodInvoked("getGroup");
-        setMethodParameter1(groupId);
-        StubGroup group1 = new StubGroup();
-        group1.setId(UUID.randomUUID().toString());
-        group1.setName("Uno");
-        return group1;
-    }
-
-    @Override
-    public void addGroupToUser(String groupId, String userId) throws ConnectorException {
-        setMethodInvoked("addGroupToUser");
-        setMethodParameter1(groupId);
-        setMethodParameter2(userId);
-    }
-
-    @Override
-    public void removeGroupFromUser(String groupId, String userId) throws ConnectorException {
-        setMethodInvoked("removeGroupFromUser");
-        setMethodParameter1(groupId);
-        setMethodParameter2(userId);
-    }
 
     public String getMethodInvoked() {
         return methodInvoked;
     }
 
-    private void setMethodInvoked(String methodInvoked) {
+    void setMethodInvoked(String methodInvoked) {
         this.methodInvoked = methodInvoked;
     }
 
@@ -170,7 +75,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
         return methodParameter1;
     }
 
-    private void setMethodParameter1(Object methodParameter1) {
+    void setMethodParameter1(Object methodParameter1) {
         this.methodParameter1 = methodParameter1;
     }
 
@@ -178,7 +83,7 @@ public class StubDriver implements Driver<StubUser, StubGroup> {
         return methodParameter2;
     }
 
-    private void setMethodParameter2(Object methodParameter2) {
+    void setMethodParameter2(Object methodParameter2) {
         this.methodParameter2 = methodParameter2;
     }
 

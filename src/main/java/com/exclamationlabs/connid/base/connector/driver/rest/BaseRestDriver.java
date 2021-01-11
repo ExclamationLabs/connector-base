@@ -20,12 +20,10 @@ import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
-import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
-import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
-import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -52,7 +50,7 @@ import java.util.Map;
  * Abstract class for drivers that need to make calls to RESTful web services
  * to manage user and group information.
  */
-public abstract class BaseRestDriver<U extends UserIdentityModel, G extends GroupIdentityModel> implements Driver<U,G> {
+public abstract class BaseRestDriver extends BaseDriver {
 
     private static final Log LOG = Log.getLog(BaseRestDriver.class);
 

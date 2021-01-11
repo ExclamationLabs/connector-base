@@ -17,18 +17,17 @@
 package com.exclamationlabs.connid.base.connector.schema;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
-import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
-import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
+import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Schema;
 
-import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * Interface for building a ConnId schema using the base connector framework.
  */
-public interface ConnectorSchemaBuilder<U extends UserIdentityModel,G extends GroupIdentityModel> {
+public interface ConnectorSchemaBuilder {
 
     /**
      * Build and define the schema, capturing all the Attribute definitions for user
@@ -37,6 +36,5 @@ public interface ConnectorSchemaBuilder<U extends UserIdentityModel,G extends Gr
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.
      */
-    Schema build(BaseConnector<U,G> connector, EnumMap<?, ConnectorAttribute> userAttributes,
-                 EnumMap<?, ConnectorAttribute> groupAttributes) throws ConfigurationException;
+    Schema build(BaseConnector connector, Map<ObjectClass, BaseAdapter<?>> adapterMap) throws ConfigurationException;
 }

@@ -22,8 +22,6 @@ package com.exclamationlabs.connid.base.connector.model;
  */
 public interface IdentityModel {
 
-    IdentityModelType getIdentityType();
-
     /**
      * Implement this method to return the id value applicable to the
      * concrete User or Group model.
@@ -39,7 +37,6 @@ public interface IdentityModel {
     String getIdentityNameValue();
 
     default String identityToString() {
-        return getIdentityType().name() + ";" + getIdentityIdValue() + ";" +
-                getIdentityNameValue();
+        return getIdentityIdValue() + ";" + getIdentityNameValue();
     }
 }

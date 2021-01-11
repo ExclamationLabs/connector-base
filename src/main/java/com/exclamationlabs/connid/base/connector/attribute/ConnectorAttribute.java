@@ -17,6 +17,9 @@
 package com.exclamationlabs.connid.base.connector.attribute;
 
 import org.identityconnectors.framework.common.objects.AttributeInfo;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,11 +37,21 @@ public final class ConnectorAttribute {
 
     private final Set<AttributeInfo.Flags> flags;
 
+    private Object value;
+
     public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
             attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
         name = attributeName;
         dataType = attributeDataType;
         flags = attributeFlags;
+    }
+
+    public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
+            attributeDataType, AttributeInfo.Flags... attributeFlags) {
+        name = attributeName;
+        dataType = attributeDataType;
+        flags = new HashSet<>();
+        flags.addAll(Arrays.asList(attributeFlags));
     }
 
     public String getName() {
@@ -53,5 +66,11 @@ public final class ConnectorAttribute {
         return flags;
     }
 
+    public Object getValue() {
+        return value;
+    }
 
+    public void setValue(Object value) {
+        this.value = value;
+    }
 }

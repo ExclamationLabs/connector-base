@@ -14,12 +14,16 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.model;
+package com.exclamationlabs.connid.base.connector.driver.rest;
 
-/**
- * Internal enumeration to help identify whether a model is a user or group type.
- */
-public enum IdentityModelType {
-    USER,
-    GROUP
+import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+
+public interface RestDriverInvocator<T extends IdentityModel> extends DriverInvocator<T> {
+
+    default BaseRestDriver getRestDriver(Driver driver) {
+        return (BaseRestDriver) driver;
+    }
+
 }

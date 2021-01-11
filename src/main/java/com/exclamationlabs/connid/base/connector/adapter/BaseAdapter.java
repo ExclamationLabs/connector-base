@@ -16,14 +16,13 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
-import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
-import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.Set;
+import java.util.*;
 
 /**
  * Base attribute class describing composition of an Adapter.
@@ -33,11 +32,25 @@ import java.util.Set;
  *
  * Do not subclass this type, instead subclass BaseGroupsAdapter or BaseUsersAdapter.
  */
-public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupIdentityModel> {
+public abstract class BaseAdapter<T extends IdentityModel> {
 
-    private Driver<U,G> driver;
+    private Driver driver;
 
-    protected abstract ObjectClass getType();
+    public abstract ObjectClass getType();
+
+    public abstract Class<T> getIdentityModelClass();
+
+    public abstract List<ConnectorAttribute> getConnectorAttributes();
+
+    protected abstract List<Attribute> constructAttributes(T model);
+
+    protected abstract T constructModel(Set<Attribute> attributes, boolean isCreate);
+
+    @SuppressWarnings("unused")
+    protected Map<String, List<String>> constructAssignmentIdentifiers(Set<Attribute> attributes) {
+        return new HashMap<>();
+    }
+
 
     /**
      * Service a request from IAM system to create the type on the destination system.
@@ -45,7 +58,13 @@ public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupId
      *                   by the destination system for type creation.
      * @return new unique identifier for newly created type
      */
-    public abstract Uid create(Set<Attribute> attributes);
+    public Uid create(Set<Attribute> attributes) {
+        T model = constructModel(attributes, true);
+        Map<String, List<String>> assignmentIdentifiers =
+                constructAssignmentIdentifiers(attributes);
+        String newId = getDriver().create(getIdentityModelClass(), model, assignmentIdentifiers);
+        return new Uid(newId);
+    }
 
     /**
      * Service a request from IAM system to update the type on the destination system.
@@ -54,26 +73,59 @@ public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupId
      *                   by the destination system to update the type.
      * @return unique identifier applicable to the type that was just updated
      */
-    public abstract Uid update(Uid uid, Set<Attribute> attributes);
+    public Uid update(Uid uid, Set<Attribute> attributes) {
+        T model = constructModel(attributes, false);
+        Map<String, List<String>> assignmentIdentifiers =
+                constructAssignmentIdentifiers(attributes);
+        getDriver().update(getIdentityModelClass(), uid.getUidValue(), model,
+                assignmentIdentifiers);
+        return uid;
+    }
 
     /**
      * Service a request from IAM system to delete the type on the destination system.
      * @param uid Unique identifier for the data item to be deleted.
      */
-    public abstract void delete(Uid uid);
+    public void delete(Uid uid) {
+        getDriver().delete(getIdentityModelClass(), uid.getUidValue());
+    }
 
     /**
      * Service a request from IAM to get one, some, or all items of a data type from the destination system.
-     * @param query Query string to help identify which item(s) need to be retrieved.
+     * @param queryIdentifier Query string to help identify which item(s) need to be retrieved.
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
      */
-    public abstract void get(String query, ResultsHandler resultsHandler, OperationOptions operationOptions);
+    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
+        if (queryAllRecords(queryIdentifier)) {
+            // query for all items
+            List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass());
+            for (IdentityModel item : allItems) {
+                resultsHandler.handle(constructConnectorObject(item));
+            }
+        } else {
+            // Query for single item
+            IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier);
+            if (singleItem != null) {
+                resultsHandler.handle(constructConnectorObject(singleItem));
+            }
+        }
+    }
 
-    public final void setDriver(Driver<U,G> component) {
+    protected ConnectorObject constructConnectorObject(IdentityModel model) {
+        ConnectorObjectBuilder builder = getConnectorObjectBuilder(model);
+        List<ConnectorAttribute> connectorAttributes = getConnectorAttributes();
+        for (ConnectorAttribute current : connectorAttributes) {
+            builder.addAttribute(AttributeBuilder.build(current.getName(),
+                    current.getValue()));
+        }
+        return builder.build();
+    }
+
+    public final void setDriver(Driver component) {
         driver = component;
     }
 
-    public final Driver<U,G> getDriver() {
+    public final Driver getDriver() {
         return driver;
     }
 
@@ -86,6 +138,36 @@ public abstract class BaseAdapter<U extends UserIdentityModel, G extends GroupId
 
     protected final boolean queryAllRecords(String query) {
         return (query == null || StringUtils.isBlank(query) || StringUtils.equalsIgnoreCase(query, "ALL"));
+    }
+
+    @SafeVarargs
+    protected final Map<String, List<String>> buildAssignments(
+            Map.Entry<String, List<String>>... assignments) {
+        Map<String, List<String>> assignmentMap = new HashMap<>();
+        for (Map.Entry<String, List<String>> currentAssignment : assignments) {
+            if (currentAssignment != null) {
+                assignmentMap.put(currentAssignment.getKey(), currentAssignment.getValue());
+            }
+        }
+        return assignmentMap;
+    }
+
+    protected Map.Entry<String, List<String>> readAssignments(String objectKey,
+                                                              Set<Attribute> attributes,
+                                                              Enum<?> attributeName) {
+        List<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
+                List.class, attributes, attributeName);
+
+        List<String> ids = new ArrayList<>();
+        if (data != null) {
+            data.forEach(item -> ids.add(item.toString()));
+        }
+
+        if (!ids.isEmpty()) {
+            return new AbstractMap.SimpleEntry<>(objectKey, ids);
+        } else {
+            return null;
+        }
     }
 
 

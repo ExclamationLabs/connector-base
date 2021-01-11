@@ -19,9 +19,11 @@ package com.exclamationlabs.connid.base.connector.driver;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,7 +35,7 @@ import java.util.Set;
  * not allow you to delete a user, or assign him to a group).  In those cases, implementations
  * should throw UnsupportedOperationException to indicate it's not supported.
  */
-public interface Driver<U, G> {
+public interface Driver {
 
     /**
      * Returns the names of the properties for properties
@@ -78,27 +80,20 @@ public interface Driver<U, G> {
      */
     void close();
 
-    String createUser(U userModel) throws ConnectorException;
+    DriverInvocator getInvocator(Class<? extends IdentityModel> identityModelClass);
 
-    String createGroup(G groupModel) throws ConnectorException;
+    void addInvocator(Class<? extends IdentityModel> identityModelClass, DriverInvocator invocator);
 
-    void updateUser(String userId, U userModel) throws ConnectorException;
+    String create(Class<? extends IdentityModel> identityModelClass,
+                  IdentityModel model, Map<String,List<String>> assignmentIdentifiers) throws ConnectorException;
 
-    void updateGroup(String groupId, G groupModel) throws ConnectorException;
+    void update(Class<? extends IdentityModel> identityModelClass, String userId, IdentityModel userModel,
+                Map<String,List<String>> assignmentIdentifiers) throws ConnectorException;
 
-    void deleteUser(String userId) throws ConnectorException;
+    void delete(Class<? extends IdentityModel> identityModelClass, String userId) throws ConnectorException;
 
-    void deleteGroup(String groupId) throws ConnectorException;
+    List<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass) throws ConnectorException;
 
-    List<U> getUsers() throws ConnectorException;
+    IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String userId) throws ConnectorException;
 
-    List<G> getGroups() throws ConnectorException;
-
-    U getUser(String userId) throws ConnectorException;
-
-    G getGroup(String groupId) throws ConnectorException;
-
-    void addGroupToUser(String groupId, String userId) throws ConnectorException;
-
-    void removeGroupFromUser(String groupId, String userId) throws ConnectorException;
 }

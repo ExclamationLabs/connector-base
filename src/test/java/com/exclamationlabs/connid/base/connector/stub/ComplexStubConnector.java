@@ -16,21 +16,18 @@
 
 package com.exclamationlabs.connid.base.connector.stub;
 
-import com.exclamationlabs.connid.base.connector.BaseConnector;
-import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeMapBuilder;
+import com.exclamationlabs.connid.base.connector.BaseFullAccessConnector;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTAuthenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.stub.adapter.StubClubAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
+import com.exclamationlabs.connid.base.connector.stub.adapter.StubSupergroupAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
-import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
-import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
-import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
@@ -38,16 +35,20 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
 import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_ID;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.GROUP_NAME;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.MULTIVALUED;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
+/**
+ * Test of complex connector tests
+ * - deep authenticator setup
+ * - nested hierarchy
+ *  Users
+ *      - Groups
+ *          - Supergroups (object class "SUPERGROUP")
+ *      - Clubs (object class "CLUB")
+ *
+ */
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class ComplexStubConnector extends BaseConnector<StubUser, StubGroup> {
+public class ComplexStubConnector extends BaseFullAccessConnector {
 
     public ComplexStubConnector() {
         Authenticator innerAuthenticator = new JWTAuthenticator() {
@@ -82,23 +83,8 @@ public class ComplexStubConnector extends BaseConnector<StubUser, StubGroup> {
             }
         });
 
-        setUsersAdapter(new StubUsersAdapter() {
-            @Override
-            protected boolean groupAdditionControlledByUpdate() {
-                return true;
-            }
-        });
-        setGroupsAdapter(new StubGroupsAdapter());
-        setUserAttributes( new ConnectorAttributeMapBuilder<>(StubUserAttribute.class)
-                .add(USER_ID, STRING, NOT_UPDATEABLE)
-                .add(USER_NAME, STRING)
-                .add(EMAIL, STRING)
-                .add(GROUP_IDS, STRING, MULTIVALUED)
-                .build());
-        setGroupAttributes(new ConnectorAttributeMapBuilder<>(StubGroupAttribute.class)
-                .add(GROUP_ID, STRING, NOT_UPDATEABLE)
-                .add(GROUP_NAME, STRING)
-                .build());
+        setAdapters(new StubUsersAdapter(), new StubGroupsAdapter(),
+                new StubClubAdapter(), new StubSupergroupAdapter());
     }
 
 }
