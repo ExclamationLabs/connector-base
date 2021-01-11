@@ -16,17 +16,37 @@
 
 package com.exclamationlabs.connid.base.connector.stub.model;
 
-import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
-import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import org.identityconnectors.common.security.GuardedByteArray;
+import org.identityconnectors.common.security.GuardedString;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
-public class StubUser implements UserIdentityModel {
+public class StubUser implements IdentityModel {
 
     private String id;
     private String userName;
     private String email;
     private List<String> groupIds;
+    private List<String> clubIds;
+
+    private BigDecimal userTestBigDecimal;
+    private BigInteger userTestBigInteger;
+    private Boolean userTestBoolean;
+    private Byte userTestByte;
+    private Character userTestCharacter;
+    private Double userTestDouble;
+    private Float userTestFloat;
+    private GuardedByteArray userTestGuardedByteArray;
+    private GuardedString userTestGuardedString;
+    private Integer userTestInteger;
+    private Long userTestLong;
+    private Map<?,?> userTestMap;
+    private ZonedDateTime userTestZonedDateTime;
 
     @Override
     public String getIdentityIdValue() {
@@ -36,16 +56,6 @@ public class StubUser implements UserIdentityModel {
     @Override
     public String getIdentityNameValue() {
         return getUserName();
-    }
-
-    @Override
-    public String getAssignedGroupsAttributeName() {
-        return StubUserAttribute.GROUP_IDS.name();
-    }
-
-    @Override
-    public List<String> getAssignedGroupIds() {
-        return getGroupIds();
     }
 
     public String getId() {
@@ -78,5 +88,117 @@ public class StubUser implements UserIdentityModel {
 
     public void setGroupIds(List<String> groupIds) {
         this.groupIds = groupIds;
+    }
+
+    public BigDecimal getUserTestBigDecimal() {
+        return userTestBigDecimal;
+    }
+
+    public void setUserTestBigDecimal(BigDecimal userTestBigDecimal) {
+        this.userTestBigDecimal = userTestBigDecimal;
+    }
+
+    public BigInteger getUserTestBigInteger() {
+        return userTestBigInteger;
+    }
+
+    public void setUserTestBigInteger(BigInteger userTestBigInteger) {
+        this.userTestBigInteger = userTestBigInteger;
+    }
+
+    public Boolean getUserTestBoolean() {
+        return userTestBoolean;
+    }
+
+    public void setUserTestBoolean(Boolean userTestBoolean) {
+        this.userTestBoolean = userTestBoolean;
+    }
+
+    public Byte getUserTestByte() {
+        return userTestByte;
+    }
+
+    public void setUserTestByte(Byte userTestByte) {
+        this.userTestByte = userTestByte;
+    }
+
+    public Character getUserTestCharacter() {
+        return userTestCharacter;
+    }
+
+    public void setUserTestCharacter(Character userTestCharacter) {
+        this.userTestCharacter = userTestCharacter;
+    }
+
+    public Double getUserTestDouble() {
+        return userTestDouble;
+    }
+
+    public void setUserTestDouble(Double userTestDouble) {
+        this.userTestDouble = userTestDouble;
+    }
+
+    public Float getUserTestFloat() {
+        return userTestFloat;
+    }
+
+    public void setUserTestFloat(Float userTestFloat) {
+        this.userTestFloat = userTestFloat;
+    }
+
+    public GuardedByteArray getUserTestGuardedByteArray() {
+        return userTestGuardedByteArray;
+    }
+
+    public void setUserTestGuardedByteArray(GuardedByteArray userTestGuardedByteArray) {
+        this.userTestGuardedByteArray = userTestGuardedByteArray;
+    }
+
+    public GuardedString getUserTestGuardedString() {
+        return userTestGuardedString;
+    }
+
+    public void setUserTestGuardedString(GuardedString userTestGuardedString) {
+        this.userTestGuardedString = userTestGuardedString;
+    }
+
+    public Integer getUserTestInteger() {
+        return userTestInteger;
+    }
+
+    public void setUserTestInteger(Integer userTestInteger) {
+        this.userTestInteger = userTestInteger;
+    }
+
+    public Long getUserTestLong() {
+        return userTestLong;
+    }
+
+    public void setUserTestLong(Long userTestLong) {
+        this.userTestLong = userTestLong;
+    }
+
+    public Map<?, ?> getUserTestMap() {
+        return userTestMap;
+    }
+
+    public void setUserTestMap(Map<?, ?> userTestMap) {
+        this.userTestMap = userTestMap;
+    }
+
+    public ZonedDateTime getUserTestZonedDateTime() {
+        return userTestZonedDateTime;
+    }
+
+    public void setUserTestZonedDateTime(ZonedDateTime userTestZonedDateTime) {
+        this.userTestZonedDateTime = userTestZonedDateTime;
+    }
+
+    public List<String> getClubIds() {
+        return clubIds;
+    }
+
+    public void setClubIds(List<String> clubIds) {
+        this.clubIds = clubIds;
     }
 }

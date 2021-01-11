@@ -68,7 +68,9 @@ public enum ConnectorAttributeDataType {
     LONG(Long.class),
     MAP(Map.class),
     STRING(String.class),
-    ZONED_DATE_TIME(ZonedDateTime.class);
+    ZONED_DATE_TIME(ZonedDateTime.class),
+
+    ASSIGNMENT_IDENTIFIER(String.class);
 
     Class<?> classType;
 
@@ -79,6 +81,5 @@ public enum ConnectorAttributeDataType {
     ConnectorAttributeDataType(Class<?> in) {
         classType = in;
     }
-
 
 }

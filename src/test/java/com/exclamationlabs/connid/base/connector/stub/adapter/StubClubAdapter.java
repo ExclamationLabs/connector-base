@@ -19,61 +19,55 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
-import org.identityconnectors.framework.common.objects.*;
+import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubClubAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
+public class StubClubAdapter extends BaseAdapter<StubClub> {
 
 
     @Override
     public ObjectClass getType() {
-        return ObjectClass.GROUP;
+        return new ObjectClass("CLUB");
     }
 
     @Override
-    public Class<StubGroup> getIdentityModelClass() {
-        return StubGroup.class;
+    public Class<StubClub> getIdentityModelClass() {
+        return StubClub.class;
     }
 
     @Override
     public List<ConnectorAttribute> getConnectorAttributes() {
         List<ConnectorAttribute> result = new ArrayList<>();
-        result.add(new ConnectorAttribute(GROUP_ID.name(), STRING, NOT_UPDATEABLE));
-        result.add(new ConnectorAttribute(GROUP_NAME.name(), STRING));
+        result.add(new ConnectorAttribute(CLUB_ID.name(), STRING, NOT_UPDATEABLE));
+        result.add(new ConnectorAttribute(CLUB_NAME.name(), STRING));
         return result;
     }
 
     @Override
-    protected StubGroup constructModel(Set<Attribute> attributes, boolean isCreate) {
-        StubGroup group = new StubGroup();
-        group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
-        group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
-        return group;
+    protected StubClub constructModel(Set<Attribute> attributes, boolean isCreate) {
+        StubClub club = new StubClub();
+        club.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
+        club.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, CLUB_NAME));
+        return club;
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubGroup group) {
+    protected List<Attribute> constructAttributes(StubClub club) {
         List<Attribute> attributes = new ArrayList<>();
 
-        attributes.add(AttributeBuilder.build(GROUP_ID.name(), group.getId()));
-        attributes.add(AttributeBuilder.build(GROUP_NAME.name(), group.getName()));
+        attributes.add(AttributeBuilder.build(CLUB_ID.name(), club.getId()));
+        attributes.add(AttributeBuilder.build(CLUB_NAME.name(), club.getName()));
 
         return attributes;
-    }
-
-    @Override
-    protected Map<String, List<String>> constructAssignmentIdentifiers(Set<Attribute> attributes) {
-        return buildAssignments(
-                readAssignments("supergroup", attributes, SUPERGROUP_IDS)
-        );
     }
 }
