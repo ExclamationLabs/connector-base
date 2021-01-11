@@ -17,9 +17,8 @@
 package com.exclamationlabs.connid.base.connector.schema;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
+import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.model.GroupIdentityModel;
-import com.exclamationlabs.connid.base.connector.model.UserIdentityModel;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
@@ -27,7 +26,8 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
 import org.identityconnectors.framework.spi.operations.SyncOp;
 
 import java.util.Collection;
-import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -35,25 +35,25 @@ import java.util.stream.Collectors;
  * fit the needs for all future connectors developed; but if a custom solution is needed,
  * use {@link com.exclamationlabs.connid.base.connector.BaseConnector#setConnectorSchemaBuilder}
  */
-public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extends GroupIdentityModel>
-        implements ConnectorSchemaBuilder<U,G> {
+public class DefaultConnectorSchemaBuilder
+        implements ConnectorSchemaBuilder {
 
     private static final Log LOG = Log.getLog(DefaultConnectorSchemaBuilder.class);
 
     @Override
-    public Schema build(BaseConnector<U, G> connector, EnumMap<?, ConnectorAttribute>
-                        userAttributes, EnumMap<?, ConnectorAttribute> groupAttributes)
+    public Schema build(BaseConnector connector, Map<ObjectClass, BaseAdapter<?>> adapterMap)
             throws ConfigurationException {
         LOG.info("Building schema for connector {0} ...", connector.getName());
         SchemaBuilder schemaBuilder = new SchemaBuilder(connector.getClass());
 
-        LOG.info("Determining user schema elements for connector {0} ...", connector.getName());
-        schemaBuilder.defineObjectClass(buildObjectClassInfo(ObjectClass.ACCOUNT_NAME,
-                userAttributes));
+        for (BaseAdapter<?> currentAdapter : adapterMap.values()) {
+            List<ConnectorAttribute> currentAttributes = currentAdapter.getConnectorAttributes();
 
-        LOG.info("Determining group schema elements for connector {0} ...", connector.getName());
-        schemaBuilder.defineObjectClass(buildObjectClassInfo(ObjectClass.GROUP_NAME,
-                groupAttributes));
+            LOG.info("Determining schema elements for connector {0}, object class {1} ...",
+                    connector.getName(), currentAdapter.getType());
+            schemaBuilder.defineObjectClass(buildObjectClassInfo(currentAdapter.getType(),
+                    currentAttributes));
+        }
 
         schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
         schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAttributesToGet(), SyncOp.class, SearchOp.class);
@@ -64,18 +64,18 @@ public class DefaultConnectorSchemaBuilder<U extends UserIdentityModel, G extend
         return schemaBuilder.build();
     }
 
-    protected static ObjectClassInfo buildObjectClassInfo(String classType,
-                                                          EnumMap<?, ConnectorAttribute> attributes) {
+    protected static ObjectClassInfo buildObjectClassInfo(ObjectClass classType,
+                                                          List<ConnectorAttribute> attributes) {
         ObjectClassInfoBuilder builder = new ObjectClassInfoBuilder();
-        builder.setType(classType);
+        builder.setType(classType.getObjectClassValue());
 
         Collection<AttributeInfo> attributeInfoSet =
-                attributes.values()
+                attributes
                         .stream()
                         .map(DefaultConnectorSchemaBuilder::buildAttributeInfo)
                         .collect(Collectors.toSet());
         builder.addAllAttributeInfo(attributeInfoSet);
-        LOG.info("Added {0} schema elements", attributeInfoSet.size());
+        LOG.info("Added {0} schema elements for type {1}", attributeInfoSet.size(), classType);
 
         return builder.build();
     }
