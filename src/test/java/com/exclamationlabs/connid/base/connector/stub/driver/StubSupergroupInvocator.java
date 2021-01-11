@@ -24,10 +24,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubSupergroupInvocator implements DriverInvocator {
+public class StubSupergroupInvocator implements DriverInvocator<StubSupergroup> {
 
     @Override
-    public String create(Driver driver, IdentityModel model, Map<String,
+    public String create(Driver driver, StubSupergroup model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("supergroup create");
@@ -36,7 +36,7 @@ public class StubSupergroupInvocator implements DriverInvocator {
     }
 
     @Override
-    public void update(Driver driver, String userId, IdentityModel model, Map<String,
+    public void update(Driver driver, String userId, StubSupergroup model, Map<String,
             List<String>> assignmentIdentifiers) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("supergroup update");
@@ -52,7 +52,7 @@ public class StubSupergroupInvocator implements DriverInvocator {
     }
 
     @Override
-    public List<IdentityModel> getAll(Driver driver) throws ConnectorException {
+    public List<StubSupergroup> getAll(Driver driver) throws ConnectorException {
         StubDriver stubDriver = (StubDriver) driver;
         stubDriver.setMethodInvoked("club getAll");
         StubSupergroup item1 = new StubSupergroup();
@@ -62,7 +62,7 @@ public class StubSupergroupInvocator implements DriverInvocator {
         StubSupergroup item2 = new StubSupergroup();
         item2.setId(UUID.randomUUID().toString());
         item2.setName("SuperGroup Dos");
-        return new ArrayList<>(Arrays.asList(item1, item2));
+        return Arrays.asList(item1, item2);
     }
 
     @Override

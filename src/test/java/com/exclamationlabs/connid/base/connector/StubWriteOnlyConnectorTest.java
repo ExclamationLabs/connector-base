@@ -166,9 +166,6 @@ public class StubWriteOnlyConnectorTest {
         attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
 
         connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
-        assertTrue(driver.isInitializeInvoked());
-        assertEquals("user update", driver.getMethodInvoked());
-        assertEquals("1234", driver.getMethodParameter1().toString());
     }
 
     @Test

@@ -18,8 +18,9 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 
-public interface RestDriverInvocator extends DriverInvocator {
+public interface RestDriverInvocator<T extends IdentityModel> extends DriverInvocator<T> {
 
     default BaseRestDriver getRestDriver(Driver driver) {
         return (BaseRestDriver) driver;
