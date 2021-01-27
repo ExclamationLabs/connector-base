@@ -168,66 +168,66 @@ public abstract class BaseRestDriver extends BaseDriver {
         return interpretResponse(response, returnType);
     }
 
-    protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType) {
+    public <T>T executeGetRequest(String restUri, Class<T> expectedResponseType) {
         return executeGetRequest(restUri, expectedResponseType, null);
     }
 
-    protected <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePostRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    protected <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePutRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    protected <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePatchRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType) {
+    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType) {
         return executeDeleteRequest(restUri, expectedResponseType, null);
     }
 
-    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executeDeleteRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    protected <T>T executeGetRequest(String restUri, Class<T> expectedResponseType,
+    public <T>T executeGetRequest(String restUri, Class<T> expectedResponseType,
                                      Map<String, String> additionalHeaders) {
         HttpGet get = createGetRequest(restUri);
         setAdditionalHeaders(get, additionalHeaders);
         return executeRequest(get, expectedResponseType);
     }
 
-    protected <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                       Map<String, String> additionalHeaders) {
         HttpPost post = createPostRequest(restUri, requestBody);
         setAdditionalHeaders(post, additionalHeaders);
         return executeRequest(post, expectedResponseType);
     }
 
-    protected <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                      Map<String, String> additionalHeaders) {
         HttpPut put = createPutRequest(restUri, requestBody);
         setAdditionalHeaders(put, additionalHeaders);
         return executeRequest(put, expectedResponseType);
     }
 
-    protected <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                        Map<String, String> additionalHeaders) {
         HttpPatch patch = createPatchRequest(restUri, requestBody);
         setAdditionalHeaders(patch, additionalHeaders);
         return executeRequest(patch, expectedResponseType);
     }
 
-    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
                                         Map<String, String> additionalHeaders) {
         HttpDelete delete = createDeleteRequest(restUri);
         setAdditionalHeaders(delete, additionalHeaders);
         return executeRequest(delete, expectedResponseType);
     }
 
-    protected <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
                                                 Object requestBody, Map<String, String> additionalHeaders) {
         HttpDeleteWithBody delete = createDeleteRequest(restUri, requestBody);
         setAdditionalHeaders(delete, additionalHeaders);
