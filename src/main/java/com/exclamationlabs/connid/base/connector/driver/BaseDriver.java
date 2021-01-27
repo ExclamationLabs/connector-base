@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BaseDriver implements Driver {
 
     Map<Class<? extends IdentityModel>, DriverInvocator> invocatorMap;

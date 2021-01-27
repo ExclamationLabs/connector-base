@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
-import com.exclamationlabs.connid.base.connector.driver.Driver;
+import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
@@ -247,73 +247,73 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     }
 
-    static class TestRestUserInvocator implements RestDriverInvocator<StubUser> {
+    static class TestRestUserInvocator implements DriverInvocator<BaseRestDriver,StubUser> {
 
         @Override
-        public String create(Driver driver, StubUser userModel,
+        public String create(BaseRestDriver driver, StubUser userModel,
                              Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-            StubUser response = getRestDriver(driver).executePostRequest(
+            StubUser response = driver.executePostRequest(
                     "/users", StubUser.class, userModel, moreHeaders);
             return response.getId();
         }
 
         @Override
-        public void update(Driver driver, String userId, StubUser userModel,
+        public void update(BaseRestDriver driver, String userId, StubUser userModel,
                            Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-            getRestDriver(driver).executePatchRequest(
+            driver.executePatchRequest(
                     "/users/" + userId, null, userModel, moreHeaders);
         }
 
         @Override
-        public void delete(Driver driver, String userId) throws ConnectorException {
-            getRestDriver(driver).executeDeleteRequest("/users/" + userId, null, moreHeaders);
+        public void delete(BaseRestDriver driver, String userId) throws ConnectorException {
+            driver.executeDeleteRequest("/users/" + userId, null, moreHeaders);
         }
 
         @Override
-        public List<StubUser> getAll(Driver driver) throws ConnectorException {
-            TestUsersResponse usersResponse = getRestDriver(driver).executeGetRequest(
+        public List<StubUser> getAll(BaseRestDriver driver) throws ConnectorException {
+            TestUsersResponse usersResponse = driver.executeGetRequest(
                     "/users", TestUsersResponse.class, moreHeaders);
             return usersResponse.getPeople();
         }
 
         @Override
-        public StubUser getOne(Driver driver, String userId) throws ConnectorException {
-            return getRestDriver(driver).executeGetRequest("/users/" + userId, StubUser.class, moreHeaders);
+        public StubUser getOne(BaseRestDriver driver, String userId) throws ConnectorException {
+            return driver.executeGetRequest("/users/" + userId, StubUser.class, moreHeaders);
         }
     }
 
-    static class TestRestGroupInvocator implements RestDriverInvocator<StubGroup> {
+    static class TestRestGroupInvocator implements DriverInvocator<BaseRestDriver,StubGroup> {
 
         @Override
-        public String create(Driver driver, StubGroup userModel,
+        public String create(BaseRestDriver driver, StubGroup userModel,
                              Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-            StubGroup response = getRestDriver(driver).executePostRequest(
+            StubGroup response = driver.executePostRequest(
                     "/groups", StubGroup.class, userModel, moreHeaders);
             return response.getId();
         }
 
         @Override
-        public void update(Driver driver, String userId, StubGroup userModel,
+        public void update(BaseRestDriver driver, String userId, StubGroup userModel,
                            Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-            getRestDriver(driver).executePatchRequest(
+            driver.executePatchRequest(
                     "/groups/" + userId, null, userModel, moreHeaders);
         }
 
         @Override
-        public void delete(Driver driver, String userId) throws ConnectorException {
-            getRestDriver(driver).executeDeleteRequest("/groups/" + userId, null, moreHeaders);
+        public void delete(BaseRestDriver driver, String userId) throws ConnectorException {
+            driver.executeDeleteRequest("/groups/" + userId, null, moreHeaders);
         }
 
         @Override
-        public List<StubGroup> getAll(Driver driver) throws ConnectorException {
-            TestGroupsResponse groupsResponse = getRestDriver(driver).executeGetRequest(
+        public List<StubGroup> getAll(BaseRestDriver driver) throws ConnectorException {
+            TestGroupsResponse groupsResponse = driver.executeGetRequest(
                     "/groups", TestGroupsResponse.class, moreHeaders);
             return new ArrayList<>(groupsResponse.getGroups());
         }
 
         @Override
-        public StubGroup getOne(Driver driver, String groupId) throws ConnectorException {
-            return getRestDriver(driver).executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders);
+        public StubGroup getOne(BaseRestDriver driver, String groupId) throws ConnectorException {
+            return driver.executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders);
         }
     }
 
