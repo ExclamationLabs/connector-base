@@ -22,17 +22,17 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import java.util.List;
 import java.util.Map;
 
-public interface DriverInvocator<T extends IdentityModel> {
+public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
 
-    String create(Driver driver, T model,
+    String create(D driver, T model,
                   Map<String, List<String>> assignmentIdentifiers) throws ConnectorException;
 
-    void update(Driver driver, String userId, T userModel,
+    void update(D driver, String userId, T userModel,
                 Map<String, List<String>> assignmentIdentifiers) throws ConnectorException;
 
-    void delete(Driver driver, String userId) throws ConnectorException;
+    void delete(D driver, String userId) throws ConnectorException;
 
-    List<T> getAll(Driver driver) throws ConnectorException;
+    List<T> getAll(D driver) throws ConnectorException;
 
-    T getOne(Driver driver, String userId) throws ConnectorException;
+    T getOne(D driver, String userId) throws ConnectorException;
 }

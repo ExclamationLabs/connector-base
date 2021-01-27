@@ -35,6 +35,8 @@ import java.util.Set;
  * not allow you to delete a user, or assign him to a group).  In those cases, implementations
  * should throw UnsupportedOperationException to indicate it's not supported.
  */
+
+@SuppressWarnings("rawtypes")
 public interface Driver {
 
     /**
