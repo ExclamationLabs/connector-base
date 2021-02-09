@@ -16,7 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
-import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -26,16 +25,15 @@ import java.util.*;
 public class StubClubInvocator implements DriverInvocator<StubDriver,StubClub> {
 
     @Override
-    public String create(StubDriver driver, StubClub model, Map<String,
-            List<String>> assignmentIdentifiers) throws ConnectorException {
+    public String create(StubDriver driver, StubClub model) throws ConnectorException {
         driver.setMethodInvoked("club create");
         driver.setMethodParameter1(model);
         return UUID.randomUUID().toString();
     }
 
     @Override
-    public void update(StubDriver driver, String userId, StubClub model, Map<String,
-            List<String>> assignmentIdentifiers) throws ConnectorException {
+    public void update(StubDriver driver, String userId, StubClub model)
+            throws ConnectorException {
         driver.setMethodInvoked("club update");
         driver.setMethodParameter1(userId);
         driver.setMethodParameter2(model);

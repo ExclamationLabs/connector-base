@@ -17,21 +17,21 @@
 package com.exclamationlabs.connid.base.connector.model;
 
 /**
- * Interface to describe User and Group model objects belonging
+ * Interface to describe model objects belonging
  * to this base connector implementation.
  */
 public interface IdentityModel {
 
     /**
      * Implement this method to return the id value applicable to the
-     * concrete User or Group model.
+     * concrete model object.
      * @return String version of Id value recognized by model
      */
     String getIdentityIdValue();
 
     /**
      * Implement this method to return the name applicable to the
-     * concrete User or Group model.
+     * concrete model object.
      * @return String version of the name recognized by model
      */
     String getIdentityNameValue();

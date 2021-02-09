@@ -30,7 +30,8 @@ import java.util.*;
  * with Midpoint) and the Driver (which communicates with an external IAM data source),
  * it has to hold a reference to the Driver so it can communicate with it.
  *
- * Do not subclass this type, instead subclass BaseGroupsAdapter or BaseUsersAdapter.
+ * Adapter subclasses should specify the generic as a specific identity object
+ * type, which implements IdentityModel.
  */
 public abstract class BaseAdapter<T extends IdentityModel> {
 
@@ -46,12 +47,6 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     protected abstract T constructModel(Set<Attribute> attributes, boolean isCreate);
 
-    @SuppressWarnings("unused")
-    protected Map<String, List<String>> constructAssignmentIdentifiers(Set<Attribute> attributes) {
-        return new HashMap<>();
-    }
-
-
     /**
      * Service a request from IAM system to create the type on the destination system.
      * @param attributes Attributes from IAM system that map to data elements needed
@@ -60,9 +55,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      */
     public Uid create(Set<Attribute> attributes) {
         T model = constructModel(attributes, true);
-        Map<String, List<String>> assignmentIdentifiers =
-                constructAssignmentIdentifiers(attributes);
-        String newId = getDriver().create(getIdentityModelClass(), model, assignmentIdentifiers);
+        String newId = getDriver().create(getIdentityModelClass(), model);
         return new Uid(newId);
     }
 
@@ -75,10 +68,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      */
     public Uid update(Uid uid, Set<Attribute> attributes) {
         T model = constructModel(attributes, false);
-        Map<String, List<String>> assignmentIdentifiers =
-                constructAssignmentIdentifiers(attributes);
-        getDriver().update(getIdentityModelClass(), uid.getUidValue(), model,
-                assignmentIdentifiers);
+        getDriver().update(getIdentityModelClass(), uid.getUidValue(), model);
         return uid;
     }
 
@@ -94,7 +84,10 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * Service a request from IAM to get one, some, or all items of a data type from the destination system.
      * @param queryIdentifier Query string to help identify which item(s) need to be retrieved.
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
+     * @param options OperationOptions object received by connector.  Not currently used but may be supported in
+     *                the future for paging or other purposes.
      */
+    @SuppressWarnings("unused")
     public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(queryIdentifier)) {
             // query for all items
@@ -111,6 +104,41 @@ public abstract class BaseAdapter<T extends IdentityModel> {
         }
     }
 
+    public final void setDriver(Driver component) {
+        driver = component;
+    }
+
+    public final Driver getDriver() {
+        return driver;
+    }
+
+
+    /**
+     * This utility method can be used within adapter constructModel() method
+     * in order to construct a list of identifiers for assignment to another object type
+     * @param attributes Set of attributes from Midpoint
+     * @param attributeName Enum value pertain to the list of object identifiers for another
+     *                      type.  This enum type (as string) is expected to possibly be
+     *                      present in @param attributes.
+     * @return List of string identifiers for another object type.
+     */
+    protected List<String> readAssignments(Set<Attribute> attributes,
+                                           Enum<?> attributeName) {
+        List<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
+                List.class, attributes, attributeName);
+
+        List<String> ids = new ArrayList<>();
+        if (data != null) {
+            data.forEach(item -> ids.add(item.toString()));
+        }
+
+        if (!ids.isEmpty()) {
+            return ids;
+        } else {
+            return null;
+        }
+    }
+
     protected ConnectorObject constructConnectorObject(IdentityModel model) {
         ConnectorObjectBuilder builder = getConnectorObjectBuilder(model);
         List<ConnectorAttribute> connectorAttributes = getConnectorAttributes();
@@ -119,14 +147,6 @@ public abstract class BaseAdapter<T extends IdentityModel> {
                     current.getValue()));
         }
         return builder.build();
-    }
-
-    public final void setDriver(Driver component) {
-        driver = component;
-    }
-
-    public final Driver getDriver() {
-        return driver;
     }
 
     protected final ConnectorObjectBuilder getConnectorObjectBuilder(IdentityModel identity) {
@@ -139,36 +159,5 @@ public abstract class BaseAdapter<T extends IdentityModel> {
     protected final boolean queryAllRecords(String query) {
         return (query == null || StringUtils.isBlank(query) || StringUtils.equalsIgnoreCase(query, "ALL"));
     }
-
-    @SafeVarargs
-    protected final Map<String, List<String>> buildAssignments(
-            Map.Entry<String, List<String>>... assignments) {
-        Map<String, List<String>> assignmentMap = new HashMap<>();
-        for (Map.Entry<String, List<String>> currentAssignment : assignments) {
-            if (currentAssignment != null) {
-                assignmentMap.put(currentAssignment.getKey(), currentAssignment.getValue());
-            }
-        }
-        return assignmentMap;
-    }
-
-    protected Map.Entry<String, List<String>> readAssignments(String objectKey,
-                                                              Set<Attribute> attributes,
-                                                              Enum<?> attributeName) {
-        List<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
-                List.class, attributes, attributeName);
-
-        List<String> ids = new ArrayList<>();
-        if (data != null) {
-            data.forEach(item -> ids.add(item.toString()));
-        }
-
-        if (!ids.isEmpty()) {
-            return new AbstractMap.SimpleEntry<>(objectKey, ids);
-        } else {
-            return null;
-        }
-    }
-
 
 }
