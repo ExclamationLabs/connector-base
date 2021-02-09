@@ -73,6 +73,10 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
         user.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         user.setUserName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_NAME));
         user.setEmail(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, EMAIL));
+
+        user.setGroupIds(readAssignments(attributes, GROUP_IDS));
+        user.setClubIds(readAssignments(attributes, CLUB_IDS));
+
         return user;
     }
 
@@ -102,14 +106,6 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
         attributes.add(AttributeBuilder.build(USER_TEST_ZONED_DATE_TIME.name(), user.getUserTestZonedDateTime()));
 
         return attributes;
-    }
-
-    @Override
-    protected Map<String, List<String>> constructAssignmentIdentifiers(Set<Attribute> attributes) {
-        return buildAssignments(
-          readAssignments("group", attributes, GROUP_IDS),
-          readAssignments("club", attributes, CLUB_IDS)
-        );
     }
 
     public List<Attribute> constructAttributesTestAccess(StubUser user) {

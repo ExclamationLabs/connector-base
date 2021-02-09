@@ -28,7 +28,12 @@ import java.util.Map;
  * This is an enum to denote which Java object types are
  * supported within ConnId.
  *
- * Derived From ConnId source of org.identityconnectors.framework.common.FrameworkUtil
+ * ASSIGNMENT_IDENTIFIER is used to represent a list of identifiers
+ * that are assigned to an object that belong to a different object
+ * type (ex. a user with a list of different groups they belong to)
+ *
+ * Except for ASSIGNMENT_IDENTIFIER, these are derived From ConnId
+ * source of org.identityconnectors.framework.common.FrameworkUtil
  * version 1.5.0.0
  *
  *         ATTR_SUPPORTED_TYPES.add(String.class);

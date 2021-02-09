@@ -24,7 +24,6 @@ import org.identityconnectors.framework.common.objects.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
@@ -57,6 +56,7 @@ public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
         StubGroup group = new StubGroup();
         group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
+        group.setSupergroupIds(readAssignments(attributes, SUPERGROUP_IDS));
         return group;
     }
 
@@ -68,12 +68,5 @@ public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
         attributes.add(AttributeBuilder.build(GROUP_NAME.name(), group.getName()));
 
         return attributes;
-    }
-
-    @Override
-    protected Map<String, List<String>> constructAssignmentIdentifiers(Set<Attribute> attributes) {
-        return buildAssignments(
-                readAssignments("supergroup", attributes, SUPERGROUP_IDS)
-        );
     }
 }

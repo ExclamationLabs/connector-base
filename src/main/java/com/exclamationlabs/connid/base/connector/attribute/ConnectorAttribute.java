@@ -23,11 +23,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Describes an immutable Connector Attribute definition - it's name, data type
- * and ConnId Flags.  This needs to be in place so the ConnId Schema can
- * be built, and also inform the Adapter of the attribute types applicable to
- * this connector.  This implementation does not hold attribute values;
- * the ConnId Attribute type is still used to hold the actual values.
+ * Describes an immutable Connector Attribute definition - it's name, data type,
+ * ConnId Flags and current value (held in Object).  This needs to be in place
+ * so the ConnId Schema can be built, and also inform the Adapter of the attribute
+ * types applicable to this connector.
  */
 public final class ConnectorAttribute {
 

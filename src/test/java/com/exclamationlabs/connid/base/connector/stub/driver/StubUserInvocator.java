@@ -25,13 +25,12 @@ import java.util.*;
 public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
 
     @Override
-    public String create(StubDriver driver, StubUser model,
-                         Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+    public String create(StubDriver driver, StubUser model) throws ConnectorException {
         driver.setMethodInvoked("user create");
-        if (assignmentIdentifiers != null && assignmentIdentifiers.containsKey("club") && assignmentIdentifiers.containsKey("group")) {
+        if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
             driver.setMethodInvoked("user create with group and club ids");
         } else {
-            if (assignmentIdentifiers != null && assignmentIdentifiers.containsKey("group")) {
+            if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
                 driver.setMethodInvoked("user create with group ids");
             }
         }
@@ -41,10 +40,10 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public void update(StubDriver driver, String userId, StubUser model,
-                       Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+    public void update(StubDriver driver, String userId, StubUser model)
+            throws ConnectorException {
         driver.setMethodInvoked("user update");
-        if (assignmentIdentifiers != null && assignmentIdentifiers.containsKey("group")) {
+        if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
             driver.setMethodInvoked("user update with group ids");
         }
         driver.setMethodParameter1(userId);

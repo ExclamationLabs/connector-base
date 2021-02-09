@@ -139,7 +139,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         StubUser newUser = new StubUser();
         newUser.setUserName(USER_NAME);
         newUser.setEmail(USER_EMAIL);
-        assertEquals(USER_ID, driver.create(StubUser.class, newUser, null));
+        assertEquals(USER_ID, driver.create(StubUser.class, newUser));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         prepareMockResponse(SINGLE_GROUP_RESPONSE);
         StubGroup newGroup = new StubGroup();
         newGroup.setName(GROUP_NAME);
-        assertEquals(GROUP_ID, driver.create(StubGroup.class, newGroup, null));
+        assertEquals(GROUP_ID, driver.create(StubGroup.class, newGroup));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         prepareMockResponseEmpty();
         StubUser updateUser = new StubUser();
         updateUser.setUserName(USER_NAME);
-        driver.update(StubUser.class, USER_ID, updateUser, null);
+        driver.update(StubUser.class, USER_ID, updateUser);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         prepareMockResponseEmpty();
         StubGroup group = new StubGroup();
         group.setName(GROUP_NAME);
-        driver.update(StubGroup.class, GROUP_ID, group, null);
+        driver.update(StubGroup.class, GROUP_ID, group);
     }
 
     @Test
@@ -250,16 +250,16 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     static class TestRestUserInvocator implements DriverInvocator<BaseRestDriver,StubUser> {
 
         @Override
-        public String create(BaseRestDriver driver, StubUser userModel,
-                             Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+        public String create(BaseRestDriver driver, StubUser userModel)
+                throws ConnectorException {
             StubUser response = driver.executePostRequest(
                     "/users", StubUser.class, userModel, moreHeaders);
             return response.getId();
         }
 
         @Override
-        public void update(BaseRestDriver driver, String userId, StubUser userModel,
-                           Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+        public void update(BaseRestDriver driver, String userId, StubUser userModel)
+                throws ConnectorException {
             driver.executePatchRequest(
                     "/users/" + userId, null, userModel, moreHeaders);
         }
@@ -285,16 +285,16 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     static class TestRestGroupInvocator implements DriverInvocator<BaseRestDriver,StubGroup> {
 
         @Override
-        public String create(BaseRestDriver driver, StubGroup userModel,
-                             Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+        public String create(BaseRestDriver driver, StubGroup userModel)
+                             throws ConnectorException {
             StubGroup response = driver.executePostRequest(
                     "/groups", StubGroup.class, userModel, moreHeaders);
             return response.getId();
         }
 
         @Override
-        public void update(BaseRestDriver driver, String userId, StubGroup userModel,
-                           Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
+        public void update(BaseRestDriver driver, String userId, StubGroup userModel)
+                throws ConnectorException {
             driver.executePatchRequest(
                     "/groups/" + userId, null, userModel, moreHeaders);
         }
