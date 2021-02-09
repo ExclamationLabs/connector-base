@@ -37,14 +37,53 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     private Driver driver;
 
+    /**
+     * Return the ObjectClass type associated with this adapter.
+     * This could be ConnId provided ObjectClass.ACCOUNT (for users) or
+     * ObjectClass.GROUP (for groups), or a custom type ( new ObjectClass("Something") )     *
+     * @return ObjectClass pertaining to this adapter.
+     */
     public abstract ObjectClass getType();
 
+    /**
+     * Return the IdentityModel class reference.
+     * @return Class reference for the IdentityModel implementation pertaining to this
+     * adapter.
+     */
     public abstract Class<T> getIdentityModelClass();
 
+    /**
+     * Return a list of the connector attributes belonging to this adapter.
+     * Adapter subclasses should construct a list of ConnectorAttribute objects,
+     * using desired name, type and definition information, by using the
+     * ConnectorAttribute() constructor.
+     * @return List of ConnectorAttributes associated with this IdentityModel and Adapter.
+     */
     public abstract List<ConnectorAttribute> getConnectorAttributes();
 
+    /**
+     * Given an input IdentityModel, build the list of ConnId Attributes to
+     * be received to Midpoint.
+     * @param model IdentityModel implementation holding object data.
+     * @return List of ConnId Attribute objects holding name and value information to
+     * be received by Midpoint.
+     */
     protected abstract List<Attribute> constructAttributes(T model);
 
+    /**
+     * Given a set of Attribute information received from Midpoint, build
+     * a new IdentityModel with fields populated based on the received attributes
+     * and return it.
+     *
+     * NOTE: Static helper AdapterValueTypeConverter methods should be
+     * used to help read the data inside an Attribute object for each field
+     * and handle type juggling, to try to keep this complexity out of Adapter implementations.
+     *
+     * @param attributes Name/Value Attribute information received from Midpoint.
+     * @param isCreate True if this invocation applies to new object creation, false
+     *                 if object update is applicable.
+     * @return IdentityModel with fields populated from input attributes.
+     */
     protected abstract T constructModel(Set<Attribute> attributes, boolean isCreate);
 
     /**
@@ -53,7 +92,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      *                   by the destination system for type creation.
      * @return new unique identifier for newly created type
      */
-    public Uid create(Set<Attribute> attributes) {
+    public final Uid create(Set<Attribute> attributes) {
         T model = constructModel(attributes, true);
         String newId = getDriver().create(getIdentityModelClass(), model);
         return new Uid(newId);
@@ -66,7 +105,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      *                   by the destination system to update the type.
      * @return unique identifier applicable to the type that was just updated
      */
-    public Uid update(Uid uid, Set<Attribute> attributes) {
+    public final Uid update(Uid uid, Set<Attribute> attributes) {
         T model = constructModel(attributes, false);
         getDriver().update(getIdentityModelClass(), uid.getUidValue(), model);
         return uid;
@@ -76,7 +115,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * Service a request from IAM system to delete the type on the destination system.
      * @param uid Unique identifier for the data item to be deleted.
      */
-    public void delete(Uid uid) {
+    public final void delete(Uid uid) {
         getDriver().delete(getIdentityModelClass(), uid.getUidValue());
     }
 
@@ -87,19 +126,20 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * @param options OperationOptions object received by connector.  Not currently used but may be supported in
      *                the future for paging or other purposes.
      */
-    @SuppressWarnings("unused")
-    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
+    @SuppressWarnings({"unused", "unchecked"})
+
+    public final void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(queryIdentifier)) {
             // query for all items
             List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass());
             for (IdentityModel item : allItems) {
-                resultsHandler.handle(constructConnectorObject(item));
+                resultsHandler.handle(constructConnectorObject((T) item));
             }
         } else {
             // Query for single item
             IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier);
             if (singleItem != null) {
-                resultsHandler.handle(constructConnectorObject(singleItem));
+                resultsHandler.handle(constructConnectorObject((T) singleItem));
             }
         }
     }
@@ -139,10 +179,10 @@ public abstract class BaseAdapter<T extends IdentityModel> {
         }
     }
 
-    protected ConnectorObject constructConnectorObject(IdentityModel model) {
+    protected final ConnectorObject constructConnectorObject(T model) {
         ConnectorObjectBuilder builder = getConnectorObjectBuilder(model);
-        List<ConnectorAttribute> connectorAttributes = getConnectorAttributes();
-        for (ConnectorAttribute current : connectorAttributes) {
+        List<Attribute> connectorAttributes = constructAttributes(model);
+        for (Attribute current : connectorAttributes) {
             builder.addAttribute(AttributeBuilder.build(current.getName(),
                     current.getValue()));
         }
