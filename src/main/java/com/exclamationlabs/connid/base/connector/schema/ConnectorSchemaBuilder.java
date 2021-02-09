@@ -30,11 +30,12 @@ import java.util.Map;
 public interface ConnectorSchemaBuilder {
 
     /**
-     * Build and define the schema, capturing all the Attribute definitions for user
-     * and group types for this connector.
+     * Build and define the schema, capturing all the Attribute definitions for
+     * object types for this connector.
      * @return Schema object needed for ConnId identity management system (normally MidPoint)
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.
      */
-    Schema build(BaseConnector connector, Map<ObjectClass, BaseAdapter<?>> adapterMap) throws ConfigurationException;
+    Schema build(BaseConnector connector, Map<ObjectClass, BaseAdapter<?>> adapterMap)
+            throws ConfigurationException;
 }

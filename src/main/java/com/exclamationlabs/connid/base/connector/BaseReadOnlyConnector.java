@@ -22,6 +22,14 @@ import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.SearchOp;
 
+/**
+ * Connector that allows read-only access on
+ * a destination system.  This class should be subclassed if your primary desire is to have
+ * just read-only access to the data types on the destination system.
+ *
+ * Note that only the ConnId SearchOp<String> interface is implemented for this class;
+ * therefore this connector cannot take in create/update/delete requests from Midpoint.
+ */
 public abstract class BaseReadOnlyConnector extends BaseConnector
     implements SearchOp<String> {
 

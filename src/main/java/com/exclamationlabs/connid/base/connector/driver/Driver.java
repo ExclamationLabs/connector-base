@@ -23,19 +23,23 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Classes that implement Driver should be able to connect to some kind of data system
+ * Classes that implement Driver should be able to connect to some kind of destination system
  * and be able to perform user and group CRUD operations, and may also have the ability
  * to assign a user to a group or remove him from a group.
  *
  * Some drivers may not be able to support all methods (for example, some systems may
  * not allow you to delete a user, or assign him to a group).  In those cases, implementations
  * should throw UnsupportedOperationException to indicate it's not supported.
+ *
+ * A driver must consist of one to many DriverInvocator objects.  Invocator objects
+ * instruct the driver how each IdentityModel type should interact with the destination system.
+ * These DriverInvocator objects should be registered to the driver using the addInvocator() method.
+ * In most cases, your constructor should make calls to addInvocator() to notify the Driver
+ * of the invocators it should register.
  */
-
 @SuppressWarnings("rawtypes")
 public interface Driver {
 
@@ -82,20 +86,76 @@ public interface Driver {
      */
     void close();
 
+    /**
+     * Return the DriverInvocator corresponding to a particular IdentityModel class.
+     * @param identityModelClass Class reference for a particular IdentityModel implementation.
+     * @return DriverInvocator pertaining to the input IdentityModel class.
+     */
     DriverInvocator getInvocator(Class<? extends IdentityModel> identityModelClass);
 
+    /**
+     * Register an Invocator definition with this Driver.
+     * @param identityModelClass Class reference for the IdentityModel implementation
+     *                           relating to the Invocator.
+     * @param invocator An instance of the applicable Invocator object.
+     */
     void addInvocator(Class<? extends IdentityModel> identityModelClass, DriverInvocator invocator);
 
+    /**
+     * Process a request to create a new object on the destination system.
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                                the creation request.
+     * @param model IdentityModel instance holding all object data for the creation request.
+     * @return The new id for the object just created
+     * @throws ConnectorException If create operation failed or was invalid.
+     */
     String create(Class<? extends IdentityModel> identityModelClass,
-                  IdentityModel model, Map<String,List<String>> assignmentIdentifiers) throws ConnectorException;
+                  IdentityModel model) throws ConnectorException;
 
-    void update(Class<? extends IdentityModel> identityModelClass, String userId, IdentityModel userModel,
-                Map<String,List<String>> assignmentIdentifiers) throws ConnectorException;
+    /**
+     * Process a request to update an object on the destination system.
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                          the update request.
+     * @param objectId String containing the id pertaining to the item being updated
+     * @param userModel IdentityModel instance holding all object data for the update request.
+     *                  Any fields that are null or not set should remain unchanged for this record
+     *                  on the destination system.
+     * @throws ConnectorException If update operation failed or was invalid.
+     */
+    void update(Class<? extends IdentityModel> identityModelClass, String objectId, IdentityModel userModel)
+            throws ConnectorException;
 
-    void delete(Class<? extends IdentityModel> identityModelClass, String userId) throws ConnectorException;
+    /**
+     * Process a request to delete an object on the destination system.
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                              the delete request.
+     * @param objectId String containing the id pertaining to the item to be deleted
+     * @throws ConnectorException If delete operation failed or was invalid
+     */
+    void delete(Class<? extends IdentityModel> identityModelClass, String objectId) throws ConnectorException;
 
+    /**
+     * Process a request to get all objects of a particular type from the destination system.
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                                      the get request.
+     * @return A list of IdentityModel instances representing all the objects of a particular type.  Or
+     * null or an empty list if no objects for this type were found.
+     * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
+     * no records found (an empty or null list) is not considered an exception condition.
+     */
     List<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass) throws ConnectorException;
 
+    /**
+     * Process a request to get a single object of a particular type from the destination system,
+     * matching the requested id.
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+    *                                     the get request.
+     * @param userId String containing the id for the record to be retrieved.
+     * @return An IdentityModel instance representing the object for the given id.  Or null
+     * if a record was not found.
+     * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
+     * no matching record for the given id is not considered an exception condition.
+     */
     IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String userId) throws ConnectorException;
 
 }

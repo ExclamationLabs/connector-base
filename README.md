@@ -10,13 +10,14 @@ taken care of by a common API.
 
 ## Gradle and Build Process
 
-Connector-base is a Gradle project based on Java 1.8.  To test and build the project, simply use
+Connector-base is a Gradle project based on Java 1.8.  The gradle wrapper is also included with this
+ project.  To test and build the project, simply use
 
-`gradle build`
+`./gradlew build`
 
 If you need to fully clean the prior build first, then run -
 
-`gradle clean build`
+`./gradlew clean build`
 
 The build command will produce a small JAR, connector-base-{version}.jar.  
 This jar contains the Base Connector
@@ -30,10 +31,10 @@ Inside the build.gradle repositories { } section:
      }
 `
 
-Inside build.gradle, listed with any other dependencies, replacing 0.1
+Inside build.gradle, listed with any other dependencies, replacing 1.0.3
  with the current version:
  
-`implementation 'com.exclamationlabs.connid:connector-base:0.1-+'`
+`implementation 'com.exclamationlabs.connid:connector-base:1.0.3-+'`
 
 The critical dependencies of the Base Connector framework are described in build.gradle under
 'Vital dependencies' block.  If your connector project uses the Base Connector and pulls it in
@@ -51,7 +52,7 @@ Also see:
 
 The Base Connector consists of many interfaces and abstract base classes and is focused
 on providing reusability as well as customization opportunities.   We use the term 'destination system' to describe any
- kind of a backend system or storage location that can hold user and group information.
+ kind of a backend system or storage location that can hold IAM information.
  
 Below is a summary of the key
 class types in the Base Connector framework and some notes regarding 
@@ -61,20 +62,20 @@ their purpose and usage.
 
 #### Models 
 
-*Interfaces: UserIdentityModel and GroupIdentityModel*
+*Interface: `IdentityModel`*
 
 The Base Connector framework needs to know what classes represent your user
 and group data, so that data can be transmitted to your destination system. Your
-user class be a POJO or any type you like, but it must implement the
-`UserIdentityModel` interface.  The same applies to your group class and the 
-`GroupIdentityModel` interface.
+object classes be a POJO or any type you like, but they must implement the
+`IdentityModel` interface.
 
-The Base Connector framework uses generics, and these two model types must be
+The Base Connector framework uses generics, and the model types must be
 referenced by other types as the ones that pertain your connector implementation.
 
 #### Connector
 
-*Abstract class: BaseConnector*
+*Abstract classed: `BaseConnector`, `BaseFullAccessConnector`, 
+`BaseReadOnlyConnector` and `BaseWriteOnlyConnector`*
 
 The Connector is the prime class that MidPoint communicates with in order to interact
 with your destination system.  Any connector based on the framework is expected to
@@ -86,44 +87,73 @@ also point the display properties file for your connector.  Example:
 
 `@ConnectorClass(displayNameKey = "my.connector.display", configurationClass = MyConfiguration.class)`
 
-- Extend the BaseConnector, with your <User, Group> generic model types.
+- Extend the BaseConnector.
 
 - Have a default constructor that performs the following:
     - call `setDriver()` to set the Driver implementation for your connector.
-    - call `setUsersAdapter()` to set UsersAdapter implementation for your connector.
-    - call `setGroupsAdapter()` to set GroupsAdapter implementation for your connector.
-    - call `setUserAttributes()` to provide the user attribute definitions for your connector.
-    - call `setGroupAttributes()` to provide the group attribute definitions for your connector.
+    - call `setAdapters()` to set adapter implementations pertaining to each data type for your connector.
        
 See StubConnector in the test source for an example.
+
+Also note that, in most cases, you should subclass 
+either `BaseFullAccessConnector`, `BaseReadOnlyConnector` or `BaseWriteOnlyConnector`, based on your
+the amount of access to your destination system that you want to allow or that it will allow. 
        
 #### Adapters
 
-*Abstract classes BaseUsersAdapter and BaseGroupsAdapter*
+*Abstract class `BaseAdapter`*
 
-Adapter serve as the controller between the Connector (which is invoked by MidPoint)
+Adapters serve as the controller between the Connector (which is invoked by MidPoint)
  and the Driver (which makes calls to your destination system).  As a result, the adapter
  is primarily concerned with routing calls and mapping data from your models to/from ConnId
  Attribute values.
 
-You should have two adapters that extend the abstract classes for users and groups, respectively. 
-The methods you need to override with be responsible for converting data from ConnId 
-Attribute values to your model fields, and vice versa.  Your adapters must also be 
-defined with your <User, Group> generic model types.
+You should have adapters that extend the abstract classes for the object types you wish to control.
+Most often, you will want to provide access to users and groups.  The methods you need to 
+override with be responsible for converting data from ConnId 
+Attribute values to your model fields, and vice versa.
 
 See StubGroupsAdapter and StubUsersAdapter in the test source for an example.
 
 #### Attribute
 
-You need to define two enumerations, one for users, another for groups, that
+You need to define enumeration classes for each object type that
 the Base Connector framework can use to define the ConnId Attribute names that
 your connector implementation will use.
 
 See StubGroupAttribute and StubUserAttribute in the test source for an example.
 
+#### Attributes and Object Assignment
+
+In order to have an object type that can be assigned to another object type (ex. assigning a user to a group),
+you will need to utilize ConnectorAttributeDataType.ASSIGNMENT_IDENTIFIER.  Using
+this special type, you will then be able to define an attribute that holds a list of
+string identifiers that the object belongs to (ex. groups that a user belongs to).
+
+In order for assignment to materially work, you'll also need to do the following -
+- Make sure your adapter `constructModel()` method reads the incoming id's
+to be associated and reflects them in the IdentityModel (see test package
+`StubUsersAdapter` `constructModel()` for an example):
+
+```
+        user.setGroupIds(readAssignments(attributes, GROUP_IDS));
+        user.setClubIds(readAssignments(attributes, CLUB_IDS));
+```
+
+- Make sure your adapter `constructAttributes()` method populates attributes based
+on the list of id's from the IdentityModel object (see test package 
+`StubUsersAdapter` `constructAttributes()` for an example):
+
+```
+        attributes.add(AttributeBuilder.build(GROUP_IDS.name(), user.getGroupIds()));
+        attributes.add(AttributeBuilder.build(CLUB_IDS.name(), user.getClubIds()));
+```
+- Make sure your invocator reads the list of id's from the object model and handles
+the associations as needed on the destination system.
+
 #### Configuration
 
-*Abstract base class BaseConnectorConfiguration*
+*Abstract base class `BaseConnectorConfiguration`*
 
 Your connector must specify a configuration object in order to make configuration
 values available to your connector as well as the other objects involved.  Your
@@ -180,7 +210,7 @@ private String thing;
  
 #### Authenticator
 
-*Interface Authenticator*
+*Interface `Authenticator`*
 
 An Authenticator is an object that might be needed by a connector implementation
  in order to obtain some kind of access token (String) required to
@@ -194,16 +224,20 @@ An Authenticator is an object that might be needed by a connector implementation
 
 #### Driver
 
-*Interface Driver*
+*Interface `Driver`*
 
-*Abstract base class BaseRestDriver* (for RESTful destination systems)
+*Abstract base classes `BaseDriver` and `BaseRestDriver` (for RESTful destination systems)* 
 
 The Driver is responsible for issuing calls to the destination system for creating, listing,
-updating and removing its users and groups. The driver must be defined with
- your <User, Group> generic model types.
- 
+updating and removing data.  Often this data will relate to IAM users and groups on the destination
+system.
+
+If the destination system you are connecting is not RESTful, you should seek to subclass
+BaseDriver directly, or possibly subclass a protocol-specific subclass of BaseDriver suited
+to how your destination system communicates.
+
 If the driver you are writing is one that calls to RESTful web service endpoints, you
-should also subclass `BaseRestDriver`.  Doing so will greatly cut down on the amount
+should subclass `BaseRestDriver`.  Doing so will greatly cut down on the amount
 of code you need to write and will help handle HTTP-based JSON request and 
 response interactions with minimum code.
 
@@ -212,6 +246,21 @@ response interactions with minimum code.
 If you utilize `BaseRestDriver`, you should also implement the 
 `RestFaultProcessor` interface in order to recognize and handle any error response
 information returned from your destination system.
+
+#### Invocator
+
+*Interface `DriverInvocator`*
+
+Each Driver should generally have at least one Invocator.  You will need an invocator for
+each object type that you wish to control on your destination system.
+
+The role of the Invocator is to use the communication protocol prescribed by the Driver and
+make the actual requests to read, create, update and delete data on the destination system, particular
+to a specific data type.  If you wish to manage users and groups with your IAM connector, you
+should have an Invocator implementation for users and another for groups.
+
+The Invocator `create(), update(), delete(), getOne() and getAll()` methods should perform those
+respective operations on the destination system, using the input provided via the API.
 
 ### Examples and starting points
 
@@ -224,7 +273,8 @@ and [Zoom Connector](https://github.com/ExclamationLabs/connector-base-zoom).
 
 ## Related projects
 - The [Test Support](https://github.com/ExclamationLabs/connector-base-test-support) project is a test harness that is required by the Base
-Connector and other connectors can also make us of.
+Connector and other connectors can also make us of.  Note that `connector-base-test-support` is a dependency
+of this project, `connector-base`.
 
 - The [H2 Example](https://github.com/ExclamationLabs/connector-base-h2-example) project is an example
 to show you a relatively simple implementation of an end-use connector and how

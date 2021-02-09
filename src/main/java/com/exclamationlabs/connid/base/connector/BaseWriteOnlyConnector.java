@@ -23,6 +23,15 @@ import org.identityconnectors.framework.spi.operations.UpdateOp;
 
 import java.util.Set;
 
+/**
+ * Connector that allows write-only access on
+ * a destination system.  This class should be subclassed if your primary desire is to have
+ * just write-only access to the data types on the destination system.
+ *
+ * Note that only the ConnId SearchOp<String> interface is not included for this class;
+ * therefore this connector cannot take in get/search requests for data from Midpoint, and only
+ * create/update/delete requests are recognized.
+ */
 public abstract class BaseWriteOnlyConnector extends BaseConnector
     implements DeleteOp, CreateOp, UpdateOp {
 

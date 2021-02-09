@@ -46,13 +46,16 @@ import java.util.Set;
  *
  * {@literal @}ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
  *
+ * In most cases, you should subclass one of these abstract classes instead of this one,
+ * based on your connector's need:
+ * BaseFullAccessConnector - full create/read/update/delete access to the destination system
+ * BaseReadOnlyConnector - read-only access to the destination system
+ * BaseWriteOnlyConnector - write-only access to the destination system
+ *
  * The constructor for your concrete class should also call these setters...
  * MANDATORY:
  * setDriver();
- * setUsersAdapter();
- * setGroupsAdapter();
- * setUserAttributes();
- * setGroupAttributes();
+ * setAdapters();
  *
  * OPTIONAL:
  * setAuthenticator();
@@ -75,12 +78,49 @@ public abstract class BaseConnector
         adapterMap = new HashMap<>();
     }
 
+    /**
+     * Concrete Connector classes need to call this method to set the driver
+     * for their connector implementation.
+     * @param input Concrete Driver class used to communicate with the destination system.
+     */
+    protected void setDriver(Driver input) {
+        driver = input;
+    }
+
+    /**
+     * Concrete Connector classes need to call this method to set the adapter(s)
+     * to map attribute data from Midpoint to IdentityModel object types.
+     * @param adapters Any number of concrete BaseAdapter classes, each pertaining to
+     *                 a distinct IdentityModel type.
+     */
+    protected void setAdapters(BaseAdapter<?>... adapters) {
+        for (BaseAdapter<?> currentAdapter : adapters) {
+            adapterMap.put(currentAdapter.getType(), currentAdapter);
+        }
+    }
+
+    /**
+     * Identifies whether or not this connector is able to read items on the destination system.
+     * @return true if read on the destination system is allowed, false if it is prohibited.
+     */
     protected abstract boolean readEnabled();
 
+    /**
+     * Identifies whether or not this connector is able to update items on the destination system.
+     * @return true if update on the destination system is allowed, false if it is prohibited.
+     */
     protected abstract boolean updateEnabled();
 
+    /**
+     * Identifies whether or not this connector is able to delete items on the destination system.
+     * @return true if delete on the destination system is allowed, false if it is prohibited.
+     */
     protected abstract boolean deleteEnabled();
 
+    /**
+     * Identifies whether or not this connector is able to create items on the destination system.
+     * @return true if create on the destination system is allowed, false if it is prohibited.
+     */
     protected abstract boolean createEnabled();
 
     protected boolean isReadOnly() {
@@ -95,17 +135,10 @@ public abstract class BaseConnector
         return readEnabled() && updateEnabled() && deleteEnabled() && createEnabled();
     }
 
-    public void setAdapters(BaseAdapter<?>... adapters) {
-        for (BaseAdapter<?> currentAdapter : adapters) {
-            adapterMap.put(currentAdapter.getType(), currentAdapter);
-        }
-    }
-
     @Override
     public void checkAlive() {
         test();
     }
-
 
     /**
      * MidPoint calls this method to initialize a connector on startup.
@@ -149,8 +182,6 @@ public abstract class BaseConnector
         return getClass().getSimpleName();
     }
 
-
-
     protected FilterTranslator<String> getConnectorFilterTranslator(ObjectClass objectClass) {
         BaseAdapter<?> matchedAdapter = adapterMap.get(objectClass);
         if (matchedAdapter == null) {
@@ -187,10 +218,6 @@ public abstract class BaseConnector
         return configuration;
     }
 
-    protected void setDriver(Driver input) {
-        driver = input;
-    }
-
     protected Driver getDriver() {
         return driver;
     }
@@ -206,6 +233,13 @@ public abstract class BaseConnector
         return matchedAdapter;
     }
 
+    /**
+     * This initialization method performs checks to ensure the concrete connector
+     * implementation is structured properly and has what it needs to successfully integrate
+     * with Midpoint.  If something is not setup properly, the RuntimeException
+     * ConfigurationException is thrown from this method to indicate the problem.
+     * @param inputConfiguration Configuration object for this connector.
+     */
     protected void initializeBaseConnector(Configuration inputConfiguration) {
 
         if (getDriver() == null) {
