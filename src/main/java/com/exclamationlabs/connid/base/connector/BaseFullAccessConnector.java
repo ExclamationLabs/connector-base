@@ -25,6 +25,15 @@ import org.identityconnectors.framework.spi.operations.UpdateOp;
 
 import java.util.Set;
 
+/**
+ * Connector that allows full access (create, read, update and delete) on
+ * a destination system.  This class should be subclassed if your primary desire is to have
+ * full access on most/all of the data types on the destination system.
+ *
+ * Note that ConnId interfaces DeleteOp, CreateOp, UpdateOp and SearchOp<String>
+ * are implemented.  This means that this connector will be able to
+ * receive create, update, delete and get/search requests from Midpoint.
+ */
 public abstract class BaseFullAccessConnector extends BaseConnector
     implements DeleteOp, CreateOp, UpdateOp, SearchOp<String> {
 

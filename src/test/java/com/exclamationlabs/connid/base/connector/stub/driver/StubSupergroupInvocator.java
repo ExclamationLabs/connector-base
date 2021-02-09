@@ -25,16 +25,14 @@ import java.util.*;
 public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubSupergroup> {
 
     @Override
-    public String create(StubDriver driver, StubSupergroup model, Map<String,
-            List<String>> assignmentIdentifiers) throws ConnectorException {
+    public String create(StubDriver driver, StubSupergroup model) throws ConnectorException {
         driver.setMethodInvoked("supergroup create");
         driver.setMethodParameter1(model);
         return UUID.randomUUID().toString();
     }
 
     @Override
-    public void update(StubDriver driver, String userId, StubSupergroup model, Map<String,
-            List<String>> assignmentIdentifiers) throws ConnectorException {
+    public void update(StubDriver driver, String userId, StubSupergroup model) throws ConnectorException {
         driver.setMethodInvoked("supergroup update");
         driver.setMethodParameter1(userId);
         driver.setMethodParameter2(model);

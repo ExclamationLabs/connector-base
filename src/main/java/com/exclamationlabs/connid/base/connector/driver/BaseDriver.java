@@ -23,6 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Abstract class for a Driver that should be subclassed for all use cases.  This
+ * abstract class provides the support for associating the Driver with a map
+ * of Invocators, each of which that are used to perform data operations on the data
+ * system pertaining to specific object types.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BaseDriver implements Driver {
 
@@ -46,15 +52,15 @@ public abstract class BaseDriver implements Driver {
 
 
     @Override
-    public String create(Class<? extends IdentityModel> identityModelClass, IdentityModel model,
-                         Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-        return getInvocator(identityModelClass).create(this, model, assignmentIdentifiers);
+    public String create(Class<? extends IdentityModel> identityModelClass, IdentityModel model)
+            throws ConnectorException {
+        return getInvocator(identityModelClass).create(this, model);
     }
 
     @Override
     public void update(Class<? extends IdentityModel> identityModelClass, String id,
-                       IdentityModel model, Map<String, List<String>> assignmentIdentifiers) throws ConnectorException {
-        getInvocator(identityModelClass).update(this, id, model, assignmentIdentifiers);
+                       IdentityModel model) throws ConnectorException {
+        getInvocator(identityModelClass).update(this, id, model);
     }
 
     @Override
