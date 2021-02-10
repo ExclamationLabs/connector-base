@@ -113,7 +113,14 @@ Most often, you will want to provide access to users and groups.  The methods yo
 override with be responsible for converting data from ConnId 
 Attribute values to your model fields, and vice versa.
 
-See StubGroupsAdapter and StubUsersAdapter in the test source for an example.
+Any adapter needs to implement the following methods:
+- `getType()`
+- `getIdentityModelClass()`
+- `getConnectorAttributes()`
+- `constructModel()`
+- `constructAttributes()`
+
+See the javadoc for BaseAdapter for further information on the above methods. Also See StubGroupsAdapter and StubUsersAdapter in the test source for an example.
 
 #### Attribute
 
