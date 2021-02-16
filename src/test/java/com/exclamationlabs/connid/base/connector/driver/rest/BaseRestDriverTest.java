@@ -152,7 +152,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Test
     public void updateUserPatch() {
-        prepareMockResponseEmpty();
+        prepareMockResponse();
         StubUser updateUser = new StubUser();
         updateUser.setUserName(USER_NAME);
         driver.update(StubUser.class, USER_ID, updateUser);
@@ -160,7 +160,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Test
     public void updateGroupPut() {
-        prepareMockResponseEmpty();
+        prepareMockResponse();
         StubGroup group = new StubGroup();
         group.setName(GROUP_NAME);
         driver.update(StubGroup.class, GROUP_ID, group);
@@ -168,13 +168,13 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Test
     public void deleteUser() {
-        prepareMockResponseEmpty();
+        prepareMockResponse();
         driver.delete(StubUser.class, USER_ID);
     }
 
     @Test
     public void deleteGroup() {
-        prepareMockResponseEmpty();
+        prepareMockResponse();
         driver.delete(StubGroup.class, GROUP_ID);
     }
 
