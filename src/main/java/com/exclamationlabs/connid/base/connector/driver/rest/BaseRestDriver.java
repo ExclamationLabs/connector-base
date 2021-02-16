@@ -304,7 +304,7 @@ public abstract class BaseRestDriver extends BaseDriver {
         }
     }
 
-    private void setupJsonRequestBody(HttpEntityEnclosingRequestBase request, Object requestBody) {
+    protected final void setupJsonRequestBody(HttpEntityEnclosingRequestBase request, Object requestBody) {
         if (requestBody != null) {
             Gson gson = gsonBuilder.create();
             String json = gson.toJson(requestBody);
