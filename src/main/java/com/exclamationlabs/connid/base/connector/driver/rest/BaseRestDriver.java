@@ -105,6 +105,14 @@ public abstract class BaseRestDriver extends BaseDriver {
     }
 
     /**
+     * Override this method if needed to perform a custom action after
+     * a new token has been successfully obtained for an expired security token,
+     * and before the valid response of the original request is returned.
+     */
+    protected void performPostNewAccessTokenCustomAction() {
+    }
+
+    /**
      * This method should return the base Service URL
      * for RESTful endpoints that this driver invokes.
      * If not used and full URL needs to be fully reconstructed for every different
@@ -152,7 +160,9 @@ public abstract class BaseRestDriver extends BaseDriver {
               configuration.setCredentialAccessToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
-              return executeRequest(request, returnType, true);
+              T holdResult = executeRequest(request, returnType, true);
+              performPostNewAccessTokenCustomAction();
+              return holdResult;
           }
         } catch (DriverTokenExpiredException tokenE) {
             LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(), configuration.getCredentialAccessToken());
