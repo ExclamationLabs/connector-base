@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -49,6 +50,9 @@ public class OAuth2TokenClientCredentialsAuthenticator extends AbstractOAuth2Tok
                 CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL,
                 CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID,
                 CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET));
+
+        // CONNECTOR_BASE_AUTH_OAUTH2_SCOPE is optional per the OAuth2 spec,
+        // but required for some integrations
     }
 
     @Override
@@ -65,6 +69,13 @@ public class OAuth2TokenClientCredentialsAuthenticator extends AbstractOAuth2Tok
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("grant_type", "client_credentials"));
+
+            // Scope is optional for OAuth2 client credentials
+            if (StringUtils.isNotBlank(
+                    configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_SCOPE))) {
+                params.add(new BasicNameValuePair("scope", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_SCOPE)));
+            }
+
             request.setEntity(new UrlEncodedFormEntity(params));
 
             String auth =
