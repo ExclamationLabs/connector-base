@@ -86,18 +86,10 @@ public class DefaultConnectorSchemaBuilder
         LOG.info("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
                 current.getDataType().getClassType(), current.getFlags());
 
-        if (current.getDataType() == ConnectorAttributeDataType.MAP) {
-            return new AttributeInfoBuilder(current.getName())
-                    .setType(current.getDataType().getClassType())
-                    .setSubtype(AttributeInfo.Subtypes.STRING_CASE_IGNORE)
-                    .setFlags(current.getFlags())
-                    .build();
-        } else {
-            return new AttributeInfoBuilder(current.getName())
+        return new AttributeInfoBuilder(current.getName())
                     .setType(current.getDataType().getClassType())
                     .setFlags(current.getFlags())
                     .build();
-        }
 
 
     }
