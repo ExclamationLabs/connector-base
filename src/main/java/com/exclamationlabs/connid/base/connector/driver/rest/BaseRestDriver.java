@@ -28,10 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.codec.Charsets;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.ParseException;
+import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -122,11 +119,11 @@ public abstract class BaseRestDriver extends BaseDriver {
      */
     abstract protected String getBaseServiceUrl();
 
-    public <T>T executeRequest(HttpRequestBase request, Class<T> returnType) {
+    public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType) {
         return executeRequest(request, returnType, false);
     }
 
-    public <T>T executeRequest(HttpRequestBase request, Class<T> returnType, boolean isRetry) {
+    public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType, boolean isRetry) {
         if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
             throw new ConnectionBrokenException("Connection invalidated or disposed, request cannot " +
                     "be performed.  Gsonbuilder: " + gsonBuilder + "; faultProcessor: " +
@@ -135,6 +132,8 @@ public abstract class BaseRestDriver extends BaseDriver {
 
         HttpClient client = createClient();
         HttpResponse response;
+        int responseStatusCode;
+        Header[] responseHeaders;
 
         try {
             LOG.info("Request details: {0} to {1}", request.getMethod(),
@@ -143,10 +142,12 @@ public abstract class BaseRestDriver extends BaseDriver {
             LOG.info("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
                     request.getMethod(), request.getURI());
 
-            int statusCode = response.getStatusLine().getStatusCode();
-            LOG.info("Response status code is {0}", statusCode);
-            if (statusCode >= HttpStatus.SC_BAD_REQUEST) {
-                LOG.info("request execution failed; status code is {0}", statusCode);
+            responseStatusCode = response.getStatusLine().getStatusCode();
+            responseHeaders = response.getAllHeaders();
+
+            LOG.info("Response status code is {0}", responseStatusCode);
+            if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
+                LOG.info("request execution failed; status code is {0}", responseStatusCode);
                 getFaultProcessor().process(response, gsonBuilder);
             }
 
@@ -160,7 +161,7 @@ public abstract class BaseRestDriver extends BaseDriver {
               configuration.setCredentialAccessToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
-              T holdResult = executeRequest(request, returnType, true);
+              RestResponseData<T> holdResult = executeRequest(request, returnType, true);
               performPostNewAccessTokenCustomAction();
               return holdResult;
           }
@@ -175,69 +176,70 @@ public abstract class BaseRestDriver extends BaseDriver {
                     "Unexpected IOException occurred while attempting call: " + e.getMessage(), e);
         }
 
-        return interpretResponse(response, returnType);
+        T responseData = interpretResponse(response, returnType);
+        return new RestResponseData<>(responseData, responseHeaders, responseStatusCode);
     }
 
-    public <T>T executeGetRequest(String restUri, Class<T> expectedResponseType) {
+    public <T> RestResponseData<T> executeGetRequest(String restUri, Class<T> expectedResponseType) {
         return executeGetRequest(restUri, expectedResponseType, null);
     }
 
-    public <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T> RestResponseData<T> executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePostRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    public <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T> RestResponseData<T> executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePutRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    public <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T> RestResponseData<T> executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executePatchRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType) {
+    public <T> RestResponseData<T> executeDeleteRequest(String restUri, Class<T> expectedResponseType) {
         return executeDeleteRequest(restUri, expectedResponseType, null);
     }
 
-    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
+    public <T> RestResponseData<T> executeDeleteRequest(String restUri, Class<T> expectedResponseType, Object requestBody) {
         return executeDeleteRequest(restUri, expectedResponseType, requestBody, null);
     }
 
-    public <T>T executeGetRequest(String restUri, Class<T> expectedResponseType,
+    public <T> RestResponseData<T> executeGetRequest(String restUri, Class<T> expectedResponseType,
                                      Map<String, String> additionalHeaders) {
         HttpGet get = createGetRequest(restUri);
         setAdditionalHeaders(get, additionalHeaders);
         return executeRequest(get, expectedResponseType);
     }
 
-    public <T>T executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T> RestResponseData<T> executePostRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                       Map<String, String> additionalHeaders) {
         HttpPost post = createPostRequest(restUri, requestBody);
         setAdditionalHeaders(post, additionalHeaders);
         return executeRequest(post, expectedResponseType);
     }
 
-    public <T>T executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T> RestResponseData<T> executePutRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                      Map<String, String> additionalHeaders) {
         HttpPut put = createPutRequest(restUri, requestBody);
         setAdditionalHeaders(put, additionalHeaders);
         return executeRequest(put, expectedResponseType);
     }
 
-    public <T>T executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
+    public <T> RestResponseData<T> executePatchRequest(String restUri, Class<T> expectedResponseType, Object requestBody,
                                        Map<String, String> additionalHeaders) {
         HttpPatch patch = createPatchRequest(restUri, requestBody);
         setAdditionalHeaders(patch, additionalHeaders);
         return executeRequest(patch, expectedResponseType);
     }
 
-    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+    public <T> RestResponseData<T> executeDeleteRequest(String restUri, Class<T> expectedResponseType,
                                         Map<String, String> additionalHeaders) {
         HttpDelete delete = createDeleteRequest(restUri);
         setAdditionalHeaders(delete, additionalHeaders);
         return executeRequest(delete, expectedResponseType);
     }
 
-    public <T>T executeDeleteRequest(String restUri, Class<T> expectedResponseType,
+    public <T> RestResponseData<T> executeDeleteRequest(String restUri, Class<T> expectedResponseType,
                                                 Object requestBody, Map<String, String> additionalHeaders) {
         HttpDeleteWithBody delete = createDeleteRequest(restUri, requestBody);
         setAdditionalHeaders(delete, additionalHeaders);
