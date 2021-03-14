@@ -253,7 +253,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         public String create(BaseRestDriver driver, StubUser userModel)
                 throws ConnectorException {
             StubUser response = driver.executePostRequest(
-                    "/users", StubUser.class, userModel, moreHeaders);
+                    "/users", StubUser.class, userModel, moreHeaders).getResponseObject();
             return response.getId();
         }
 
@@ -272,13 +272,13 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         @Override
         public List<StubUser> getAll(BaseRestDriver driver) throws ConnectorException {
             TestUsersResponse usersResponse = driver.executeGetRequest(
-                    "/users", TestUsersResponse.class, moreHeaders);
+                    "/users", TestUsersResponse.class, moreHeaders).getResponseObject();
             return usersResponse.getPeople();
         }
 
         @Override
         public StubUser getOne(BaseRestDriver driver, String userId) throws ConnectorException {
-            return driver.executeGetRequest("/users/" + userId, StubUser.class, moreHeaders);
+            return driver.executeGetRequest("/users/" + userId, StubUser.class, moreHeaders).getResponseObject();
         }
     }
 
@@ -288,7 +288,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         public String create(BaseRestDriver driver, StubGroup userModel)
                              throws ConnectorException {
             StubGroup response = driver.executePostRequest(
-                    "/groups", StubGroup.class, userModel, moreHeaders);
+                    "/groups", StubGroup.class, userModel, moreHeaders).getResponseObject();
             return response.getId();
         }
 
@@ -307,13 +307,13 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         @Override
         public List<StubGroup> getAll(BaseRestDriver driver) throws ConnectorException {
             TestGroupsResponse groupsResponse = driver.executeGetRequest(
-                    "/groups", TestGroupsResponse.class, moreHeaders);
+                    "/groups", TestGroupsResponse.class, moreHeaders).getResponseObject();
             return new ArrayList<>(groupsResponse.getGroups());
         }
 
         @Override
         public StubGroup getOne(BaseRestDriver driver, String groupId) throws ConnectorException {
-            return driver.executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders);
+            return driver.executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders).getResponseObject();
         }
     }
 
