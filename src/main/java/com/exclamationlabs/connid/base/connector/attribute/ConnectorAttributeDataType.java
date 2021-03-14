@@ -71,7 +71,7 @@ public enum ConnectorAttributeDataType {
     GUARDED_STRING(GuardedString.class),
     INTEGER(Integer.class),
     LONG(Long.class),
-    MAP(Map.class),
+    MAP(Map.class), // NOTE: Not supported well at all by Midpoint 4.x
     STRING(String.class),
     ZONED_DATE_TIME(ZonedDateTime.class),
 
