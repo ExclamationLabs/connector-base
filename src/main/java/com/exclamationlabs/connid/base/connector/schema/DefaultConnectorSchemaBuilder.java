@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.schema;
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
@@ -85,10 +86,19 @@ public class DefaultConnectorSchemaBuilder
         LOG.info("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
                 current.getDataType().getClassType(), current.getFlags());
 
-        return new AttributeInfoBuilder(current.getName())
-                .setType(current.getDataType().getClassType())
-                .setFlags(current.getFlags())
-                .build();
+        if (current.getDataType() == ConnectorAttributeDataType.MAP) {
+            return new AttributeInfoBuilder(current.getName())
+                    .setType(current.getDataType().getClassType())
+                    .setSubtype(AttributeInfo.Subtypes.STRING_CASE_IGNORE)
+                    .setFlags(current.getFlags())
+                    .build();
+        } else {
+            return new AttributeInfoBuilder(current.getName())
+                    .setType(current.getDataType().getClassType())
+                    .setFlags(current.getFlags())
+                    .build();
+        }
+
 
     }
 
