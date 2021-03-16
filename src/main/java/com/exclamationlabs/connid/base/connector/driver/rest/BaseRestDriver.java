@@ -355,4 +355,8 @@ public abstract class BaseRestDriver extends BaseDriver {
         return result;
     }
 
+    public ConnectorConfiguration getConfiguration() {
+        return configuration;
+    }
+
 }
