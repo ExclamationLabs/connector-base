@@ -75,9 +75,9 @@ public interface ConnectorConfiguration extends Configuration {
     void validateConfiguration() throws ConfigurationException;
 
 
-    String getCredentialAccessToken();
+    String innerGetCredentialAccessToken();
 
-    void setCredentialAccessToken(String token);
+    void innerSetCredentialAccessToken(String token);
 
     default OAuth2AccessTokenContainer getOauth2Information() {
         return null;
