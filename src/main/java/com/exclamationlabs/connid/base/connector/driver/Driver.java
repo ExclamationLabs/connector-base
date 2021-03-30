@@ -23,6 +23,7 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -138,12 +139,14 @@ public interface Driver {
      * Process a request to get all objects of a particular type from the destination system.
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
      *                                      the get request.
+     * @param operationOptionsData data map possibly containing current paging information
      * @return A list of IdentityModel instances representing all the objects of a particular type.  Or
      * null or an empty list if no objects for this type were found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no records found (an empty or null list) is not considered an exception condition.
      */
-    List<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass) throws ConnectorException;
+    List<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass,
+                               Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
      * Process a request to get a single object of a particular type from the destination system,
@@ -151,11 +154,13 @@ public interface Driver {
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
     *                                     the get request.
      * @param userId String containing the id for the record to be retrieved.
+     * @param operationOptionsData data map possibly containing current paging information
      * @return An IdentityModel instance representing the object for the given id.  Or null
      * if a record was not found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no matching record for the given id is not considered an exception condition.
      */
-    IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String userId) throws ConnectorException;
+    IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String userId,
+                         Map<String, Object> operationOptionsData) throws ConnectorException;
 
 }
