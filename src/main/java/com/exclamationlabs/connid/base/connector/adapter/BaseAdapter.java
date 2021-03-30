@@ -131,13 +131,13 @@ public abstract class BaseAdapter<T extends IdentityModel> {
     public final void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(queryIdentifier)) {
             // query for all items
-            List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass());
+            List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
             for (IdentityModel item : allItems) {
                 resultsHandler.handle(constructConnectorObject((T) item));
             }
         } else {
             // Query for single item
-            IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier);
+            IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
             if (singleItem != null) {
                 resultsHandler.handle(constructConnectorObject((T) singleItem));
             }

@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A DriverInvocator belongs to a Driver and is responsible for making
@@ -69,11 +70,12 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
      * Get all existing objects of this invocator's particular type on the destination system.
      * @param driver Driver belonging to this Invocator and providing interaction
      *               with the applicable destination system.
+     * @param operationOptionsData data map possibly containing current paging information
      * @return A list of all IdentityModel objects of this Invocator's particular type.  Can
      * be null or an empty list if the destination system currently has no records.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    List<T> getAll(D driver) throws ConnectorException;
+    List<T> getAll(D driver, Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
      * Get a single object of this invocator's particular type on the destination system
@@ -82,10 +84,11 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
      *               with the applicable destination system.
      * @param objectId String holding the identifier for the object being sought on
      *                 the destination system.
+     * @param operationOptionsData data map possibly containing current paging information
      * @return An IdentityModel object of this Invocator's particular type that corresponds
      * to the given identifier.  Can return null if no record matching the id was found on the
      * destination system.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    T getOne(D driver, String objectId) throws ConnectorException;
+    T getOne(D driver, String objectId, Map<String, Object> operationOptionsData) throws ConnectorException;
 }
