@@ -57,7 +57,7 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public List<StubUser> getAll(StubDriver driver) throws ConnectorException {
+    public List<StubUser> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("user getAll");
         StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
@@ -70,7 +70,7 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public StubUser getOne(StubDriver driver, String id) throws ConnectorException {
+    public StubUser getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("user getOne");
         driver.setMethodParameter1(id);
         StubUser user1 = new StubUser();

@@ -78,7 +78,7 @@ public class StubReadOnlyConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
@@ -110,7 +110,7 @@ public class StubReadOnlyConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubGroup.class).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubGroup.class, Collections.emptyMap()).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());

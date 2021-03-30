@@ -69,13 +69,15 @@ public abstract class BaseDriver implements Driver {
     }
 
     @Override
-    public IdentityModel getOne(Class<? extends IdentityModel> modelClass, String id) throws ConnectorException {
-        return getInvocator(modelClass).getOne(this, id);
+    public IdentityModel getOne(Class<? extends IdentityModel> modelClass, String id,
+                                Map<String,Object> operationOptionsData) throws ConnectorException {
+        return getInvocator(modelClass).getOne(this, id, operationOptionsData);
     }
 
     @Override
-    public List<IdentityModel> getAll(Class<? extends IdentityModel> modelClass) throws ConnectorException {
-        return getInvocator(modelClass).getAll(this);
+    public List<IdentityModel> getAll(Class<? extends IdentityModel> modelClass,
+                                      Map<String,Object> operationOptionsData) throws ConnectorException {
+        return getInvocator(modelClass).getAll(this, operationOptionsData);
     }
 
 }
