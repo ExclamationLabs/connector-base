@@ -34,6 +34,6 @@ public class TestConnectorConfiguration extends BaseConnectorConfiguration {
 
     @Override
     public String getConfigurationFilePath() {
-        return getMidPointConfigurationFilePath();
+        return innerGetMidPointConfigurationFilePath();
     }
 }

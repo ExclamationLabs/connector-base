@@ -70,9 +70,9 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         qualifiedConfigurationName = configurationName;
         initializeRequiredPropertyNames();
         if (System.getenv(qualifiedConfigurationName) != null) {
-            setMidPointConfigurationFilePath(System.getenv(qualifiedConfigurationName));
+            innerSetMidPointConfigurationFilePath(System.getenv(qualifiedConfigurationName));
         } else {
-            setMidPointConfigurationFilePath("src/test/resources/" +
+            innerSetMidPointConfigurationFilePath("src/test/resources/" +
                     qualifiedConfigurationName + ".properties");
         }
     }
@@ -101,7 +101,7 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
     @SuppressWarnings("unused")
     public void setConfigurationFilePath(String path) {
         LOG.info("setting configuration file path {0} for {1}", path, getName());
-        setMidPointConfigurationFilePath(path);
+        innerSetMidPointConfigurationFilePath(path);
     }
 
     @Override
@@ -218,11 +218,13 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         }
     }
 
-    public String getCredentialAccessToken() {
+    @Override
+    public String innerGetCredentialAccessToken() {
         return credentialAccessToken;
     }
 
-    public void setCredentialAccessToken(String credentialAccessToken) {
+    @Override
+    public void innerSetCredentialAccessToken(String credentialAccessToken) {
         this.credentialAccessToken = credentialAccessToken;
     }
 
@@ -236,12 +238,12 @@ public abstract class BaseConnectorConfiguration implements ConnectorConfigurati
         connectorMessages = messages;
     }
 
-    public String getMidPointConfigurationFilePath() {
+    public String innerGetMidPointConfigurationFilePath() {
         LOG.info("getting getMidPointConfigurationFilePath {0}", midPointConfigurationFilePath);
         return midPointConfigurationFilePath;
     }
 
-    public void setMidPointConfigurationFilePath(String inputPath) {
+    public void innerSetMidPointConfigurationFilePath(String inputPath) {
         if (inputPath != null) {
             LOG.info("setting getMidPointConfigurationFilePath, old {0}, new {1}",
                     midPointConfigurationFilePath, inputPath);
