@@ -154,11 +154,11 @@ public abstract class BaseRestDriver extends BaseDriver {
         } catch (DriverRenewableTokenExpiredException retryE) {
           if (isRetry) {
               LOG.error("Driver {0} token {1} still invalid after re-authentication, should investigate", this.getClass().getSimpleName(),
-                      configuration.getCredentialAccessToken());
+                      configuration.innerGetCredentialAccessToken());
               throw new ConnectorException("Service rejected re-authenticated token for driver", retryE);
           } else {
               LOG.info("Driver {0} encountered token expiration and will attempt to reauthenticate.", this.getClass().getSimpleName());
-              configuration.setCredentialAccessToken(authenticator.authenticate(configuration));
+              configuration.innerSetCredentialAccessToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
               RestResponseData<T> holdResult = executeRequest(request, returnType, true);
@@ -166,7 +166,8 @@ public abstract class BaseRestDriver extends BaseDriver {
               return holdResult;
           }
         } catch (DriverTokenExpiredException tokenE) {
-            LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(), configuration.getCredentialAccessToken());
+            LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(),
+                    configuration.innerGetCredentialAccessToken());
             throw new ConnectorException("Token expired or rejected during driver usage", tokenE);
         } catch (ClientProtocolException e) {
             throw new ConnectorException(
@@ -291,11 +292,11 @@ public abstract class BaseRestDriver extends BaseDriver {
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         if (usesBearerAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " +
-                    configuration.getCredentialAccessToken());
+                    configuration.innerGetCredentialAccessToken());
         }
         else if (usesTokenAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Token token=" +
-                    configuration.getCredentialAccessToken());
+                    configuration.innerGetCredentialAccessToken());
         }
 
     }

@@ -282,7 +282,7 @@ public abstract class BaseConnector
             LOG.info("Connector {0} validation bypassed, already validated", this.getName());
         }
 
-        getConnectorConfiguration().setCredentialAccessToken(
+        getConnectorConfiguration().innerSetCredentialAccessToken(
                 getAuthenticator().authenticate(getConnectorConfiguration()));
         LOG.info("Connector {0} successfully authenticated", this.getName());
 

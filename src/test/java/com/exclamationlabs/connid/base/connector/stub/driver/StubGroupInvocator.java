@@ -51,7 +51,7 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
     }
 
     @Override
-    public List<StubGroup> getAll(StubDriver driver) throws ConnectorException {
+    public List<StubGroup> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("group getAll");
         StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());
@@ -64,7 +64,7 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
     }
 
     @Override
-    public StubGroup getOne(StubDriver driver, String id) throws ConnectorException {
+    public StubGroup getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("group getOne");
         driver.setMethodParameter1(id);
         StubGroup group = new StubGroup();
