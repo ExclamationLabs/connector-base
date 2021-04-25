@@ -128,7 +128,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      */
     @SuppressWarnings({"unused", "unchecked"})
 
-    public final void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
+    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
         if (queryAllRecords(queryIdentifier)) {
             // query for all items
             List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
