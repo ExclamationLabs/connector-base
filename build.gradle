@@ -43,18 +43,3 @@ task generatePom {
     }
 }
 
-javadoc.options.addStringOption('Xdoclint:none', '-quiet')
-javadoc.options.addStringOption('source', '8')
-javadoc.options.addStringOption('link', 'https://docs.oracle.com/javase/8/docs/api/')
-
-task storeJavadoc(type: Copy, dependsOn: javadoc) {
-    from 'build/docs/javadoc'
-    into 'docs'
-}
-
-task cleanJavadoc(type: Delete) {
-    delete 'docs'
-}
-
-clean.dependsOn(cleanJavadoc)
-build.dependsOn(generatePom, storeJavadoc)
