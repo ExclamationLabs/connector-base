@@ -8,6 +8,10 @@ is to greatly reduce code repetition and complexity when writing new connectors
 and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
+## Change Log
+
+Please see the [Change Log page](CHANGELOG.md)
+
 ## Gradle and Build Process
 
 Connector-base is a Gradle project based on Java 1.8.  The gradle wrapper is also included with this
