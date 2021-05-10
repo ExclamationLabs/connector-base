@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
+import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
@@ -32,16 +33,20 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.common.exceptions.UnknownUidException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 public class BaseRestDriverTest extends ConnectorMockRestTest {
 
@@ -176,6 +181,29 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     public void deleteGroup() {
         prepareMockResponse();
         driver.delete(StubGroup.class, GROUP_ID);
+    }
+
+    @Test
+    public void testIOExceptionRetries() throws IOException {
+        driver = new TestRestDriver();
+        driver.initialize(new CustomRetryConfiguration(), new Authenticator() {
+            @Override
+            public Set<ConnectorProperty> getRequiredPropertyNames() {
+                return null;
+            }
+
+            @Override
+            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
+                return "good";
+            }
+        });
+        moreHeaders.put("uno", "one");
+        moreHeaders.put("dos", "two");
+
+        prepareMockResponseAfterTwoExceptions(new IOException("test"));
+        StubUser user = (StubUser) driver.getOne(StubUser.class, USER_ID, Collections.emptyMap());
+        assertEquals(USER_NAME, user.getUserName());
+        assertEquals(USER_EMAIL, user.getEmail());
     }
 
     @Test(expected = UnknownUidException.class)
@@ -361,6 +389,31 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         @SuppressWarnings("unused")
         public void setGroups(List<StubGroup> groups) {
             this.groups = groups;
+        }
+    }
+
+
+    protected void prepareMockResponseAfterTwoExceptions(Throwable t) throws IOException {
+        Mockito.when(this.stubResponseEntity.getContent()).thenReturn(
+                new ByteArrayInputStream( SINGLE_USER_RESPONSE.getBytes()));
+        Mockito.when(this.stubResponse.getEntity()).thenReturn(this.stubResponseEntity);
+
+        Mockito.when(stubResponse.getStatusLine()).thenReturn(stubStatusLine).thenReturn(stubStatusLine).thenReturn(stubStatusLine);
+        Mockito.when(stubStatusLine.getStatusCode()).thenReturn(408).thenReturn(408).thenReturn(200);
+        Mockito.when(stubClient.execute(any(HttpRequestBase.class))).thenThrow(t).thenThrow(t).thenReturn(stubResponse);
+    }
+
+    static class CustomRetryConfiguration extends BaseConnectorConfiguration {
+
+        public CustomRetryConfiguration() {
+            super();
+            setConnectorProperties(new Properties());
+            setProperty(ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES.name(), "2");
+        }
+
+        @Override
+        public String getConfigurationFilePath() {
+            return null;
         }
     }
 }
