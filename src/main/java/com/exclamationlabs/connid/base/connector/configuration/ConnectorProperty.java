@@ -25,6 +25,10 @@ public enum ConnectorProperty {
 
     CONNECTOR_BASE_CONFIGURATION_ACTIVE,
 
+    // For REST Connectors, the maximum number of retries to perform if RESTful call results in IOException or SocketException
+    // This property is optional and will only be used if found and is integer value greater than 0
+    CONNECTOR_BASE_REST_IO_ERROR_RETRIES,
+
     // Direct access token stored in configuration, no other auth
     CONNECTOR_BASE_AUTH_DIRECT_TOKEN,
 
