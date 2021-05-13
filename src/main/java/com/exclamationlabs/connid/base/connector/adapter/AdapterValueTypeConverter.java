@@ -114,7 +114,7 @@ public class AdapterValueTypeConverter {
     }
 
     private static Object readAttributeValue(Attribute input, boolean readSingleValue) {
-        if (input != null && input.getValue() != null && input.getValue().get(0) != null) {
+        if (input != null && input.getValue() != null && (!input.getValue().isEmpty()) && input.getValue().get(0) != null) {
             return readSingleValue ? input.getValue().get(0) : input.getValue();
         } else {
             return null;
