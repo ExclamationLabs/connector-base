@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
@@ -120,10 +121,11 @@ public abstract class BaseRestDriver extends BaseDriver {
     abstract protected String getBaseServiceUrl();
 
     public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType) {
-        return executeRequest(request, returnType, false);
+        return executeRequest(request, returnType, false, 0);
     }
 
-    public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType, boolean isRetry) {
+    public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType, boolean isRetry,
+        int retryCount) {
         if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
             throw new ConnectionBrokenException("Connection invalidated or disposed, request cannot " +
                     "be performed.  Gsonbuilder: " + gsonBuilder + "; faultProcessor: " +
@@ -161,7 +163,7 @@ public abstract class BaseRestDriver extends BaseDriver {
               configuration.innerSetCredentialAccessToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
-              RestResponseData<T> holdResult = executeRequest(request, returnType, true);
+              RestResponseData<T> holdResult = executeRequest(request, returnType, true , 1);
               performPostNewAccessTokenCustomAction();
               return holdResult;
           }
@@ -173,8 +175,22 @@ public abstract class BaseRestDriver extends BaseDriver {
             throw new ConnectorException(
                     "Unexpected ClientProtocolException occurred while attempting call: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new ConnectorException(
-                    "Unexpected IOException occurred while attempting call: " + e.getMessage(), e);
+            if (getIoErrorRetryCount() > 0) {
+                if (isRetry) {
+                    if (retryCount < getIoErrorRetryCount()) {
+                        return executeRequest(request, returnType, true, ++retryCount);
+                    } else {
+                        throw new ConnectorException(
+                                "Unexpected IOException occurred while attempting call: " + e.getMessage() +
+                                ".  " + retryCount + " retries were attempted.", e);
+                    }
+                } else {
+                    return executeRequest(request, returnType, true, 1);
+                }
+            } else {
+                throw new ConnectorException(
+                        "Unexpected IOException occurred while attempting call: " + e.getMessage(), e);
+            }
         }
 
         T responseData = interpretResponse(response, returnType);
@@ -354,6 +370,20 @@ public abstract class BaseRestDriver extends BaseDriver {
         }
 
         return result;
+    }
+
+    private int getIoErrorRetryCount() {
+        String retries = configuration.getProperty(ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES);
+        int retryCount = 0;
+        if (retries != null) {
+            try {
+                retryCount = Integer.parseInt(retries);
+            } catch (NumberFormatException nfe) {
+                LOG.info("Invalid numeric value for {0}: {1}",
+                        ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES.name(), retries);
+            }
+        }
+        return retryCount;
     }
 
     public ConnectorConfiguration getConfiguration() {
