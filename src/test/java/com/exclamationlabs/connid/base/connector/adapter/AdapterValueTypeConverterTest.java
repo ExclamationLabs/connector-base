@@ -284,6 +284,22 @@ public class AdapterValueTypeConverterTest {
     }
 
     @Test
+    public void emptyCollectionTypeSingleResultsInNull() {
+        attributeSet = new HashSet<>();
+        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), Collections.emptyList()));
+        assertNull(AdapterValueTypeConverter.getSingleAttributeValue(
+                Character.class, attributeSet, TestAttribute.CHAR_ATTR));
+    }
+
+    @Test
+    public void emptyCollectionTypeMultipleResultsInNull() {
+        attributeSet = new HashSet<>();
+        attributeSet.add(AttributeBuilder.build(TestAttribute.CHAR_ATTR.name(), Collections.emptyList()));
+        assertNull(AdapterValueTypeConverter.getMultipleAttributeValue(
+                Character.class, attributeSet, TestAttribute.CHAR_ATTR));
+    }
+
+    @Test
     public void getMultipleAttributeValueString() {
         setupStringTypes();
         @SuppressWarnings("unchecked")
