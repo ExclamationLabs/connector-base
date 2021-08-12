@@ -31,6 +31,7 @@ import java.util.Set;
 public final class ConnectorAttribute {
 
     private final String name;
+    private final String nativeName;
 
     private final ConnectorAttributeDataType dataType;
 
@@ -40,14 +41,26 @@ public final class ConnectorAttribute {
 
     public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
             attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
+        this(attributeName, attributeName, attributeDataType, attributeFlags);
+    }
+
+    public ConnectorAttribute(String attributeName, String nativeNameInput, ConnectorAttributeDataType
+            attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
         name = attributeName;
+        nativeName = nativeNameInput;
         dataType = attributeDataType;
         flags = attributeFlags;
     }
 
     public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
             attributeDataType, AttributeInfo.Flags... attributeFlags) {
+        this(attributeName, attributeName, attributeDataType, attributeFlags);
+    }
+
+    public ConnectorAttribute(String attributeName, String nativeNameInput, ConnectorAttributeDataType
+            attributeDataType, AttributeInfo.Flags... attributeFlags) {
         name = attributeName;
+        nativeName = nativeNameInput;
         dataType = attributeDataType;
         flags = new HashSet<>();
         flags.addAll(Arrays.asList(attributeFlags));
@@ -71,5 +84,9 @@ public final class ConnectorAttribute {
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public String getNativeName() {
+        return nativeName;
     }
 }
