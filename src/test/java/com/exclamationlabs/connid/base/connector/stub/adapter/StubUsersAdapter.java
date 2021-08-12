@@ -44,8 +44,11 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
     @Override
     public List<ConnectorAttribute> getConnectorAttributes() {
         List<ConnectorAttribute> result = new ArrayList<>();
+        result.add(new ConnectorAttribute("__UID__", USER_ID.name(), STRING, NOT_UPDATEABLE));
+        result.add(new ConnectorAttribute("__NAME__", USER_NAME.name(), STRING, NOT_UPDATEABLE));
+
         result.add(new ConnectorAttribute(USER_ID.name(), STRING, NOT_UPDATEABLE));
-        result.add(new ConnectorAttribute(USER_NAME.name(), STRING));
+        result.add(new ConnectorAttribute(USER_NAME.name(), "test native name", STRING));
         result.add(new ConnectorAttribute(EMAIL.name(), STRING));
         result.add(new ConnectorAttribute(GROUP_IDS.name(), ASSIGNMENT_IDENTIFIER, MULTIVALUED));
         result.add(new ConnectorAttribute(CLUB_IDS.name(), ASSIGNMENT_IDENTIFIER, MULTIVALUED));

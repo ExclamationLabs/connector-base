@@ -92,6 +92,7 @@ public class DefaultConnectorSchemaBuilder
                 current.getDataType().getClassType(), current.getFlags());
 
         return new AttributeInfoBuilder(current.getName())
+                    .setNativeName(current.getNativeName())
                     .setType(current.getDataType().getClassType())
                     .setFlags(current.getFlags())
                     .build();
