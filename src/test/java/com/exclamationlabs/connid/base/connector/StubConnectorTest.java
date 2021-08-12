@@ -367,7 +367,7 @@ public class StubConnectorTest {
         ObjectClassInfo userSchema = schemaResult.findObjectClassInfo(ObjectClass.ACCOUNT_NAME);
         assertNotNull(userSchema);
         assertNotNull(userSchema.getAttributeInfo());
-        assertEquals(19, userSchema.getAttributeInfo().size());
+        assertEquals(20, userSchema.getAttributeInfo().size());
 
         ObjectClassInfo groupSchema = schemaResult.findObjectClassInfo(ObjectClass.GROUP_NAME);
         assertNotNull(groupSchema);
