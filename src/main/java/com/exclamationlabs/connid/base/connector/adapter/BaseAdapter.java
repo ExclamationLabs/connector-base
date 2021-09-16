@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
@@ -128,19 +129,57 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      */
     @SuppressWarnings({"unused", "unchecked"})
 
-    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options) {
-        if (queryAllRecords(queryIdentifier)) {
-            // query for all items
-            List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
-            for (IdentityModel item : allItems) {
-                resultsHandler.handle(constructConnectorObject((T) item));
+    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
+        if (queryIdentifierContainsFiler(queryIdentifier)) {
+
+            if (StringUtils.equalsIgnoreCase(
+                    StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
+                    Uid.NAME)) {
+                // Simple Filter by UID happened - query for single record
+                IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(),
+                        StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR), options.getOptions());
+                if (singleItem != null) {
+                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                }
+            } else {
+                if (hasEnhancedFiltering) {
+                    // execute driver method for all records using filter
+                    List<IdentityModel> allItems = getDriver().getAllFiltered(getIdentityModelClass(),
+                            options.getOptions(), StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
+                            StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR));
+                    for (IdentityModel item : allItems) {
+                        resultsHandler.handle(constructConnectorObject((T) item));
+                    }
+
+
+                } else {
+                    executeQueryForAllRecords(options, resultsHandler);
+                }
             }
         } else {
-            // Query for single item
-            IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
-            if (singleItem != null) {
-                resultsHandler.handle(constructConnectorObject((T) singleItem));
+            if (queryAllRecords(queryIdentifier)) {
+                executeQueryForAllRecords(options, resultsHandler);
+            } else {
+                // Query for single item
+                IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
+                if (singleItem != null) {
+                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                }
             }
+        }
+
+    }
+
+    private boolean queryIdentifierContainsFiler(String query) {
+        return query != null && StringUtils.contains(query, BaseConnector.FILTER_SEPARATOR);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private void executeQueryForAllRecords(OperationOptions options, ResultsHandler resultsHandler) {
+        // query for all items
+        List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
+        for (IdentityModel item : allItems) {
+            resultsHandler.handle(constructConnectorObject((T) item));
         }
     }
 
