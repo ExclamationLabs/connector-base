@@ -10,6 +10,7 @@ taken care of by a common API.
 
 # Change Log
 
++ **1.2.0** - Add filtering support for resources(09/16/2021)
 + **1.1.5** - Add support for nativeName attribute info to schema building(08/12/2021)
 + **1.1.4** - Add retry logic support for BaseRestDriver(05/10/2021)
 + **1.1.3** - Added CHANGELOG.md for versions and removed Javadoc support from repo/gradle (05/03/2021)
