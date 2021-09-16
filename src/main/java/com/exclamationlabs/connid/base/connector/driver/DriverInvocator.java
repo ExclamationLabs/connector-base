@@ -78,6 +78,22 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
     List<T> getAll(D driver, Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
+     * Get all existing objects of this invocator's particular type on the destination system,
+     * using supplied filter attribute and value.
+     * @param driver Driver belonging to this Invocator and providing interaction
+     *               with the applicable destination system.
+     * @param operationOptionsData data map possibly containing current paging information
+     * @param filterAttribute Attribute name for data to filter on
+     * @param filterValue Attribute value to exactly match from the destination system in
+     *                    order to return data.
+     * @return A list of all IdentityModel objects of this Invocator's particular type.  Can
+     * be null or an empty list if the destination system currently has no records.
+     * @throws ConnectorException If get request failed, was invalid or was not permitted.
+     */
+    List<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
+                           String filterAttribute, String filterValue) throws ConnectorException;
+
+    /**
      * Get a single object of this invocator's particular type on the destination system
      * that matches the given identifier.
      * @param driver Driver belonging to this Invocator and providing interaction

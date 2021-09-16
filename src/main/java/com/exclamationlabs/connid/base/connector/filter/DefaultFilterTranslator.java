@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.filter;
 
+import com.exclamationlabs.connid.base.connector.BaseConnector;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -50,7 +51,7 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
     @Override
     protected String createContainsExpression(ContainsFilter filter, boolean not) {
-        return null;
+        return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getValue();
     }
 
     private static String checkSearchValue(String value) {

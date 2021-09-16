@@ -40,7 +40,7 @@ public abstract class BaseReadOnlyConnector extends BaseConnector
 
     @Override
     public void executeQuery(final ObjectClass objectClass, final String query, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
-        getAdapter(objectClass).get(query, resultsHandler, operationOptions);
+        getAdapter(objectClass).get(query, resultsHandler, operationOptions, isEnhancedFiltering());
     }
 
     @Override

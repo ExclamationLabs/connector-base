@@ -209,6 +209,59 @@ public class StubConnectorTest {
     }
 
     @Test
+    public void testUsersGetFilteredUid() {
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,
+                Uid.NAME + BaseConnector.FILTER_SEPARATOR + "filteredId", resultsHandler, testOperationOptions);
+
+        assertEquals(1, idValues.size());
+        assertEquals(1, nameValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertEquals("filteredName", nameValues.get(0));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertEquals("filteredId", driver.getMethodParameter1().toString());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testUsersGetFilterUsedButIgnored() {
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
+        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testUsersGetEnhancedFilter() {
+        connector.setEnhancedFiltering(true);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
+        assertEquals(new StubDriver().getAllFiltered(StubUser.class, Collections.emptyMap(), "ying", "yang").size(), idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll filtered ying;yang", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
     public void testUserGet() {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();

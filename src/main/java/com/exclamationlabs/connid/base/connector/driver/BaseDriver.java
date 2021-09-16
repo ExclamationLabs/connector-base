@@ -80,4 +80,11 @@ public abstract class BaseDriver implements Driver {
         return getInvocator(modelClass).getAll(this, operationOptionsData);
     }
 
+    @Override
+    public List<IdentityModel> getAllFiltered(Class<? extends IdentityModel> modelClass,
+                                      Map<String,Object> operationOptionsData,
+                                              String filterAttribute, String filterValue) throws ConnectorException {
+        return getInvocator(modelClass).getAllFiltered(this, operationOptionsData, filterAttribute, filterValue);
+    }
+
 }

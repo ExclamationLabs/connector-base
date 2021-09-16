@@ -306,6 +306,11 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
+        public List<StubUser> getAllFiltered(BaseRestDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
+            return getAll(driver, operationOptionsData);
+        }
+
+        @Override
         public StubUser getOne(BaseRestDriver driver, String userId, Map<String,Object> operationOptionsData)
                 throws ConnectorException {
             return driver.executeGetRequest("/users/" + userId, StubUser.class, moreHeaders).getResponseObject();
@@ -340,6 +345,11 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
             TestGroupsResponse groupsResponse = driver.executeGetRequest(
                     "/groups", TestGroupsResponse.class, moreHeaders).getResponseObject();
             return new ArrayList<>(groupsResponse.getGroups());
+        }
+
+        @Override
+        public List<StubGroup> getAllFiltered(BaseRestDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
+            return getAll(driver, operationOptionsData);
         }
 
         @Override

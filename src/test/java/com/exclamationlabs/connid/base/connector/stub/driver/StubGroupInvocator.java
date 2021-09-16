@@ -64,6 +64,11 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
     }
 
     @Override
+    public List<StubGroup> getAllFiltered(StubDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
+        return getAll(driver, operationOptionsData);
+    }
+
+    @Override
     public StubGroup getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("group getOne");
         driver.setMethodParameter1(id);

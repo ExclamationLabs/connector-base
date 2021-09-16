@@ -67,12 +67,16 @@ public abstract class BaseConnector
 
     private static final Log LOG = Log.getLog(BaseConnector.class);
 
+    public static final String FILTER_SEPARATOR = "^|^";
+
     protected Driver driver;
     protected ConnectorSchemaBuilder schemaBuilder;
     protected Authenticator authenticator;
     protected BaseConnectorConfiguration configuration;
 
     protected Map<ObjectClass, BaseAdapter<?>> adapterMap;
+
+    protected boolean enhancedFiltering;
 
     public BaseConnector() {
         adapterMap = new HashMap<>();
@@ -189,6 +193,14 @@ public abstract class BaseConnector
         } else {
             return new DefaultFilterTranslator();
         }
+    }
+
+    public boolean isEnhancedFiltering() {
+        return enhancedFiltering;
+    }
+
+    public void setEnhancedFiltering(boolean enhancedFiltering) {
+        this.enhancedFiltering = enhancedFiltering;
     }
 
     protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder input) {

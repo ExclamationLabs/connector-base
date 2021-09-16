@@ -70,13 +70,31 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
+    public List<StubUser> getAllFiltered(StubDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
+        driver.setMethodInvoked("user getAll filtered " + filterAttribute + ";" + filterValue);
+        StubUser user1 = new StubUser();
+        user1.setId(UUID.randomUUID().toString());
+        user1.setUserName("User Tres");
+
+        StubUser user2 = new StubUser();
+        user2.setId(UUID.randomUUID().toString());
+        user2.setUserName("User Quatro");
+        return Arrays.asList(user1, user2);
+    }
+
+    @Override
     public StubUser getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("user getOne");
         driver.setMethodParameter1(id);
         StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
-        user1.setUserName("Ying");
-        user1.setEmail("ying@yahoo.com");
+        if (id.equals("filteredId")) {
+            user1.setUserName("filteredName");
+            user1.setEmail("filtered@yahoo.com");
+        } else {
+            user1.setUserName("Ying");
+            user1.setEmail("ying@yahoo.com");
+        }
 
         return user1;
     }
