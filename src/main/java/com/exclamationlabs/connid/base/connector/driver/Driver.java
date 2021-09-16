@@ -149,6 +149,23 @@ public interface Driver {
                                Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
+     * Process a request to get all objects of a particular type from the destination system, matching
+     * a supplied filter attribute and value
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                                      the get request.
+     * @param operationOptionsData data map possibly containing current paging information
+     * @param filterAttribute String containing the attribute name to filter upon
+     * @param filterValue String containing the exact attribute value to match
+     * @return A list of IdentityModel instances representing all the objects of a particular type.  Or
+     * null or an empty list if no objects for this type were found.
+     * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
+     * no records found (an empty or null list) is not considered an exception condition.
+     */
+    List<IdentityModel> getAllFiltered(Class<? extends IdentityModel> identityModelClass,
+                               Map<String, Object> operationOptionsData, String filterAttribute,
+                                       String filterValue) throws ConnectorException;
+
+    /**
      * Process a request to get a single object of a particular type from the destination system,
      * matching the requested id.
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
