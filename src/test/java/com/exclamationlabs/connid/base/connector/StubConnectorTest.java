@@ -247,6 +247,7 @@ public class StubConnectorTest {
     @Test
     public void testUsersGetEnhancedFilter() {
         connector.setEnhancedFiltering(true);
+        connector.setFilterAttributes(new HashSet<>(Collections.singleton("ying")));
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);

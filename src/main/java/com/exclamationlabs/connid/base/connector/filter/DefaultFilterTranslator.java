@@ -17,7 +17,9 @@
 package com.exclamationlabs.connid.base.connector.filter;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.StringUtil;
+import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
@@ -25,6 +27,9 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.AbstractFilterTranslator;
 import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * A filter translator can be used in Midpoint to filter by a field on a resource
@@ -34,7 +39,18 @@ import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
  */
 public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
+    private final Set<String> acceptableAttributeNames;
+
+    public DefaultFilterTranslator() {
+        acceptableAttributeNames = Collections.emptySet();
+    }
+
+    public DefaultFilterTranslator(Set<String> attributes) {
+        acceptableAttributeNames = attributes;
+    }
+
     @Override
+    // Not normally invoked by Midpoint
     protected String createEqualsExpression(EqualsFilter filter, boolean not) {
         if (not || filter == null) {
             return null;
@@ -50,8 +66,13 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
     }
 
     @Override
+    // Normally invoked by Midpoint for filtering
     protected String createContainsExpression(ContainsFilter filter, boolean not) {
-        return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getValue();
+        if (StringUtils.equals(filter.getAttribute().getName(), Uid.NAME) || acceptableAttributeNames.contains(filter.getAttribute().getName())) {
+            return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getValue();
+        } else {
+            throw new InvalidAttributeValueException("Filter on attribute " + filter.getAttribute().getName() + " not supported.");
+        }
     }
 
     private static String checkSearchValue(String value) {
