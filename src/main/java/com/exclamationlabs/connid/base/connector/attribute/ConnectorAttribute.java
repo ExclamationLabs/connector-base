@@ -20,6 +20,7 @@ import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -88,5 +89,23 @@ public final class ConnectorAttribute {
 
     public String getNativeName() {
         return nativeName;
+    }
+
+    @Override
+    public String toString() {
+        return name + "(" + nativeName + ") [" + dataType + "] {"
+                + flags.toString() + "}: " + value.toString();
+    }
+
+    @Override
+    public boolean equals(Object in) {
+        return in != null && in.getClass().isInstance(ConnectorAttribute.class) &&
+                ((ConnectorAttribute) in).getName().equals(this.getName()) &&
+                ((ConnectorAttribute) in).getNativeName().equals(this.getNativeName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getName(), this.getNativeName());
     }
 }
