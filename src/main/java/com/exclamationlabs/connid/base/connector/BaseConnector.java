@@ -34,6 +34,7 @@ import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.PoolableConnector;
 import org.identityconnectors.framework.spi.operations.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -77,9 +78,11 @@ public abstract class BaseConnector
     protected Map<ObjectClass, BaseAdapter<?>> adapterMap;
 
     protected boolean enhancedFiltering;
+    protected Set<String> filterAttributes;
 
     public BaseConnector() {
         adapterMap = new HashMap<>();
+        filterAttributes = Collections.emptySet();
     }
 
     /**
@@ -191,7 +194,7 @@ public abstract class BaseConnector
         if (matchedAdapter == null) {
             throw new ConnectorException("Unsupported object class for filter translator: " + objectClass);
         } else {
-            return new DefaultFilterTranslator();
+            return new DefaultFilterTranslator(getFilterAttributes());
         }
     }
 
@@ -201,6 +204,14 @@ public abstract class BaseConnector
 
     public void setEnhancedFiltering(boolean enhancedFiltering) {
         this.enhancedFiltering = enhancedFiltering;
+    }
+
+    public Set<String> getFilterAttributes() {
+        return filterAttributes;
+    }
+
+    public void setFilterAttributes(Set<String> filterAttributes) {
+        this.filterAttributes = filterAttributes;
     }
 
     protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder input) {

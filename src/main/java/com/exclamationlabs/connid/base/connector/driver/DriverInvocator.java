@@ -80,6 +80,8 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
     /**
      * Get all existing objects of this invocator's particular type on the destination system,
      * using supplied filter attribute and value.
+     * Unless overriden, default behavior is to presume filtering is not supported, and
+     * simply execute the getAll method.
      * @param driver Driver belonging to this Invocator and providing interaction
      *               with the applicable destination system.
      * @param operationOptionsData data map possibly containing current paging information
@@ -90,8 +92,10 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
      * be null or an empty list if the destination system currently has no records.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    List<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
-                           String filterAttribute, String filterValue) throws ConnectorException;
+    default List<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
+                           String filterAttribute, String filterValue) throws ConnectorException {
+       return getAll(driver, operationOptionsData);
+    }
 
     /**
      * Get a single object of this invocator's particular type on the destination system

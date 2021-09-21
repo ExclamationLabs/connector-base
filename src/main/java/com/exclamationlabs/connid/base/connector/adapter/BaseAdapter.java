@@ -130,7 +130,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
     @SuppressWarnings({"unused", "unchecked"})
 
     public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
-        if (queryIdentifierContainsFiler(queryIdentifier)) {
+        if (queryIdentifierContainsFilter(queryIdentifier)) {
 
             if (StringUtils.equalsIgnoreCase(
                     StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
@@ -170,7 +170,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     }
 
-    private boolean queryIdentifierContainsFiler(String query) {
+    private boolean queryIdentifierContainsFilter(String query) {
         return query != null && StringUtils.contains(query, BaseConnector.FILTER_SEPARATOR);
     }
 
