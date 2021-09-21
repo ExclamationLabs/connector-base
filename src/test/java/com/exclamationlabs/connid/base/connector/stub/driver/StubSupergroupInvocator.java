@@ -58,11 +58,6 @@ public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubS
     }
 
     @Override
-    public List<StubSupergroup> getAllFiltered(StubDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
-        return getAll(driver, operationOptionsData);
-    }
-
-    @Override
     public StubSupergroup getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("group getOne");
         driver.setMethodParameter1(id);

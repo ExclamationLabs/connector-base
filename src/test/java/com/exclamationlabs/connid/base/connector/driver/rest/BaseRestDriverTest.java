@@ -415,6 +415,10 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     static class CustomRetryConfiguration extends BaseConnectorConfiguration {
 
+        @Override
+        public void validate() {
+        }
+
         public CustomRetryConfiguration() {
             super();
             setConnectorProperties(new Properties());
