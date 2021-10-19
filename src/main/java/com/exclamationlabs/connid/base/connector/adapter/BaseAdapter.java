@@ -23,7 +23,8 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Base attribute class describing composition of an Adapter.
@@ -58,18 +59,18 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * Adapter subclasses should construct a list of ConnectorAttribute objects,
      * using desired name, type and definition information, by using the
      * ConnectorAttribute() constructor.
-     * @return List of ConnectorAttributes associated with this IdentityModel and Adapter.
+     * @return Set of ConnectorAttributes associated with this IdentityModel and Adapter.
      */
-    public abstract List<ConnectorAttribute> getConnectorAttributes();
+    public abstract Set<ConnectorAttribute> getConnectorAttributes();
 
     /**
      * Given an input IdentityModel, build the list of ConnId Attributes to
      * be received to Midpoint.
      * @param model IdentityModel implementation holding object data.
-     * @return List of ConnId Attribute objects holding name and value information to
+     * @return Set of ConnId Attribute objects holding name and value information to
      * be received by Midpoint.
      */
-    protected abstract List<Attribute> constructAttributes(T model);
+    protected abstract Set<Attribute> constructAttributes(T model);
 
     /**
      * Given a set of Attribute information received from Midpoint, build
@@ -144,7 +145,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
             } else {
                 if (hasEnhancedFiltering) {
                     // execute driver method for all records using filter
-                    List<IdentityModel> allItems = getDriver().getAllFiltered(getIdentityModelClass(),
+                    Set<IdentityModel> allItems = getDriver().getAllFiltered(getIdentityModelClass(),
                             options.getOptions(), StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
                             StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR));
                     for (IdentityModel item : allItems) {
@@ -177,7 +178,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
     @SuppressWarnings({"unchecked"})
     private void executeQueryForAllRecords(OperationOptions options, ResultsHandler resultsHandler) {
         // query for all items
-        List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
+        Set<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
         for (IdentityModel item : allItems) {
             resultsHandler.handle(constructConnectorObject((T) item));
         }
@@ -201,12 +202,12 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      *                      present in @param attributes.
      * @return List of string identifiers for another object type.
      */
-    protected List<String> readAssignments(Set<Attribute> attributes,
+    protected Set<String> readAssignments(Set<Attribute> attributes,
                                            Enum<?> attributeName) {
-        List<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
-                List.class, attributes, attributeName);
+        Set<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
+                Set.class, attributes, attributeName);
 
-        List<String> ids = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
         if (data != null) {
             data.forEach(item -> ids.add(item.toString()));
         }
@@ -220,7 +221,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     protected final ConnectorObject constructConnectorObject(T model) {
         ConnectorObjectBuilder builder = getConnectorObjectBuilder(model);
-        List<Attribute> connectorAttributes = constructAttributes(model);
+        Set<Attribute> connectorAttributes = constructAttributes(model);
         for (Attribute current : connectorAttributes) {
             builder.addAttribute(AttributeBuilder.build(current.getName(),
                     current.getValue()));

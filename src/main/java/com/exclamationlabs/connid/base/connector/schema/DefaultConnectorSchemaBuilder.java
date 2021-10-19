@@ -26,8 +26,8 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
 import org.identityconnectors.framework.spi.operations.SyncOp;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +47,7 @@ public class DefaultConnectorSchemaBuilder
         SchemaBuilder schemaBuilder = new SchemaBuilder(connector.getClass());
 
         for (BaseAdapter<?> currentAdapter : adapterMap.values()) {
-            List<ConnectorAttribute> currentAttributes = currentAdapter.getConnectorAttributes();
+            Set<ConnectorAttribute> currentAttributes = currentAdapter.getConnectorAttributes();
 
             LOG.info("Determining schema elements for connector {0}, object class {1} ...",
                     connector.getName(), currentAdapter.getType());
@@ -71,7 +71,7 @@ public class DefaultConnectorSchemaBuilder
     }
 
     protected static ObjectClassInfo buildObjectClassInfo(ObjectClass classType,
-                                                          List<ConnectorAttribute> attributes) {
+                                                          Set<ConnectorAttribute> attributes) {
         ObjectClassInfoBuilder builder = new ObjectClassInfoBuilder();
         builder.setType(classType.getObjectClassValue());
 

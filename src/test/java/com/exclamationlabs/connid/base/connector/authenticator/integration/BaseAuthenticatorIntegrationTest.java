@@ -17,25 +17,24 @@
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.junit.Before;
 
 /**
  * Abstract base class for running integration tests for various Authenticator
- * implementations in conjuction with existing developer connector credentials.
+ * implementations in conjunction with existing developer connector credentials.
  */
 abstract public class BaseAuthenticatorIntegrationTest extends IntegrationTest {
 
-    protected static BaseConnectorConfiguration configuration;
+    protected static ConnectorConfiguration configuration;
 
-    abstract Authenticator getAuthenticator();
+    abstract Authenticator<?> getAuthenticator();
 
     @Before
     public void setup() {
-        configuration = new TestConnectorConfiguration(getConfigurationName());
-        configuration.setRequiredPropertyNames(getAuthenticator().getRequiredPropertyNames());
+        configuration = new DefaultConnectorConfiguration();
         setup(configuration);
     }
 }

@@ -92,6 +92,9 @@ public class AdapterValueTypeConverter {
                 if (returnType.isInstance(value)) {
                     return returnType.cast(value);
                 }
+                if (returnType == Set.class && value instanceof List) {
+                    return returnType.cast(new HashSet<T>((List) value));
+                }
                 throw new InvalidAttributeValueException("Invalid data type for attribute " + attributeName +
                         "; received " + value.getClass().getName() + ", expected " + returnType.getName());
 

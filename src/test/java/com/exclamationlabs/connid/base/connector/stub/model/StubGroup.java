@@ -18,13 +18,13 @@ package com.exclamationlabs.connid.base.connector.stub.model;
 
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 
-import java.util.List;
+import java.util.Set;
 
 public class StubGroup implements IdentityModel {
 
     private String id;
     private String name;
-    private List<String> supergroupIds;
+    private Set<String> supergroupIds;
 
     public String getId() {
         return id;
@@ -42,11 +42,11 @@ public class StubGroup implements IdentityModel {
         this.name = name;
     }
 
-    public List<String> getSupergroupIds() {
+    public Set<String> getSupergroupIds() {
         return supergroupIds;
     }
 
-    public void setSupergroupIds(List<String> supergroupIds) {
+    public void setSupergroupIds(Set<String> supergroupIds) {
         this.supergroupIds = supergroupIds;
     }
 

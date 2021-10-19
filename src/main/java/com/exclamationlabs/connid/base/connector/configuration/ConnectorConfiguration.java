@@ -17,7 +17,10 @@ import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2Acces
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.Configuration;
 
+import javax.validation.*;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Architectural interface used to wrap ConnId's Configuration interface,
@@ -25,77 +28,38 @@ import java.util.Map;
  */
 public interface ConnectorConfiguration extends Configuration {
 
-    /**
-     * Get connector configuration property value
-     * @return String containing configuration value for input property
-     */
-    String getProperty(ConnectorProperty propertyIn);
+    String getCurrentToken();
+    void setCurrentToken(String input);
 
-    /**
-     * Get connector configuration property value
-     * @return String containing configuration value for input property
-     */
-    String getProperty(String input);
+    String getSource();
+    void setSource(String input);
 
-    /**
-     * Set a connector configuration property value
-     * @param key Configuration property name to set
-     * @param value Configuration property value to set
-     */
-    void setProperty(String key, String value);
-
-    /**
-     * Get the connector configuration name
-     * @return String containing a name representation for this connector's configuration
-     */
     String getName();
+    void setName(String input);
 
-    /**
-     * Get whether of not the connector has already been validated
-     * @return true if validation has already been run and was successful, false if it hasn't been
-     * attempted.
-     */
-    boolean isValidated();
-
-    /**
-     * The validate method should load all applicable configuration input (input file(s),
-     * properties, etc.).
-     * If any problems occur while loading a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    void setup() throws ConfigurationException;
-
-    /**
-     * Validate all configuration input.
-     * If any problems occur while validating a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    void validateConfiguration() throws ConfigurationException;
-
-
-    String innerGetCredentialAccessToken();
-
-    void innerSetCredentialAccessToken(String token);
-
-    default OAuth2AccessTokenContainer getOauth2Information() {
-        return null;
-    }
-
-    default void setOauth2Information(OAuth2AccessTokenContainer oauth2Information) {
-    }
-
-    default Map<String, String> getExtraJWTClaimData() {
-        return null;
-    }
+    Boolean getActive();
+    void setActive(Boolean input);
 
     @Override
     default void validate() {
-        setup();
-        validateConfiguration();
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Set<ConstraintViolation<ConnectorConfiguration>> violations =
+                validator.validate(this);
+        if (!violations.isEmpty()) {
+            throw new ConfigurationException("Validation of Connector configuration " +
+                    this.getClass().getSimpleName() + " failed", new ConstraintViolationException(violations));
+        }
     }
 
+    default void read(ConnectorConfiguration configuration) {
+        ConfigurationReader.readPropertiesFromSource(configuration);
+    }
+
+    default String write() {
+        return ConfigurationWriter.writeToString(this);
+    }
 
 
 }

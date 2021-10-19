@@ -16,20 +16,17 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.apache.http.client.HttpClient;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.security.KeyStore;
-import java.util.Set;
 
 /**
  * A SecureClientLoader can be used to create a secure HttpClient, leveraging
  * a KeyStore and configuration information.
  */
-public interface SecureClientLoader {
-    Set<ConnectorProperty> getRequiredPropertyNames();
+public interface SecureClientLoader<T extends ConnectorConfiguration> {
 
-    HttpClient load(BaseConnectorConfiguration configuration, KeyStore keyStore) throws ConnectorSecurityException;
+    HttpClient load(T configuration, KeyStore keyStore) throws ConnectorSecurityException;
 }

@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
@@ -48,13 +46,7 @@ public class StubConnectorTest {
     @Before
     public void setup() {
         connector = new StubConnector();
-        StubConfiguration configuration = new StubConfiguration(
-            new ConfigurationNameBuilder()
-                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                    .withOwner("Test")
-                    .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        StubConfiguration configuration = new StubConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
@@ -71,7 +63,7 @@ public class StubConnectorTest {
         StubUser test = new StubUser();
         test.setId("id");
         test.setUserName("name");
-        assertEquals("id;name", test.identityToString());
+        assertEquals("id;name", test.toString());
     }
 
     @Test
@@ -403,14 +395,9 @@ public class StubConnectorTest {
         assertNotNull(testConnector.getConnectorSchemaBuilder());
         assertNotNull(testConnector.getAuthenticator());
         assertNotNull(testConnector.getConnectorConfiguration());
-        assertTrue(testConnector.getConnectorConfiguration().isValidated());
 
-        assertNotNull(testConnector.getConnectorConfiguration().getRequiredPropertyNames());
-        assertEquals(1,
-                testConnector.getConnectorConfiguration().getRequiredPropertyNames().size());
 
         assertEquals(expectedConnectorName, testConnector.getName());
-        assertEquals("StubConfiguration", testConnector.getConnectorConfiguration().getName());
 
     }
 

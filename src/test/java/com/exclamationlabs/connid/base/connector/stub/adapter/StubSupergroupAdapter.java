@@ -24,8 +24,7 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
@@ -46,8 +45,8 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup> {
     }
 
     @Override
-    public List<ConnectorAttribute> getConnectorAttributes() {
-        List<ConnectorAttribute> result = new ArrayList<>();
+    public Set<ConnectorAttribute> getConnectorAttributes() {
+        Set<ConnectorAttribute> result = new HashSet<>();
         result.add(new ConnectorAttribute(SUPERGROUP_ID.name(), STRING, NOT_UPDATEABLE));
         result.add(new ConnectorAttribute(SUPERGROUP_NAME.name(), STRING));
         return result;
@@ -62,12 +61,12 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup> {
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubSupergroup supergroup) {
-        List<Attribute> attributes = new ArrayList<>();
+    protected Set<Attribute> constructAttributes(StubSupergroup supergroup) {
+        Set<Attribute> attributes = new HashSet<>();
 
         attributes.add(AttributeBuilder.build(SUPERGROUP_ID.name(), supergroup.getId()));
         attributes.add(AttributeBuilder.build(SUPERGROUP_NAME.name(), supergroup.getName()));
 
-        return attributes;
+        return new HashSet<>(attributes);
     }
 }

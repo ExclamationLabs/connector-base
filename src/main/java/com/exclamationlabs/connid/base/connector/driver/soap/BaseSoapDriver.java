@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.driver.soap;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
@@ -45,7 +44,7 @@ public abstract class BaseSoapDriver<S extends Service,P> extends BaseDriver {
     protected Authenticator authenticator;
 
     @Override
-    public void initialize(BaseConnectorConfiguration config, Authenticator auth)
+    public void initialize(ConnectorConfiguration config, Authenticator auth)
             throws ConnectorException {
         TrustStoreConfiguration.clearJdkProperties();
         authenticator = auth;

@@ -16,8 +16,10 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -30,49 +32,38 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.io.IOException;
 import java.util.*;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 /**
  * This implementation performs the OAuth2 "jwt-bearer" grant type.
  */
-public class OAuth2TokenJWTAuthenticator extends AbstractOAuth2TokenAuthenticator {
+public class OAuth2TokenJWTAuthenticator implements Authenticator<Oauth2JwtConfiguration> {
 
     protected static GsonBuilder gsonBuilder;
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
-    protected final Authenticator jwtAuthenticator;
+    protected final JWTRS256Authenticator jwtAuthenticator;
 
     static {
-        PROPERTY_NAMES = new HashSet<>(Collections.singletonList(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
         gsonBuilder = new GsonBuilder();
     }
 
-    public OAuth2TokenJWTAuthenticator(Authenticator inputJwtAuthenticator) {
+    public OAuth2TokenJWTAuthenticator(JWTRS256Authenticator inputJwtAuthenticator) {
         jwtAuthenticator = inputJwtAuthenticator;
     }
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        Set<ConnectorProperty> names = new HashSet<>();
-        names.addAll(PROPERTY_NAMES);
-        names.addAll(jwtAuthenticator.getRequiredPropertyNames());
-        return names;
-    }
-
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-        initializeForHttp();
-        String bearerToken = jwtAuthenticator.authenticate(configuration);
+    public String authenticate(Oauth2JwtConfiguration configuration) throws ConnectorSecurityException {
+        OAuth2TokenExecution.initializeForHttp();
+        String bearerToken = jwtAuthenticator.authenticate((JwtRs256Configuration) configuration);
 
         HttpClient client = createClient();
 
         try {
-            HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
+            HttpPost request = new HttpPost(configuration.getTokenUrl());
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"));
             form.add(new BasicNameValuePair("assertion", bearerToken));
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-            return executeRequest(configuration, client, request, entity, gsonBuilder);
+            return OAuth2TokenExecution.executeRequest(this, configuration, client, request, entity, gsonBuilder);
 
         } catch (IOException e) {
             throw new ConnectorSecurityException(

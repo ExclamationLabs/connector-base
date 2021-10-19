@@ -17,12 +17,11 @@
 package com.exclamationlabs.connid.base.connector.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,7 +65,7 @@ public interface Driver {
      * @throws ConnectorException If a problem occurred that prevented Driver
      * from completing it's initialization.
      */
-    void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator)
+    void initialize(ConnectorConfiguration configuration, Authenticator authenticator)
             throws ConnectorException;
 
     /**
@@ -140,12 +139,12 @@ public interface Driver {
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
      *                                      the get request.
      * @param operationOptionsData data map possibly containing current paging information
-     * @return A list of IdentityModel instances representing all the objects of a particular type.  Or
-     * null or an empty list if no objects for this type were found.
+     * @return A set of IdentityModel instances representing all the objects of a particular type.  Or
+     * null or an empty set if no objects for this type were found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no records found (an empty or null list) is not considered an exception condition.
      */
-    List<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass,
+    Set<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass,
                                Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
@@ -156,12 +155,12 @@ public interface Driver {
      * @param operationOptionsData data map possibly containing current paging information
      * @param filterAttribute String containing the attribute name to filter upon
      * @param filterValue String containing the exact attribute value to match
-     * @return A list of IdentityModel instances representing all the objects of a particular type.  Or
-     * null or an empty list if no objects for this type were found.
+     * @return A set of IdentityModel instances representing all the objects of a particular type.  Or
+     * null or an empty set if no objects for this type were found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no records found (an empty or null list) is not considered an exception condition.
      */
-    List<IdentityModel> getAllFiltered(Class<? extends IdentityModel> identityModelClass,
+    Set<IdentityModel> getAllFiltered(Class<? extends IdentityModel> identityModelClass,
                                Map<String, Object> operationOptionsData, String filterAttribute,
                                        String filterValue) throws ConnectorException;
 

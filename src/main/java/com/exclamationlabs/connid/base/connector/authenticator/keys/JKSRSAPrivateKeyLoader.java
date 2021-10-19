@@ -16,8 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.JksConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.io.FileInputStream;
@@ -25,50 +24,35 @@ import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 /**
  * Implementation to load a RSAPrivateKey from JKS information (file, password, alias).
  */
-public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader {
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
-
-    static {
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(CONNECTOR_BASE_AUTH_JKS_PASSWORD,
-                CONNECTOR_BASE_AUTH_JKS_FILE, CONNECTOR_BASE_AUTH_JKS_ALIAS));
-    }
+public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader<JksConfiguration> {
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public RSAPrivateKey load(BaseConnectorConfiguration configuration)
+    public RSAPrivateKey load(JksConfiguration configuration)
             throws ConnectorSecurityException {
         KeyStore keystore;
         RSAPrivateKey privateKey;
         try {
             keystore = KeyStore.getInstance("JKS");
-            char[] keystorePassword = configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_PASSWORD).toCharArray();
+            char[] keystorePassword = configuration.getPassword().toCharArray();
             keystore.load(
-                    new FileInputStream(configuration.getPropertyFile(CONNECTOR_BASE_AUTH_JKS_FILE)),
+                    new FileInputStream(configuration.getFile()),
                     keystorePassword
             );
 
             privateKey = (RSAPrivateKey) keystore.getKey(
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_ALIAS), keystorePassword);
+                    configuration.getAlias(), keystorePassword);
 
         } catch (CertificateException ce) {
             throw new ConnectorSecurityException("Certificate error occurred while trying to load JKS file " +
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_FILE) + " with keystore password.", ce);
+                    configuration.getFile() + " with keystore password.", ce);
         } catch (IOException ioe) {
             throw new ConnectorSecurityException("IO error occurred while trying to load JKS file " +
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_JKS_FILE) + " with keystore password.", ioe);
+                    configuration.getFile() + " with keystore password.", ioe);
         } catch (KeyStoreException kse) {
             throw new ConnectorSecurityException("Unable to obtain JKS Keystore instance (before attempting " +
                 "actual JKS loading)", kse);

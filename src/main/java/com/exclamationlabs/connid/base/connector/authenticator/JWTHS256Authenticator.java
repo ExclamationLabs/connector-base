@@ -20,48 +20,31 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtHs256Configuration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.util.*;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD;
-
 /**
  * This implementation performs the HS256 strategy.
  * JWS: HS256
  * Algorithm: HMAC256
  * Description: HMAC with SHA-256
  */
-public class JWTHS256Authenticator extends JWTAuthenticator {
-
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
-
-    static {
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(CONNECTOR_BASE_AUTH_JWT_ISSUER,
-                CONNECTOR_BASE_AUTH_JWT_SECRET,
-                CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD));
-    }
+public class JWTHS256Authenticator implements Authenticator<JwtHs256Configuration> {
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(JwtHs256Configuration configuration) throws ConnectorSecurityException {
         try {
-            long expirationLength = Long.parseLong(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD));
+            long expirationLength = configuration.getExpirationPeriod();
             Date expirationDate = new Date(System.currentTimeMillis() + expirationLength);
-            Algorithm algorithm = Algorithm.HMAC256(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_SECRET));
+            Algorithm algorithm = Algorithm.HMAC256(configuration.getSecret());
             Map<String,Object> headerClaims = new HashMap<>();
             headerClaims.put("alg", "HS256");
             headerClaims.put("typ", "JWT");
 
             return JWT.create()
                     .withHeader(headerClaims)
-                    .withIssuer(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_ISSUER))
+                    .withIssuer(configuration.getIssuer())
                     .withExpiresAt(expirationDate)
                     .sign(algorithm);
 

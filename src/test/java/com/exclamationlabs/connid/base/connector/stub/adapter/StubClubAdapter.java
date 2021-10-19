@@ -24,8 +24,7 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
@@ -46,8 +45,8 @@ public class StubClubAdapter extends BaseAdapter<StubClub> {
     }
 
     @Override
-    public List<ConnectorAttribute> getConnectorAttributes() {
-        List<ConnectorAttribute> result = new ArrayList<>();
+    public Set<ConnectorAttribute> getConnectorAttributes() {
+        Set<ConnectorAttribute> result = new HashSet<>();
         result.add(new ConnectorAttribute(CLUB_ID.name(), STRING, NOT_UPDATEABLE));
         result.add(new ConnectorAttribute(CLUB_NAME.name(), STRING));
         return result;
@@ -62,8 +61,8 @@ public class StubClubAdapter extends BaseAdapter<StubClub> {
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubClub club) {
-        List<Attribute> attributes = new ArrayList<>();
+    protected Set<Attribute> constructAttributes(StubClub club) {
+        Set<Attribute> attributes = new HashSet<>();
 
         attributes.add(AttributeBuilder.build(CLUB_ID.name(), club.getId()));
         attributes.add(AttributeBuilder.build(CLUB_NAME.name(), club.getName()));

@@ -57,7 +57,7 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public List<StubUser> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
+    public Set<StubUser> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("user getAll");
         StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
@@ -66,11 +66,11 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
         StubUser user2 = new StubUser();
         user2.setId(UUID.randomUUID().toString());
         user2.setUserName("User Dos");
-        return Arrays.asList(user1, user2);
+        return new HashSet<>(Arrays.asList(user1, user2));
     }
 
     @Override
-    public List<StubUser> getAllFiltered(StubDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
+    public Set<StubUser> getAllFiltered(StubDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
         driver.setMethodInvoked("user getAll filtered " + filterAttribute + ";" + filterValue);
         StubUser user1 = new StubUser();
         user1.setId(UUID.randomUUID().toString());
@@ -79,7 +79,7 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
         StubUser user2 = new StubUser();
         user2.setId(UUID.randomUUID().toString());
         user2.setUserName("User Quatro");
-        return Arrays.asList(user1, user2);
+        return new HashSet<>(Arrays.asList(user1, user2));
     }
 
     @Override

@@ -19,8 +19,8 @@ package com.exclamationlabs.connid.base.connector.driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A DriverInvocator belongs to a Driver and is responsible for making
@@ -75,7 +75,7 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
      * be null or an empty list if the destination system currently has no records.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    List<T> getAll(D driver, Map<String, Object> operationOptionsData) throws ConnectorException;
+    Set<T> getAll(D driver, Map<String, Object> operationOptionsData) throws ConnectorException;
 
     /**
      * Get all existing objects of this invocator's particular type on the destination system,
@@ -92,7 +92,7 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
      * be null or an empty list if the destination system currently has no records.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    default List<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
+    default Set<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
                            String filterAttribute, String filterValue) throws ConnectorException {
        return getAll(driver, operationOptionsData);
     }

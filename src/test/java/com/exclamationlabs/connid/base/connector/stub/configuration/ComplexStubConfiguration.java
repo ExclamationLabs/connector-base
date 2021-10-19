@@ -16,40 +16,19 @@
 
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.spi.ConfigurationClass;
-
-import java.util.Properties;
 
 @ConfigurationClass(skipUnsupported = true)
 public class ComplexStubConfiguration extends StubConfiguration {
 
     public ComplexStubConfiguration(String configName) {
-        super(configName);
-        setupCustomProperties();
+        super();
     }
 
     @SuppressWarnings("unused")
     public ComplexStubConfiguration() {
         super();
-        setupCustomProperties();
     }
 
-    private void setupCustomProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_FILE.name(), "abcd");
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL.name(), "url");
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_PASSWORD.name(), "pwd");
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_ALIAS.name(), "alias");
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_PASSWORD.name(), "pwd2");
-        properties.setProperty(
-                ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_FILE.name(), "url2");
 
-        setConnectorProperties(properties);
-    }
 }

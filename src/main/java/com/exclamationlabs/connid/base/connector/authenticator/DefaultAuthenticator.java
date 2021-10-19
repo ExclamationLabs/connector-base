@@ -17,20 +17,15 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
-
-import java.util.Set;
 
 /**
  * Internal do-nothing Authenticator which is used if a connector
  * does not specify an authenticator using setAuthenticator() in its constructor.
  */
-public class DefaultAuthenticator implements Authenticator {
-    @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return null;
-    }
+public class DefaultAuthenticator implements Authenticator<ConnectorConfiguration> {
+
+    public DefaultAuthenticator() {}
 
     @Override
     public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {

@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
@@ -48,7 +48,7 @@ public class StubDriver extends BaseDriver {
     }
 
     @Override
-    public void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
+    public void initialize(ConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
         initializeInvoked = true;
     }
 

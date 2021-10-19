@@ -16,8 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -30,30 +29,14 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 import javax.net.ssl.*;
 import java.security.*;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_PASSWORD;
 
 /**
  * Workhorse to create a secure HttpClient using a supplied KeyStore.
  */
-public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader {
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
-
-    static {
-        PROPERTY_NAMES = new HashSet<>(Collections.singletonList(
-                CONNECTOR_BASE_AUTH_PFX_PASSWORD));
-    }
+public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<PfxConfiguration> {
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public HttpClient load(BaseConnectorConfiguration configuration, KeyStore keyStore)
+    public HttpClient load(PfxConfiguration configuration, KeyStore keyStore)
             throws ConnectorSecurityException {
         TrustManager trustManager = setupTrustManager();
 
@@ -63,7 +46,7 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader 
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                     KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore,
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_PFX_PASSWORD).toCharArray());
+                    configuration.getPassword().toCharArray());
 
             KeyManager[] managers = keyManagerFactory.getKeyManagers();
             sslContext.init(managers, new TrustManager[]{trustManager}, null);

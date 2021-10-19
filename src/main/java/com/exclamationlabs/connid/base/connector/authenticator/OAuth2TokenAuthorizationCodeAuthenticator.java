@@ -16,8 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2AuthorizationCodeConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -33,53 +34,40 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.io.IOException;
 import java.util.*;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-
 /**
  * This implementation performs the OAuth2 "authorization_code" grant type.
  */
-public class OAuth2TokenAuthorizationCodeAuthenticator extends AbstractOAuth2TokenAuthenticator {
+public class OAuth2TokenAuthorizationCodeAuthenticator
+        implements Authenticator<Oauth2AuthorizationCodeConfiguration> {
 
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
     protected static GsonBuilder gsonBuilder;
 
     static {
         gsonBuilder = new GsonBuilder();
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(
-                CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL,
-                CONNECTOR_BASE_AUTH_OAUTH2_AUTHORIZATION_CODE,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET,
-                CONNECTOR_BASE_AUTH_OAUTH2_REDIRECT_URI));
     }
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-        initializeForHttp();
+    public String authenticate(Oauth2AuthorizationCodeConfiguration configuration) throws ConnectorSecurityException {
+        OAuth2TokenExecution.initializeForHttp();
         HttpClient client = createClient();
 
         try {
-            HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
+            HttpPost request = new HttpPost(configuration.getTokenUrl());
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("grant_type", "authorization_code"));
-            form.add(new BasicNameValuePair("code", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_AUTHORIZATION_CODE)));
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID))) {
-                form.add(new BasicNameValuePair("client_id", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID)));
+            form.add(new BasicNameValuePair("code", configuration.getAuthorizationCode()));
+            if (StringUtils.isNotBlank(configuration.getClientId())) {
+                form.add(new BasicNameValuePair("client_id", configuration.getClientId()));
             }
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET))) {
-                form.add(new BasicNameValuePair("client_secret", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET)));
+            if (StringUtils.isNotBlank(configuration.getClientSecret())) {
+                form.add(new BasicNameValuePair("client_secret", configuration.getClientSecret()));
             }
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_REDIRECT_URI))) {
-                form.add(new BasicNameValuePair("redirect_uri", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_REDIRECT_URI)));
+            if (StringUtils.isNotBlank(configuration.getRedirectUri())) {
+                form.add(new BasicNameValuePair("redirect_uri", configuration.getRedirectUri()));
             }
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-            return executeRequest(configuration, client, request, entity, gsonBuilder);
+            return OAuth2TokenExecution.executeRequest(this, configuration, client, request, entity, gsonBuilder);
 
         } catch (IOException e) {
             throw new ConnectorSecurityException(
@@ -87,8 +75,6 @@ public class OAuth2TokenAuthorizationCodeAuthenticator extends AbstractOAuth2Tok
         }
 
     }
-
-
 
     protected HttpClient createClient() {
         return HttpClients.createDefault();

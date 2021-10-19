@@ -21,14 +21,12 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.util.*;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 /**
  * This JWT authenticator implementation performs the HS256 strategy.
@@ -43,40 +41,19 @@ import static com.exclamationlabs.connid.base.connector.configuration.ConnectorP
  * Algorithm: RSA256
  * Description: RSASSA-PKCS1-v1_5 with SHA-256
  */
-public abstract class JWTRS256Authenticator extends JWTAuthenticator {
+public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Configuration> {
 
     /**
      * NOTE: SUBJECT AND AUDIENCE must be supplied as configuration properties,
      * but if left blank they will not be included in the invocation.
      */
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
-
-    static {
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(CONNECTOR_BASE_AUTH_JWT_ISSUER,
-                CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD,
-                CONNECTOR_BASE_AUTH_JWT_SUBJECT,
-                CONNECTOR_BASE_AUTH_JWT_AUDIENCE,
-                CONNECTOR_BASE_AUTH_JWT_USE_ISSUED_AT));
-    }
-
-    @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        Set<ConnectorProperty> names = new HashSet<>();
-        if (getPrivateKeyLoaderPropertyNames() != null) {
-            names.addAll(getPrivateKeyLoaderPropertyNames());
-        }
-        names.addAll(PROPERTY_NAMES);
-        return names;
-    }
 
     protected abstract RSAPrivateKey getPrivateKey();
 
-    protected abstract Set<ConnectorProperty> getPrivateKeyLoaderPropertyNames();
-
     @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(JwtRs256Configuration configuration) throws ConnectorSecurityException {
         try {
-            long expirationLength = Long.parseLong(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_EXPIRATION_PERIOD));
+            long expirationLength = configuration.getExpirationPeriod();
             Date expirationDate = new Date(System.currentTimeMillis() + expirationLength);
             Map<String,Object> headerClaims = new HashMap<>();
             headerClaims.put("alg", "RS256");
@@ -86,21 +63,21 @@ public abstract class JWTRS256Authenticator extends JWTAuthenticator {
 
             JWTCreator.Builder builder = JWT.create()
                     .withHeader(headerClaims)
-                    .withIssuer(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_ISSUER))
+                    .withIssuer(configuration.getIssuer())
                     .withExpiresAt(expirationDate);
 
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_SUBJECT))) {
-                builder = builder.withSubject(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_SUBJECT));
+            if (StringUtils.isNotBlank(configuration.getSubject())) {
+                builder = builder.withSubject(configuration.getSubject());
             }
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_AUDIENCE))) {
-                builder = builder.withAudience(configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_AUDIENCE));
+            if (StringUtils.isNotBlank(configuration.getAudience())) {
+                builder = builder.withAudience(configuration.getAudience());
             }
-            if (StringUtils.equalsIgnoreCase("Y", configuration.getProperty(CONNECTOR_BASE_AUTH_JWT_USE_ISSUED_AT))) {
+            if (configuration.getUseIssuedAt()) {
                 builder.withIssuedAt(new Date());
             }
 
-            if (configuration.getExtraJWTClaimData() != null && (!configuration.getExtraJWTClaimData().isEmpty())) {
-                configuration.getExtraJWTClaimData().forEach(builder::withClaim);
+            if (configuration.getExtraClaimData() != null && (!configuration.getExtraClaimData().isEmpty())) {
+                configuration.getExtraClaimData().forEach(builder::withClaim);
             }
 
             return builder.sign(algorithm);
