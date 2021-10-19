@@ -17,10 +17,10 @@
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
@@ -54,15 +54,18 @@ public abstract class BaseRestDriver extends BaseDriver {
 
     protected static GsonBuilder gsonBuilder;
 
-    protected ConnectorConfiguration configuration;
-    protected Authenticator authenticator;
+    protected RestConfiguration configuration;
+    protected Authenticator<ConnectorConfiguration> authenticator;
 
     @Override
-    public void initialize(BaseConnectorConfiguration config, Authenticator auth)
+    public void initialize(ConnectorConfiguration config, Authenticator auth)
             throws ConnectorException {
         TrustStoreConfiguration.clearJdkProperties();
         authenticator = auth;
-        configuration = config;
+        if (!(config instanceof RestConfiguration)) {
+            throw new ConnectorException("RestConfiguration not setup for connector");
+        }
+        configuration = (RestConfiguration) config;
         gsonBuilder = new GsonBuilder();
     }
 
@@ -156,11 +159,11 @@ public abstract class BaseRestDriver extends BaseDriver {
         } catch (DriverRenewableTokenExpiredException retryE) {
           if (isRetry) {
               LOG.error("Driver {0} token {1} still invalid after re-authentication, should investigate", this.getClass().getSimpleName(),
-                      configuration.innerGetCredentialAccessToken());
+                      configuration.getCurrentToken());
               throw new ConnectorException("Service rejected re-authenticated token for driver", retryE);
           } else {
               LOG.info("Driver {0} encountered token expiration and will attempt to reauthenticate.", this.getClass().getSimpleName());
-              configuration.innerSetCredentialAccessToken(authenticator.authenticate(configuration));
+              configuration.setCurrentToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
               RestResponseData<T> holdResult = executeRequest(request, returnType, true , 1);
@@ -169,7 +172,7 @@ public abstract class BaseRestDriver extends BaseDriver {
           }
         } catch (DriverTokenExpiredException tokenE) {
             LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(),
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
             throw new ConnectorException("Token expired or rejected during driver usage", tokenE);
         } catch (ClientProtocolException e) {
             throw new ConnectorException(
@@ -308,11 +311,11 @@ public abstract class BaseRestDriver extends BaseDriver {
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         if (usesBearerAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " +
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
         }
         else if (usesTokenAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Token token=" +
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
         }
 
     }
@@ -373,7 +376,9 @@ public abstract class BaseRestDriver extends BaseDriver {
     }
 
     private int getIoErrorRetryCount() {
-        String retries = configuration.getProperty(ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES);
+        return configuration.getRestIoErrorRetries();
+        /*
+        int retries = configuration.getRestIoErrorRetries();
         int retryCount = 0;
         if (retries != null) {
             try {
@@ -384,6 +389,8 @@ public abstract class BaseRestDriver extends BaseDriver {
             }
         }
         return retryCount;
+
+         */
     }
 
     public ConnectorConfiguration getConfiguration() {

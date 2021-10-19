@@ -16,8 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2RefreshTokenConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -33,51 +34,37 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.io.IOException;
 import java.util.*;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-
 /**
  * This implementation performs the OAuth2 "refresh_token" grant type.
  */
-public class OAuth2TokenRefreshTokenAuthenticator extends AbstractOAuth2TokenAuthenticator {
-
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
+public class OAuth2TokenRefreshTokenAuthenticator implements Authenticator<Oauth2RefreshTokenConfiguration> {
     protected static GsonBuilder gsonBuilder;
 
     static {
         gsonBuilder = new GsonBuilder();
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(
-                CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL,
-                CONNECTOR_BASE_AUTH_OAUTH2_REFRESH_TOKEN,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET));
     }
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-        initializeForHttp();
+    public String authenticate(Oauth2RefreshTokenConfiguration configuration) throws ConnectorSecurityException {
+        OAuth2TokenExecution.initializeForHttp();
         HttpClient client = createClient();
 
         try {
-            HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
+            HttpPost request = new HttpPost(configuration.getTokenUrl());
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("grant_type", "refresh_token"));
-            form.add(new BasicNameValuePair("refresh_token", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_REFRESH_TOKEN)));
+            form.add(new BasicNameValuePair("refresh_token", configuration.getRefreshToken()));
 
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID))) {
-                form.add(new BasicNameValuePair("client_id", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID)));
+            if (StringUtils.isNotBlank(configuration.getClientId())) {
+                form.add(new BasicNameValuePair("client_id", configuration.getClientId()));
             }
-            if (StringUtils.isNotBlank(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET))) {
-                form.add(new BasicNameValuePair("client_secret", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET)));
+            if (StringUtils.isNotBlank(configuration.getClientSecret())) {
+                form.add(new BasicNameValuePair("client_secret", configuration.getClientSecret()));
             }
 
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-            return executeRequest(configuration, client, request, entity, gsonBuilder);
+            return OAuth2TokenExecution.executeRequest(this, configuration, client, request, entity, gsonBuilder);
 
         } catch (IOException e) {
             throw new ConnectorSecurityException(

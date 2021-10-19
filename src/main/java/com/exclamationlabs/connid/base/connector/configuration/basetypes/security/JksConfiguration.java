@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2021 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.authenticator;
+package com.exclamationlabs.connid.base.connector.configuration.basetypes.security;
 
-/**
- * Abstract class for JWT authenticators.
- */
-public abstract class JWTAuthenticator implements Authenticator {
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
+public interface JksConfiguration extends ConnectorConfiguration {
+    String getFile();
+    void setFile(String input);
+    String getPassword();
+    void setPassword(String input);
+    String getAlias();
+    void setAlias(String input);
 }

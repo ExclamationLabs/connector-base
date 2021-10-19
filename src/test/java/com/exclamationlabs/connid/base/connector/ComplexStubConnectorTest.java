@@ -16,9 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.ComplexStubConnector;
@@ -26,7 +25,6 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.StubClubAttribut
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
@@ -54,13 +52,7 @@ public class ComplexStubConnectorTest {
     @Before
     public void setup() {
         connector = new ComplexStubConnector();
-        ComplexStubConfiguration configuration = new ComplexStubConfiguration(
-                new ConfigurationNameBuilder()
-                        .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                        .withOwner("ComplexTest")
-                        .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        JwtRs256Configuration configuration = new DualConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
@@ -240,32 +232,146 @@ public class ComplexStubConnectorTest {
         assertNotNull(connector.getConnectorSchemaBuilder());
         assertNotNull(connector.getAuthenticator());
         assertNotNull(connector.getConnectorConfiguration());
-        assertTrue(connector.getConnectorConfiguration().isValidated());
 
-        assertNotNull(connector.getConnectorConfiguration().getRequiredPropertyNames());
-        assertEquals(7,
-                connector.getConnectorConfiguration().getRequiredPropertyNames().size());
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_FILE));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_PASSWORD));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_ALIAS));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_PASSWORD));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_FILE));
 
         assertEquals("ComplexStubConnector", connector.getName());
-        assertEquals("ComplexStubConfiguration", connector.getConnectorConfiguration().getName());
     }
 
     @Test
     public void testAuthentication() {
         assertEquals("ying-yang", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+    }
+
+    static public class DualConfiguration implements JwtRs256Configuration, Oauth2JwtConfiguration {
+
+        @Override
+        public String getIssuer() {
+            return null;
+        }
+
+        @Override
+        public void setIssuer(String input) {
+
+        }
+
+        @Override
+        public String getSubject() {
+            return null;
+        }
+
+        @Override
+        public void setSubject(String input) {
+
+        }
+
+        @Override
+        public Long getExpirationPeriod() {
+            return null;
+        }
+
+        @Override
+        public void setExpirationPeriod(Long input) {
+
+        }
+
+        @Override
+        public String getAudience() {
+            return null;
+        }
+
+        @Override
+        public void setAudience(String input) {
+
+        }
+
+        @Override
+        public Boolean getUseIssuedAt() {
+            return null;
+        }
+
+        @Override
+        public void setUseIssuedAt(Boolean input) {
+
+        }
+
+        @Override
+        public Map<String, String> getExtraClaimData() {
+            return null;
+        }
+
+        @Override
+        public void setExtraClaimData(Map<String, String> data) {
+
+        }
+
+        @Override
+        public String getTokenUrl() {
+            return null;
+        }
+
+        @Override
+        public void setTokenUrl(String input) {
+
+        }
+
+        @Override
+        public Map<String, String> getOauth2Information() {
+            return null;
+        }
+
+        @Override
+        public void setOauth2Information(Map<String, String> info) {
+
+        }
+
+        @Override
+        public String getCurrentToken() {
+            return null;
+        }
+
+        @Override
+        public void setCurrentToken(String input) {
+
+        }
+
+        @Override
+        public String getSource() {
+            return null;
+        }
+
+        @Override
+        public void setSource(String input) {
+
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void setName(String input) {
+
+        }
+
+        @Override
+        public Boolean getActive() {
+            return null;
+        }
+
+        @Override
+        public void setActive(Boolean input) {
+
+        }
+
+        @Override
+        public ConnectorMessages getConnectorMessages() {
+            return null;
+        }
+
+        @Override
+        public void setConnectorMessages(ConnectorMessages messages) {
+
+        }
     }
 }

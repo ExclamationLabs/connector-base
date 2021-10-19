@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
@@ -34,6 +34,7 @@ import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.PoolableConnector;
 import org.identityconnectors.framework.spi.operations.*;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,26 +64,30 @@ import java.util.Set;
  * setConnectorSchemaBuilder();
  *
  */
-public abstract class BaseConnector
+public abstract class BaseConnector<T extends ConnectorConfiguration>
         implements PoolableConnector, SchemaOp, TestOp {
 
     private static final Log LOG = Log.getLog(BaseConnector.class);
 
     public static final String FILTER_SEPARATOR = "^|^";
 
+    @NotBlank
     protected Driver driver;
     protected ConnectorSchemaBuilder schemaBuilder;
-    protected Authenticator authenticator;
-    protected BaseConnectorConfiguration configuration;
+    protected Authenticator<T> authenticator;
+    protected T configuration;
 
     protected Map<ObjectClass, BaseAdapter<?>> adapterMap;
 
     protected boolean enhancedFiltering;
     protected Set<String> filterAttributes;
 
-    public BaseConnector() {
+    protected final Class<T> configurationType;
+
+    public BaseConnector(Class<T> configurationTypeIn) {
         adapterMap = new HashMap<>();
         filterAttributes = Collections.emptySet();
+        configurationType = configurationTypeIn;
     }
 
     /**
@@ -156,7 +161,12 @@ public abstract class BaseConnector
      */
     @Override
     public void init(Configuration configuration) {
-        initializeBaseConnector(configuration);
+        if (configurationType.isInstance(configuration)) {
+            initializeBaseConnector((T) configuration);
+        } else {
+            throw new ConfigurationException("Invalid configuration type for connector. Supplied type is: " +
+                    configuration.getClass().getName() + ", required type is " + configurationType.getName());
+        }
     }
 
     /**
@@ -225,19 +235,19 @@ public abstract class BaseConnector
         return schemaBuilder;
     }
 
-    protected void setAuthenticator(Authenticator in) {
+    protected void setAuthenticator(Authenticator<T> in) {
         authenticator = in;
     }
 
-    Authenticator getAuthenticator() {
+    Authenticator<T> getAuthenticator() {
         return authenticator;
     }
 
-    private void setConnectorConfiguration(BaseConnectorConfiguration in) {
+    private void setConnectorConfiguration(T in) {
         configuration = in;
     }
 
-    BaseConnectorConfiguration getConnectorConfiguration() {
+    T getConnectorConfiguration() {
         return configuration;
     }
 
@@ -263,7 +273,7 @@ public abstract class BaseConnector
      * ConfigurationException is thrown from this method to indicate the problem.
      * @param inputConfiguration Configuration object for this connector.
      */
-    protected void initializeBaseConnector(Configuration inputConfiguration) {
+    protected void initializeBaseConnector(T inputConfiguration) {
 
         if (getDriver() == null) {
             throw new ConfigurationException("Driver not setup for connector " + getName());
@@ -272,12 +282,11 @@ public abstract class BaseConnector
 
         if (getAuthenticator() == null) {
             LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getName());
-            setAuthenticator(new DefaultAuthenticator());
+            setAuthenticator((Authenticator<T>) new DefaultAuthenticator());
         } else {
             LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
                     this.getName());
         }
-        Set<ConnectorProperty> authenticatorProperties = getAuthenticator().getRequiredPropertyNames();
 
         if (getConnectorConfiguration()==null) {
             LOG.info("Initializing Connector {0} ...", getName());
@@ -286,27 +295,21 @@ public abstract class BaseConnector
                 throw new ConfigurationException("Unable to find configuration for connector " + this.getName());
             }
 
-            if (!(inputConfiguration instanceof BaseConnectorConfiguration)) {
-                throw new ConfigurationException("Connector configuration does not use base framework " +
-                        "for connector " + this.getName());
-            }
-
-            setConnectorConfiguration((BaseConnectorConfiguration) inputConfiguration);
-            getConnectorConfiguration().setRequiredPropertyNames(authenticatorProperties, driverProperties);
+            setConnectorConfiguration(inputConfiguration);
         }
 
         LOG.info("Using configuration {0} for connector {1}", getConnectorConfiguration().getClass().getName(),
                 this.getName());
 
-        if (!getConnectorConfiguration().isValidated()) {
-            getConnectorConfiguration().validate();
-            LOG.info("Connector {0} successfully validated", this.getName());
-        } else {
-            LOG.info("Connector {0} validation bypassed, already validated", this.getName());
-        }
+        getConnectorConfiguration().validate();
+        LOG.info("Connector {0} successfully validated", this.getName());
 
+        /*
         getConnectorConfiguration().innerSetCredentialAccessToken(
                 getAuthenticator().authenticate(getConnectorConfiguration()));
+
+         */
+        getAuthenticator().authenticate(configuration);
         LOG.info("Connector {0} successfully authenticated", this.getName());
 
 

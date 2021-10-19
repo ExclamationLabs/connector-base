@@ -35,6 +35,9 @@ import java.util.Set;
 public abstract class BaseWriteOnlyConnector extends BaseConnector
     implements DeleteOp, CreateOp, UpdateOp {
 
+    public BaseWriteOnlyConnector(Class<?> configurationTypeIn) {
+        super(configurationTypeIn);
+    }
 
     @Override
     public Uid create(final ObjectClass objectClass, final Set<Attribute> attributes, final OperationOptions options) {

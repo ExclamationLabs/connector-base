@@ -45,7 +45,7 @@ public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubS
     }
 
     @Override
-    public List<StubSupergroup> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
+    public Set<StubSupergroup> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("club getAll");
         StubSupergroup item1 = new StubSupergroup();
         item1.setId(UUID.randomUUID().toString());
@@ -54,7 +54,7 @@ public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubS
         StubSupergroup item2 = new StubSupergroup();
         item2.setId(UUID.randomUUID().toString());
         item2.setName("SuperGroup Dos");
-        return Arrays.asList(item1, item2);
+        return new HashSet<>(Arrays.asList(item1, item2));
     }
 
     @Override

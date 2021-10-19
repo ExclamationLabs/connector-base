@@ -42,13 +42,7 @@ public class StubReadOnlyConnectorTest {
     @Before
     public void setup() {
         connector = new StubReadOnlyConnector();
-        StubConfiguration configuration = new StubConfiguration(
-            new ConfigurationNameBuilder()
-                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                    .withOwner("Test")
-                    .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        StubConfiguration configuration = new StubConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();

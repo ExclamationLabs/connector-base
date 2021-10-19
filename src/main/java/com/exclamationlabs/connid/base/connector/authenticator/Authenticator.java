@@ -17,30 +17,17 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An Authenticator is an object that might be needed by a connector implementation
  * in order to obtain some kind of access token (String) required to
  * authenticate to its destination system (usually via a Driver).
  */
-public interface Authenticator {
-
-    /**
-     * Returns the names of the properties for properties
-     * that must be present in order for this Authenticator to function.
-     * This method should return the required property names for any sub-authenticators
-     * or key loaders that it uses.
-     * @return Set containing property names, represented as a set of enum values.
-     * Returning null or an empty set is also allowed if there are no properties for
-     * this driver.
-     */
-    Set<ConnectorProperty> getRequiredPropertyNames();
+public interface Authenticator<T extends ConnectorConfiguration> {
 
     /**
      * Perform all required authentication needed for this connector.
@@ -50,7 +37,7 @@ public interface Authenticator {
      * or null if authenticator has no meaningful output or actual authentication.
      * @throws ConnectorSecurityException if could not authenticate or permissions was denied
      */
-    String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException;
+    String authenticate(T configuration) throws ConnectorSecurityException;
 
     /**
      * Define any additional authentication headers needed during authentication.  Usually these are HTTP

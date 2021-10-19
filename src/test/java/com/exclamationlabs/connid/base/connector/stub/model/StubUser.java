@@ -23,16 +23,16 @@ import org.identityconnectors.common.security.GuardedString;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class StubUser implements IdentityModel {
 
     private String id;
     private String userName;
     private String email;
-    private List<String> groupIds;
-    private List<String> clubIds;
+    private Set<String> groupIds;
+    private Set<String> clubIds;
 
     private BigDecimal userTestBigDecimal;
     private BigInteger userTestBigInteger;
@@ -82,11 +82,11 @@ public class StubUser implements IdentityModel {
         this.email = email;
     }
 
-    public List<String> getGroupIds() {
+    public Set<String> getGroupIds() {
         return groupIds;
     }
 
-    public void setGroupIds(List<String> groupIds) {
+    public void setGroupIds(Set<String> groupIds) {
         this.groupIds = groupIds;
     }
 
@@ -194,11 +194,26 @@ public class StubUser implements IdentityModel {
         this.userTestZonedDateTime = userTestZonedDateTime;
     }
 
-    public List<String> getClubIds() {
+    public Set<String> getClubIds() {
         return clubIds;
     }
 
-    public void setClubIds(List<String> clubIds) {
+    public void setClubIds(Set<String> clubIds) {
         this.clubIds = clubIds;
+    }
+
+    @Override
+    public boolean equals(Object input) {
+        return identityEquals(StubUser.class, this, input);
+    }
+
+    @Override
+    public int hashCode() {
+        return identityHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return identityToString();
     }
 }

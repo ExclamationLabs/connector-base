@@ -33,6 +33,10 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
 public abstract class BaseReadOnlyConnector extends BaseConnector
     implements SearchOp<String> {
 
+    public BaseReadOnlyConnector(Class<?> configurationTypeIn) {
+        super(configurationTypeIn);
+    }
+
     @Override
     public FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
         return getConnectorFilterTranslator(objectClass);

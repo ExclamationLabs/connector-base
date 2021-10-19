@@ -16,34 +16,86 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
+import org.identityconnectors.framework.common.objects.ConnectorMessages;
 import org.junit.Test;
 
-import java.util.Properties;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class DirectAccessTokenAuthenticatorTest {
 
-    protected static BaseConnectorConfiguration configuration;
+    protected static DirectAccessTokenConfiguration configuration;
 
     static {
-        Properties testProperties = new Properties();
-        testProperties.put(CONNECTOR_BASE_AUTH_DIRECT_TOKEN.name(), "cooltoken");
 
-        // Test usage of custom authenticator properties
-        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_DOMAIN.name(), "mysub");
-        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_SUBDOMAIN.name(), "hello.com");
+        configuration = new DirectAccessTokenConfiguration() {
 
-        configuration = new TestConnectorConfiguration(testProperties);
+            @Override
+            public ConnectorMessages getConnectorMessages() {
+                return null;
+            }
+
+            @Override
+            public void setConnectorMessages(ConnectorMessages messages) {
+
+            }
+
+            @Override
+            public String getCurrentToken() {
+                return null;
+            }
+
+            @Override
+            public void setCurrentToken(String input) {
+
+            }
+
+            @Override
+            public String getSource() {
+                return null;
+            }
+
+            @Override
+            public void setSource(String input) {
+
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public void setName(String input) {
+
+            }
+
+            @Override
+            public Boolean getActive() {
+                return null;
+            }
+
+            @Override
+            public void setActive(Boolean input) {
+
+            }
+
+            @Override
+            public String getToken() {
+                return "cooltoken";
+            }
+
+            @Override
+            public void setToken(String input) {
+
+            }
+        };
     }
 
     @Test
     public void test() {
-        Authenticator authenticator = new DirectAccessTokenAuthenticator();
+        Authenticator<DirectAccessTokenConfiguration> authenticator = new DirectAccessTokenAuthenticator();
         String response = authenticator.authenticate(configuration);
         assertNotNull(response);
         assertEquals("cooltoken", response);

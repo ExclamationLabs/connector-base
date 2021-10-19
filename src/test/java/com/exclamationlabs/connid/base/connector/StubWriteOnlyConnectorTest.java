@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.StubWriteOnlyConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
@@ -45,13 +43,7 @@ public class StubWriteOnlyConnectorTest {
     @Before
     public void setup() {
         connector = new StubWriteOnlyConnector();
-        StubConfiguration configuration = new StubConfiguration(
-            new ConfigurationNameBuilder()
-                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                    .withOwner("Test")
-                    .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        StubConfiguration configuration = new StubConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();

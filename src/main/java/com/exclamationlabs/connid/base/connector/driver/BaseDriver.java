@@ -20,8 +20,8 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract class for a Driver that should be subclassed for all use cases.  This
@@ -75,13 +75,13 @@ public abstract class BaseDriver implements Driver {
     }
 
     @Override
-    public List<IdentityModel> getAll(Class<? extends IdentityModel> modelClass,
-                                      Map<String,Object> operationOptionsData) throws ConnectorException {
+    public Set<IdentityModel> getAll(Class<? extends IdentityModel> modelClass,
+                                     Map<String,Object> operationOptionsData) throws ConnectorException {
         return getInvocator(modelClass).getAll(this, operationOptionsData);
     }
 
     @Override
-    public List<IdentityModel> getAllFiltered(Class<? extends IdentityModel> modelClass,
+    public Set<IdentityModel> getAllFiltered(Class<? extends IdentityModel> modelClass,
                                       Map<String,Object> operationOptionsData,
                                               String filterAttribute, String filterValue) throws ConnectorException {
         return getInvocator(modelClass).getAllFiltered(this, operationOptionsData, filterAttribute, filterValue);

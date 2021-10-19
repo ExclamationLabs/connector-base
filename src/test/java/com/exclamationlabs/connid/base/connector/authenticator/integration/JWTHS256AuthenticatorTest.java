@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.authenticator.integration;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTHS256Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -39,6 +40,7 @@ public class JWTHS256AuthenticatorTest extends BaseAuthenticatorIntegrationTest 
     }
 
     @Test
+    @Ignore // TODO: implement active configuration strategy
     public void test() {
         String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);

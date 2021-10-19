@@ -42,8 +42,8 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
     }
 
     @Override
-    public List<ConnectorAttribute> getConnectorAttributes() {
-        List<ConnectorAttribute> result = new ArrayList<>();
+    public Set<ConnectorAttribute> getConnectorAttributes() {
+        Set<ConnectorAttribute> result = new HashSet<>();
         result.add(new ConnectorAttribute("__UID__", USER_ID.name(), STRING, NOT_UPDATEABLE));
         result.add(new ConnectorAttribute("__NAME__", USER_NAME.name(), STRING, NOT_UPDATEABLE));
 
@@ -84,8 +84,8 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubUser user) {
-        List<Attribute> attributes = new ArrayList<>();
+    protected Set<Attribute> constructAttributes(StubUser user) {
+        Set<Attribute> attributes = new HashSet<>();
 
         attributes.add(AttributeBuilder.build(USER_ID.name(), user.getId()));
         attributes.add(AttributeBuilder.build(USER_NAME.name(), user.getUserName()));
@@ -111,7 +111,7 @@ public class StubUsersAdapter extends BaseAdapter<StubUser> {
         return attributes;
     }
 
-    public List<Attribute> constructAttributesTestAccess(StubUser user) {
+    public Set<Attribute> constructAttributesTestAccess(StubUser user) {
         return constructAttributes(user);
     }
 }

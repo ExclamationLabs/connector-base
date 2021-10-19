@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenAuthorizationCodeAuthenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2AuthorizationCodeConfiguration;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
@@ -41,12 +42,13 @@ public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends BaseAuthentic
     @Test
     @Ignore
     public void test() {
+        Oauth2AuthorizationCodeConfiguration check = (Oauth2AuthorizationCodeConfiguration) configuration;
         String response = getAuthenticator().authenticate(configuration);
         assertNotNull(response);
-        assertNotNull(configuration.getOauth2Information());
-        assertNotNull(configuration.getOauth2Information().getAccessToken());
-        assertNotNull(configuration.getOauth2Information().getRefreshToken());
-        assertNotNull(configuration.getOauth2Information().getExpiresIn());
+        assertNotNull(check.getOauth2Information());
+        assertNotNull(check.getOauth2Information().get("accessToken"));
+        assertNotNull(check.getOauth2Information().get("refreshToken"));
+        assertNotNull(check.getOauth2Information().get("expiresIn"));
     }
 
     @Override

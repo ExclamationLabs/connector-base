@@ -37,6 +37,10 @@ import java.util.Set;
 public abstract class BaseFullAccessConnector extends BaseConnector
     implements DeleteOp, CreateOp, UpdateOp, SearchOp<String> {
 
+    public BaseFullAccessConnector(Class<?> configurationTypeIn) {
+        super(configurationTypeIn);
+    }
+
     @Override
     protected boolean readEnabled() {
         return true;
