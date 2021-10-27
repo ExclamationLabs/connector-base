@@ -19,8 +19,8 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationReader;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
@@ -160,7 +160,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
      *                      concrete connector class)
      */
     @Override
-    public void init(Configuration configuration) {
+    public void init(Configuration configuration) throws ConfigurationException {
         if (configurationType.isInstance(configuration)) {
             initializeBaseConnector((T) configuration);
         } else {
@@ -273,12 +273,11 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
      * ConfigurationException is thrown from this method to indicate the problem.
      * @param inputConfiguration Configuration object for this connector.
      */
-    protected void initializeBaseConnector(T inputConfiguration) {
+    protected void initializeBaseConnector(T inputConfiguration) throws ConfigurationException {
 
         if (getDriver() == null) {
             throw new ConfigurationException("Driver not setup for connector " + getName());
         }
-        Set<ConnectorProperty> driverProperties = getDriver().getRequiredPropertyNames();
 
         if (getAuthenticator() == null) {
             LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getName());
@@ -298,20 +297,25 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
             setConnectorConfiguration(inputConfiguration);
         }
 
-        LOG.info("Using configuration {0} for connector {1}", getConnectorConfiguration().getClass().getName(),
-                this.getName());
+        LOG.info("Using configuration class {0} for connector {1}, configuration name {2}", getConnectorConfiguration().getClass().getName(),
+                this.getName(), getConnectorConfiguration().getName());
+
+        if (getConnectorConfiguration().isTestConfiguration()) {
+            LOG.info("Test configuration detected, loading configuration properties from file ...");
+            ConfigurationReader.readPropertiesFromSource(getConnectorConfiguration());
+        }
 
         getConnectorConfiguration().validate();
-        LOG.info("Connector {0} successfully validated", this.getName());
+        LOG.info("Connector {0} configuration {1} {2} successfully validated", this.getName(),
+                getConnectorConfiguration().getClass().getSimpleName(),
+                getConnectorConfiguration().getName());
 
-        /*
-        getConnectorConfiguration().innerSetCredentialAccessToken(
+        LOG.info("Connector {0} attempt Authentication using {1} and load current token ...",
+                this.getName(), getAuthenticator().getClass().getSimpleName());
+        getConnectorConfiguration().setCurrentToken(
                 getAuthenticator().authenticate(getConnectorConfiguration()));
 
-         */
-        getAuthenticator().authenticate(configuration);
         LOG.info("Connector {0} successfully authenticated", this.getName());
-
 
         getDriver().initialize(getConnectorConfiguration(), getAuthenticator());
         LOG.info("Connector {0} driver {1} successfully initialized", this.getName(), getDriver().getClass().getName());

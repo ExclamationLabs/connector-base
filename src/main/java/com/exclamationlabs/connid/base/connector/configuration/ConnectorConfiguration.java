@@ -13,14 +13,9 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
-import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.spi.Configuration;
 
-import javax.validation.*;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Architectural interface used to wrap ConnId's Configuration interface,
@@ -42,15 +37,7 @@ public interface ConnectorConfiguration extends Configuration {
 
     @Override
     default void validate() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-
-        Set<ConstraintViolation<ConnectorConfiguration>> violations =
-                validator.validate(this);
-        if (!violations.isEmpty()) {
-            throw new ConfigurationException("Validation of Connector configuration " +
-                    this.getClass().getSimpleName() + " failed", new ConstraintViolationException(violations));
-        }
+        ConfigurationValidator.validate(this);
     }
 
     default void read(ConnectorConfiguration configuration) {
@@ -61,5 +48,8 @@ public interface ConnectorConfiguration extends Configuration {
         return ConfigurationWriter.writeToString(this);
     }
 
+    default boolean isTestConfiguration() {
+        return (!StringUtils.equalsIgnoreCase("default", getName()));
+    }
 
 }

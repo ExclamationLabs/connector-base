@@ -16,7 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
@@ -253,11 +252,6 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         @Override
         protected String getBaseServiceUrl() {
             return "http://www.somewhere-out-there.com";
-        }
-
-        @Override
-        public Set<ConnectorProperty> getRequiredPropertyNames() {
-            return null;
         }
 
         @Override

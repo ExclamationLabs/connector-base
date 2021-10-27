@@ -34,6 +34,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test for OAuth2TokenClientCredentialsAuthenticator, using Dev 1U FIS configuration
  */
+@Ignore // cannot test without current valid FIS password
+// TODO: update later
 public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
 
     @Override

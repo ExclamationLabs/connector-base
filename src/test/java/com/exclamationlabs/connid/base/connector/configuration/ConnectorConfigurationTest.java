@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import javax.validation.constraints.NotBlank;
 
-public class BaseConnectorConfigurationTest {
+public class ConnectorConfigurationTest {
 
     @Test(expected=ConfigurationException.class)
     public void testConfigurationValidationFailed() {
@@ -40,6 +40,12 @@ public class BaseConnectorConfigurationTest {
     }
 
     static class ValidatingConfiguration extends DefaultConnectorConfiguration {
+
+        public ValidatingConfiguration() {
+            super();
+            setActive(true);
+        }
+
         @NotBlank
         private String unsetItem;
 

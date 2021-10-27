@@ -18,7 +18,6 @@ package com.exclamationlabs.connid.base.connector.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
@@ -42,15 +41,6 @@ import java.util.Set;
  */
 @SuppressWarnings("rawtypes")
 public interface Driver {
-
-    /**
-     * Returns the names of the properties for properties
-     * that must be present in order for this Driver to function.
-     * @return Set containing property names, represented as a set of enum values.
-     * Returning null or an empty set is also allowed if there are no properties for
-     * this driver.
-     */
-    Set<ConnectorProperty> getRequiredPropertyNames();
 
     /**
      * Receives the configuration and authenticator objects that may be needed by the driver.

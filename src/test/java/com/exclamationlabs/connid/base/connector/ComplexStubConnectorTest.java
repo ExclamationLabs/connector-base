@@ -244,6 +244,16 @@ public class ComplexStubConnectorTest {
 
     static public class DualConfiguration implements JwtRs256Configuration, Oauth2JwtConfiguration {
 
+        private String source;
+        private String name;
+        private Boolean active;
+
+        public DualConfiguration() {
+            source = "default";
+            name = "default";
+            active = true;
+        }
+
         @Override
         public String getIssuer() {
             return null;
@@ -336,32 +346,32 @@ public class ComplexStubConnectorTest {
 
         @Override
         public String getSource() {
-            return null;
+            return source;
         }
 
         @Override
         public void setSource(String input) {
-
+            source = input;
         }
 
         @Override
         public String getName() {
-            return null;
+            return name;
         }
 
         @Override
         public void setName(String input) {
-
+            name = input;
         }
 
         @Override
         public Boolean getActive() {
-            return null;
+            return active;
         }
 
         @Override
         public void setActive(Boolean input) {
-
+            active = input;
         }
 
         @Override

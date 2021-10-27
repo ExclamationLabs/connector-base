@@ -26,6 +26,7 @@ import org.junit.Before;
  * Abstract base class for running integration tests for various Authenticator
  * implementations in conjunction with existing developer connector credentials.
  */
+// TODO: remove once OAuth2TokenClientCredentialsAuthenticatorTest is updated
 abstract public class BaseAuthenticatorIntegrationTest extends IntegrationTest {
 
     protected static ConnectorConfiguration configuration;

@@ -16,11 +16,45 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import org.identityconnectors.common.logging.Log;
+
+import java.lang.reflect.Field;
+
 public class ConfigurationWriter {
+
+    private static final Log LOG = Log.getLog(ConfigurationWriter.class);
 
     private ConfigurationWriter() {}
 
     public static String writeToString(ConnectorConfiguration configuration) {
-        return null;
+        StringBuilder build = new StringBuilder();
+        Class<?> configClass = configuration.getClass();
+
+        writeFromClass(configClass, build, configuration);
+        if (configClass.getSuperclass() != null) {
+            writeFromClass(configClass.getSuperclass(), build, configuration);
+        }
+        return build.toString();
+    }
+
+    protected static void writeFromClass(Class<?> configClass, StringBuilder build,
+                                         ConnectorConfiguration configuration) {
+        for (Field field : configClass.getDeclaredFields()) {
+            ConfigurationInfo configInfo = field.getAnnotation(ConfigurationInfo.class);
+            if (configInfo != null) {
+                String configPath = configInfo.path();
+                try {
+                    field.setAccessible(true);
+                    Object fieldValue = field.get(configuration);
+                    build.append(configPath);
+                    build.append("=");
+                    build.append(fieldValue == null ? "" : fieldValue.toString());
+                    build.append("\n");
+                } catch (IllegalAccessException ill) {
+                    LOG.warn("Error while reading field value " + field.getName(), ill);
+                }
+            }
+
+        } // end for fields
     }
 }

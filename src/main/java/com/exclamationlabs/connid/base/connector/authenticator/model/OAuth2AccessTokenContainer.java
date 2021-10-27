@@ -129,7 +129,7 @@ public class OAuth2AccessTokenContainer {
         dataMap.put("accessToken", accessToken);
         dataMap.put("tokenType", tokenType);
         dataMap.put("instanceUrl", instanceUrl);
-        dataMap.put("expiresIn", expiresIn.toString());
+        dataMap.put("expiresIn", expiresIn == null ? null : expiresIn.toString());
         dataMap.put("refreshToken", refreshToken);
         dataMap.put("refreshTokenExpiresIn", refreshTokenExpiresIn);
         dataMap.put("id", id);
