@@ -22,11 +22,29 @@ import org.identityconnectors.framework.spi.ConfigurationClass;
 @ConfigurationClass(skipUnsupported = true)
 public class DefaultConnectorConfiguration implements ConnectorConfiguration {
 
+    @ConfigurationInfo(path="currentToken", internal=true)
     protected String currentToken;
+
+    @ConfigurationInfo(path="source", internal=true)
     protected String source;
+
+    @ConfigurationInfo(path="name", internal=true)
     protected String name;
+
+    @ConfigurationInfo(path="active", internal=true)
     protected Boolean active;
+
     protected ConnectorMessages connectorMessages;
+
+    public DefaultConnectorConfiguration() {
+        source = "default";
+        name = "default";
+        active = true;
+    }
+
+    public DefaultConnectorConfiguration(String configurationName) {
+        name = configurationName;
+    }
 
     @Override
     public ConnectorMessages getConnectorMessages() {

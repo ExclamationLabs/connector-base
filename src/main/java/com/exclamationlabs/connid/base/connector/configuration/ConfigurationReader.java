@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.configuration;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Properties;
 
 import org.identityconnectors.common.logging.Log;
@@ -29,7 +30,13 @@ public class ConfigurationReader {
 
     private ConfigurationReader() {}
 
-    public static void prepareTestConfiguration(String configurationName, ConnectorConfiguration configuration) {
+    public static void setupTestConfiguration(ConnectorConfiguration configuration) {
+        prepareTestConfiguration(configuration);
+        readPropertiesFromSource(configuration);
+    }
+
+    public static void prepareTestConfiguration(ConnectorConfiguration configuration) {
+        String configurationName = configuration.getName();
         LOG.info("Test Configuration with location {0} specified", configurationName);
         configuration.setName(configurationName);
         if (System.getenv(configurationName) != null) {
@@ -45,7 +52,8 @@ public class ConfigurationReader {
         }
     }
 
-    public static void readPropertiesFromSource(ConnectorConfiguration configuration) {
+    public static void readPropertiesFromSource(ConnectorConfiguration configuration) throws
+            ConfigurationException {
         LOG.info("invoking configuration setup for {0}", configuration.getClass().getSimpleName());
         if (configuration.getSource() != null) {
             LOG.info("using configuration path {0}", configuration.getSource());
@@ -58,11 +66,78 @@ public class ConfigurationReader {
                 throw new ConfigurationException("Failed to read configuration file from location " +
                         configuration.getSource(), ex);
             }
-            // TODO: load Properties into configuration fields, based on matching @ConfigurationInfo.path info
+            loadPropertiesInfoConfiguration(configuration, connectorProperties);
 
             LOG.info("configuration properties loaded into configuration object from properties " +
                             "for configuration {0}", configuration.getClass().getSimpleName());
             // Note: validation is done later via BaseConnector init()
         }
     }
+
+    protected static void loadPropertiesInfoConfiguration(ConnectorConfiguration configuration,
+                                                          Properties properties) {
+
+        Class<?> configClass = configuration.getClass();
+
+        loadPropertiesWithinClass(configClass, configuration, properties);
+        if (configClass.getSuperclass() != null) {
+            loadPropertiesWithinClass(configClass.getSuperclass(), configuration, properties);
+        }
+    }
+
+    protected static void loadPropertiesWithinClass(Class<?> configClass, ConnectorConfiguration configuration,
+                                                          Properties properties) {
+        for (Field field : configClass.getDeclaredFields()) {
+            ConfigurationInfo configInfo = field.getAnnotation(ConfigurationInfo.class);
+            if (configInfo != null) {
+                String configPath = configInfo.path();
+                if (properties.getProperty(configPath) != null) {
+                    // property key matches current configuration path
+                    // set field value to property value
+                    String propertyValue = properties.getProperty(configPath);
+                    Class<?> fieldType = field.getType();
+                    try {
+                        switch (fieldType.getSimpleName()) {
+                            case "String":
+                                field.setAccessible(true);
+                                field.set(configuration, propertyValue);
+                                LOG.info("Loaded String data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
+                            case "Boolean":
+                                field.setAccessible(true);
+                                field.set(configuration, Boolean.parseBoolean(propertyValue));
+                                LOG.info("Loaded Boolean data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
+                            case "Integer":
+                                field.setAccessible(true);
+                                field.set(configuration, Integer.parseInt(propertyValue));
+                                LOG.info("Loaded Integer data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
+                            case "Long":
+                                field.setAccessible(true);
+                                field.set(configuration, Long.parseLong(propertyValue));
+                                LOG.info("Loaded Long data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
+                            default:
+                                LOG.warn("Ignoring field " + configPath + "; unrecognized field type " +
+                                        fieldType.getName());
+                                break;
+                        }
+                    } catch (IllegalAccessException | NumberFormatException failed) {
+                        LOG.error("Error while setting field " + configPath, failed);
+                    }
+
+                } else {
+                    LOG.info("Data not set.  No property data found for field {0} using path {1}",
+                            field.getName(), configPath);
+                }
+            }
+
+        } // end for fields
+    }
+
 }

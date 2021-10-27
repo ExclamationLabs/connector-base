@@ -16,13 +16,13 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenPasswordAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
+import com.exclamationlabs.connid.base.connector.configuration.*;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2PasswordConfiguration;
-import org.junit.Ignore;
+import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -30,12 +30,7 @@ import static org.junit.Assert.assertNotNull;
  * Integration test for both the OAuth2TokenPasswordAuthenticator,
  * using Dev ELabs GotoMeeting
  */
-public class OAuth2TokenPasswordAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
-
-    @Override
-    Authenticator getAuthenticator() {
-        return new OAuth2TokenPasswordAuthenticator();
-    }
+public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
 
     @Override
     public String getConfigurationName() {
@@ -43,14 +38,88 @@ public class OAuth2TokenPasswordAuthenticatorTest extends BaseAuthenticatorInteg
     }
 
     @Test
-    @Ignore // TODO: implement active configuration strategy
     public void test() {
-        Oauth2PasswordConfiguration check = (Oauth2PasswordConfiguration) configuration;
-        String response = getAuthenticator().authenticate(check);
+        TestConfiguration configuration = new TestConfiguration(getConfigurationName());
+        ConfigurationReader.setupTestConfiguration(configuration);
+        setup(configuration);
+        String response = new OAuth2TokenPasswordAuthenticator().authenticate(configuration);
         assertNotNull(response);
-        assertNotNull(check.getOauth2Information());
-        assertNotNull(check.getOauth2Information().get("accessToken"));
-        assertNotNull(check.getOauth2Information().get("tokenType"));
+        assertNotNull(configuration.getOauth2Information());
+        assertNotNull(configuration.getOauth2Information().get("accessToken"));
+        assertNotNull(configuration.getOauth2Information().get("tokenType"));
+    }
+
+    protected static class TestConfiguration extends DefaultConnectorConfiguration
+            implements Oauth2PasswordConfiguration {
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.tokenUrl")
+        private String tokenUrl;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.encodedSecret")
+        private String encodedSecret;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.username")
+        private String username;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.password")
+        private String password;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Information")
+        private Map<String, String> oauth2Information;
+
+        public TestConfiguration(String nameIn) {
+            name = nameIn;
+        }
+
+        @Override
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+
+        @Override
+        public void setTokenUrl(String input) {
+            tokenUrl = input;
+        }
+
+        @Override
+        public String getEncodedSecret() {
+            return encodedSecret;
+        }
+
+        @Override
+        public void setEncodedSecret(String input) {
+            encodedSecret = input;
+        }
+
+        @Override
+        public String getUsername() {
+            return username;
+        }
+
+        @Override
+        public void setUsername(String input) {
+            username = input;
+        }
+
+        @Override
+        public String getPassword() {
+            return password;
+        }
+
+        @Override
+        public void setPassword(String input) {
+            password = input;
+        }
+
+        @Override
+        public Map<String, String> getOauth2Information() {
+            return oauth2Information;
+        }
+
+        @Override
+        public void setOauth2Information(Map<String, String> info) {
+            oauth2Information = info;
+        }
     }
 
 

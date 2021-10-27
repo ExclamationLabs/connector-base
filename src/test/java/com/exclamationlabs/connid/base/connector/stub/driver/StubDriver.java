@@ -18,7 +18,6 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
@@ -40,11 +39,6 @@ public class StubDriver extends BaseDriver {
         addInvocator(StubGroup.class, new StubGroupInvocator());
         addInvocator(StubClub.class, new StubClubInvocator());
         addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
-    }
-
-    @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return null;
     }
 
     @Override

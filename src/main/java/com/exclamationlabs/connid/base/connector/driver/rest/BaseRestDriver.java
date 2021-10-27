@@ -18,23 +18,38 @@ package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.HttpBasicAuthConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.ProxyConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
+import com.exclamationlabs.connid.base.connector.driver.rest.util.CustomConnectionSocketFactory;
 import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectionBrokenException;
@@ -42,6 +57,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
@@ -56,6 +72,8 @@ public abstract class BaseRestDriver extends BaseDriver {
 
     protected RestConfiguration configuration;
     protected Authenticator<ConnectorConfiguration> authenticator;
+
+    protected HttpClientContext socksProxyClientContext;
 
     @Override
     public void initialize(ConnectorConfiguration config, Authenticator auth)
@@ -76,13 +94,104 @@ public abstract class BaseRestDriver extends BaseDriver {
     abstract protected RestFaultProcessor getFaultProcessor();
 
     /**
-     * Normal HTTP Client.
-     * If need arises for a secure HTTPS Client backed by a cert/keystore, etc.
-     * such as with FIS, a separate utility class should be added to possibly provide
-     * that support (look at FIS codebase for an example).
+     * Setup HTTP Client.
+     *
+     * If configuration implements HttpBasicAuthConfiguration, a Client
+     * with HTTP Basic Authentication support with configured username and password will be constructed.
+     *
+     * If configuration implements ProxyConfiguration, a Client
+     * with Proxy connection information will be established.  Supported
+     * proxy types are 'socks5' and 'http'.
+     *
      */
     protected HttpClient createClient() {
-        return HttpClients.createDefault();
+        boolean usesHttpBasicAuth = getConfiguration() instanceof HttpBasicAuthConfiguration;
+        boolean usesProxy = getConfiguration() instanceof ProxyConfiguration;
+        boolean socksProxy = false;
+        PoolingHttpClientConnectionManager socksProxyConnectionManager = null;
+        DefaultProxyRoutePlanner httpProxyRoutePlanner = null;
+        CredentialsProvider basicAuthProvider = null;
+        if (usesProxy) {
+            ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getConfiguration();
+            socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getSecurityProxyType());
+            if (socksProxy) {
+                socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
+                socksProxyClientContext = setupSocksProxyContext(proxyConfiguration);
+            } else {
+                httpProxyRoutePlanner = setupHttpProxyRouteManager(proxyConfiguration);
+            }
+        }
+        if (usesHttpBasicAuth) {
+            basicAuthProvider = setupBasicAuth((HttpBasicAuthConfiguration) getConfiguration());
+        }
+
+        if (usesHttpBasicAuth) {
+            if (usesProxy) {
+                if (socksProxy) {
+                    return HttpClients.custom()
+                            .setConnectionManager(socksProxyConnectionManager)
+                            .setDefaultCredentialsProvider(basicAuthProvider)
+                            .build();
+                } else {
+                    return HttpClients.custom()
+                            .setRoutePlanner(httpProxyRoutePlanner)
+                            .setDefaultCredentialsProvider(basicAuthProvider)
+                            .build();
+                }
+            } else {
+                return HttpClients.custom()
+                        .setDefaultCredentialsProvider(basicAuthProvider)
+                        .build();
+            }
+
+        } else {
+            if (usesProxy) {
+                if (socksProxy) {
+                    return HttpClients.custom()
+                            .setConnectionManager(socksProxyConnectionManager)
+                            .build();
+                } else {
+                    return HttpClients.custom()
+                            .setRoutePlanner(httpProxyRoutePlanner)
+                            .build();
+                }
+            } else {
+                return HttpClients.custom()
+                        .build();
+            }
+        }
+    }
+
+    protected DefaultProxyRoutePlanner setupHttpProxyRouteManager(ProxyConfiguration configuration) {
+        HttpHost proxyHost = new HttpHost(configuration.getSecurityProxyHost(),
+                configuration.getSecurityProxyPort());
+        return new DefaultProxyRoutePlanner(proxyHost);
+    }
+
+    protected PoolingHttpClientConnectionManager setupSocksProxyConnectionManager(ProxyConfiguration configuration) {
+        Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.INSTANCE)
+                .register("https", new CustomConnectionSocketFactory(SSLContexts.createSystemDefault()))
+                .build();
+        return new PoolingHttpClientConnectionManager(reg);
+    }
+
+    protected HttpClientContext setupSocksProxyContext(ProxyConfiguration configuration) {
+        InetSocketAddress socksAddr = new InetSocketAddress(configuration.getSecurityProxyHost(),
+                configuration.getSecurityProxyPort());
+        HttpClientContext context = HttpClientContext.create();
+        context.setAttribute("socks.address", socksAddr);
+        return context;
+    }
+
+    protected CredentialsProvider setupBasicAuth(HttpBasicAuthConfiguration configuration) {
+        CredentialsProvider basicAuthProvider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentials(
+                configuration.getSecurityHttpBasicAuthUsername(),
+                configuration.getSecurityHttpBasicAuthPassword());
+        basicAuthProvider.setCredentials(AuthScope.ANY, credentials);
+        return basicAuthProvider;
     }
 
     /**
@@ -143,7 +252,12 @@ public abstract class BaseRestDriver extends BaseDriver {
         try {
             LOG.info("Request details: {0} to {1}", request.getMethod(),
                     request.getURI());
-            response = client.execute(request);
+            if (socksProxyClientContext != null) {
+                response = client.execute(request, socksProxyClientContext);
+            } else {
+                response = client.execute(request);
+            }
+
             LOG.info("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
                     request.getMethod(), request.getURI());
 

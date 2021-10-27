@@ -16,10 +16,10 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTHS256Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.*;
-import org.junit.Ignore;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtHs256Configuration;
+import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,23 +27,66 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test for JWTHS256Authenticator, using Dev ELabs Zoom configuration
  */
-public class JWTHS256AuthenticatorTest extends BaseAuthenticatorIntegrationTest {
-
-    @Override
-    Authenticator getAuthenticator() {
-        return new JWTHS256Authenticator();
-    }
+public class JWTHS256AuthenticatorTest extends IntegrationTest {
 
     @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(() -> "ZOOM").build();
     }
-
     @Test
-    @Ignore // TODO: implement active configuration strategy
     public void test() {
-        String response = getAuthenticator().authenticate(configuration);
+        JwtHs256Configuration configuration = new TestConfiguration(getConfigurationName());
+        ConfigurationReader.setupTestConfiguration(configuration);
+        setup(configuration);
+        String response = new JWTHS256Authenticator().authenticate(configuration);
         assertNotNull(response);
+    }
+
+    protected static class TestConfiguration extends DefaultConnectorConfiguration
+        implements JwtHs256Configuration {
+
+        public TestConfiguration(String nameIn) {
+            name = nameIn;
+        }
+
+        @ConfigurationInfo(path = "security.authenticator.jwtHs256.issuer")
+        private String issuer;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtHs256.secret")
+        private String secret;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtHs256.expirationPeriod")
+        private Long expirationPeriod;
+
+        @Override
+        public String getIssuer() {
+            return issuer;
+        }
+
+        @Override
+        public void setIssuer(String input) {
+            issuer = input;
+        }
+
+        @Override
+        public String getSecret() {
+            return secret;
+        }
+
+        @Override
+        public void setSecret(String input) {
+            secret = input;
+        }
+
+        @Override
+        public Long getExpirationPeriod() {
+            return expirationPeriod;
+        }
+
+        @Override
+        public void setExpirationPeriod(Long input) {
+            expirationPeriod = input;
+        }
     }
 
 

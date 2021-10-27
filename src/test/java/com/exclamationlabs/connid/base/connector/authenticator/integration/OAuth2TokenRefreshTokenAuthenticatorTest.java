@@ -16,25 +16,24 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenRefreshTokenAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationConnector;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationInfo;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationReader;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2RefreshTokenConfiguration;
-import org.junit.Ignore;
+import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.junit.Test;
+
+import java.util.Map;
+
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Test for OAuth2TokenAuthorizationCodeAuthenticator, using Dev ELabs Webex configuration
  */
-public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
-
-    @Override
-    Authenticator getAuthenticator() {
-        return new OAuth2TokenRefreshTokenAuthenticator();
-    }
+public class OAuth2TokenRefreshTokenAuthenticatorTest extends IntegrationTest {
 
     @Override
     public String getConfigurationName() {
@@ -42,15 +41,90 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest extends BaseAuthenticatorI
     }
 
     @Test
-    @Ignore // TODO: implement active configuration strategy
     public void test() {
-        Oauth2RefreshTokenConfiguration check = (Oauth2RefreshTokenConfiguration) configuration;
-        String response = getAuthenticator().authenticate(configuration);
+        TestConfiguration configuration = new TestConfiguration(getConfigurationName());
+        ConfigurationReader.setupTestConfiguration(configuration);
+        setup(configuration);
+        String response = new OAuth2TokenRefreshTokenAuthenticator().authenticate(configuration);
         assertNotNull(response);
-        assertNotNull(check.getOauth2Information());
-        assertNotNull(check.getOauth2Information().get("accessToken"));
-        assertNotNull(check.getOauth2Information().get("refreshToken"));
-        assertNotNull(check.getOauth2Information().get("expiresIn"));
+        assertNotNull(configuration.getOauth2Information());
+        assertNotNull(configuration.getOauth2Information().get("accessToken"));
+        assertNotNull(configuration.getOauth2Information().get("refreshToken"));
+        assertNotNull(configuration.getOauth2Information().get("expiresIn"));
+    }
+
+
+    protected static class TestConfiguration extends DefaultConnectorConfiguration
+            implements Oauth2RefreshTokenConfiguration {
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2RefreshToken.refreshToken")
+        private String refreshToken;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2RefreshToken.tokenUrl")
+        private String tokenUrl;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2RefreshToken.clientId")
+        private String clientId;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2RefreshToken.clientSecret")
+        private String clientSecret;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2AuthorizationCode.oauth2Information")
+        private Map<String, String> oauth2Information;
+
+        public TestConfiguration(String nameIn) {
+            name = nameIn;
+        }
+
+        @Override
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+
+        @Override
+        public void setTokenUrl(String input) {
+            tokenUrl = input;
+        }
+
+        @Override
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+
+        @Override
+        public void setRefreshToken(String input) {
+            refreshToken = input;
+        }
+
+        @Override
+        public String getClientId() {
+            return clientId;
+        }
+
+        @Override
+        public void setClientId(String input) {
+            clientId = input;
+        }
+
+        @Override
+        public String getClientSecret() {
+            return clientSecret;
+        }
+
+        @Override
+        public void setClientSecret(String input) {
+            clientSecret = input;
+        }
+
+        @Override
+        public Map<String, String> getOauth2Information() {
+            return oauth2Information;
+        }
+
+        @Override
+        public void setOauth2Information(Map<String, String> info) {
+            oauth2Information = info;
+        }
     }
 
 

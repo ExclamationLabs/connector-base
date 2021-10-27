@@ -16,8 +16,10 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationInfo;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
-import org.identityconnectors.framework.common.objects.ConnectorMessages;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,79 +27,34 @@ import static org.junit.Assert.assertNotNull;
 
 public class DirectAccessTokenAuthenticatorTest {
 
-    protected static DirectAccessTokenConfiguration configuration;
-
-    static {
-
-        configuration = new DirectAccessTokenConfiguration() {
-
-            @Override
-            public ConnectorMessages getConnectorMessages() {
-                return null;
-            }
-
-            @Override
-            public void setConnectorMessages(ConnectorMessages messages) {
-
-            }
-
-            @Override
-            public String getCurrentToken() {
-                return null;
-            }
-
-            @Override
-            public void setCurrentToken(String input) {
-
-            }
-
-            @Override
-            public String getSource() {
-                return null;
-            }
-
-            @Override
-            public void setSource(String input) {
-
-            }
-
-            @Override
-            public String getName() {
-                return null;
-            }
-
-            @Override
-            public void setName(String input) {
-
-            }
-
-            @Override
-            public Boolean getActive() {
-                return null;
-            }
-
-            @Override
-            public void setActive(Boolean input) {
-
-            }
-
-            @Override
-            public String getToken() {
-                return "cooltoken";
-            }
-
-            @Override
-            public void setToken(String input) {
-
-            }
-        };
-    }
-
     @Test
     public void test() {
-        Authenticator<DirectAccessTokenConfiguration> authenticator = new DirectAccessTokenAuthenticator();
+        DirectAccessTokenConfiguration configuration = new TestConfiguration();
+        Authenticator<DirectAccessTokenConfiguration> authenticator = new DirectAccessTokenAuthenticator() {
+            @Override
+            public String authenticate(DirectAccessTokenConfiguration configuration) throws ConnectorSecurityException {
+                return "cooltoken";
+            }
+        };
         String response = authenticator.authenticate(configuration);
         assertNotNull(response);
         assertEquals("cooltoken", response);
+    }
+
+    static class TestConfiguration extends DefaultConnectorConfiguration
+        implements DirectAccessTokenConfiguration {
+
+        @ConfigurationInfo(path = "security.authenticator.directAccessToken.token")
+        private String token;
+
+        @Override
+        public String getToken() {
+            return token;
+        }
+
+        @Override
+        public void setToken(String input) {
+            token = input;
+        }
     }
 }
