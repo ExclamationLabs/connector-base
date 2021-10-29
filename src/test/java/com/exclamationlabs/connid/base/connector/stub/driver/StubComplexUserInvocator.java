@@ -24,10 +24,10 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
+public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriver,StubUser> {
 
     @Override
-    public String create(StubDriver driver, StubUser model) throws ConnectorException {
+    public String create(ComplexStubDriver driver, StubUser model) throws ConnectorException {
         driver.setMethodInvoked("user create");
         if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
             driver.setMethodInvoked("user create with group and club ids");
@@ -42,7 +42,7 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public void update(StubDriver driver, String userId, StubUser model)
+    public void update(ComplexStubDriver driver, String userId, StubUser model)
             throws ConnectorException {
         driver.setMethodInvoked("user update");
         if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
@@ -53,27 +53,44 @@ public class StubUserInvocator implements DriverInvocator<StubDriver,StubUser> {
     }
 
     @Override
-    public void delete(StubDriver driver, String id) throws ConnectorException {
+    public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
         driver.setMethodInvoked("user delete");
         driver.setMethodParameter1(id);
     }
 
     @Override
-    public Set<StubUser> getAll(StubDriver driver, ResultsFilter filter,
+    public Set<StubUser> getAll(ComplexStubDriver driver, ResultsFilter filter,
                                 ResultsPaginator paginator, Integer resultCap) throws ConnectorException {
-        driver.setMethodInvoked("user getAll " + filter);
-        StubUser user1 = new StubUser();
-        user1.setId(UUID.randomUUID().toString());
-        user1.setUserName("User Uno");
+        final int DEFAULT_NUM_RESULTS = 100;
+        Set<StubUser> results = new HashSet<>();
 
-        StubUser user2 = new StubUser();
-        user2.setId(UUID.randomUUID().toString());
-        user2.setUserName("User Dos");
-        return new HashSet<>(Arrays.asList(user1, user2));
+        int effectiveResultCount = paginator.getPageSize() == null ? DEFAULT_NUM_RESULTS : paginator.getPageSize();
+        if (resultCap != null) {
+            effectiveResultCount = resultCap;
+        }
+        if (paginator.getCurrentOffset() != null && paginator.getCurrentOffset() >= 90) {
+            effectiveResultCount = 5;
+            paginator.setNoMoreResults(true);
+        }
+
+        for (int xx=0; xx < effectiveResultCount; xx++) {
+            String randomId = UUID.randomUUID().toString();
+            StubUser user1 = new StubUser();
+            user1.setId(randomId);
+            user1.setUserName(randomId + "-NAME");
+            results.add(user1);
+        }
+        if (resultCap != null && resultCap == 7 && results.size() == 7) {
+            driver.setMethodInvoked("user got seven");
+        } else {
+            driver.setMethodInvoked("user getAll " + filter);
+        }
+
+        return results;
     }
 
     @Override
-    public StubUser getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
+    public StubUser getOne(ComplexStubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("user getOne");
         driver.setMethodParameter1(id);
         StubUser user1 = new StubUser();

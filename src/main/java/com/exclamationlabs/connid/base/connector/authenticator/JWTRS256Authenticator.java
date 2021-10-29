@@ -29,7 +29,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.util.*;
 
 /**
- * This JWT authenticator implementation performs the HS256 strategy.
+ * This JWT authenticator implementation performs the RS256 strategy.
  *
  * Private key is required. This implementation does not utilize a
  * public key since only the private key is needed for signing.

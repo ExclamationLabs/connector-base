@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test for OAuth2TokenAuthorizationCodeAuthenticator, using Dev ELabs Webex configuration
  */
+@Ignore // TODO: put back in place once Webex is upgraded to 2.0 base
 public class OAuth2TokenAuthorizationCodeAuthenticatorTest extends IntegrationTest {
 
     @Override

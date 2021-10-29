@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenPasswo
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2PasswordConfiguration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
  * Integration test for both the OAuth2TokenPasswordAuthenticator,
  * using Dev ELabs GotoMeeting
  */
+@Ignore // TODO: put back in place once GotoMeeting is upgraded to 2.0 base
 public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
 
     @Override

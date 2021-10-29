@@ -19,18 +19,21 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
-import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.*;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.MULTIVALUED;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
+public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubConfiguration> {
 
     @Override
     public ObjectClass getType() {
@@ -111,8 +114,4 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
 
         return attributes;
     }
-
-    public Set<Attribute> constructAttributesTestAccess(StubUser user) {
-        return constructAttributes(user);
-    }
-}
+ }

@@ -24,19 +24,20 @@ import com.exclamationlabs.connid.base.connector.authenticator.keys.PFXKeyStoreL
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2ClientCredentialsConfiguration;
+import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.apache.http.client.HttpClient;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Test for OAuth2TokenClientCredentialsAuthenticator, using Dev 1U FIS configuration
  */
-@Ignore // cannot test without current valid FIS password
-// TODO: update later
-public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
+@Ignore // TODO: update later; cannot test without current valid FIS password
+public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTest {
 
     @Override
     public String getConfigurationName() {
@@ -45,36 +46,127 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends BaseAuthentic
                 withOwner(() -> "FIRST_UNITED").build();
     }
 
-    protected OAuth2TokenClientCredentialsAuthenticator oauth2Authenticator;
+    @Test
+    @Ignore // TODO: implement active configuration strategy
+    public void test() {
+        Oauth2ClientCredentialsConfiguration configuration =
+                new TestConfiguration(getConfigurationName());
 
-    @Override
-    OAuth2TokenClientCredentialsAuthenticator getAuthenticator() {
-        return oauth2Authenticator;
-    }
-
-    @Before
-    public void setup() {
         KeyStoreLoader<PfxConfiguration> keyStoreLoader = new PFXKeyStoreLoader();
         SecureClientLoader<PfxConfiguration> clientLoader = new HttpsKeystoreCertificateClientLoader();
 
-        oauth2Authenticator = new OAuth2TokenClientCredentialsAuthenticator() {
+        OAuth2TokenClientCredentialsAuthenticator oauth2Authenticator = new OAuth2TokenClientCredentialsAuthenticator() {
             @Override
             public HttpClient getHttpClient() {
                 return clientLoader.load((PfxConfiguration) configuration,
                         keyStoreLoader.load((PfxConfiguration) configuration));
             }
         };
-        super.setup();
+        setup(configuration);
+
+        String response = oauth2Authenticator.authenticate(configuration);
+        assertNotNull(response);
+        assertNotNull(configuration.getOauth2Information());
+        assertNotNull(configuration.getOauth2Information().get("accessToken"));
+        assertNotNull(configuration.getOauth2Information().get("tokenType"));
     }
 
-    @Test
-    @Ignore // TODO: implement active configuration strategy
-    public void test() {
-        Oauth2ClientCredentialsConfiguration check = (Oauth2ClientCredentialsConfiguration) configuration;
-        String response = getAuthenticator().authenticate(check);
-        assertNotNull(response);
-        assertNotNull(check.getOauth2Information());
-        assertNotNull(check.getOauth2Information().get("accessToken"));
-        assertNotNull(check.getOauth2Information().get("tokenType"));
+    static class TestConfiguration extends DefaultConnectorConfiguration
+            implements Oauth2ClientCredentialsConfiguration, PfxConfiguration {
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.tokenUrl")
+        private String tokenUrl;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.clientId")
+        private String clientId;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.clientSecret")
+        private String clientSecret;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.scope")
+        private String scope;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.oauth2Information")
+        private Map<String, String> oauth2Information;
+
+        @ConfigurationInfo(path = "security.pfx.file")
+        private String file;
+
+        @ConfigurationInfo(path = "security.pfx.password")
+        private String password;
+
+        public TestConfiguration(String nameIn) {
+            name = nameIn;
+        }
+
+        @Override
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+
+        @Override
+        public void setTokenUrl(String input) {
+            tokenUrl = input;
+        }
+
+        @Override
+        public String getClientId() {
+            return clientId;
+        }
+
+        @Override
+        public void setClientId(String input) {
+            clientId = input;
+        }
+
+        @Override
+        public String getClientSecret() {
+            return clientSecret;
+        }
+
+        @Override
+        public void setClientSecret(String input) {
+            clientSecret = input;
+        }
+
+        @Override
+        public String getScope() {
+            return scope;
+        }
+
+        @Override
+        public void setScope(String input) {
+            scope = input;
+        }
+
+        @Override
+        public Map<String, String> getOauth2Information() {
+            return oauth2Information;
+        }
+
+        @Override
+        public void setOauth2Information(Map<String, String> info) {
+            oauth2Information = info;
+        }
+
+        @Override
+        public String getFile() {
+            return file;
+        }
+
+        @Override
+        public void setFile(String input) {
+            file = input;
+        }
+
+        @Override
+        public String getPassword() {
+            return password;
+        }
+
+        @Override
+        public void setPassword(String input) {
+            password = input;
+        }
     }
 }

@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import org.identityconnectors.framework.common.objects.*;
 
@@ -29,7 +30,7 @@ import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttri
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
+public class StubGroupsAdapter extends BaseAdapter<StubGroup, StubConfiguration> {
 
 
     @Override

@@ -17,6 +17,8 @@
 package com.exclamationlabs.connid.base.connector.driver;
 
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.Map;
@@ -31,7 +33,7 @@ import java.util.Set;
  * @param <D> Concrete Driver implementation pertaining to this Invocator.
  * @param <T> IdentityModel implementation pertaining to an object type on the destination system.
  */
-public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
+public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
 
     /**
      * Create a new object on the destination system.
@@ -67,35 +69,24 @@ public interface DriverInvocator<D extends Driver, T extends IdentityModel> {
     void delete(D driver, String userId) throws ConnectorException;
 
     /**
-     * Get all existing objects of this invocator's particular type on the destination system.
-     * @param driver Driver belonging to this Invocator and providing interaction
-     *               with the applicable destination system.
-     * @param operationOptionsData data map possibly containing current paging information
-     * @return A list of all IdentityModel objects of this Invocator's particular type.  Can
-     * be null or an empty list if the destination system currently has no records.
-     * @throws ConnectorException If get request failed, was invalid or was not permitted.
-     */
-    Set<T> getAll(D driver, Map<String, Object> operationOptionsData) throws ConnectorException;
-
-    /**
      * Get all existing objects of this invocator's particular type on the destination system,
      * using supplied filter attribute and value.
      * Unless overriden, default behavior is to presume filtering is not supported, and
      * simply execute the getAll method.
      * @param driver Driver belonging to this Invocator and providing interaction
      *               with the applicable destination system.
-     * @param operationOptionsData data map possibly containing current paging information
-     * @param filterAttribute Attribute name for data to filter on
-     * @param filterValue Attribute value to exactly match from the destination system in
-     *                    order to return data.
+     * @param filter Object possibly containing an attribute value to filter upon.
+     * @param paginator Object possibly containing current pagination information for results
+     *                  being processed.  Fields in this pagination could/should be
+     *                  updated by the invocator as results are processed for the connector.
+     * @param resultCap The maximum number of results that should be returned by getAll.  This
+     *                  can be null but if present will override the pagination pageSize.
      * @return A list of all IdentityModel objects of this Invocator's particular type.  Can
      * be null or an empty list if the destination system currently has no records.
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
-    default Set<T> getAllFiltered(D driver, Map<String, Object> operationOptionsData,
-                           String filterAttribute, String filterValue) throws ConnectorException {
-       return getAll(driver, operationOptionsData);
-    }
+    Set<T> getAll(D driver, ResultsFilter filter, ResultsPaginator paginator,
+                  Integer resultCap) throws ConnectorException;
 
     /**
      * Get a single object of this invocator's particular type on the destination system

@@ -20,15 +20,11 @@ import com.exclamationlabs.connid.base.connector.BaseFullAccessConnector;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTRS256Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubClubAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubSupergroupAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
-import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.stub.adapter.*;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
@@ -45,11 +41,11 @@ import java.security.interfaces.RSAPrivateKey;
  *      - Clubs (object class "CLUB")
  *
  */
-@ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class ComplexStubConnector extends BaseFullAccessConnector {
+@ConnectorClass(displayNameKey = "test.display", configurationClass = ComplexStubConfiguration.class)
+public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubConfiguration> {
 
     public ComplexStubConnector() {
-        super(JwtRs256Configuration.class);
+        super(ComplexStubConfiguration.class);
         JWTRS256Authenticator innerAuthenticator = new JWTRS256Authenticator() {
 
             @Override
@@ -70,10 +66,10 @@ public class ComplexStubConnector extends BaseFullAccessConnector {
             }
         };
 
-        setAuthenticator(outerAuthenticator);
-        setDriver(new StubDriver());
+        setAuthenticator((Authenticator) outerAuthenticator);
+        setDriver(new ComplexStubDriver());
 
-        setAdapters(new StubUsersAdapter(), new StubGroupsAdapter(),
+        setAdapters(new StubComplexUsersAdapter(), new StubComplexGroupsAdapter(),
                 new StubClubAdapter(), new StubSupergroupAdapter());
     }
 

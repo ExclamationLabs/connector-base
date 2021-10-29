@@ -18,6 +18,10 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
+/**
+ * Configuration properties for connectors that use some sort of
+ * web service, particularly at a HTTP/HTTPS URL.
+ */
 public interface ServiceConfiguration extends ConnectorConfiguration {
     String getServiceServiceUrl();
     void setServiceServiceUrl(String input);

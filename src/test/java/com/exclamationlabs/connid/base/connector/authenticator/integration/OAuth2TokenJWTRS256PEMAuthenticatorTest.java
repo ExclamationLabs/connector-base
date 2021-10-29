@@ -24,6 +24,7 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.securit
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -37,6 +38,7 @@ import static org.junit.Assert.assertNotNull;
  * JWTRS256Authenticator and PEMRSAPrivateKeyLoader working together,
  * using Dev ELabs Docusign
  */
+@Ignore // TODO: put back in place once Docusign is upgraded to 2.0 base
 public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.CreateOp;
@@ -34,10 +35,10 @@ import java.util.Set;
  * are implemented.  This means that this connector will be able to
  * receive create, update, delete and get/search requests from Midpoint.
  */
-public abstract class BaseFullAccessConnector extends BaseConnector
+public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
     implements DeleteOp, CreateOp, UpdateOp, SearchOp<String> {
 
-    public BaseFullAccessConnector(Class<?> configurationTypeIn) {
+    public BaseFullAccessConnector(Class<T> configurationTypeIn) {
         super(configurationTypeIn);
     }
 

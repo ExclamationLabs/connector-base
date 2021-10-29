@@ -14,19 +14,24 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.configuration.basetypes.security;
+package com.exclamationlabs.connid.base.connector.configuration.basetypes;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that need to provide a JKS file
- * as part of their credentials for authentication.
+ * Configuration properties common to connectors that support pagination
+ * or need to perform deep gets on each record when performing a getAll.
  */
-public interface JksConfiguration extends ConnectorConfiguration {
-    String getFile();
-    void setFile(String input);
-    String getPassword();
-    void setPassword(String input);
-    String getAlias();
-    void setAlias(String input);
+public interface ResultsConfiguration extends ConnectorConfiguration {
+    Boolean getDeepGet();
+    void setDeepGet(Boolean input);
+
+    Boolean getDeepImport();
+    void setDeepImport(Boolean input);
+
+    Integer getImportBatchSize();
+    void setImportBatchSize(Integer input);
+
+    Boolean getPagination();
+    void setPagination(Boolean input);
 }

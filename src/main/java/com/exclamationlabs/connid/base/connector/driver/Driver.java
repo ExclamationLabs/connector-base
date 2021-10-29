@@ -19,6 +19,8 @@ package com.exclamationlabs.connid.base.connector.driver;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.Map;
@@ -40,7 +42,7 @@ import java.util.Set;
  * of the invocators it should register.
  */
 @SuppressWarnings("rawtypes")
-public interface Driver {
+public interface Driver<T extends ConnectorConfiguration> {
 
     /**
      * Receives the configuration and authenticator objects that may be needed by the driver.
@@ -55,7 +57,7 @@ public interface Driver {
      * @throws ConnectorException If a problem occurred that prevented Driver
      * from completing it's initialization.
      */
-    void initialize(ConnectorConfiguration configuration, Authenticator authenticator)
+    void initialize(T configuration, Authenticator<T> authenticator)
             throws ConnectorException;
 
     /**
@@ -124,35 +126,25 @@ public interface Driver {
      */
     void delete(Class<? extends IdentityModel> identityModelClass, String objectId) throws ConnectorException;
 
+
     /**
      * Process a request to get all objects of a particular type from the destination system.
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
      *                                      the get request.
-     * @param operationOptionsData data map possibly containing current paging information
+     * @param resultsFilter Object possibly containing an attribute value to filter upon.
+     * @param pagination Object possibly containing current pagination information for results
+     *                   being processed.  Fields in this pagination could/should be
+     *                   updated by the driver or invocator as results are processed for the connector.
+*    * @param resultCap The maximum number of results that should be returned by getAll.  This
+     *                        can be null but if present will override the pagination pageSize.
+     *
      * @return A set of IdentityModel instances representing all the objects of a particular type.  Or
      * null or an empty set if no objects for this type were found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no records found (an empty or null list) is not considered an exception condition.
      */
-    Set<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass,
-                               Map<String, Object> operationOptionsData) throws ConnectorException;
-
-    /**
-     * Process a request to get all objects of a particular type from the destination system, matching
-     * a supplied filter attribute and value
-     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
-     *                                      the get request.
-     * @param operationOptionsData data map possibly containing current paging information
-     * @param filterAttribute String containing the attribute name to filter upon
-     * @param filterValue String containing the exact attribute value to match
-     * @return A set of IdentityModel instances representing all the objects of a particular type.  Or
-     * null or an empty set if no objects for this type were found.
-     * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
-     * no records found (an empty or null list) is not considered an exception condition.
-     */
-    Set<IdentityModel> getAllFiltered(Class<? extends IdentityModel> identityModelClass,
-                               Map<String, Object> operationOptionsData, String filterAttribute,
-                                       String filterValue) throws ConnectorException;
+    Set<IdentityModel> getAll(Class<? extends IdentityModel> identityModelClass, ResultsFilter resultsFilter,
+                              ResultsPaginator pagination, Integer resultCap) throws ConnectorException;
 
     /**
      * Process a request to get a single object of a particular type from the destination system,

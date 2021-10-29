@@ -18,31 +18,40 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
-import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-public class StubDriver extends BaseDriver<StubConfiguration> {
+public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
     private String methodInvoked;
     private Object methodParameter1;
     private Object methodParameter2;
     private boolean initializeInvoked = false;
 
-    public StubDriver() {
-        addInvocator(StubUser.class, new StubUserInvocator());
-        addInvocator(StubGroup.class, new StubGroupInvocator());
+    private ComplexStubConfiguration configuration;
+
+    public ComplexStubDriver() {
+        addInvocator(StubUser.class, new StubComplexUserInvocator());
+        addInvocator(StubGroup.class, new StubComplexGroupInvocator());
+        addInvocator(StubClub.class, new StubClubInvocator());
+        addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
     }
 
     @Override
-    public void initialize(StubConfiguration configuration, Authenticator<StubConfiguration> authenticator) throws ConnectorException {
+    public void initialize(ComplexStubConfiguration configurationInput, Authenticator<ComplexStubConfiguration> authenticator) throws ConnectorException {
         initializeInvoked = true;
+        configuration = configurationInput;
     }
 
     @Override
     public void test() throws ConnectorException {
-        setMethodInvoked("test");
+        getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), 7);
     }
 
     @Override
@@ -79,4 +88,7 @@ public class StubDriver extends BaseDriver<StubConfiguration> {
         return initializeInvoked;
     }
 
+    public ComplexStubConfiguration getConfiguration() {
+        return configuration;
+    }
 }

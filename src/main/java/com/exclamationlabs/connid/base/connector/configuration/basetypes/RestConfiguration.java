@@ -18,6 +18,9 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
+/**
+ * Configuration properties common to connectors that use RESTful web services.
+ */
 public interface RestConfiguration extends ConnectorConfiguration {
     Integer getRestIoErrorRetries();
     void setRestIoErrorRetries(Integer input);

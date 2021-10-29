@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.ComplexStubConnector;
@@ -25,11 +23,14 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.StubClubAttribut
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
-import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.test.util.ConnectorTestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.*;
@@ -45,17 +46,141 @@ import static org.junit.Assert.*;
 
 public class ComplexStubConnectorTest {
 
-    private BaseFullAccessConnector connector;
-    private StubDriver driver;
+    private ComplexStubConnector connector;
+    private ComplexStubDriver driver;
     private OperationOptions testOperationOptions;
 
     @Before
     public void setup() {
         connector = new ComplexStubConnector();
-        JwtRs256Configuration configuration = new DualConfiguration();
+        ComplexStubConfiguration configuration = new ComplexStubConfiguration();
         connector.init(configuration);
-        driver = (StubDriver) connector.getDriver();
+        driver = (ComplexStubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
+    }
+
+    @Test
+    public void testGetAllWithResultCap() {
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        connector.test();
+        assertEquals("user got seven", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportDeepBatch() {
+        driver.getConfiguration().setImportBatchSize(15);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(95, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportShallowBatch() {
+        driver.getConfiguration().setImportBatchSize(12);
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(101, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+
+    @Test
+    public void testGetAllImportDeepNoBatch() {
+        driver.getConfiguration().setImportBatchSize(null);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(100, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportShallowNoBatch() {
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        driver.getConfiguration().setImportBatchSize(null);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(100, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllSinglePageDeep() {
+        testOperationOptions = new OperationOptionsBuilder()
+                .setPageSize(10)
+                .setPagedResultsOffset(1)
+                .build();
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(10, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllSinglePageShallow() {
+        driver.getConfiguration().setDeepGet(false);
+        testOperationOptions = new OperationOptionsBuilder()
+                .setPageSize(8)
+                .setPagedResultsOffset(1)
+                .build();
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(8, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -240,148 +365,5 @@ public class ComplexStubConnectorTest {
     @Test
     public void testAuthentication() {
         assertEquals("ying-yang", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
-    }
-
-    static public class DualConfiguration implements JwtRs256Configuration, Oauth2JwtConfiguration {
-
-        private String source;
-        private String name;
-        private Boolean active;
-
-        public DualConfiguration() {
-            source = "default";
-            name = "default";
-            active = true;
-        }
-
-        @Override
-        public String getIssuer() {
-            return null;
-        }
-
-        @Override
-        public void setIssuer(String input) {
-
-        }
-
-        @Override
-        public String getSubject() {
-            return null;
-        }
-
-        @Override
-        public void setSubject(String input) {
-
-        }
-
-        @Override
-        public Long getExpirationPeriod() {
-            return null;
-        }
-
-        @Override
-        public void setExpirationPeriod(Long input) {
-
-        }
-
-        @Override
-        public String getAudience() {
-            return null;
-        }
-
-        @Override
-        public void setAudience(String input) {
-
-        }
-
-        @Override
-        public Boolean getUseIssuedAt() {
-            return null;
-        }
-
-        @Override
-        public void setUseIssuedAt(Boolean input) {
-
-        }
-
-        @Override
-        public Map<String, String> getExtraClaimData() {
-            return null;
-        }
-
-        @Override
-        public void setExtraClaimData(Map<String, String> data) {
-
-        }
-
-        @Override
-        public String getTokenUrl() {
-            return null;
-        }
-
-        @Override
-        public void setTokenUrl(String input) {
-
-        }
-
-        @Override
-        public Map<String, String> getOauth2Information() {
-            return null;
-        }
-
-        @Override
-        public void setOauth2Information(Map<String, String> info) {
-
-        }
-
-        @Override
-        public String getCurrentToken() {
-            return null;
-        }
-
-        @Override
-        public void setCurrentToken(String input) {
-
-        }
-
-        @Override
-        public String getSource() {
-            return source;
-        }
-
-        @Override
-        public void setSource(String input) {
-            source = input;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public void setName(String input) {
-            name = input;
-        }
-
-        @Override
-        public Boolean getActive() {
-            return active;
-        }
-
-        @Override
-        public void setActive(Boolean input) {
-            active = input;
-        }
-
-        @Override
-        public ConnectorMessages getConnectorMessages() {
-            return null;
-        }
-
-        @Override
-        public void setConnectorMessages(ConnectorMessages messages) {
-
-        }
     }
 }

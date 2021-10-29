@@ -17,9 +17,14 @@
 package com.exclamationlabs.connid.base.connector.util;
 
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 
 import java.util.Map;
 
+/**
+ * Utility to inspect utilized values that are held inside the Connid framework
+ * OperationOptions data map.
+ */
 public class OperationOptionsDataFinder {
 
     private static final Log LOG = Log.getLog(OperationOptionsDataFinder.class);
@@ -28,6 +33,19 @@ public class OperationOptionsDataFinder {
     public static final String RESULTS_OFFSET_KEY = "PAGED_RESULTS_OFFSET";
 
     private OperationOptionsDataFinder() {}
+
+    public static boolean hasPagingOptions(OperationOptions oo) {
+        return hasPagingOptions(oo.getOptions());
+    }
+
+    public static boolean hasPagingOptions(Map<String, Object> operationOptionsData) {
+        return operationOptionsData != null && operationOptionsData.containsKey(PAGE_SIZE_KEY) &&
+                operationOptionsData.containsKey(RESULTS_OFFSET_KEY);
+    }
+
+    public static Integer getPageSize(OperationOptions oo) {
+        return getPageSize(oo.getOptions());
+    }
 
     public static Integer getPageSize(Map<String, Object> operationOptionsData) {
         Integer pageSize = null;
@@ -42,6 +60,10 @@ public class OperationOptionsDataFinder {
         return pageSize;
     }
 
+    public static Integer getPageResultsOffset(OperationOptions oo) {
+        return getPageResultsOffset(oo.getOptions());
+    }
+
     public static Integer getPageResultsOffset(Map<String, Object> operationOptionsData) {
         Integer offset = null;
         if (operationOptionsData != null && operationOptionsData.containsKey(RESULTS_OFFSET_KEY)) {
@@ -53,6 +75,10 @@ public class OperationOptionsDataFinder {
         }
 
         return offset;
+    }
+
+    public static Integer getPageNumber(OperationOptions oo) {
+        return getPageNumber(oo.getOptions());
     }
 
     public static Integer getPageNumber(Map<String, Object> operationOptionsData) {

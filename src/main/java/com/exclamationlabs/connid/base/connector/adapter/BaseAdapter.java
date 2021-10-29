@@ -18,11 +18,20 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
+import com.exclamationlabs.connid.base.connector.util.OperationOptionsDataFinder;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,9 +44,13 @@ import java.util.Set;
  * Adapter subclasses should specify the generic as a specific identity object
  * type, which implements IdentityModel.
  */
-public abstract class BaseAdapter<T extends IdentityModel> {
+public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorConfiguration> {
 
-    private Driver driver;
+    private static final Log LOG = Log.getLog(BaseAdapter.class);
+
+    private Driver<U> driver;
+
+    protected U configuration;
 
     /**
      * Return the ObjectClass type associated with this adapter.
@@ -128,8 +141,6 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * @param options OperationOptions object received by connector.  Not currently used but may be supported in
      *                the future for paging or other purposes.
      */
-    @SuppressWarnings({"unused", "unchecked"})
-
     public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
         if (queryIdentifierContainsFilter(queryIdentifier)) {
 
@@ -137,61 +148,160 @@ public abstract class BaseAdapter<T extends IdentityModel> {
                     StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
                     Uid.NAME)) {
                 // Simple Filter by UID happened - query for single record
+                LOG.info("Exact uid match for {0} requested by filter for type {1}", queryIdentifier,
+                        getIdentityModelClass().getSimpleName());
                 IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(),
                         StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR), options.getOptions());
                 if (singleItem != null) {
-                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                    passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
                 }
             } else {
                 if (hasEnhancedFiltering) {
-                    // execute driver method for all records using filter
-                    Set<IdentityModel> allItems = getDriver().getAllFiltered(getIdentityModelClass(),
-                            options.getOptions(), StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
+                    ResultsFilter resultsFilter = new ResultsFilter(StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
                             StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR));
-                    for (IdentityModel item : allItems) {
-                        resultsHandler.handle(constructConnectorObject((T) item));
-                    }
-
+                    LOG.info("Perform getAll using filter {0} for type {1}", resultsFilter,
+                            getIdentityModelClass().getSimpleName());
+                    executeGetAll(resultsFilter, resultsHandler, options);
 
                 } else {
-                    executeQueryForAllRecords(options, resultsHandler);
+                    LOG.info("Filtering present but not supported.  Perform getAll unfiltered for type {0}",
+                            getIdentityModelClass().getSimpleName());
+                    executeGetAll(new ResultsFilter(), resultsHandler, options);
                 }
             }
         } else {
             if (queryAllRecords(queryIdentifier)) {
-                executeQueryForAllRecords(options, resultsHandler);
+                LOG.info("Filter absent.  Perform getAll unfiltered for type {0}",
+                        getIdentityModelClass().getSimpleName());
+                executeGetAll(new ResultsFilter(), resultsHandler, options);
             } else {
                 // Query for single item
+                LOG.info("Exact uid match for {0} requested by caller for type {1}", queryIdentifier,
+                        getIdentityModelClass().getSimpleName());
                 IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
                 if (singleItem != null) {
-                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                    passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
                 }
             }
         }
 
     }
+
+    protected void executeGetAll(ResultsFilter resultsFilter, ResultsHandler resultsHandler, OperationOptions options) {
+        ResultsConfiguration resultsConfiguration;
+        if (getConfiguration() instanceof ResultsConfiguration) {
+            resultsConfiguration = (ResultsConfiguration) getConfiguration();
+        } else {
+            resultsConfiguration = new DefaultResultsConfiguration();
+        }
+
+        boolean hasPagingOptions = OperationOptionsDataFinder.hasPagingOptions(options.getOptions());
+        boolean importAll = (!hasPagingOptions) && (!resultsFilter.hasFilter());
+        boolean deep = BooleanUtils.isTrue(resultsConfiguration.getDeepGet()) ||
+                (importAll && BooleanUtils.isTrue(resultsConfiguration.getDeepImport()));
+        ResultsPaginator paginator;
+        if (BooleanUtils.isNotTrue(resultsConfiguration.getPagination())) {
+            paginator = new ResultsPaginator();
+        } else {
+            if (hasPagingOptions) {
+                // Get partial results using paging data from OperationOptions
+                paginator = new ResultsPaginator(OperationOptionsDataFinder.getPageSize(options.getOptions()),
+                        OperationOptionsDataFinder.getPageResultsOffset(options.getOptions()));
+
+            } else {
+                if (resultsConfiguration.getImportBatchSize() != null) {
+                    // importAll with batch size
+                    paginator = new ResultsPaginator(resultsConfiguration.getImportBatchSize(), 1);
+                } else {
+                    // importAll
+                    paginator = new ResultsPaginator();
+                }
+            }
+        }
+
+        if (importAll && paginator.hasPagination()) {
+            LOG.info("Starting batch import using pagination: {0}, deep: {1} for type {2}",
+                    paginator, deep, getIdentityModelClass().getSimpleName());
+            executeBatchImport(resultsHandler, paginator, deep);
+        } else {
+            LOG.info("Starting non-batch getAll using pagination: {0}, deep: {1} for type {2}",
+                    paginator, deep, getIdentityModelClass().getSimpleName());
+            // get a single page of results, or get/import all results in one shot
+            Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), resultsFilter, paginator, null);
+            passSetToResultsHandler(resultsHandler, dataSet, deep);
+        }
+
+    }
+
+    protected void executeBatchImport(ResultsHandler resultsHandler, ResultsPaginator paginator, boolean deep) {
+
+        while (!paginator.getNoMoreResults()) {
+            LOG.info("Processing next batch using pagination {0} for type {1}, deep={2}",
+                    paginator, getIdentityModelClass().getSimpleName(), deep);
+            Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), new ResultsFilter(), paginator, null);
+            if (dataSet == null || dataSet.isEmpty()) {
+                LOG.info("Returned result set is empty. Considering batch import done for {0}",
+                        getIdentityModelClass().getSimpleName());
+                paginator.setNoMoreResults(true);
+            } else {
+                passSetToResultsHandler(resultsHandler, dataSet, deep);
+                if (!paginator.getNoMoreResults()) {
+                    paginator.setCurrentOffset(paginator.getCurrentOffset() + dataSet.size());
+                    paginator.setCurrentPageNumber(paginator.getCurrentPageNumber() + 1);
+                }
+            }
+        }
+
+    }
+
+    @SuppressWarnings({"unchecked"})
+    protected void passSetToResultsHandler(ResultsHandler resultsHandler, Set<IdentityModel> dataSet, boolean deep) {
+        if (deep) {
+            int passCount = 0;
+            for (IdentityModel current : dataSet) {
+                LOG.info("For getAll/import, requesting deep item from driver with uid {0} for type {1}",
+                        current.getIdentityIdValue(), getIdentityModelClass().getSimpleName());
+                IdentityModel fullModel = getDriver().getOne(getIdentityModelClass(), current.getIdentityIdValue(), null);
+                if (fullModel != null) {
+                    resultsHandler.handle(constructConnectorObject((T) fullModel));
+                    passCount++;
+                }
+            }
+            LOG.info("Passed {0} deep items to result handler for type {1}",
+                    passCount, getIdentityModelClass().getSimpleName());
+        } else {
+            int passCount = 0;
+            for (IdentityModel item : dataSet) {
+                if (item != null) {
+                    resultsHandler.handle(constructConnectorObject((T) item));
+                    passCount++;
+                }
+            }
+            LOG.info("Passed {0} shallow items to result handler for type {1}",
+                    passCount, getIdentityModelClass().getSimpleName());
+        }
+    }
+
 
     private boolean queryIdentifierContainsFilter(String query) {
         return query != null && StringUtils.contains(query, BaseConnector.FILTER_SEPARATOR);
     }
 
-    @SuppressWarnings({"unchecked"})
-    private void executeQueryForAllRecords(OperationOptions options, ResultsHandler resultsHandler) {
-        // query for all items
-        Set<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
-        for (IdentityModel item : allItems) {
-            resultsHandler.handle(constructConnectorObject((T) item));
-        }
-    }
-
-    public final void setDriver(Driver component) {
+    public final void setDriver(Driver<U> component) {
         driver = component;
     }
 
-    public final Driver getDriver() {
+    public final Driver<U> getDriver() {
         return driver;
     }
 
+    public U getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(U configurationInput) {
+        configuration = configurationInput;
+    }
 
     /**
      * This utility method can be used within adapter constructModel() method
@@ -238,6 +348,45 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     protected final boolean queryAllRecords(String query) {
         return (query == null || StringUtils.isBlank(query) || StringUtils.equalsIgnoreCase(query, "ALL"));
+    }
+
+    protected static class DefaultResultsConfiguration extends DefaultConnectorConfiguration implements ResultsConfiguration {
+
+        @Override
+        public Boolean getDeepGet() {
+            return false;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return false;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+        }
+
+        @Override
+        public Integer getImportBatchSize() {
+            return null;
+        }
+
+        @Override
+        public void setImportBatchSize(Integer input) {
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return false;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
+        }
     }
 
 }
