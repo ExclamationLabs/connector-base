@@ -22,6 +22,9 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import com.exclamationlabs.connid.base.connector.test.util.ConnectorMockRestTest;
@@ -84,7 +87,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
             "{groups: [ " + SINGLE_GROUP_RESPONSE + "," +
                     SECOND_GROUP_RESPONSE + " ]}";
 
-    private BaseRestDriver driver;
+    private BaseRestDriver<StubConfiguration> driver;
     private static final Map<String, String> moreHeaders = new HashMap<>();
 
     @Before
@@ -108,7 +111,8 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Test
     public void getUsers() {
         prepareMockResponse(MULTI_USER_RESPONSE);
-        Set<IdentityModel> users = driver.getAll(StubUser.class, Collections.emptyMap());
+        Set<IdentityModel> users = driver.getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null);
         List<IdentityModel> userList = new ArrayList<>(users);
         userList.sort(Comparator.comparing(IdentityModel::getIdentityNameValue));
         assertEquals(USER_NAME, ((StubUser) userList.get(0)).getUserName());
@@ -120,7 +124,8 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Test
     public void getUsersNoDuplicates() {
         prepareMockResponse(MULTI_USER_DUPLICATE_RESPONSE);
-        Set<IdentityModel> users = driver.getAll(StubUser.class, Collections.emptyMap());
+        Set<IdentityModel> users = driver.getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null);
         assertEquals(2, users.size());
     }
 
@@ -134,7 +139,8 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Test
     public void getGroups() {
         prepareMockResponse(MULTI_GROUP_RESPONSE);
-        Set<IdentityModel> groups = driver.getAll(StubGroup.class, Collections.emptyMap());
+        Set<IdentityModel> groups = driver.getAll(StubGroup.class, new ResultsFilter(),
+                new ResultsPaginator(), null);
         List<IdentityModel> groupsList = new ArrayList<>(groups);
         groupsList.sort(Comparator.comparing(IdentityModel::getIdentityNameValue));
 
@@ -232,7 +238,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         driver.getOne(StubUser.class, USER_ID, Collections.emptyMap());
     }
 
-    class TestRestDriver extends BaseRestDriver {
+    class TestRestDriver extends BaseRestDriver<StubConfiguration> {
 
         public TestRestDriver() {
             addInvocator(StubUser.class, new TestRestUserInvocator());
@@ -266,10 +272,10 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     }
 
-    static class TestRestUserInvocator implements DriverInvocator<BaseRestDriver,StubUser> {
+    static class TestRestUserInvocator implements DriverInvocator<BaseRestDriver<StubConfiguration>,StubUser> {
 
         @Override
-        public String create(BaseRestDriver driver, StubUser userModel)
+        public String create(BaseRestDriver<StubConfiguration> driver, StubUser userModel)
                 throws ConnectorException {
             StubUser response = driver.executePostRequest(
                     "/users", StubUser.class, userModel, moreHeaders).getResponseObject();
@@ -277,19 +283,20 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public void update(BaseRestDriver driver, String userId, StubUser userModel)
+        public void update(BaseRestDriver<StubConfiguration> driver, String userId, StubUser userModel)
                 throws ConnectorException {
             driver.executePatchRequest(
                     "/users/" + userId, null, userModel, moreHeaders);
         }
 
         @Override
-        public void delete(BaseRestDriver driver, String userId) throws ConnectorException {
+        public void delete(BaseRestDriver<StubConfiguration> driver, String userId) throws ConnectorException {
             driver.executeDeleteRequest("/users/" + userId, null, moreHeaders);
         }
 
         @Override
-        public Set<StubUser> getAll(BaseRestDriver driver, Map<String,Object> operationOptionsData)
+        public Set<StubUser> getAll(BaseRestDriver<StubConfiguration> driver, ResultsFilter filter,
+                                    ResultsPaginator paginator, Integer resultCap)
                 throws ConnectorException {
             TestUsersResponse usersResponse = driver.executeGetRequest(
                     "/users", TestUsersResponse.class, moreHeaders).getResponseObject();
@@ -297,21 +304,16 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public Set<StubUser> getAllFiltered(BaseRestDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
-            return getAll(driver, operationOptionsData);
-        }
-
-        @Override
-        public StubUser getOne(BaseRestDriver driver, String userId, Map<String,Object> operationOptionsData)
+        public StubUser getOne(BaseRestDriver<StubConfiguration> driver, String userId, Map<String,Object> operationOptionsData)
                 throws ConnectorException {
             return driver.executeGetRequest("/users/" + userId, StubUser.class, moreHeaders).getResponseObject();
         }
     }
 
-    static class TestRestGroupInvocator implements DriverInvocator<BaseRestDriver,StubGroup> {
+    static class TestRestGroupInvocator implements DriverInvocator<BaseRestDriver<StubConfiguration>,StubGroup> {
 
         @Override
-        public String create(BaseRestDriver driver, StubGroup userModel)
+        public String create(BaseRestDriver<StubConfiguration> driver, StubGroup userModel)
                              throws ConnectorException {
             StubGroup response = driver.executePostRequest(
                     "/groups", StubGroup.class, userModel, moreHeaders).getResponseObject();
@@ -319,19 +321,20 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public void update(BaseRestDriver driver, String userId, StubGroup userModel)
+        public void update(BaseRestDriver<StubConfiguration> driver, String userId, StubGroup userModel)
                 throws ConnectorException {
             driver.executePatchRequest(
                     "/groups/" + userId, null, userModel, moreHeaders);
         }
 
         @Override
-        public void delete(BaseRestDriver driver, String userId) throws ConnectorException {
+        public void delete(BaseRestDriver<StubConfiguration> driver, String userId) throws ConnectorException {
             driver.executeDeleteRequest("/groups/" + userId, null, moreHeaders);
         }
 
         @Override
-        public Set<StubGroup> getAll(BaseRestDriver driver, Map<String,Object> operationOptionsData)
+        public Set<StubGroup> getAll(BaseRestDriver<StubConfiguration>driver, ResultsFilter filter,
+                                     ResultsPaginator paginator, Integer resultCap)
                 throws ConnectorException {
             TestGroupsResponse groupsResponse = driver.executeGetRequest(
                     "/groups", TestGroupsResponse.class, moreHeaders).getResponseObject();
@@ -339,12 +342,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public Set<StubGroup> getAllFiltered(BaseRestDriver driver, Map<String, Object> operationOptionsData, String filterAttribute, String filterValue) throws ConnectorException {
-            return getAll(driver, operationOptionsData);
-        }
-
-        @Override
-        public StubGroup getOne(BaseRestDriver driver, String groupId, Map<String,Object> operationOptionsData)
+        public StubGroup getOne(BaseRestDriver<StubConfiguration> driver, String groupId, Map<String,Object> operationOptionsData)
                 throws ConnectorException {
             return driver.executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders).getResponseObject();
         }
@@ -404,7 +402,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         Mockito.when(stubClient.execute(any(HttpRequestBase.class))).thenThrow(t).thenThrow(t).thenReturn(stubResponse);
     }
 
-    static class CustomRetryConfiguration extends DefaultConnectorConfiguration implements RestConfiguration {
+    static class CustomRetryConfiguration extends StubConfiguration implements RestConfiguration {
 
         private Integer retries;
 

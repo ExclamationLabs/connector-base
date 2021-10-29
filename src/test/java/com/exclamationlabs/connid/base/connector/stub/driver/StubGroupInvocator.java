@@ -17,6 +17,8 @@
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
@@ -51,7 +53,8 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
     }
 
     @Override
-    public Set<StubGroup> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
+    public Set<StubGroup> getAll(StubDriver driver, ResultsFilter filter,
+                                 ResultsPaginator paginator, Integer resultCap) throws ConnectorException {
         driver.setMethodInvoked("group getAll");
         StubGroup group1 = new StubGroup();
         group1.setId(UUID.randomUUID().toString());

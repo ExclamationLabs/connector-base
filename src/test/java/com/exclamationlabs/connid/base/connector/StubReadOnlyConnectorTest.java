@@ -16,8 +16,8 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.StubReadOnlyConnector;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
@@ -72,11 +72,12 @@ public class StubReadOnlyConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll", driver.getMethodInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -104,7 +105,8 @@ public class StubReadOnlyConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubGroup.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubGroup.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
@@ -141,6 +143,6 @@ public class StubReadOnlyConnectorTest {
 
     @Test
     public void testSchema() {
-        StubConnectorTest.executeTestSchema(connector);
+        StubConnectorTest.executeTestSchema(connector, 0);
     }
 }

@@ -16,8 +16,11 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
@@ -39,7 +42,7 @@ import static org.junit.Assert.*;
 
 public class StubConnectorTest {
 
-    private BaseFullAccessConnector connector;
+    private BaseFullAccessConnector<StubConfiguration> connector;
     private StubDriver driver;
     private OperationOptions testOperationOptions;
 
@@ -191,11 +194,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll", driver.getMethodInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -227,11 +231,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll", driver.getMethodInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -245,11 +250,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAllFiltered(StubUser.class, Collections.emptyMap(), "ying", "yang").size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll filtered ying;yang", driver.getMethodInvoked());
+        assertEquals("user getAll ying:yang", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -344,7 +350,8 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubGroup.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubGroup.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
@@ -376,15 +383,24 @@ public class StubConnectorTest {
 
     @Test
     public void testDummyAuthentication() {
-        assertEquals("NA", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+        assertEquals("NA", connector.getAuthenticator().authenticate(
+                connector.getConnectorConfiguration()));
     }
 
     @Test
     public void testSchema() {
-        executeTestSchema(connector);
+        executeTestSchema(connector, 0);
     }
 
-    static void executeTestConstruction(final BaseConnector testConnector,
+    @Test
+    public void testSchemaWithPagination() {
+        connector = new StubConnector();
+        StubConfiguration configuration = new StubPagingConfiguration();
+        connector.init(configuration);
+        executeTestSchema(connector, 7);
+    }
+
+    static void executeTestConstruction(final BaseConnector<?> testConnector,
                                  final String expectedConnectorName) {
         assertNotNull(testConnector.getConnectorFilterTranslator(ObjectClass.ACCOUNT));
         assertTrue(testConnector.getConnectorFilterTranslator(ObjectClass.ACCOUNT) instanceof DefaultFilterTranslator);
@@ -401,7 +417,8 @@ public class StubConnectorTest {
 
     }
 
-    static void executeTestSchema(final BaseConnector testConnector) {
+    static void executeTestSchema(final BaseConnector<?> testConnector,
+                                  int expectedOperationOptions) {
         Schema schemaResult = testConnector.schema();
         assertNotNull(schemaResult);
 
@@ -417,6 +434,49 @@ public class StubConnectorTest {
 
         Set<OperationOptionInfo> info = schemaResult.getOperationOptionInfo();
         assertNotNull(info);
-        assertEquals(7, info.size());
+        assertEquals(expectedOperationOptions, info.size());
+    }
+
+    static class StubPagingConfiguration extends StubConfiguration implements ResultsConfiguration {
+
+        @Override
+        public Boolean getDeepGet() {
+            return null;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return null;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+
+        }
+
+        @Override
+        public Integer getImportBatchSize() {
+            return null;
+        }
+
+        @Override
+        public void setImportBatchSize(Integer input) {
+
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return true;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
+
+        }
     }
 }

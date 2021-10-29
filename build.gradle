@@ -1,10 +1,10 @@
 plugins {
     id 'java-library'
-    id 'maven'
+    id 'maven-publish'
 }
 
 repositories {
-   jcenter()
+    mavenCentral()
     maven {
         url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
     }
@@ -39,9 +39,41 @@ dependencies {
 }
 
 
-task generatePom {
-    doLast {
-        pom().writeTo("build/libs/${project.name}-${project.version}.pom")
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'source'
+}
+
+task copyPom(type: Copy) {
+    from 'build/publications/connector_base/pom-default.xml'
+    into 'build/libs'
+    rename ('pom-default.xml', "${project.name}-${project.version}.pom")
+}
+
+publishing {
+    publications {
+        connector_base(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            pom {
+                name = "Connector Base: Framework"
+                description = "Base Connector Framework"
+                url = "https://github.com/ExclamationLabs/connector-base"
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                scm {
+                    url = "https://github.com/ExclamationLabs/connector-base/tree/master"
+                }
+            }
+        }
     }
 }
+
+build.dependsOn(copyPom)
+copyPom.dependsOn(publishToMavenLocal)
 

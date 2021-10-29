@@ -16,6 +16,19 @@ package com.exclamationlabs.connid.base.connector.configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.spi.Configuration;
 
+/*
+deepGet - if true, getAll will always invoke getOne on each object
+import - if true, lack of paging OperationOptions from Midpoint will be considered
+    an import that should import ALL records
+deepImport - if true, import process will get invoke getOne on each object.
+If deepImport is false, deepGet should also be false.
+importBatchSize - integer for batch size when "import" is true.  Driver
+    must support pagination in order to perform import in batches.
+    If not set, there is no batch size and all records are imported at once.
+pagination - if true, this indicates the driver supports pagination
+    if false, pagination is not supported and getAll always returns all
+    results (except when filter is used)
+ */
 
 /**
  * Architectural interface used to wrap ConnId's Configuration interface,

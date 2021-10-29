@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class ConnectorConfigurationTest {
         new StubConnector().init(configuration);
     }
 
-    static class ValidatingConfiguration extends DefaultConnectorConfiguration {
+    static class ValidatingConfiguration extends StubConfiguration {
 
         public ValidatingConfiguration() {
             super();

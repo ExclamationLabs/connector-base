@@ -25,10 +25,10 @@ import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class StubConnector extends BaseFullAccessConnector {
+public class StubConnector extends BaseFullAccessConnector<StubConfiguration> {
 
     public StubConnector() {
-        super(DefaultConnectorConfiguration.class);
+        super(StubConfiguration.class);
         setDriver(new StubDriver());
         setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
     }

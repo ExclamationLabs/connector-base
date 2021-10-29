@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.CreateOp;
 import org.identityconnectors.framework.spi.operations.DeleteOp;
@@ -32,10 +33,10 @@ import java.util.Set;
  * therefore this connector cannot take in get/search requests for data from Midpoint, and only
  * create/update/delete requests are recognized.
  */
-public abstract class BaseWriteOnlyConnector extends BaseConnector
+public abstract class BaseWriteOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
     implements DeleteOp, CreateOp, UpdateOp {
 
-    public BaseWriteOnlyConnector(Class<?> configurationTypeIn) {
+    public BaseWriteOnlyConnector(Class<T> configurationTypeIn) {
         super(configurationTypeIn);
     }
 

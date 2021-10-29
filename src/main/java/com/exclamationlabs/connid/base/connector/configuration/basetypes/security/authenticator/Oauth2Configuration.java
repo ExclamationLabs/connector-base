@@ -20,6 +20,10 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 
 import java.util.Map;
 
+/**
+ * Configuration properties for connectors that authenticate using
+ * any OAuth2 grant type.
+ */
 public interface Oauth2Configuration extends ConnectorConfiguration {
     Map<String,String> getOauth2Information();
     void setOauth2Information(Map<String,String> info);

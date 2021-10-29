@@ -64,26 +64,26 @@ import java.util.Map;
  * Abstract class for drivers that need to make calls to RESTful web services
  * to manage user and group information.
  */
-public abstract class BaseRestDriver extends BaseDriver {
+public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends BaseDriver<U> {
 
     private static final Log LOG = Log.getLog(BaseRestDriver.class);
 
     protected static GsonBuilder gsonBuilder;
 
-    protected RestConfiguration configuration;
-    protected Authenticator<ConnectorConfiguration> authenticator;
+    protected U configuration;
+    protected Authenticator<U> authenticator;
 
     protected HttpClientContext socksProxyClientContext;
 
     @Override
-    public void initialize(ConnectorConfiguration config, Authenticator auth)
+    public void initialize(U config, Authenticator<U> auth)
             throws ConnectorException {
         TrustStoreConfiguration.clearJdkProperties();
         authenticator = auth;
         if (!(config instanceof RestConfiguration)) {
             throw new ConnectorException("RestConfiguration not setup for connector");
         }
-        configuration = (RestConfiguration) config;
+        configuration = config;
         gsonBuilder = new GsonBuilder();
     }
 
@@ -490,7 +490,7 @@ public abstract class BaseRestDriver extends BaseDriver {
     }
 
     private int getIoErrorRetryCount() {
-        return configuration.getRestIoErrorRetries();
+        return ( (RestConfiguration) configuration).getRestIoErrorRetries();
         /*
         int retries = configuration.getRestIoErrorRetries();
         int retryCount = 0;
@@ -507,7 +507,7 @@ public abstract class BaseRestDriver extends BaseDriver {
          */
     }
 
-    public ConnectorConfiguration getConfiguration() {
+    public U getConfiguration() {
         return configuration;
     }
 

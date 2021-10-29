@@ -17,35 +17,38 @@
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
 
-public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubSupergroup> {
+public class StubSupergroupInvocator implements DriverInvocator<ComplexStubDriver,StubSupergroup> {
 
     @Override
-    public String create(StubDriver driver, StubSupergroup model) throws ConnectorException {
+    public String create(ComplexStubDriver driver, StubSupergroup model) throws ConnectorException {
         driver.setMethodInvoked("supergroup create");
         driver.setMethodParameter1(model);
         return UUID.randomUUID().toString();
     }
 
     @Override
-    public void update(StubDriver driver, String userId, StubSupergroup model) throws ConnectorException {
+    public void update(ComplexStubDriver driver, String userId, StubSupergroup model) throws ConnectorException {
         driver.setMethodInvoked("supergroup update");
         driver.setMethodParameter1(userId);
         driver.setMethodParameter2(model);
     }
 
     @Override
-    public void delete(StubDriver driver, String id) throws ConnectorException {
+    public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
         driver.setMethodInvoked("supergroup delete");
         driver.setMethodParameter1(id);
     }
 
     @Override
-    public Set<StubSupergroup> getAll(StubDriver driver, Map<String,Object> data) throws ConnectorException {
+    public Set<StubSupergroup> getAll(ComplexStubDriver driver, ResultsFilter filter,
+                                      ResultsPaginator paginator, Integer resultCap) throws ConnectorException {
         driver.setMethodInvoked("club getAll");
         StubSupergroup item1 = new StubSupergroup();
         item1.setId(UUID.randomUUID().toString());
@@ -58,7 +61,7 @@ public class StubSupergroupInvocator implements DriverInvocator<StubDriver,StubS
     }
 
     @Override
-    public StubSupergroup getOne(StubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
+    public StubSupergroup getOne(ComplexStubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
         driver.setMethodInvoked("group getOne");
         driver.setMethodParameter1(id);
         StubSupergroup item = new StubSupergroup();

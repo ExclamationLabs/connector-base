@@ -16,7 +16,10 @@
 
 package com.exclamationlabs.connid.base.connector.driver;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.HashMap;
@@ -30,7 +33,7 @@ import java.util.Set;
  * system pertaining to specific object types.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class BaseDriver implements Driver {
+public abstract class BaseDriver<T extends ConnectorConfiguration> implements Driver<T> {
 
     Map<Class<? extends IdentityModel>, DriverInvocator> invocatorMap;
 
@@ -76,15 +79,10 @@ public abstract class BaseDriver implements Driver {
 
     @Override
     public Set<IdentityModel> getAll(Class<? extends IdentityModel> modelClass,
-                                     Map<String,Object> operationOptionsData) throws ConnectorException {
-        return getInvocator(modelClass).getAll(this, operationOptionsData);
-    }
-
-    @Override
-    public Set<IdentityModel> getAllFiltered(Class<? extends IdentityModel> modelClass,
-                                      Map<String,Object> operationOptionsData,
-                                              String filterAttribute, String filterValue) throws ConnectorException {
-        return getInvocator(modelClass).getAllFiltered(this, operationOptionsData, filterAttribute, filterValue);
+                                             ResultsFilter filter,
+                                             ResultsPaginator paginator,
+                                             Integer resultCap) throws ConnectorException {
+        return getInvocator(modelClass).getAll(this, filter, paginator, resultCap);
     }
 
 }

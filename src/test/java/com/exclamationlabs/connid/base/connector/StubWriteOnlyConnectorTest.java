@@ -248,6 +248,6 @@ public class StubWriteOnlyConnectorTest {
 
     @Test
     public void testSchema() {
-        StubConnectorTest.executeTestSchema(connector);
+        StubConnectorTest.executeTestSchema(connector, 0);
     }
 }

@@ -20,6 +20,14 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 
 import java.util.Map;
 
+/**
+ * Configuration properties for connectors that use the JWT
+ * authentication using the RS256 strategy.
+ *
+ * JWS: RS256
+ * Algorithm: RSA256
+ * Description: RSASSA-PKCS1-v1_5 with SHA-256
+ */
 public interface JwtRs256Configuration extends ConnectorConfiguration {
     String getIssuer();
     void setIssuer(String input);

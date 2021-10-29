@@ -62,6 +62,8 @@ import java.util.Set;
  * OPTIONAL:
  * setAuthenticator();
  * setConnectorSchemaBuilder();
+ * setEnhancedFiltering();
+ * setFilterAttributes();
  *
  */
 public abstract class BaseConnector<T extends ConnectorConfiguration>
@@ -72,12 +74,12 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     public static final String FILTER_SEPARATOR = "^|^";
 
     @NotBlank
-    protected Driver driver;
-    protected ConnectorSchemaBuilder schemaBuilder;
+    protected Driver<T> driver;
+    protected ConnectorSchemaBuilder<T> schemaBuilder;
     protected Authenticator<T> authenticator;
     protected T configuration;
 
-    protected Map<ObjectClass, BaseAdapter<?>> adapterMap;
+    protected Map<ObjectClass, BaseAdapter<?, T>> adapterMap;
 
     protected boolean enhancedFiltering;
     protected Set<String> filterAttributes;
@@ -95,7 +97,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
      * for their connector implementation.
      * @param input Concrete Driver class used to communicate with the destination system.
      */
-    protected void setDriver(Driver input) {
+    protected void setDriver(Driver<T> input) {
         driver = input;
     }
 
@@ -105,8 +107,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
      * @param adapters Any number of concrete BaseAdapter classes, each pertaining to
      *                 a distinct IdentityModel type.
      */
-    protected void setAdapters(BaseAdapter<?>... adapters) {
-        for (BaseAdapter<?> currentAdapter : adapters) {
+    @SafeVarargs
+    protected final void setAdapters(BaseAdapter<?, T>... adapters) {
+        for (BaseAdapter<?, T> currentAdapter : adapters) {
             adapterMap.put(currentAdapter.getType(), currentAdapter);
         }
     }
@@ -200,7 +203,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     }
 
     protected FilterTranslator<String> getConnectorFilterTranslator(ObjectClass objectClass) {
-        BaseAdapter<?> matchedAdapter = adapterMap.get(objectClass);
+        BaseAdapter<?, T> matchedAdapter = adapterMap.get(objectClass);
         if (matchedAdapter == null) {
             throw new ConnectorException("Unsupported object class for filter translator: " + objectClass);
         } else {
@@ -224,13 +227,13 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         this.filterAttributes = filterAttributes;
     }
 
-    protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder input) {
+    protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder<T> input) {
         schemaBuilder = input;
     }
 
-    ConnectorSchemaBuilder getConnectorSchemaBuilder() {
+    public ConnectorSchemaBuilder<T> getConnectorSchemaBuilder() {
         if (schemaBuilder == null) {
-            setConnectorSchemaBuilder(new DefaultConnectorSchemaBuilder());
+            setConnectorSchemaBuilder(new DefaultConnectorSchemaBuilder<>());
         }
         return schemaBuilder;
     }
@@ -239,7 +242,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         authenticator = in;
     }
 
-    Authenticator<T> getAuthenticator() {
+    public Authenticator<T> getAuthenticator() {
         return authenticator;
     }
 
@@ -247,16 +250,16 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         configuration = in;
     }
 
-    T getConnectorConfiguration() {
+    public T getConnectorConfiguration() {
         return configuration;
     }
 
-    protected Driver getDriver() {
+    protected Driver<T> getDriver() {
         return driver;
     }
 
-    protected BaseAdapter<?> getAdapter(ObjectClass objectClass) {
-        BaseAdapter<?> matchedAdapter = adapterMap.get(objectClass);
+    protected BaseAdapter<?, T> getAdapter(ObjectClass objectClass) {
+        BaseAdapter<?, T> matchedAdapter = adapterMap.get(objectClass);
 
         if (matchedAdapter == null) {
             throw new ConnectorException("Adapter could not be resolved for connector " + getName() +
@@ -325,8 +328,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
                     "; must have at least one");
         }
 
-        for (BaseAdapter<?> adapter : adapterMap.values()) {
+        for (BaseAdapter<?, T> adapter : adapterMap.values()) {
             adapter.setDriver(getDriver());
+            adapter.setConfiguration(configuration);
             LOG.info("Connector {0} adapter {1} successfully initialized", this.getName(),
                     adapter.getClass().getSimpleName());
         }

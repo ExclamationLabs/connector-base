@@ -18,6 +18,10 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
+/**
+ * Configuration properties for connectors that need to provide a PFX file
+ * as part of their credentials for authentication.
+ */
 public interface PfxConfiguration extends ConnectorConfiguration {
     String getFile();
     void setFile(String input);

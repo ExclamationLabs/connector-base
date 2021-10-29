@@ -18,6 +18,13 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
+/**
+ * Configuration for connectors that require using the HS256 strategy
+ * for authentication.
+ * JWS: HS256
+ * Algorithm: HMAC256
+ * Description: HMAC with SHA-256
+ */
 public interface JwtHs256Configuration extends ConnectorConfiguration {
     String getIssuer();
     void setIssuer(String input);
