@@ -75,8 +75,8 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
     protected static class TestConfiguration extends DefaultConnectorConfiguration
             implements JwtRs256Configuration, PemConfiguration, Oauth2JwtConfiguration {
 
-        @ConfigurationInfo(path = "security.pem.file")
-        private String file;
+        @ConfigurationInfo(path = "security.pem.pemFile")
+        private String pemFile;
 
         @ConfigurationInfo(path = "security.authenticator.jwtRs256.issuer")
         private String issuer;
@@ -107,13 +107,13 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
         }
 
         @Override
-        public String getFile() {
-            return file;
+        public String getPemFile() {
+            return pemFile;
         }
 
         @Override
-        public void setFile(String input) {
-            file = input;
+        public void setPemFile(String input) {
+            pemFile = input;
         }
 
         @Override

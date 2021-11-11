@@ -20,7 +20,7 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.CreateOp;
 import org.identityconnectors.framework.spi.operations.DeleteOp;
-import org.identityconnectors.framework.spi.operations.UpdateOp;
+import org.identityconnectors.framework.spi.operations.UpdateDeltaOp;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  * create/update/delete requests are recognized.
  */
 public abstract class BaseWriteOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
-    implements DeleteOp, CreateOp, UpdateOp {
+    implements DeleteOp, CreateOp, UpdateDeltaOp {
 
     public BaseWriteOnlyConnector(Class<T> configurationTypeIn) {
         super(configurationTypeIn);
@@ -46,8 +46,10 @@ public abstract class BaseWriteOnlyConnector<T extends ConnectorConfiguration> e
     }
 
     @Override
-    public Uid update(final ObjectClass objectClass, final Uid uid, final Set<Attribute> attributes, final OperationOptions options) {
-        return getAdapter(objectClass).update(uid, attributes);
+    public Set<AttributeDelta> updateDelta(final ObjectClass objectClass, final Uid uid,
+                           final Set<AttributeDelta> attributeModifications,
+                                           final OperationOptions options) {
+        return getAdapter(objectClass).updateDelta(uid, attributeModifications);
     }
 
     @Override

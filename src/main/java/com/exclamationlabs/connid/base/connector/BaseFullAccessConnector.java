@@ -19,10 +19,7 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
-import org.identityconnectors.framework.spi.operations.CreateOp;
-import org.identityconnectors.framework.spi.operations.DeleteOp;
-import org.identityconnectors.framework.spi.operations.SearchOp;
-import org.identityconnectors.framework.spi.operations.UpdateOp;
+import org.identityconnectors.framework.spi.operations.*;
 
 import java.util.Set;
 
@@ -36,7 +33,7 @@ import java.util.Set;
  * receive create, update, delete and get/search requests from Midpoint.
  */
 public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
-    implements DeleteOp, CreateOp, UpdateOp, SearchOp<String> {
+    implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<String> {
 
     public BaseFullAccessConnector(Class<T> configurationTypeIn) {
         super(configurationTypeIn);
@@ -68,8 +65,10 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration> 
     }
 
     @Override
-    public Uid update(final ObjectClass objectClass, final Uid uid, final Set<Attribute> attributes, final OperationOptions options) {
-        return getAdapter(objectClass).update(uid, attributes);
+    public Set<AttributeDelta> updateDelta(final ObjectClass objectClass, final Uid uid,
+                           final Set<AttributeDelta> attributeModifications,
+                                           final OperationOptions options) {
+        return getAdapter(objectClass).updateDelta(uid, attributeModifications);
     }
 
     @Override

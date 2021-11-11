@@ -96,7 +96,7 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
 
     private static AttributeInfo buildAttributeInfo(ConnectorAttribute current) {
 
-        LOG.info("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
+        LOG.ok("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
                 current.getDataType().getClassType(), current.getFlags());
 
         return new AttributeInfoBuilder(current.getName())

@@ -38,21 +38,21 @@ public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader<JksConfigurat
         RSAPrivateKey privateKey;
         try {
             keystore = KeyStore.getInstance("JKS");
-            char[] keystorePassword = configuration.getPassword().toCharArray();
+            char[] keystorePassword = configuration.getJksPassword().toCharArray();
             keystore.load(
-                    new FileInputStream(configuration.getFile()),
+                    new FileInputStream(configuration.getJksFile()),
                     keystorePassword
             );
 
             privateKey = (RSAPrivateKey) keystore.getKey(
-                    configuration.getAlias(), keystorePassword);
+                    configuration.getJksAlias(), keystorePassword);
 
         } catch (CertificateException ce) {
             throw new ConnectorSecurityException("Certificate error occurred while trying to load JKS file " +
-                    configuration.getFile() + " with keystore password.", ce);
+                    configuration.getJksFile() + " with keystore password.", ce);
         } catch (IOException ioe) {
             throw new ConnectorSecurityException("IO error occurred while trying to load JKS file " +
-                    configuration.getFile() + " with keystore password.", ioe);
+                    configuration.getJksFile() + " with keystore password.", ioe);
         } catch (KeyStoreException kse) {
             throw new ConnectorSecurityException("Unable to obtain JKS Keystore instance (before attempting " +
                 "actual JKS loading)", kse);

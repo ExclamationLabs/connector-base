@@ -60,10 +60,10 @@ public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
         @ConfigurationInfo(path = "security.authenticator.oauth2Password.encodedSecret")
         private String encodedSecret;
 
-        @ConfigurationInfo(path = "security.authenticator.oauth2Password.username")
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Username")
         private String username;
 
-        @ConfigurationInfo(path = "security.authenticator.oauth2Password.password")
+        @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Password")
         private String password;
 
         @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Information")
@@ -94,22 +94,22 @@ public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
         }
 
         @Override
-        public String getUsername() {
+        public String getOauth2Username() {
             return username;
         }
 
         @Override
-        public void setUsername(String input) {
+        public void setOauth2Username(String input) {
             username = input;
         }
 
         @Override
-        public String getPassword() {
+        public String getOauth2Password() {
             return password;
         }
 
         @Override
-        public void setPassword(String input) {
+        public void setOauth2Password(String input) {
             password = input;
         }
 

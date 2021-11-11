@@ -23,10 +23,10 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * as part of their credentials for authentication.
  */
 public interface JksConfiguration extends ConnectorConfiguration {
-    String getFile();
-    void setFile(String input);
-    String getPassword();
-    void setPassword(String input);
-    String getAlias();
-    void setAlias(String input);
+    String getJksFile();
+    void setJksFile(String input);
+    String getJksPassword();
+    void setJksPassword(String input);
+    String getJksAlias();
+    void setJksAlias(String input);
 }

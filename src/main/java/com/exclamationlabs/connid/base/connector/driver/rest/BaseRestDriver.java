@@ -113,7 +113,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         CredentialsProvider basicAuthProvider = null;
         if (usesProxy) {
             ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getConfiguration();
-            socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getSecurityProxyType());
+            socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getProxyType());
             if (socksProxy) {
                 socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
                 socksProxyClientContext = setupSocksProxyContext(proxyConfiguration);
@@ -163,8 +163,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     }
 
     protected DefaultProxyRoutePlanner setupHttpProxyRouteManager(ProxyConfiguration configuration) {
-        HttpHost proxyHost = new HttpHost(configuration.getSecurityProxyHost(),
-                configuration.getSecurityProxyPort());
+        HttpHost proxyHost = new HttpHost(configuration.getProxyHost(),
+                configuration.getProxyPort());
         return new DefaultProxyRoutePlanner(proxyHost);
     }
 
@@ -177,8 +177,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     }
 
     protected HttpClientContext setupSocksProxyContext(ProxyConfiguration configuration) {
-        InetSocketAddress socksAddr = new InetSocketAddress(configuration.getSecurityProxyHost(),
-                configuration.getSecurityProxyPort());
+        InetSocketAddress socksAddr = new InetSocketAddress(configuration.getProxyHost(),
+                configuration.getProxyPort());
         HttpClientContext context = HttpClientContext.create();
         context.setAttribute("socks.address", socksAddr);
         return context;
@@ -188,8 +188,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         CredentialsProvider basicAuthProvider = new BasicCredentialsProvider();
         UsernamePasswordCredentials credentials
                 = new UsernamePasswordCredentials(
-                configuration.getSecurityHttpBasicAuthUsername(),
-                configuration.getSecurityHttpBasicAuthPassword());
+                configuration.getBasicUsername(),
+                configuration.getBasicPassword());
         basicAuthProvider.setCredentials(AuthScope.ANY, credentials);
         return basicAuthProvider;
     }
@@ -250,7 +250,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         Header[] responseHeaders;
 
         try {
-            LOG.info("Request details: {0} to {1}", request.getMethod(),
+            LOG.ok("Request details: {0} to {1}", request.getMethod(),
                     request.getURI());
             if (socksProxyClientContext != null) {
                 response = client.execute(request, socksProxyClientContext);
@@ -258,15 +258,15 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
                 response = client.execute(request);
             }
 
-            LOG.info("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
+            LOG.ok("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
                     request.getMethod(), request.getURI());
 
             responseStatusCode = response.getStatusLine().getStatusCode();
             responseHeaders = response.getAllHeaders();
 
-            LOG.info("Response status code is {0}", responseStatusCode);
+            LOG.ok("Response status code is {0}", responseStatusCode);
             if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
-                LOG.info("request execution failed; status code is {0}", responseStatusCode);
+                LOG.ok("request execution failed; status code is {0}", responseStatusCode);
                 getFaultProcessor().process(response, gsonBuilder);
             }
 
@@ -444,7 +444,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         if (requestBody != null) {
             Gson gson = gsonBuilder.create();
             String json = gson.toJson(requestBody);
-            LOG.info("JSON formatted request for {0}: {1}", requestBody.getClass().getName(), json);
+            LOG.ok("JSON formatted request for {0}: {1}", requestBody.getClass().getName(), json);
             try {
                 request.setEntity(new StringEntity(json));
             } catch (UnsupportedEncodingException e) {
@@ -459,14 +459,14 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
         try {
             if (returnType == null) {
-                LOG.info("No response expected or needed from this invocation, returning null type");
+                LOG.ok("No response expected or needed from this invocation, returning null type");
                 return null;
             }
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
                 rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
-                LOG.info("Received raw JSON: {0}", rawJson);
+                LOG.ok("Received raw JSON: {0}", rawJson);
             } else {
-                LOG.info("Received HTTP Not Found for call, returning empty response type");
+                LOG.ok("Received HTTP Not Found for call, returning empty response type");
                 return null;
             }
         } catch (ParseException pe) {
@@ -490,21 +490,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     }
 
     private int getIoErrorRetryCount() {
-        return ( (RestConfiguration) configuration).getRestIoErrorRetries();
-        /*
-        int retries = configuration.getRestIoErrorRetries();
-        int retryCount = 0;
-        if (retries != null) {
-            try {
-                retryCount = Integer.parseInt(retries);
-            } catch (NumberFormatException nfe) {
-                LOG.info("Invalid numeric value for {0}: {1}",
-                        ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES.name(), retries);
-            }
-        }
-        return retryCount;
-
-         */
+        return ( (RestConfiguration) configuration).getIoErrorRetries();
     }
 
     public U getConfiguration() {

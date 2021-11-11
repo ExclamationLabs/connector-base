@@ -51,8 +51,8 @@ public class OAuth2TokenPasswordAuthenticator implements Authenticator<Oauth2Pas
             HttpPost request = new HttpPost(configuration.getTokenUrl());
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("grant_type", "password"));
-            form.add(new BasicNameValuePair("username", configuration.getUsername()));
-            form.add(new BasicNameValuePair("password", configuration.getPassword()));
+            form.add(new BasicNameValuePair("username", configuration.getOauth2Username()));
+            form.add(new BasicNameValuePair("password", configuration.getOauth2Password()));
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
             request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " +

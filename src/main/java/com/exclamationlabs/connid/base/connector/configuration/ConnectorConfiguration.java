@@ -53,8 +53,8 @@ public interface ConnectorConfiguration extends Configuration {
         ConfigurationValidator.validate(this);
     }
 
-    default void read(ConnectorConfiguration configuration) {
-        ConfigurationReader.readPropertiesFromSource(configuration);
+    default void read() {
+        ConfigurationReader.readPropertiesFromSource(this);
     }
 
     default String write() {

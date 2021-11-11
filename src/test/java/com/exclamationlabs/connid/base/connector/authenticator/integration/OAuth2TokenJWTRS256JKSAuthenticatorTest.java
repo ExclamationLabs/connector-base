@@ -72,13 +72,13 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
     protected static class TestConfiguration extends DefaultConnectorConfiguration
             implements JwtRs256Configuration, JksConfiguration, Oauth2JwtConfiguration {
 
-        @ConfigurationInfo(path = "security.jks.file")
+        @ConfigurationInfo(path = "security.jks.jksFile")
         private String file;
 
-        @ConfigurationInfo(path = "security.jks.password")
+        @ConfigurationInfo(path = "security.jks.jksPassword")
         private String password;
 
-        @ConfigurationInfo(path = "security.jks.alias")
+        @ConfigurationInfo(path = "security.jks.jksAlias")
         private String alias;
 
         @ConfigurationInfo(path = "security.authenticator.jwtRs256.issuer")
@@ -110,32 +110,32 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
         }
 
         @Override
-        public String getFile() {
+        public String getJksFile() {
             return file;
         }
 
         @Override
-        public void setFile(String input) {
+        public void setJksFile(String input) {
             file = input;
         }
 
         @Override
-        public String getPassword() {
+        public String getJksPassword() {
             return password;
         }
 
         @Override
-        public void setPassword(String input) {
+        public void setJksPassword(String input) {
             password = input;
         }
 
         @Override
-        public String getAlias() {
+        public String getJksAlias() {
             return alias;
         }
 
         @Override
-        public void setAlias(String input) {
+        public void setJksAlias(String input) {
             alias = input;
         }
 

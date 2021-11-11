@@ -46,7 +46,7 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                     KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore,
-                    configuration.getPassword().toCharArray());
+                    configuration.getPfxPassword().toCharArray());
 
             KeyManager[] managers = keyManagerFactory.getKeyManagers();
             sslContext.init(managers, new TrustManager[]{trustManager}, null);

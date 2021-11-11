@@ -33,6 +33,7 @@ import org.identityconnectors.framework.common.objects.*;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,6 +52,18 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
     private Driver<U> driver;
 
     protected U configuration;
+
+    protected Set<String> multiValueAttributeNames;
+
+    public BaseAdapter() {
+        multiValueAttributeNames = new HashSet<>();
+        Set<ConnectorAttribute> attributes = getConnectorAttributes();
+        for (ConnectorAttribute attribute : attributes) {
+            if (attribute.getFlags().contains(AttributeInfo.Flags.MULTIVALUED)) {
+                multiValueAttributeNames.add(attribute.getName());
+            }
+        }
+    }
 
     /**
      * Return the ObjectClass type associated with this adapter.
@@ -95,11 +108,20 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      * and handle type juggling, to try to keep this complexity out of Adapter implementations.
      *
      * @param attributes Name/Value Attribute information received from Midpoint.
+     * @param addedMultiValueAttributes For updateDelta, this may contain
+     *                                  multi-valued attributes that were just added via Midpoint.
+     *                                  Null for create, Empty set if none applicable found for UpdateDelta
+     * @param removedMultiValueAttributes For updateDelta, this may contain
+     *                                  multi-valued attributes that were just removed via Midpoint.
+     *                                  Null for create, Empty set if none applicable found for UpdateDelta
      * @param isCreate True if this invocation applies to new object creation, false
      *                 if object update is applicable.
      * @return IdentityModel with fields populated from input attributes.
      */
-    protected abstract T constructModel(Set<Attribute> attributes, boolean isCreate);
+    protected abstract T constructModel(Set<Attribute> attributes,
+                                        Set<Attribute> addedMultiValueAttributes,
+                                        Set<Attribute> removedMultiValueAttributes,
+                                        boolean isCreate);
 
     /**
      * Service a request from IAM system to create the type on the destination system.
@@ -108,7 +130,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      * @return new unique identifier for newly created type
      */
     public final Uid create(Set<Attribute> attributes) {
-        T model = constructModel(attributes, true);
+        T model = constructModel(attributes, null, null,true);
         String newId = getDriver().create(getIdentityModelClass(), model);
         return new Uid(newId);
     }
@@ -120,10 +142,13 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      *                   by the destination system to update the type.
      * @return unique identifier applicable to the type that was just updated
      */
-    public final Uid update(Uid uid, Set<Attribute> attributes) {
-        T model = constructModel(attributes, false);
+    public final Set<AttributeDelta> updateDelta(Uid uid, Set<AttributeDelta> attributes) {
+        ConsolidatedValues consolidated = consolidateAttributeValues(attributes);
+        T model = constructModel(consolidated.modifiedValues,
+                consolidated.addedMultiValues, consolidated.removedMultiValues
+                , false);
         getDriver().update(getIdentityModelClass(), uid.getUidValue(), model);
-        return uid;
+        return new HashSet<>();
     }
 
     /**
@@ -224,7 +249,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                     paginator, deep, getIdentityModelClass().getSimpleName());
             executeBatchImport(resultsHandler, paginator, deep);
         } else {
-            LOG.info("Starting non-batch getAll using pagination: {0}, deep: {1} for type {2}",
+            LOG.ok("Starting non-batch getAll using pagination: {0}, deep: {1} for type {2}",
                     paginator, deep, getIdentityModelClass().getSimpleName());
             // get a single page of results, or get/import all results in one shot
             Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), resultsFilter, paginator, null);
@@ -236,7 +261,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
     protected void executeBatchImport(ResultsHandler resultsHandler, ResultsPaginator paginator, boolean deep) {
 
         while (!paginator.getNoMoreResults()) {
-            LOG.info("Processing next batch using pagination {0} for type {1}, deep={2}",
+            LOG.ok("Processing next batch using pagination {0} for type {1}, deep={2}",
                     paginator, getIdentityModelClass().getSimpleName(), deep);
             Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), new ResultsFilter(), paginator, null);
             if (dataSet == null || dataSet.isEmpty()) {
@@ -259,7 +284,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
         if (deep) {
             int passCount = 0;
             for (IdentityModel current : dataSet) {
-                LOG.info("For getAll/import, requesting deep item from driver with uid {0} for type {1}",
+                LOG.ok("For getAll/import, requesting deep item from driver with uid {0} for type {1}",
                         current.getIdentityIdValue(), getIdentityModelClass().getSimpleName());
                 IdentityModel fullModel = getDriver().getOne(getIdentityModelClass(), current.getIdentityIdValue(), null);
                 if (fullModel != null) {
@@ -267,7 +292,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                     passCount++;
                 }
             }
-            LOG.info("Passed {0} deep items to result handler for type {1}",
+            LOG.ok("Passed {0} deep items to result handler for type {1}",
                     passCount, getIdentityModelClass().getSimpleName());
         } else {
             int passCount = 0;
@@ -277,7 +302,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                     passCount++;
                 }
             }
-            LOG.info("Passed {0} shallow items to result handler for type {1}",
+            LOG.ok("Passed {0} shallow items to result handler for type {1}",
                     passCount, getIdentityModelClass().getSimpleName());
         }
     }
@@ -386,6 +411,84 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
         @Override
         public void setPagination(Boolean input) {
+        }
+    }
+
+    private ConsolidatedValues consolidateAttributeValues(Set<AttributeDelta> delta) {
+        Set<Attribute> modifiedSet = new HashSet<>();
+        Set<Attribute> addedSet = new HashSet<>();
+        Set<Attribute> removedSet = new HashSet<>();
+
+        LOG.ok("Consolidate {0} delta values", delta.size());
+        for (AttributeDelta current : delta) {
+            boolean multiValuedAttribute = multiValueAttributeNames.contains(current.getName());
+            List<Object> addValues = current.getValuesToAdd();
+            List<Object> modifiedValues = current.getValuesToReplace();
+            List<Object> removedValues = current.getValuesToRemove();
+
+            if (modifiedValues != null) {
+                modifiedSet.add(AttributeBuilder.build(current.getName(), modifiedValues));
+                LOG.ok("ModifiedValues not null. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+            } else {
+                if (addValues != null) {
+                    if (multiValuedAttribute) {
+                        addedSet.add(AttributeBuilder.build(current.getName(), addValues));
+                        LOG.ok("MultiValuedAttribute. Added {0} to added set.  New size {1}", current.getName(), addedSet.size());
+                    } else {
+                        modifiedSet.add(AttributeBuilder.build(current.getName(), addValues));
+                        LOG.ok("Not MultiValuedAttribute. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+                    }
+                }
+
+                if (removedValues != null) {
+                    if (multiValuedAttribute) {
+                        removedSet.add(AttributeBuilder.build(current.getName(), removedValues));
+                        LOG.ok("Removed values present and multiValuedAttribute. Added {0} to removed set.  New size {1}", current.getName(), removedSet.size());
+                    } else {
+                        modifiedSet.add(AttributeBuilder.build(current.getName(), Collections.emptyList()));
+                        LOG.ok("Removed values present and not multiValuedAttribute. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+                    }
+                }
+
+            }
+        }
+        ConsolidatedValues responseValues = new ConsolidatedValues(modifiedSet, addedSet, removedSet);
+        LOG.ok("Consolidated values result: {0}", responseValues.toString());
+        return responseValues;
+    }
+
+    private static final class ConsolidatedValues {
+
+        final Set<Attribute> modifiedValues;
+        final Set<Attribute> addedMultiValues;
+        final Set<Attribute> removedMultiValues;
+
+        public ConsolidatedValues(Set<Attribute> modified, Set<Attribute> added,
+                                  Set<Attribute> removed) {
+            modifiedValues = modified;
+            addedMultiValues = added;
+            removedMultiValues = removed;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("addedMultiValues: [");
+            for (Attribute current : addedMultiValues) {
+                builder.append(current.toString());
+            }
+            builder.append("],");
+            builder.append("modifiedValues: [");
+            for (Attribute current : modifiedValues) {
+                builder.append(current.toString());
+            }
+            builder.append("],");
+            builder.append("removedMultiValues: [");
+            for (Attribute current : removedMultiValues) {
+                builder.append(current.toString());
+            }
+            builder.append("]");
+            return builder.toString();
         }
     }
 

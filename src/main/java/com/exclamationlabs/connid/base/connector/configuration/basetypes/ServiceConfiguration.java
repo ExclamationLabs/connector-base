@@ -23,6 +23,6 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * web service, particularly at a HTTP/HTTPS URL.
  */
 public interface ServiceConfiguration extends ConnectorConfiguration {
-    String getServiceServiceUrl();
-    void setServiceServiceUrl(String input);
+    String getServiceUrl();
+    void setServiceUrl(String input);
 }

@@ -23,6 +23,6 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * as part of their credentials for authentication.
  */
 public interface PemConfiguration extends ConnectorConfiguration {
-    String getFile();
-    void setFile(String input);
+    String getPemFile();
+    void setPemFile(String input);
 }
