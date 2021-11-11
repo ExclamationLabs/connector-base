@@ -41,16 +41,16 @@ public class TrustStoreConfiguration {
 
     public static void clearJdkProperties() {
         if (!propertiesCleared) {
-            LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
+            LOG.ok("Clearing out property {0} for MidPoint integration.  Value was {1}",
                     TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY));
-            LOG.info("Clearing out property {0} for MidPoint integration.  Value was {1}",
+            LOG.ok("Clearing out property {0} for MidPoint integration.  Value was {1}",
                     TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY));
 
             System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
             System.clearProperty(TRUST_STORE_PROPERTY);
             propertiesCleared = true;
         } else {
-            LOG.info("Trust store properties already cleared for connector.");
+            LOG.ok("Trust store properties already cleared for connector.");
         }
     }
 }

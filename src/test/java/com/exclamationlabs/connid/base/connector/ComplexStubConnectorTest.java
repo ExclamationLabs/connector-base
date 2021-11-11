@@ -16,9 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.ComplexStubConnector;
@@ -27,11 +24,13 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribu
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.test.util.ConnectorTestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.*;
@@ -47,23 +46,141 @@ import static org.junit.Assert.*;
 
 public class ComplexStubConnectorTest {
 
-    private BaseFullAccessConnector connector;
-    private StubDriver driver;
+    private ComplexStubConnector connector;
+    private ComplexStubDriver driver;
     private OperationOptions testOperationOptions;
 
     @Before
     public void setup() {
         connector = new ComplexStubConnector();
-        ComplexStubConfiguration configuration = new ComplexStubConfiguration(
-                new ConfigurationNameBuilder()
-                        .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                        .withOwner("ComplexTest")
-                        .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        ComplexStubConfiguration configuration = new ComplexStubConfiguration();
         connector.init(configuration);
-        driver = (StubDriver) connector.getDriver();
+        driver = (ComplexStubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
+    }
+
+    @Test
+    public void testGetAllWithResultCap() {
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        connector.test();
+        assertEquals("user got seven", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportDeepBatch() {
+        driver.getConfiguration().setImportBatchSize(15);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(95, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportShallowBatch() {
+        driver.getConfiguration().setImportBatchSize(12);
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(101, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+
+    @Test
+    public void testGetAllImportDeepNoBatch() {
+        driver.getConfiguration().setImportBatchSize(null);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(100, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllImportShallowNoBatch() {
+        driver.getConfiguration().setDeepGet(false);
+        driver.getConfiguration().setDeepImport(false);
+        driver.getConfiguration().setImportBatchSize(null);
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(100, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllSinglePageDeep() {
+        testOperationOptions = new OperationOptionsBuilder()
+                .setPageSize(10)
+                .setPagedResultsOffset(1)
+                .build();
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(10, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getOne", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
+    public void testGetAllSinglePageShallow() {
+        driver.getConfiguration().setDeepGet(false);
+        testOperationOptions = new OperationOptionsBuilder()
+                .setPageSize(8)
+                .setPagedResultsOffset(1)
+                .build();
+        List<String> idValues = new ArrayList<>();
+        List<String> nameValues = new ArrayList<>();
+        ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+
+        connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
+        assertEquals(8, idValues.size());
+        assertTrue(StringUtils.isNotBlank(idValues.get(0)));
+        assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
+        assertNull(driver.getMethodParameter1());
+        assertNull(driver.getMethodParameter2());
     }
 
     @Test
@@ -207,15 +324,15 @@ public class ComplexStubConnectorTest {
 
     @Test
     public void testUserModifyWithGroups() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValue(
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace("Dummy").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValueToReplace(
                 Arrays.asList("id1", "id2")).build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.ACCOUNT, new Uid("1234"), attributes, new OperationOptionsBuilder().build());
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update with group ids", driver.getMethodInvoked());
         assertNotNull(driver.getMethodParameter1());
@@ -240,28 +357,9 @@ public class ComplexStubConnectorTest {
         assertNotNull(connector.getConnectorSchemaBuilder());
         assertNotNull(connector.getAuthenticator());
         assertNotNull(connector.getConnectorConfiguration());
-        assertTrue(connector.getConnectorConfiguration().isValidated());
 
-        assertNotNull(connector.getConnectorConfiguration().getRequiredPropertyNames());
-        assertEquals(7,
-                connector.getConnectorConfiguration().getRequiredPropertyNames().size());
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_CONFIGURATION_ACTIVE));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_FILE));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_PASSWORD));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_ALIAS));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_PFX_PASSWORD));
-        assertTrue(connector.getConnectorConfiguration().getRequiredPropertyNames()
-                .contains(ConnectorProperty.CONNECTOR_BASE_AUTH_JKS_FILE));
 
         assertEquals("ComplexStubConnector", connector.getName());
-        assertEquals("ComplexStubConfiguration", connector.getConnectorConfiguration().getName());
     }
 
     @Test

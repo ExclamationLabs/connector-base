@@ -18,24 +18,18 @@ package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseFullAccessConnector;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.authenticator.JWTAuthenticator;
+import com.exclamationlabs.connid.base.connector.authenticator.JWTRS256Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubClubAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubSupergroupAdapter;
-import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
-import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.adapter.*;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.security.interfaces.RSAPrivateKey;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 
 /**
  * Test of complex connector tests
@@ -47,43 +41,35 @@ import static com.exclamationlabs.connid.base.connector.configuration.ConnectorP
  *      - Clubs (object class "CLUB")
  *
  */
-@ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class ComplexStubConnector extends BaseFullAccessConnector {
+@ConnectorClass(displayNameKey = "test.display", configurationClass = ComplexStubConfiguration.class)
+public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubConfiguration> {
 
     public ComplexStubConnector() {
-        Authenticator innerAuthenticator = new JWTAuthenticator() {
+        super(ComplexStubConfiguration.class);
+        JWTRS256Authenticator innerAuthenticator = new JWTRS256Authenticator() {
+
             @Override
-            public Set<ConnectorProperty> getRequiredPropertyNames() {
-                return new HashSet<>(Arrays.asList(
-                        CONNECTOR_BASE_AUTH_PFX_FILE,
-                        CONNECTOR_BASE_AUTH_PFX_PASSWORD));
+            protected RSAPrivateKey getPrivateKey() {
+                return null;
             }
 
             @Override
-            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
+            public String authenticate(JwtRs256Configuration configuration) throws ConnectorSecurityException {
                 return "yang";
             }
         };
 
-        Authenticator outerAuthenticator = new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
+        OAuth2TokenJWTAuthenticator outerAuthenticator = new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
             @Override
-            public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-                return "ying-" + jwtAuthenticator.authenticate(configuration);
+            public String authenticate(Oauth2JwtConfiguration configuration) throws ConnectorSecurityException {
+                return "ying-" + jwtAuthenticator.authenticate((JwtRs256Configuration) configuration);
             }
         };
 
-        setAuthenticator(outerAuthenticator);
-        setDriver(new StubDriver() {
-            @Override
-            public Set<ConnectorProperty> getRequiredPropertyNames() {
-                return new HashSet<>(Arrays.asList(
-                        CONNECTOR_BASE_AUTH_JKS_ALIAS,
-                        CONNECTOR_BASE_AUTH_JKS_FILE,
-                        CONNECTOR_BASE_AUTH_JKS_PASSWORD));
-            }
-        });
+        setAuthenticator((Authenticator) outerAuthenticator);
+        setDriver(new ComplexStubDriver());
 
-        setAdapters(new StubUsersAdapter(), new StubGroupsAdapter(),
+        setAdapters(new StubComplexUsersAdapter(), new StubComplexGroupsAdapter(),
                 new StubClubAdapter(), new StubSupergroupAdapter());
     }
 

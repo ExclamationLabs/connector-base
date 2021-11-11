@@ -18,6 +18,9 @@ package com.exclamationlabs.connid.base.connector.authenticator.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Model holding possible OAuth2 response data.
  * Not all fields may be populated from response, but accessToken
@@ -119,5 +122,20 @@ public class OAuth2AccessTokenContainer {
 
     public void setRefreshTokenExpiresIn(String refreshTokenExpiresIn) {
         this.refreshTokenExpiresIn = refreshTokenExpiresIn;
+    }
+
+    public Map<String, String> toMap() {
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("accessToken", accessToken);
+        dataMap.put("tokenType", tokenType);
+        dataMap.put("instanceUrl", instanceUrl);
+        dataMap.put("expiresIn", expiresIn == null ? null : expiresIn.toString());
+        dataMap.put("refreshToken", refreshToken);
+        dataMap.put("refreshTokenExpiresIn", refreshTokenExpiresIn);
+        dataMap.put("id", id);
+        dataMap.put("scope", scope);
+        dataMap.put("email", email);
+
+        return dataMap;
     }
 }

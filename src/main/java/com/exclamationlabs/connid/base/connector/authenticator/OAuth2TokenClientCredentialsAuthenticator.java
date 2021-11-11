@@ -16,8 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2ClientCredentialsConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -34,59 +35,44 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-
 /**
  * This implementation performs the OAuth2 "client_credentials" grant type.
  */
-public class OAuth2TokenClientCredentialsAuthenticator extends AbstractOAuth2TokenAuthenticator {
-
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
+public class OAuth2TokenClientCredentialsAuthenticator implements Authenticator<Oauth2ClientCredentialsConfiguration> {
     protected static GsonBuilder gsonBuilder;
 
     static {
         gsonBuilder = new GsonBuilder();
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(
-                CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID,
-                CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET));
-
-        // CONNECTOR_BASE_AUTH_OAUTH2_SCOPE is optional per the OAuth2 spec,
-        // but required for some integrations
     }
 
-    @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
 
     @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
+    public String authenticate(Oauth2ClientCredentialsConfiguration configuration) throws ConnectorSecurityException {
         try {
-            initializeForHttp();
+            OAuth2TokenExecution.initializeForHttp();
 
-            HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
+            HttpPost request = new HttpPost(configuration.getTokenUrl());
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("grant_type", "client_credentials"));
 
             // Scope is optional for OAuth2 client credentials
             if (StringUtils.isNotBlank(
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_SCOPE))) {
-                params.add(new BasicNameValuePair("scope", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_SCOPE)));
+                    configuration.getScope())) {
+                params.add(new BasicNameValuePair("scope", configuration.getScope()));
             }
 
             request.setEntity(new UrlEncodedFormEntity(params));
 
             String auth =
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_ID) + ":" +
-                            configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_CLIENT_SECRET);
+                    configuration.getClientId() + ":" +
+                            configuration.getClientSecret();
 
             byte[] encodedAuth = Base64.encodeBase64(
                     auth.getBytes(StandardCharsets.ISO_8859_1));
             String authHeader = "Basic " + new String(encodedAuth);
             request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-            return executeRequest(configuration, getHttpClient(), request,
+            return OAuth2TokenExecution.executeRequest(this, configuration, getHttpClient(), request,
                     new UrlEncodedFormEntity(params), gsonBuilder);
 
         } catch (IOException e) {

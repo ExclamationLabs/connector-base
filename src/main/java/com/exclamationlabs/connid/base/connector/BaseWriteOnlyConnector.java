@@ -16,10 +16,11 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.CreateOp;
 import org.identityconnectors.framework.spi.operations.DeleteOp;
-import org.identityconnectors.framework.spi.operations.UpdateOp;
+import org.identityconnectors.framework.spi.operations.UpdateDeltaOp;
 
 import java.util.Set;
 
@@ -32,9 +33,12 @@ import java.util.Set;
  * therefore this connector cannot take in get/search requests for data from Midpoint, and only
  * create/update/delete requests are recognized.
  */
-public abstract class BaseWriteOnlyConnector extends BaseConnector
-    implements DeleteOp, CreateOp, UpdateOp {
+public abstract class BaseWriteOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
+    implements DeleteOp, CreateOp, UpdateDeltaOp {
 
+    public BaseWriteOnlyConnector(Class<T> configurationTypeIn) {
+        super(configurationTypeIn);
+    }
 
     @Override
     public Uid create(final ObjectClass objectClass, final Set<Attribute> attributes, final OperationOptions options) {
@@ -42,8 +46,10 @@ public abstract class BaseWriteOnlyConnector extends BaseConnector
     }
 
     @Override
-    public Uid update(final ObjectClass objectClass, final Uid uid, final Set<Attribute> attributes, final OperationOptions options) {
-        return getAdapter(objectClass).update(uid, attributes);
+    public Set<AttributeDelta> updateDelta(final ObjectClass objectClass, final Uid uid,
+                           final Set<AttributeDelta> attributeModifications,
+                                           final OperationOptions options) {
+        return getAdapter(objectClass).updateDelta(uid, attributeModifications);
     }
 
     @Override

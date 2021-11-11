@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector;
 
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
@@ -30,8 +31,12 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
  * Note that only the ConnId SearchOp<String> interface is implemented for this class;
  * therefore this connector cannot take in create/update/delete requests from Midpoint.
  */
-public abstract class BaseReadOnlyConnector extends BaseConnector
+public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
     implements SearchOp<String> {
+
+    public BaseReadOnlyConnector(Class<T> configurationTypeIn) {
+        super(configurationTypeIn);
+    }
 
     @Override
     public FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {

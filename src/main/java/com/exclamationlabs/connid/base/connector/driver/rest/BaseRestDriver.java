@@ -17,24 +17,39 @@
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.HttpBasicAuthConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.ProxyConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExpiredException;
+import com.exclamationlabs.connid.base.connector.driver.rest.util.CustomConnectionSocketFactory;
 import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectionBrokenException;
@@ -42,26 +57,32 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
  * Abstract class for drivers that need to make calls to RESTful web services
  * to manage user and group information.
  */
-public abstract class BaseRestDriver extends BaseDriver {
+public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends BaseDriver<U> {
 
     private static final Log LOG = Log.getLog(BaseRestDriver.class);
 
     protected static GsonBuilder gsonBuilder;
 
-    protected ConnectorConfiguration configuration;
-    protected Authenticator authenticator;
+    protected U configuration;
+    protected Authenticator<U> authenticator;
+
+    protected HttpClientContext socksProxyClientContext;
 
     @Override
-    public void initialize(BaseConnectorConfiguration config, Authenticator auth)
+    public void initialize(U config, Authenticator<U> auth)
             throws ConnectorException {
         TrustStoreConfiguration.clearJdkProperties();
         authenticator = auth;
+        if (!(config instanceof RestConfiguration)) {
+            throw new ConnectorException("RestConfiguration not setup for connector");
+        }
         configuration = config;
         gsonBuilder = new GsonBuilder();
     }
@@ -73,13 +94,104 @@ public abstract class BaseRestDriver extends BaseDriver {
     abstract protected RestFaultProcessor getFaultProcessor();
 
     /**
-     * Normal HTTP Client.
-     * If need arises for a secure HTTPS Client backed by a cert/keystore, etc.
-     * such as with FIS, a separate utility class should be added to possibly provide
-     * that support (look at FIS codebase for an example).
+     * Setup HTTP Client.
+     *
+     * If configuration implements HttpBasicAuthConfiguration, a Client
+     * with HTTP Basic Authentication support with configured username and password will be constructed.
+     *
+     * If configuration implements ProxyConfiguration, a Client
+     * with Proxy connection information will be established.  Supported
+     * proxy types are 'socks5' and 'http'.
+     *
      */
     protected HttpClient createClient() {
-        return HttpClients.createDefault();
+        boolean usesHttpBasicAuth = getConfiguration() instanceof HttpBasicAuthConfiguration;
+        boolean usesProxy = getConfiguration() instanceof ProxyConfiguration;
+        boolean socksProxy = false;
+        PoolingHttpClientConnectionManager socksProxyConnectionManager = null;
+        DefaultProxyRoutePlanner httpProxyRoutePlanner = null;
+        CredentialsProvider basicAuthProvider = null;
+        if (usesProxy) {
+            ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getConfiguration();
+            socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getProxyType());
+            if (socksProxy) {
+                socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
+                socksProxyClientContext = setupSocksProxyContext(proxyConfiguration);
+            } else {
+                httpProxyRoutePlanner = setupHttpProxyRouteManager(proxyConfiguration);
+            }
+        }
+        if (usesHttpBasicAuth) {
+            basicAuthProvider = setupBasicAuth((HttpBasicAuthConfiguration) getConfiguration());
+        }
+
+        if (usesHttpBasicAuth) {
+            if (usesProxy) {
+                if (socksProxy) {
+                    return HttpClients.custom()
+                            .setConnectionManager(socksProxyConnectionManager)
+                            .setDefaultCredentialsProvider(basicAuthProvider)
+                            .build();
+                } else {
+                    return HttpClients.custom()
+                            .setRoutePlanner(httpProxyRoutePlanner)
+                            .setDefaultCredentialsProvider(basicAuthProvider)
+                            .build();
+                }
+            } else {
+                return HttpClients.custom()
+                        .setDefaultCredentialsProvider(basicAuthProvider)
+                        .build();
+            }
+
+        } else {
+            if (usesProxy) {
+                if (socksProxy) {
+                    return HttpClients.custom()
+                            .setConnectionManager(socksProxyConnectionManager)
+                            .build();
+                } else {
+                    return HttpClients.custom()
+                            .setRoutePlanner(httpProxyRoutePlanner)
+                            .build();
+                }
+            } else {
+                return HttpClients.custom()
+                        .build();
+            }
+        }
+    }
+
+    protected DefaultProxyRoutePlanner setupHttpProxyRouteManager(ProxyConfiguration configuration) {
+        HttpHost proxyHost = new HttpHost(configuration.getProxyHost(),
+                configuration.getProxyPort());
+        return new DefaultProxyRoutePlanner(proxyHost);
+    }
+
+    protected PoolingHttpClientConnectionManager setupSocksProxyConnectionManager(ProxyConfiguration configuration) {
+        Registry<ConnectionSocketFactory> reg = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.INSTANCE)
+                .register("https", new CustomConnectionSocketFactory(SSLContexts.createSystemDefault()))
+                .build();
+        return new PoolingHttpClientConnectionManager(reg);
+    }
+
+    protected HttpClientContext setupSocksProxyContext(ProxyConfiguration configuration) {
+        InetSocketAddress socksAddr = new InetSocketAddress(configuration.getProxyHost(),
+                configuration.getProxyPort());
+        HttpClientContext context = HttpClientContext.create();
+        context.setAttribute("socks.address", socksAddr);
+        return context;
+    }
+
+    protected CredentialsProvider setupBasicAuth(HttpBasicAuthConfiguration configuration) {
+        CredentialsProvider basicAuthProvider = new BasicCredentialsProvider();
+        UsernamePasswordCredentials credentials
+                = new UsernamePasswordCredentials(
+                configuration.getBasicUsername(),
+                configuration.getBasicPassword());
+        basicAuthProvider.setCredentials(AuthScope.ANY, credentials);
+        return basicAuthProvider;
     }
 
     /**
@@ -138,29 +250,34 @@ public abstract class BaseRestDriver extends BaseDriver {
         Header[] responseHeaders;
 
         try {
-            LOG.info("Request details: {0} to {1}", request.getMethod(),
+            LOG.ok("Request details: {0} to {1}", request.getMethod(),
                     request.getURI());
-            response = client.execute(request);
-            LOG.info("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
+            if (socksProxyClientContext != null) {
+                response = client.execute(request, socksProxyClientContext);
+            } else {
+                response = client.execute(request);
+            }
+
+            LOG.ok("Received {0} response for {1} {2}", response.getStatusLine().getStatusCode(),
                     request.getMethod(), request.getURI());
 
             responseStatusCode = response.getStatusLine().getStatusCode();
             responseHeaders = response.getAllHeaders();
 
-            LOG.info("Response status code is {0}", responseStatusCode);
+            LOG.ok("Response status code is {0}", responseStatusCode);
             if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
-                LOG.info("request execution failed; status code is {0}", responseStatusCode);
+                LOG.ok("request execution failed; status code is {0}", responseStatusCode);
                 getFaultProcessor().process(response, gsonBuilder);
             }
 
         } catch (DriverRenewableTokenExpiredException retryE) {
           if (isRetry) {
               LOG.error("Driver {0} token {1} still invalid after re-authentication, should investigate", this.getClass().getSimpleName(),
-                      configuration.innerGetCredentialAccessToken());
+                      configuration.getCurrentToken());
               throw new ConnectorException("Service rejected re-authenticated token for driver", retryE);
           } else {
               LOG.info("Driver {0} encountered token expiration and will attempt to reauthenticate.", this.getClass().getSimpleName());
-              configuration.innerSetCredentialAccessToken(authenticator.authenticate(configuration));
+              configuration.setCurrentToken(authenticator.authenticate(configuration));
               LOG.info("Driver {0} acquired a new access token and will re-attempt original driver request once.", this.getClass().getSimpleName());
               prepareHeaders(request);
               RestResponseData<T> holdResult = executeRequest(request, returnType, true , 1);
@@ -169,7 +286,7 @@ public abstract class BaseRestDriver extends BaseDriver {
           }
         } catch (DriverTokenExpiredException tokenE) {
             LOG.info("Driver {0} token {1} is now invalid and will not retry.", this.getClass().getSimpleName(),
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
             throw new ConnectorException("Token expired or rejected during driver usage", tokenE);
         } catch (ClientProtocolException e) {
             throw new ConnectorException(
@@ -308,11 +425,11 @@ public abstract class BaseRestDriver extends BaseDriver {
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         if (usesBearerAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " +
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
         }
         else if (usesTokenAuthorization()) {
             request.setHeader(HttpHeaders.AUTHORIZATION, "Token token=" +
-                    configuration.innerGetCredentialAccessToken());
+                    configuration.getCurrentToken());
         }
 
     }
@@ -327,7 +444,7 @@ public abstract class BaseRestDriver extends BaseDriver {
         if (requestBody != null) {
             Gson gson = gsonBuilder.create();
             String json = gson.toJson(requestBody);
-            LOG.info("JSON formatted request for {0}: {1}", requestBody.getClass().getName(), json);
+            LOG.ok("JSON formatted request for {0}: {1}", requestBody.getClass().getName(), json);
             try {
                 request.setEntity(new StringEntity(json));
             } catch (UnsupportedEncodingException e) {
@@ -342,14 +459,14 @@ public abstract class BaseRestDriver extends BaseDriver {
 
         try {
             if (returnType == null) {
-                LOG.info("No response expected or needed from this invocation, returning null type");
+                LOG.ok("No response expected or needed from this invocation, returning null type");
                 return null;
             }
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
                 rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
-                LOG.info("Received raw JSON: {0}", rawJson);
+                LOG.ok("Received raw JSON: {0}", rawJson);
             } else {
-                LOG.info("Received HTTP Not Found for call, returning empty response type");
+                LOG.ok("Received HTTP Not Found for call, returning empty response type");
                 return null;
             }
         } catch (ParseException pe) {
@@ -373,20 +490,10 @@ public abstract class BaseRestDriver extends BaseDriver {
     }
 
     private int getIoErrorRetryCount() {
-        String retries = configuration.getProperty(ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES);
-        int retryCount = 0;
-        if (retries != null) {
-            try {
-                retryCount = Integer.parseInt(retries);
-            } catch (NumberFormatException nfe) {
-                LOG.info("Invalid numeric value for {0}: {1}",
-                        ConnectorProperty.CONNECTOR_BASE_REST_IO_ERROR_RETRIES.name(), retries);
-            }
-        }
-        return retryCount;
+        return ( (RestConfiguration) configuration).getIoErrorRetries();
     }
 
-    public ConnectorConfiguration getConfiguration() {
+    public U getConfiguration() {
         return configuration;
     }
 

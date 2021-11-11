@@ -16,19 +16,16 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Set;
 
 /**
  * A RSAPrivateKeyLoader can be used to load a RSAPrivateKey, given
  * configuration information.
  */
-public interface RSAPrivateKeyLoader {
-    Set<ConnectorProperty> getRequiredPropertyNames();
+public interface RSAPrivateKeyLoader<T extends ConnectorConfiguration> {
 
-    RSAPrivateKey load(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;
+    RSAPrivateKey load(T configuration) throws ConnectorSecurityException;
 }

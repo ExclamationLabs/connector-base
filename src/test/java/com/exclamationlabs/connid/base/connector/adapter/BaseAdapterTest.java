@@ -88,8 +88,8 @@ public class BaseAdapterTest {
         user.setId("user123");
         user.setUserName("name123");
         user.setEmail("test@test.com");
-        user.setGroupIds(Collections.singletonList("group1"));
-        user.setClubIds(Arrays.asList("club1", "club2"));
+        user.setGroupIds(new HashSet<>(Collections.singletonList("group1")));
+        user.setClubIds(new HashSet<>(Arrays.asList("club1", "club2")));
         user.setUserTestBigDecimal(new BigDecimal("1234.1234"));
         user.setUserTestBigInteger(new BigInteger("12345678"));
         user.setUserTestBoolean(Boolean.TRUE);
@@ -110,72 +110,73 @@ public class BaseAdapterTest {
         ZonedDateTime nowTime = ZonedDateTime.now();
         user.setUserTestZonedDateTime(nowTime);
 
-        List<Attribute> output = adapter.constructAttributesTestAccess(user);
-
+        Set<Attribute> output = adapter.constructAttributesTestAccess(user);
+        List<Attribute> outputList = new ArrayList<>(output);
+        outputList.sort(Comparator.comparing(Attribute::getName));
         assertEquals(18, output.size());
 
-        assertEquals(StubUserAttribute.USER_ID.name(), output.get(0).getName());
-        assertEquals("user123", output.get(0).getValue().get(0).toString());
+        assertEquals(StubUserAttribute.CLUB_IDS.name(), outputList.get(0).getName());
+        assertTrue(outputList.get(0).getValue().contains("club1"));
+        assertTrue(outputList.get(0).getValue().contains("club2"));
 
-        assertEquals(StubUserAttribute.USER_NAME.name(), output.get(1).getName());
-        assertEquals("name123", output.get(1).getValue().get(0).toString());
+        assertEquals(StubUserAttribute.EMAIL.name(), outputList.get(1).getName());
+        assertEquals("test@test.com", outputList.get(1).getValue().get(0).toString());
 
-        assertEquals(StubUserAttribute.EMAIL.name(), output.get(2).getName());
-        assertEquals("test@test.com", output.get(2).getValue().get(0).toString());
+        assertEquals(StubUserAttribute.GROUP_IDS.name(), outputList.get(2).getName());
+        assertEquals("group1", outputList.get(2).getValue().get(0).toString());
 
-        assertEquals(StubUserAttribute.GROUP_IDS.name(), output.get(3).getName());
-        assertEquals("group1", output.get(3).getValue().get(0).toString());
+        assertEquals(StubUserAttribute.USER_ID.name(), outputList.get(3).getName());
+        assertEquals("user123", outputList.get(3).getValue().get(0).toString());
 
-        assertEquals(StubUserAttribute.CLUB_IDS.name(), output.get(4).getName());
-        assertEquals("club1", output.get(4).getValue().get(0).toString());
-        assertEquals("club2", output.get(4).getValue().get(1).toString());
+        assertEquals(StubUserAttribute.USER_NAME.name(), outputList.get(4).getName());
+        assertEquals("name123", outputList.get(4).getValue().get(0).toString());
 
-        assertEquals(StubUserAttribute.USER_TEST_BIG_DECIMAL.name(), output.get(5).getName());
-        assertEquals(new BigDecimal("1234.1234"), output.get(5).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_BIG_DECIMAL.name(), outputList.get(5).getName());
+        assertEquals(new BigDecimal("1234.1234"), outputList.get(5).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_BIG_INTEGER.name(), output.get(6).getName());
-        assertEquals(new BigInteger("12345678"), output.get(6).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_BIG_INTEGER.name(), outputList.get(6).getName());
+        assertEquals(new BigInteger("12345678"), outputList.get(6).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_BOOLEAN.name(), output.get(7).getName());
-        assertEquals(Boolean.TRUE, output.get(7).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_BOOLEAN.name(), outputList.get(7).getName());
+        assertEquals(Boolean.TRUE, outputList.get(7).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_BYTE.name(), output.get(8).getName());
-        assertEquals((byte) 'c', output.get(8).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_BYTE.name(), outputList.get(8).getName());
+        assertEquals((byte) 'c', outputList.get(8).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_CHARACTER.name(), output.get(9).getName());
-        assertEquals('D', output.get(9).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_CHARACTER.name(), outputList.get(9).getName());
+        assertEquals('D', outputList.get(9).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_DOUBLE.name(), output.get(10).getName());
-        assertEquals(123456.123456, output.get(10).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_DOUBLE.name(), outputList.get(10).getName());
+        assertEquals(123456.123456, outputList.get(10).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_FLOAT.name(), output.get(11).getName());
-        assertEquals((float)-101.101, output.get(11).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_FLOAT.name(), outputList.get(11).getName());
+        assertEquals((float)-101.101, outputList.get(11).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_GUARDED_BYTE_ARRAY.name(), output.get(12).getName());
+        assertEquals(StubUserAttribute.USER_TEST_GUARDED_BYTE_ARRAY.name(), outputList.get(12).getName());
         assertTrue(StringUtils.containsIgnoreCase(
-                output.get(12).getValue().get(0).toString(),
+                outputList.get(12).getValue().get(0).toString(),
                 "org.identityconnectors.common.security.GuardedByteArray@"
                 ));
 
-        assertEquals(StubUserAttribute.USER_TEST_GUARDED_STRING.name(), output.get(13).getName());
+        assertEquals(StubUserAttribute.USER_TEST_GUARDED_STRING.name(), outputList.get(13).getName());
         assertTrue(StringUtils.containsIgnoreCase(
-                output.get(13).getValue().get(0).toString(),
+                outputList.get(13).getValue().get(0).toString(),
                 "org.identityconnectors.common.security.GuardedString@"
         ));
 
-        assertEquals(StubUserAttribute.USER_TEST_INTEGER.name(), output.get(14).getName());
-        assertEquals(-654321, output.get(14).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_INTEGER.name(), outputList.get(14).getName());
+        assertEquals(-654321, outputList.get(14).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_LONG.name(), output.get(15).getName());
-        assertEquals(-654321654321L, output.get(15).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_LONG.name(), outputList.get(15).getName());
+        assertEquals(-654321654321L, outputList.get(15).getValue().get(0));
 
-        assertEquals(StubUserAttribute.USER_TEST_MAP.name(), output.get(16).getName());
-        Map<?,?> lookMap = (Map<?,?>) output.get(16).getValue().get(0);
+        assertEquals(StubUserAttribute.USER_TEST_MAP.name(), outputList.get(16).getName());
+        Map<?,?> lookMap = (Map<?,?>) outputList.get(16).getValue().get(0);
         assertEquals("value1", lookMap.get("key1"));
         assertEquals("value2", lookMap.get("key2"));
 
-        assertEquals(StubUserAttribute.USER_TEST_ZONED_DATE_TIME.name(), output.get(17).getName());
-        assertEquals(nowTime, output.get(17).getValue().get(0));
+        assertEquals(StubUserAttribute.USER_TEST_ZONED_DATE_TIME.name(), outputList.get(17).getName());
+        assertEquals(nowTime, outputList.get(17).getValue().get(0));
 
     }
 

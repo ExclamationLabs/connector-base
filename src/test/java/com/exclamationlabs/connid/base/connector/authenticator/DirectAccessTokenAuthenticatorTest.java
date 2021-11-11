@@ -16,36 +16,45 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.TestConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.ConfigurationInfo;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.junit.Test;
 
-import java.util.Properties;
-
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class DirectAccessTokenAuthenticatorTest {
 
-    protected static BaseConnectorConfiguration configuration;
-
-    static {
-        Properties testProperties = new Properties();
-        testProperties.put(CONNECTOR_BASE_AUTH_DIRECT_TOKEN.name(), "cooltoken");
-
-        // Test usage of custom authenticator properties
-        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_DOMAIN.name(), "mysub");
-        testProperties.put(CONNECTOR_BASE_AUTH_CUSTOM_SUBDOMAIN.name(), "hello.com");
-
-        configuration = new TestConnectorConfiguration(testProperties);
-    }
-
     @Test
     public void test() {
-        Authenticator authenticator = new DirectAccessTokenAuthenticator();
+        DirectAccessTokenConfiguration configuration = new TestConfiguration();
+        Authenticator<DirectAccessTokenConfiguration> authenticator = new DirectAccessTokenAuthenticator() {
+            @Override
+            public String authenticate(DirectAccessTokenConfiguration configuration) throws ConnectorSecurityException {
+                return "cooltoken";
+            }
+        };
         String response = authenticator.authenticate(configuration);
         assertNotNull(response);
         assertEquals("cooltoken", response);
+    }
+
+    static class TestConfiguration extends DefaultConnectorConfiguration
+        implements DirectAccessTokenConfiguration {
+
+        @ConfigurationInfo(path = "security.authenticator.directAccessToken.token")
+        private String token;
+
+        @Override
+        public String getToken() {
+            return token;
+        }
+
+        @Override
+        public void setToken(String input) {
+            token = input;
+        }
     }
 }
