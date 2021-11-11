@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2021 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.authenticator;
+package com.exclamationlabs.connid.base.connector.authenticator.util;
 
+import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2Configuration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
@@ -32,16 +34,15 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 import java.io.IOException;
 
-/**
- * Abstract class for several specific OAuth2 grant type implementations.
- */
-public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator {
+public class OAuth2TokenExecution {
 
-    private static final Log LOG = Log.getLog(AbstractOAuth2TokenAuthenticator.class);
+    private static final Log LOG = Log.getLog(OAuth2TokenExecution.class);
 
-    protected String executeRequest(ConnectorConfiguration configuration, HttpClient client, HttpPost request, UrlEncodedFormEntity entity, GsonBuilder gsonBuilder) throws IOException {
+    private OAuth2TokenExecution() {}
+
+    public static String executeRequest(Authenticator<?> authenticator, Oauth2Configuration configuration, HttpClient client, HttpPost request, UrlEncodedFormEntity entity, GsonBuilder gsonBuilder) throws IOException {
         request.setEntity(entity);
-        getAdditionalAuthenticationHeaders(configuration).forEach(request::setHeader);
+        authenticator.getAdditionalAuthenticationHeaders(configuration).forEach(request::setHeader);
         HttpResponse response = client.execute(request);
         int statusCode = response.getStatusLine().getStatusCode();
         LOG.info("OAuth2 Received {0} response for {1} {2}", statusCode,
@@ -57,14 +58,15 @@ public abstract class AbstractOAuth2TokenAuthenticator implements Authenticator 
                 OAuth2AccessTokenContainer.class);
 
         if (authResponse != null && authResponse.getAccessToken() != null) {
-            configuration.setOauth2Information(authResponse);
+            configuration.setOauth2Information(authResponse.toMap());
             return authResponse.getAccessToken();
         } else {
             throw new ConnectorSecurityException("Invalid/empty response received from OAuth2: " + rawJson);
         }
     }
 
-    protected static void initializeForHttp() {
+    public static void initializeForHttp() {
         TrustStoreConfiguration.clearJdkProperties();
     }
+
 }

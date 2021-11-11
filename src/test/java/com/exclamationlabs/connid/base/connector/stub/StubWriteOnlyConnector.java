@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseWriteOnlyConnector;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
@@ -27,6 +28,7 @@ import org.identityconnectors.framework.spi.ConnectorClass;
 public class StubWriteOnlyConnector extends BaseWriteOnlyConnector {
 
     public StubWriteOnlyConnector() {
+        super(DefaultConnectorConfiguration.class);
         setDriver(new StubDriver());
         setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
     }

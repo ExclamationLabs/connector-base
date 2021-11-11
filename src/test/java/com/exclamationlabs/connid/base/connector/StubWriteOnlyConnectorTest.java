@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.StubWriteOnlyConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
@@ -45,13 +43,7 @@ public class StubWriteOnlyConnectorTest {
     @Before
     public void setup() {
         connector = new StubWriteOnlyConnector();
-        StubConfiguration configuration = new StubConfiguration(
-            new ConfigurationNameBuilder()
-                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                    .withOwner("Test")
-                    .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        StubConfiguration configuration = new StubConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
@@ -122,13 +114,13 @@ public class StubWriteOnlyConnectorTest {
 
     @Test
     public void testUserModifyNoGroups() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace("Dummy").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT,new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.ACCOUNT,new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update", driver.getMethodInvoked());
         assertNotNull(driver.getMethodParameter1());
@@ -144,15 +136,15 @@ public class StubWriteOnlyConnectorTest {
 
     @Test
     public void testUserModifyWithGroups() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValue(
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace("Dummy").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValueToReplace(
                 Arrays.asList("id1", "id2")).build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update with group ids", driver.getMethodInvoked());
         assertEquals("1234", driver.getMethodParameter1().toString());
@@ -161,11 +153,11 @@ public class StubWriteOnlyConnectorTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void testUserModifyDataType() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace(new BigDecimal(5)).build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
 
-        connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
+        connector.updateDelta(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
     }
 
     @Test
@@ -208,12 +200,12 @@ public class StubWriteOnlyConnectorTest {
 
     @Test
     public void testGroupModify() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValueToReplace("Avengers").build());
 
-        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("group update", driver.getMethodInvoked());
         assertNotNull(driver.getMethodParameter1());
@@ -228,10 +220,10 @@ public class StubWriteOnlyConnectorTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void testGroupModifyDataType() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValueToReplace(new BigDecimal(5)).build());
 
-        connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
+        connector.updateDelta(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
     }
 
     @Test
@@ -256,6 +248,6 @@ public class StubWriteOnlyConnectorTest {
 
     @Test
     public void testSchema() {
-        StubConnectorTest.executeTestSchema(connector);
+        StubConnectorTest.executeTestSchema(connector, 0);
     }
 }

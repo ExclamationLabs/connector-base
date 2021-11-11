@@ -17,18 +17,13 @@
 package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
-import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-import java.util.*;
-
-public class StubDriver extends BaseDriver {
+public class StubDriver extends BaseDriver<StubConfiguration> {
 
     private String methodInvoked;
     private Object methodParameter1;
@@ -38,17 +33,10 @@ public class StubDriver extends BaseDriver {
     public StubDriver() {
         addInvocator(StubUser.class, new StubUserInvocator());
         addInvocator(StubGroup.class, new StubGroupInvocator());
-        addInvocator(StubClub.class, new StubClubInvocator());
-        addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
     }
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return null;
-    }
-
-    @Override
-    public void initialize(BaseConnectorConfiguration configuration, Authenticator authenticator) throws ConnectorException {
+    public void initialize(StubConfiguration configuration, Authenticator<StubConfiguration> authenticator) throws ConnectorException {
         initializeInvoked = true;
     }
 

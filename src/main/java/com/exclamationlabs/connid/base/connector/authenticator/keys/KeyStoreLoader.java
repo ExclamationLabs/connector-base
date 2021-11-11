@@ -16,18 +16,15 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
-import com.exclamationlabs.connid.base.connector.configuration.BaseConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.security.KeyStore;
-import java.util.Set;
 
 /**
  * A KeyStoreLoader can be used to load a KeyStore (of various kinds), given
  * configuration information.
  */
-public interface KeyStoreLoader {
-    Set<ConnectorProperty> getRequiredPropertyNames();
-    KeyStore load(BaseConnectorConfiguration configuration) throws ConnectorSecurityException;
+public interface KeyStoreLoader<T extends ConnectorConfiguration> {
+    KeyStore load(T configuration) throws ConnectorSecurityException;
 }

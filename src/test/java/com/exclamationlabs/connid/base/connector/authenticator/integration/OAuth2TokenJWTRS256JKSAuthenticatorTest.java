@@ -16,16 +16,19 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTRS256Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.keys.JKSRSAPrivateKeyLoader;
 import com.exclamationlabs.connid.base.connector.configuration.*;
-import org.junit.Before;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.JksConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
+import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Set;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -34,49 +37,187 @@ import static org.junit.Assert.assertNotNull;
  * JWTRS256Authenticator and JKSRSAPrivateKeyLoader working together,
  * using Dev ELabs Salesforce configuration
  */
-public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends BaseAuthenticatorIntegrationTest {
+@Ignore // TODO: put back in place once Salesforce is upgraded to 2.0 base
+public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
 
     @Override
     public String getConfigurationName() {
         return new ConfigurationNameBuilder().withConnector(() -> "SALESFORCE").build();
     }
 
-    protected Authenticator oauth2Authenticator;
-
-    @Override
-    Authenticator getAuthenticator() {
-        return oauth2Authenticator;
-    }
-
-    @Before
-    public void setup() {
-
-        Authenticator jwtAuthenticator = new JWTRS256Authenticator() {
-            @Override
-            protected RSAPrivateKey getPrivateKey() {
-                return new JKSRSAPrivateKeyLoader().load(configuration);
-            }
-
-            @Override
-            protected Set<ConnectorProperty> getPrivateKeyLoaderPropertyNames() {
-                return new JKSRSAPrivateKeyLoader().getRequiredPropertyNames();
-            }
-        };
-        oauth2Authenticator = new OAuth2TokenJWTAuthenticator(jwtAuthenticator);
-        super.setup();
-    }
-
     @Test
     public void test() {
-        String response = getAuthenticator().authenticate(configuration);
+        Oauth2JwtConfiguration configuration = new TestConfiguration(getConfigurationName());
+        ConfigurationReader.setupTestConfiguration(configuration);
+        setup(configuration);
+        JWTRS256Authenticator jwtAuthenticator = new JWTRS256Authenticator() {
+            @Override
+            protected RSAPrivateKey getPrivateKey() {
+                return new JKSRSAPrivateKeyLoader().load((JksConfiguration) configuration);
+            }
+        };
+        OAuth2TokenJWTAuthenticator oauth2Authenticator = new OAuth2TokenJWTAuthenticator(jwtAuthenticator);
+
+        String response = oauth2Authenticator.authenticate(configuration);
         assertNotNull(response);
         assertNotNull(configuration.getOauth2Information());
-        assertNotNull(configuration.getOauth2Information().getAccessToken());
-        assertNotNull(configuration.getOauth2Information().getId());
-        assertNotNull(configuration.getOauth2Information().getInstanceUrl());
-        assertNotNull(configuration.getOauth2Information().getScope());
-        assertNotNull(configuration.getOauth2Information().getTokenType());
+        assertNotNull(configuration.getOauth2Information().get("accessToken"));
+        assertNotNull(configuration.getOauth2Information().get("id"));
+        assertNotNull(configuration.getOauth2Information().get("instanceUrl"));
+        assertNotNull(configuration.getOauth2Information().get("scope"));
+        assertNotNull(configuration.getOauth2Information().get("tokenType"));
     }
 
+
+    protected static class TestConfiguration extends DefaultConnectorConfiguration
+            implements JwtRs256Configuration, JksConfiguration, Oauth2JwtConfiguration {
+
+        @ConfigurationInfo(path = "security.jks.jksFile")
+        private String file;
+
+        @ConfigurationInfo(path = "security.jks.jksPassword")
+        private String password;
+
+        @ConfigurationInfo(path = "security.jks.jksAlias")
+        private String alias;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.issuer")
+        private String issuer;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.subject")
+        private String subject;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.expirationPeriod")
+        private Long expirationPeriod;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.audience")
+        private String audience;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.useIssuedAt")
+        private Boolean useIssuedAt;
+
+        @ConfigurationInfo(path = "security.authenticator.jwtRs256.extraClaimData")
+        private Map<String,String> extraClaimData;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Jwt.tokenUrl")
+        private String tokenUrl;
+
+        @ConfigurationInfo(path = "security.authenticator.oauth2Jwt.oauth2Information")
+        private Map<String, String> oauth2Information;
+
+        public TestConfiguration(String nameIn) {
+            name = nameIn;
+        }
+
+        @Override
+        public String getJksFile() {
+            return file;
+        }
+
+        @Override
+        public void setJksFile(String input) {
+            file = input;
+        }
+
+        @Override
+        public String getJksPassword() {
+            return password;
+        }
+
+        @Override
+        public void setJksPassword(String input) {
+            password = input;
+        }
+
+        @Override
+        public String getJksAlias() {
+            return alias;
+        }
+
+        @Override
+        public void setJksAlias(String input) {
+            alias = input;
+        }
+
+        @Override
+        public String getIssuer() {
+            return issuer;
+        }
+
+        @Override
+        public void setIssuer(String input) {
+            issuer = input;
+        }
+
+        @Override
+        public String getSubject() {
+            return subject;
+        }
+
+        @Override
+        public void setSubject(String input) {
+            subject = input;
+        }
+
+        @Override
+        public Long getExpirationPeriod() {
+            return expirationPeriod;
+        }
+
+        @Override
+        public void setExpirationPeriod(Long input) {
+            expirationPeriod = input;
+        }
+
+        @Override
+        public String getAudience() {
+            return audience;
+        }
+
+        @Override
+        public void setAudience(String input) {
+            audience = input;
+        }
+
+        @Override
+        public Boolean getUseIssuedAt() {
+            return useIssuedAt;
+        }
+
+        @Override
+        public void setUseIssuedAt(Boolean input) {
+            useIssuedAt = input;
+        }
+
+        @Override
+        public Map<String, String> getExtraClaimData() {
+            return extraClaimData;
+        }
+
+        @Override
+        public void setExtraClaimData(Map<String, String> data) {
+            extraClaimData = data;
+        }
+
+        @Override
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+
+        @Override
+        public void setTokenUrl(String input) {
+            tokenUrl = input;
+        }
+
+        @Override
+        public Map<String, String> getOauth2Information() {
+            return oauth2Information;
+        }
+
+        @Override
+        public void setOauth2Information(Map<String, String> info) {
+            oauth2Information = info;
+        }
+    }
 
 }

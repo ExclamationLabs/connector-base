@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2021 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.authenticator;
+package com.exclamationlabs.connid.base.connector.configuration.basetypes;
+
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Abstract class for JWT authenticators.
+ * Configuration properties for connectors that use some sort of
+ * web service, particularly at a HTTP/HTTPS URL.
  */
-public abstract class JWTAuthenticator implements Authenticator {
-
+public interface ServiceConfiguration extends ConnectorConfiguration {
+    String getServiceUrl();
+    void setServiceUrl(String input);
 }

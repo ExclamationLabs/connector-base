@@ -25,6 +25,7 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.AbstractFilterTranslator;
+import org.identityconnectors.framework.common.objects.filter.ContainsAllValuesFilter;
 import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 
@@ -64,6 +65,16 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
         return (checkSearchValue(value) == null) ? null : value;
     }
+
+    @Override
+    protected String createContainsAllValuesExpression(ContainsAllValuesFilter filter, boolean not) {
+        if (StringUtils.equals(filter.getAttribute().getName(), Uid.NAME) || acceptableAttributeNames.contains(filter.getAttribute().getName())) {
+            return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getAttribute().getValue().get(0);
+        } else {
+            throw new InvalidAttributeValueException("Filter on attribute " + filter.getAttribute().getName() + " not supported.");
+        }
+    }
+
 
     @Override
     // Normally invoked by Midpoint for filtering

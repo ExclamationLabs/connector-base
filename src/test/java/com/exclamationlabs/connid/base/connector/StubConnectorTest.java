@@ -16,10 +16,11 @@
 
 package com.exclamationlabs.connid.base.connector;
 
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationEnvironment;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationNameBuilder;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
@@ -41,20 +42,14 @@ import static org.junit.Assert.*;
 
 public class StubConnectorTest {
 
-    private BaseFullAccessConnector connector;
+    private BaseFullAccessConnector<StubConfiguration> connector;
     private StubDriver driver;
     private OperationOptions testOperationOptions;
 
     @Before
     public void setup() {
         connector = new StubConnector();
-        StubConfiguration configuration = new StubConfiguration(
-            new ConfigurationNameBuilder()
-                    .withEnvironment(ConfigurationEnvironment.DEVELOPMENT)
-                    .withOwner("Test")
-                    .withConnector("Stub").build()
-        );
-        configuration.setTestConfiguration();
+        StubConfiguration configuration = new StubConfiguration();
         connector.init(configuration);
         driver = (StubDriver) connector.getDriver();
         testOperationOptions = new OperationOptionsBuilder().build();
@@ -71,7 +66,7 @@ public class StubConnectorTest {
         StubUser test = new StubUser();
         test.setId("id");
         test.setUserName("name");
-        assertEquals("id;name", test.identityToString());
+        assertEquals("id;name", test.toString());
     }
 
     @Test
@@ -134,13 +129,13 @@ public class StubConnectorTest {
 
     @Test
     public void testUserModifyNoGroups() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace("Dummy").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT,new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.ACCOUNT,new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update", driver.getMethodInvoked());
         assertNotNull(driver.getMethodParameter1());
@@ -156,15 +151,15 @@ public class StubConnectorTest {
 
     @Test
     public void testUserModifyWithGroups() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("Dummy").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValue(
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace("Dummy").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.GROUP_IDS.name()).addValueToReplace(
                 Arrays.asList("id1", "id2")).build());
 
-        Uid newId = connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update with group ids", driver.getMethodInvoked());
         assertEquals("1234", driver.getMethodParameter1().toString());
@@ -173,11 +168,11 @@ public class StubConnectorTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void testUserModifyDataType() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue(new BigDecimal(5)).build());
-        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("dummy@dummy.com").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.USER_NAME.name()).addValueToReplace(new BigDecimal(5)).build());
+        attributes.add(new AttributeDeltaBuilder().setName(StubUserAttribute.EMAIL.name()).addValueToReplace("dummy@dummy.com").build());
 
-        connector.update(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
+        connector.updateDelta(ObjectClass.ACCOUNT, new Uid("1234"), attributes, testOperationOptions);
         assertTrue(driver.isInitializeInvoked());
         assertEquals("user update", driver.getMethodInvoked());
         assertEquals("1234", driver.getMethodParameter1().toString());
@@ -199,11 +194,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll", driver.getMethodInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -235,11 +231,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubUser.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll", driver.getMethodInvoked());
+        assertEquals("user getAll none", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -253,11 +250,12 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAllFiltered(StubUser.class, Collections.emptyMap(), "ying", "yang").size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
-        assertEquals("user getAll filtered ying;yang", driver.getMethodInvoked());
+        assertEquals("user getAll ying:yang", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
         assertNull(driver.getMethodParameter2());
     }
@@ -309,12 +307,12 @@ public class StubConnectorTest {
 
     @Test
     public void testGroupModify() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue("Avengers").build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValueToReplace("Avengers").build());
 
-        Uid newId = connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
-        assertNotNull(newId);
-        assertNotNull(newId.getUidValue());
+        Set<AttributeDelta> response = connector.updateDelta(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
         assertTrue(driver.isInitializeInvoked());
         assertEquals("group update", driver.getMethodInvoked());
         assertNotNull(driver.getMethodParameter1());
@@ -329,10 +327,10 @@ public class StubConnectorTest {
 
     @Test(expected = InvalidAttributeValueException.class)
     public void testGroupModifyDataType() {
-        Set<Attribute> attributes = new HashSet<>();
-        attributes.add(new AttributeBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValue(new BigDecimal(5)).build());
+        Set<AttributeDelta> attributes = new HashSet<>();
+        attributes.add(new AttributeDeltaBuilder().setName(StubGroupAttribute.GROUP_NAME.name()).addValueToReplace(new BigDecimal(5)).build());
 
-        connector.update(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
+        connector.updateDelta(ObjectClass.GROUP, new Uid("1234"), attributes, testOperationOptions);
     }
 
     @Test
@@ -352,7 +350,8 @@ public class StubConnectorTest {
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
         connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, testOperationOptions);
-        assertEquals(new StubDriver().getAll(StubGroup.class, Collections.emptyMap()).size(), idValues.size());
+        assertEquals(new StubDriver().getAll(StubGroup.class, new ResultsFilter(),
+                new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
         assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
         assertTrue(driver.isInitializeInvoked());
@@ -384,15 +383,24 @@ public class StubConnectorTest {
 
     @Test
     public void testDummyAuthentication() {
-        assertEquals("NA", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+        assertEquals("NA", connector.getAuthenticator().authenticate(
+                connector.getConnectorConfiguration()));
     }
 
     @Test
     public void testSchema() {
-        executeTestSchema(connector);
+        executeTestSchema(connector, 0);
     }
 
-    static void executeTestConstruction(final BaseConnector testConnector,
+    @Test
+    public void testSchemaWithPagination() {
+        connector = new StubConnector();
+        StubConfiguration configuration = new StubPagingConfiguration();
+        connector.init(configuration);
+        executeTestSchema(connector, 7);
+    }
+
+    static void executeTestConstruction(final BaseConnector<?> testConnector,
                                  final String expectedConnectorName) {
         assertNotNull(testConnector.getConnectorFilterTranslator(ObjectClass.ACCOUNT));
         assertTrue(testConnector.getConnectorFilterTranslator(ObjectClass.ACCOUNT) instanceof DefaultFilterTranslator);
@@ -403,18 +411,14 @@ public class StubConnectorTest {
         assertNotNull(testConnector.getConnectorSchemaBuilder());
         assertNotNull(testConnector.getAuthenticator());
         assertNotNull(testConnector.getConnectorConfiguration());
-        assertTrue(testConnector.getConnectorConfiguration().isValidated());
 
-        assertNotNull(testConnector.getConnectorConfiguration().getRequiredPropertyNames());
-        assertEquals(1,
-                testConnector.getConnectorConfiguration().getRequiredPropertyNames().size());
 
         assertEquals(expectedConnectorName, testConnector.getName());
-        assertEquals("StubConfiguration", testConnector.getConnectorConfiguration().getName());
 
     }
 
-    static void executeTestSchema(final BaseConnector testConnector) {
+    static void executeTestSchema(final BaseConnector<?> testConnector,
+                                  int expectedOperationOptions) {
         Schema schemaResult = testConnector.schema();
         assertNotNull(schemaResult);
 
@@ -430,6 +434,49 @@ public class StubConnectorTest {
 
         Set<OperationOptionInfo> info = schemaResult.getOperationOptionInfo();
         assertNotNull(info);
-        assertEquals(7, info.size());
+        assertEquals(expectedOperationOptions, info.size());
+    }
+
+    static class StubPagingConfiguration extends StubConfiguration implements ResultsConfiguration {
+
+        @Override
+        public Boolean getDeepGet() {
+            return null;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return null;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+
+        }
+
+        @Override
+        public Integer getImportBatchSize() {
+            return null;
+        }
+
+        @Override
+        public void setImportBatchSize(Integer input) {
+
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return true;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
+
+        }
     }
 }

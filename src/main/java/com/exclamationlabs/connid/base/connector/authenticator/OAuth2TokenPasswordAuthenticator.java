@@ -16,8 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2PasswordConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -30,46 +31,33 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 import java.io.IOException;
 import java.util.*;
 
-import static com.exclamationlabs.connid.base.connector.configuration.ConnectorProperty.*;
-
 /**
  * This implementation performs the OAuth2 "password" grant type.
  */
-public class OAuth2TokenPasswordAuthenticator extends AbstractOAuth2TokenAuthenticator {
+public class OAuth2TokenPasswordAuthenticator implements Authenticator<Oauth2PasswordConfiguration> {
 
-    private static final Set<ConnectorProperty> PROPERTY_NAMES;
     protected static GsonBuilder gsonBuilder;
 
     static {
         gsonBuilder = new GsonBuilder();
-        PROPERTY_NAMES = new HashSet<>(Arrays.asList(
-                CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL,
-                CONNECTOR_BASE_AUTH_OAUTH2_ENCODED_SECRET,
-                CONNECTOR_BASE_AUTH_OAUTH2_USERNAME,
-                CONNECTOR_BASE_AUTH_OAUTH2_PASSWORD));
     }
 
     @Override
-    public Set<ConnectorProperty> getRequiredPropertyNames() {
-        return PROPERTY_NAMES;
-    }
-
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-        initializeForHttp();
+    public String authenticate(Oauth2PasswordConfiguration configuration) throws ConnectorSecurityException {
+        OAuth2TokenExecution.initializeForHttp();
         HttpClient client = createClient();
 
         try {
-            HttpPost request = new HttpPost(configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_TOKEN_URL));
+            HttpPost request = new HttpPost(configuration.getTokenUrl());
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("grant_type", "password"));
-            form.add(new BasicNameValuePair("username", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_USERNAME)));
-            form.add(new BasicNameValuePair("password", configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_PASSWORD)));
+            form.add(new BasicNameValuePair("username", configuration.getOauth2Username()));
+            form.add(new BasicNameValuePair("password", configuration.getOauth2Password()));
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
             request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
             request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " +
-                    configuration.getProperty(CONNECTOR_BASE_AUTH_OAUTH2_ENCODED_SECRET));
-            return executeRequest(configuration, client, request, entity, gsonBuilder);
+                    configuration.getEncodedSecret());
+            return OAuth2TokenExecution.executeRequest(this, configuration, client, request, entity, gsonBuilder);
 
         } catch (IOException e) {
             throw new ConnectorSecurityException(

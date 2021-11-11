@@ -13,11 +13,22 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
-import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.spi.Configuration;
 
-import java.util.Map;
+/*
+deepGet - if true, getAll will always invoke getOne on each object
+import - if true, lack of paging OperationOptions from Midpoint will be considered
+    an import that should import ALL records
+deepImport - if true, import process will get invoke getOne on each object.
+If deepImport is false, deepGet should also be false.
+importBatchSize - integer for batch size when "import" is true.  Driver
+    must support pagination in order to perform import in batches.
+    If not set, there is no batch size and all records are imported at once.
+pagination - if true, this indicates the driver supports pagination
+    if false, pagination is not supported and getAll always returns all
+    results (except when filter is used)
+ */
 
 /**
  * Architectural interface used to wrap ConnId's Configuration interface,
@@ -25,77 +36,33 @@ import java.util.Map;
  */
 public interface ConnectorConfiguration extends Configuration {
 
-    /**
-     * Get connector configuration property value
-     * @return String containing configuration value for input property
-     */
-    String getProperty(ConnectorProperty propertyIn);
+    String getCurrentToken();
+    void setCurrentToken(String input);
 
-    /**
-     * Get connector configuration property value
-     * @return String containing configuration value for input property
-     */
-    String getProperty(String input);
+    String getSource();
+    void setSource(String input);
 
-    /**
-     * Set a connector configuration property value
-     * @param key Configuration property name to set
-     * @param value Configuration property value to set
-     */
-    void setProperty(String key, String value);
-
-    /**
-     * Get the connector configuration name
-     * @return String containing a name representation for this connector's configuration
-     */
     String getName();
+    void setName(String input);
 
-    /**
-     * Get whether of not the connector has already been validated
-     * @return true if validation has already been run and was successful, false if it hasn't been
-     * attempted.
-     */
-    boolean isValidated();
-
-    /**
-     * The validate method should load all applicable configuration input (input file(s),
-     * properties, etc.).
-     * If any problems occur while loading a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    void setup() throws ConfigurationException;
-
-    /**
-     * Validate all configuration input.
-     * If any problems occur while validating a reliable configuration for this
-     * connector, then ConfigurationException should be thrown.
-     * @throws ConfigurationException If configuration input could not be loaded or failed validation.
-     */
-    void validateConfiguration() throws ConfigurationException;
-
-
-    String innerGetCredentialAccessToken();
-
-    void innerSetCredentialAccessToken(String token);
-
-    default OAuth2AccessTokenContainer getOauth2Information() {
-        return null;
-    }
-
-    default void setOauth2Information(OAuth2AccessTokenContainer oauth2Information) {
-    }
-
-    default Map<String, String> getExtraJWTClaimData() {
-        return null;
-    }
+    Boolean getActive();
+    void setActive(Boolean input);
 
     @Override
     default void validate() {
-        setup();
-        validateConfiguration();
+        ConfigurationValidator.validate(this);
     }
 
+    default void read() {
+        ConfigurationReader.readPropertiesFromSource(this);
+    }
 
+    default String write() {
+        return ConfigurationWriter.writeToString(this);
+    }
+
+    default boolean isTestConfiguration() {
+        return (!StringUtils.equalsIgnoreCase("default", getName()));
+    }
 
 }

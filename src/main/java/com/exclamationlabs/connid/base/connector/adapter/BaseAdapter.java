@@ -18,12 +18,23 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
+import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
+import com.exclamationlabs.connid.base.connector.util.OperationOptionsDataFinder;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Base attribute class describing composition of an Adapter.
@@ -34,9 +45,25 @@ import java.util.*;
  * Adapter subclasses should specify the generic as a specific identity object
  * type, which implements IdentityModel.
  */
-public abstract class BaseAdapter<T extends IdentityModel> {
+public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorConfiguration> {
 
-    private Driver driver;
+    private static final Log LOG = Log.getLog(BaseAdapter.class);
+
+    private Driver<U> driver;
+
+    protected U configuration;
+
+    protected Set<String> multiValueAttributeNames;
+
+    public BaseAdapter() {
+        multiValueAttributeNames = new HashSet<>();
+        Set<ConnectorAttribute> attributes = getConnectorAttributes();
+        for (ConnectorAttribute attribute : attributes) {
+            if (attribute.getFlags().contains(AttributeInfo.Flags.MULTIVALUED)) {
+                multiValueAttributeNames.add(attribute.getName());
+            }
+        }
+    }
 
     /**
      * Return the ObjectClass type associated with this adapter.
@@ -58,18 +85,18 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * Adapter subclasses should construct a list of ConnectorAttribute objects,
      * using desired name, type and definition information, by using the
      * ConnectorAttribute() constructor.
-     * @return List of ConnectorAttributes associated with this IdentityModel and Adapter.
+     * @return Set of ConnectorAttributes associated with this IdentityModel and Adapter.
      */
-    public abstract List<ConnectorAttribute> getConnectorAttributes();
+    public abstract Set<ConnectorAttribute> getConnectorAttributes();
 
     /**
      * Given an input IdentityModel, build the list of ConnId Attributes to
      * be received to Midpoint.
      * @param model IdentityModel implementation holding object data.
-     * @return List of ConnId Attribute objects holding name and value information to
+     * @return Set of ConnId Attribute objects holding name and value information to
      * be received by Midpoint.
      */
-    protected abstract List<Attribute> constructAttributes(T model);
+    protected abstract Set<Attribute> constructAttributes(T model);
 
     /**
      * Given a set of Attribute information received from Midpoint, build
@@ -81,11 +108,20 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * and handle type juggling, to try to keep this complexity out of Adapter implementations.
      *
      * @param attributes Name/Value Attribute information received from Midpoint.
+     * @param addedMultiValueAttributes For updateDelta, this may contain
+     *                                  multi-valued attributes that were just added via Midpoint.
+     *                                  Null for create, Empty set if none applicable found for UpdateDelta
+     * @param removedMultiValueAttributes For updateDelta, this may contain
+     *                                  multi-valued attributes that were just removed via Midpoint.
+     *                                  Null for create, Empty set if none applicable found for UpdateDelta
      * @param isCreate True if this invocation applies to new object creation, false
      *                 if object update is applicable.
      * @return IdentityModel with fields populated from input attributes.
      */
-    protected abstract T constructModel(Set<Attribute> attributes, boolean isCreate);
+    protected abstract T constructModel(Set<Attribute> attributes,
+                                        Set<Attribute> addedMultiValueAttributes,
+                                        Set<Attribute> removedMultiValueAttributes,
+                                        boolean isCreate);
 
     /**
      * Service a request from IAM system to create the type on the destination system.
@@ -94,7 +130,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * @return new unique identifier for newly created type
      */
     public final Uid create(Set<Attribute> attributes) {
-        T model = constructModel(attributes, true);
+        T model = constructModel(attributes, null, null,true);
         String newId = getDriver().create(getIdentityModelClass(), model);
         return new Uid(newId);
     }
@@ -106,10 +142,13 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      *                   by the destination system to update the type.
      * @return unique identifier applicable to the type that was just updated
      */
-    public final Uid update(Uid uid, Set<Attribute> attributes) {
-        T model = constructModel(attributes, false);
+    public final Set<AttributeDelta> updateDelta(Uid uid, Set<AttributeDelta> attributes) {
+        ConsolidatedValues consolidated = consolidateAttributeValues(attributes);
+        T model = constructModel(consolidated.modifiedValues,
+                consolidated.addedMultiValues, consolidated.removedMultiValues
+                , false);
         getDriver().update(getIdentityModelClass(), uid.getUidValue(), model);
-        return uid;
+        return new HashSet<>();
     }
 
     /**
@@ -127,8 +166,6 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      * @param options OperationOptions object received by connector.  Not currently used but may be supported in
      *                the future for paging or other purposes.
      */
-    @SuppressWarnings({"unused", "unchecked"})
-
     public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
         if (queryIdentifierContainsFilter(queryIdentifier)) {
 
@@ -136,61 +173,160 @@ public abstract class BaseAdapter<T extends IdentityModel> {
                     StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
                     Uid.NAME)) {
                 // Simple Filter by UID happened - query for single record
+                LOG.info("Exact uid match for {0} requested by filter for type {1}", queryIdentifier,
+                        getIdentityModelClass().getSimpleName());
                 IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(),
                         StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR), options.getOptions());
                 if (singleItem != null) {
-                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                    passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
                 }
             } else {
                 if (hasEnhancedFiltering) {
-                    // execute driver method for all records using filter
-                    List<IdentityModel> allItems = getDriver().getAllFiltered(getIdentityModelClass(),
-                            options.getOptions(), StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
+                    ResultsFilter resultsFilter = new ResultsFilter(StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
                             StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR));
-                    for (IdentityModel item : allItems) {
-                        resultsHandler.handle(constructConnectorObject((T) item));
-                    }
-
+                    LOG.info("Perform getAll using filter {0} for type {1}", resultsFilter,
+                            getIdentityModelClass().getSimpleName());
+                    executeGetAll(resultsFilter, resultsHandler, options);
 
                 } else {
-                    executeQueryForAllRecords(options, resultsHandler);
+                    LOG.info("Filtering present but not supported.  Perform getAll unfiltered for type {0}",
+                            getIdentityModelClass().getSimpleName());
+                    executeGetAll(new ResultsFilter(), resultsHandler, options);
                 }
             }
         } else {
             if (queryAllRecords(queryIdentifier)) {
-                executeQueryForAllRecords(options, resultsHandler);
+                LOG.info("Filter absent.  Perform getAll unfiltered for type {0}",
+                        getIdentityModelClass().getSimpleName());
+                executeGetAll(new ResultsFilter(), resultsHandler, options);
             } else {
                 // Query for single item
+                LOG.info("Exact uid match for {0} requested by caller for type {1}", queryIdentifier,
+                        getIdentityModelClass().getSimpleName());
                 IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
                 if (singleItem != null) {
-                    resultsHandler.handle(constructConnectorObject((T) singleItem));
+                    passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
                 }
             }
         }
 
     }
+
+    protected void executeGetAll(ResultsFilter resultsFilter, ResultsHandler resultsHandler, OperationOptions options) {
+        ResultsConfiguration resultsConfiguration;
+        if (getConfiguration() instanceof ResultsConfiguration) {
+            resultsConfiguration = (ResultsConfiguration) getConfiguration();
+        } else {
+            resultsConfiguration = new DefaultResultsConfiguration();
+        }
+
+        boolean hasPagingOptions = OperationOptionsDataFinder.hasPagingOptions(options.getOptions());
+        boolean importAll = (!hasPagingOptions) && (!resultsFilter.hasFilter());
+        boolean deep = BooleanUtils.isTrue(resultsConfiguration.getDeepGet()) ||
+                (importAll && BooleanUtils.isTrue(resultsConfiguration.getDeepImport()));
+        ResultsPaginator paginator;
+        if (BooleanUtils.isNotTrue(resultsConfiguration.getPagination())) {
+            paginator = new ResultsPaginator();
+        } else {
+            if (hasPagingOptions) {
+                // Get partial results using paging data from OperationOptions
+                paginator = new ResultsPaginator(OperationOptionsDataFinder.getPageSize(options.getOptions()),
+                        OperationOptionsDataFinder.getPageResultsOffset(options.getOptions()));
+
+            } else {
+                if (resultsConfiguration.getImportBatchSize() != null) {
+                    // importAll with batch size
+                    paginator = new ResultsPaginator(resultsConfiguration.getImportBatchSize(), 1);
+                } else {
+                    // importAll
+                    paginator = new ResultsPaginator();
+                }
+            }
+        }
+
+        if (importAll && paginator.hasPagination()) {
+            LOG.info("Starting batch import using pagination: {0}, deep: {1} for type {2}",
+                    paginator, deep, getIdentityModelClass().getSimpleName());
+            executeBatchImport(resultsHandler, paginator, deep);
+        } else {
+            LOG.ok("Starting non-batch getAll using pagination: {0}, deep: {1} for type {2}",
+                    paginator, deep, getIdentityModelClass().getSimpleName());
+            // get a single page of results, or get/import all results in one shot
+            Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), resultsFilter, paginator, null);
+            passSetToResultsHandler(resultsHandler, dataSet, deep);
+        }
+
+    }
+
+    protected void executeBatchImport(ResultsHandler resultsHandler, ResultsPaginator paginator, boolean deep) {
+
+        while (!paginator.getNoMoreResults()) {
+            LOG.ok("Processing next batch using pagination {0} for type {1}, deep={2}",
+                    paginator, getIdentityModelClass().getSimpleName(), deep);
+            Set<IdentityModel> dataSet = getDriver().getAll(getIdentityModelClass(), new ResultsFilter(), paginator, null);
+            if (dataSet == null || dataSet.isEmpty()) {
+                LOG.info("Returned result set is empty. Considering batch import done for {0}",
+                        getIdentityModelClass().getSimpleName());
+                paginator.setNoMoreResults(true);
+            } else {
+                passSetToResultsHandler(resultsHandler, dataSet, deep);
+                if (!paginator.getNoMoreResults()) {
+                    paginator.setCurrentOffset(paginator.getCurrentOffset() + dataSet.size());
+                    paginator.setCurrentPageNumber(paginator.getCurrentPageNumber() + 1);
+                }
+            }
+        }
+
+    }
+
+    @SuppressWarnings({"unchecked"})
+    protected void passSetToResultsHandler(ResultsHandler resultsHandler, Set<IdentityModel> dataSet, boolean deep) {
+        if (deep) {
+            int passCount = 0;
+            for (IdentityModel current : dataSet) {
+                LOG.ok("For getAll/import, requesting deep item from driver with uid {0} for type {1}",
+                        current.getIdentityIdValue(), getIdentityModelClass().getSimpleName());
+                IdentityModel fullModel = getDriver().getOne(getIdentityModelClass(), current.getIdentityIdValue(), null);
+                if (fullModel != null) {
+                    resultsHandler.handle(constructConnectorObject((T) fullModel));
+                    passCount++;
+                }
+            }
+            LOG.ok("Passed {0} deep items to result handler for type {1}",
+                    passCount, getIdentityModelClass().getSimpleName());
+        } else {
+            int passCount = 0;
+            for (IdentityModel item : dataSet) {
+                if (item != null) {
+                    resultsHandler.handle(constructConnectorObject((T) item));
+                    passCount++;
+                }
+            }
+            LOG.ok("Passed {0} shallow items to result handler for type {1}",
+                    passCount, getIdentityModelClass().getSimpleName());
+        }
+    }
+
 
     private boolean queryIdentifierContainsFilter(String query) {
         return query != null && StringUtils.contains(query, BaseConnector.FILTER_SEPARATOR);
     }
 
-    @SuppressWarnings({"unchecked"})
-    private void executeQueryForAllRecords(OperationOptions options, ResultsHandler resultsHandler) {
-        // query for all items
-        List<IdentityModel> allItems = getDriver().getAll(getIdentityModelClass(), options.getOptions());
-        for (IdentityModel item : allItems) {
-            resultsHandler.handle(constructConnectorObject((T) item));
-        }
-    }
-
-    public final void setDriver(Driver component) {
+    public final void setDriver(Driver<U> component) {
         driver = component;
     }
 
-    public final Driver getDriver() {
+    public final Driver<U> getDriver() {
         return driver;
     }
 
+    public U getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(U configurationInput) {
+        configuration = configurationInput;
+    }
 
     /**
      * This utility method can be used within adapter constructModel() method
@@ -201,12 +337,12 @@ public abstract class BaseAdapter<T extends IdentityModel> {
      *                      present in @param attributes.
      * @return List of string identifiers for another object type.
      */
-    protected List<String> readAssignments(Set<Attribute> attributes,
+    protected Set<String> readAssignments(Set<Attribute> attributes,
                                            Enum<?> attributeName) {
-        List<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
-                List.class, attributes, attributeName);
+        Set<?> data = AdapterValueTypeConverter.getMultipleAttributeValue(
+                Set.class, attributes, attributeName);
 
-        List<String> ids = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
         if (data != null) {
             data.forEach(item -> ids.add(item.toString()));
         }
@@ -220,7 +356,7 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     protected final ConnectorObject constructConnectorObject(T model) {
         ConnectorObjectBuilder builder = getConnectorObjectBuilder(model);
-        List<Attribute> connectorAttributes = constructAttributes(model);
+        Set<Attribute> connectorAttributes = constructAttributes(model);
         for (Attribute current : connectorAttributes) {
             builder.addAttribute(AttributeBuilder.build(current.getName(),
                     current.getValue()));
@@ -237,6 +373,123 @@ public abstract class BaseAdapter<T extends IdentityModel> {
 
     protected final boolean queryAllRecords(String query) {
         return (query == null || StringUtils.isBlank(query) || StringUtils.equalsIgnoreCase(query, "ALL"));
+    }
+
+    protected static class DefaultResultsConfiguration extends DefaultConnectorConfiguration implements ResultsConfiguration {
+
+        @Override
+        public Boolean getDeepGet() {
+            return false;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return false;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+        }
+
+        @Override
+        public Integer getImportBatchSize() {
+            return null;
+        }
+
+        @Override
+        public void setImportBatchSize(Integer input) {
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return false;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
+        }
+    }
+
+    private ConsolidatedValues consolidateAttributeValues(Set<AttributeDelta> delta) {
+        Set<Attribute> modifiedSet = new HashSet<>();
+        Set<Attribute> addedSet = new HashSet<>();
+        Set<Attribute> removedSet = new HashSet<>();
+
+        LOG.ok("Consolidate {0} delta values", delta.size());
+        for (AttributeDelta current : delta) {
+            boolean multiValuedAttribute = multiValueAttributeNames.contains(current.getName());
+            List<Object> addValues = current.getValuesToAdd();
+            List<Object> modifiedValues = current.getValuesToReplace();
+            List<Object> removedValues = current.getValuesToRemove();
+
+            if (modifiedValues != null) {
+                modifiedSet.add(AttributeBuilder.build(current.getName(), modifiedValues));
+                LOG.ok("ModifiedValues not null. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+            } else {
+                if (addValues != null) {
+                    if (multiValuedAttribute) {
+                        addedSet.add(AttributeBuilder.build(current.getName(), addValues));
+                        LOG.ok("MultiValuedAttribute. Added {0} to added set.  New size {1}", current.getName(), addedSet.size());
+                    } else {
+                        modifiedSet.add(AttributeBuilder.build(current.getName(), addValues));
+                        LOG.ok("Not MultiValuedAttribute. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+                    }
+                }
+
+                if (removedValues != null) {
+                    if (multiValuedAttribute) {
+                        removedSet.add(AttributeBuilder.build(current.getName(), removedValues));
+                        LOG.ok("Removed values present and multiValuedAttribute. Added {0} to removed set.  New size {1}", current.getName(), removedSet.size());
+                    } else {
+                        modifiedSet.add(AttributeBuilder.build(current.getName(), Collections.emptyList()));
+                        LOG.ok("Removed values present and not multiValuedAttribute. Added {0} to modified set.  New size {1}", current.getName(), modifiedSet.size());
+                    }
+                }
+
+            }
+        }
+        ConsolidatedValues responseValues = new ConsolidatedValues(modifiedSet, addedSet, removedSet);
+        LOG.ok("Consolidated values result: {0}", responseValues.toString());
+        return responseValues;
+    }
+
+    private static final class ConsolidatedValues {
+
+        final Set<Attribute> modifiedValues;
+        final Set<Attribute> addedMultiValues;
+        final Set<Attribute> removedMultiValues;
+
+        public ConsolidatedValues(Set<Attribute> modified, Set<Attribute> added,
+                                  Set<Attribute> removed) {
+            modifiedValues = modified;
+            addedMultiValues = added;
+            removedMultiValues = removed;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("addedMultiValues: [");
+            for (Attribute current : addedMultiValues) {
+                builder.append(current.toString());
+            }
+            builder.append("],");
+            builder.append("modifiedValues: [");
+            for (Attribute current : modifiedValues) {
+                builder.append(current.toString());
+            }
+            builder.append("],");
+            builder.append("removedMultiValues: [");
+            for (Attribute current : removedMultiValues) {
+                builder.append(current.toString());
+            }
+            builder.append("]");
+            return builder.toString();
+        }
     }
 
 }

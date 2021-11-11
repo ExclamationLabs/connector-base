@@ -19,20 +19,20 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup> {
+public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexStubConfiguration> {
 
 
     @Override
@@ -46,15 +46,17 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup> {
     }
 
     @Override
-    public List<ConnectorAttribute> getConnectorAttributes() {
-        List<ConnectorAttribute> result = new ArrayList<>();
+    public Set<ConnectorAttribute> getConnectorAttributes() {
+        Set<ConnectorAttribute> result = new HashSet<>();
         result.add(new ConnectorAttribute(SUPERGROUP_ID.name(), STRING, NOT_UPDATEABLE));
         result.add(new ConnectorAttribute(SUPERGROUP_NAME.name(), STRING));
         return result;
     }
 
     @Override
-    protected StubSupergroup constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubSupergroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
+                                      Set<Attribute> removed,
+                                      boolean isCreate) {
         StubSupergroup supergroup = new StubSupergroup();
         supergroup.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         supergroup.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, SUPERGROUP_NAME));
@@ -62,12 +64,12 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup> {
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubSupergroup supergroup) {
-        List<Attribute> attributes = new ArrayList<>();
+    protected Set<Attribute> constructAttributes(StubSupergroup supergroup) {
+        Set<Attribute> attributes = new HashSet<>();
 
         attributes.add(AttributeBuilder.build(SUPERGROUP_ID.name(), supergroup.getId()));
         attributes.add(AttributeBuilder.build(SUPERGROUP_NAME.name(), supergroup.getName()));
 
-        return attributes;
+        return new HashSet<>(attributes);
     }
 }

@@ -19,18 +19,18 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import org.identityconnectors.framework.common.objects.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
+public class StubGroupsAdapter extends BaseAdapter<StubGroup, StubConfiguration> {
 
 
     @Override
@@ -44,15 +44,17 @@ public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
     }
 
     @Override
-    public List<ConnectorAttribute> getConnectorAttributes() {
-        List<ConnectorAttribute> result = new ArrayList<>();
+    public Set<ConnectorAttribute> getConnectorAttributes() {
+        Set<ConnectorAttribute> result = new HashSet<>();
         result.add(new ConnectorAttribute(GROUP_ID.name(), STRING, NOT_UPDATEABLE));
         result.add(new ConnectorAttribute(GROUP_NAME.name(), STRING));
         return result;
     }
 
     @Override
-    protected StubGroup constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubGroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
+                                      Set<Attribute> removed,
+                                      boolean isCreate) {
         StubGroup group = new StubGroup();
         group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
@@ -61,8 +63,8 @@ public class StubGroupsAdapter extends BaseAdapter<StubGroup> {
     }
 
     @Override
-    protected List<Attribute> constructAttributes(StubGroup group) {
-        List<Attribute> attributes = new ArrayList<>();
+    protected Set<Attribute> constructAttributes(StubGroup group) {
+        Set<Attribute> attributes = new HashSet<>();
 
         attributes.add(AttributeBuilder.build(GROUP_ID.name(), group.getId()));
         attributes.add(AttributeBuilder.build(GROUP_NAME.name(), group.getName()));
