@@ -37,7 +37,7 @@ public class ConfigurationReader {
 
     public static void prepareTestConfiguration(ConnectorConfiguration configuration) {
         String configurationName = configuration.getName();
-        LOG.info("Test Configuration with location {0} specified", configurationName);
+        LOG.ok("Test Configuration with location {0} specified", configurationName);
         configuration.setName(configurationName);
         if (System.getenv(configurationName) != null) {
             // Found environment variable match for configuration name,
@@ -101,25 +101,25 @@ public class ConfigurationReader {
                             case "String":
                                 field.setAccessible(true);
                                 field.set(configuration, propertyValue);
-                                LOG.info("Loaded String data {0} into field {1} using path {2}",
+                                LOG.ok("Loaded String data {0} into field {1} using path {2}",
                                         propertyValue, field.getName(), configPath);
                                 break;
                             case "Boolean":
                                 field.setAccessible(true);
                                 field.set(configuration, Boolean.parseBoolean(propertyValue));
-                                LOG.info("Loaded Boolean data {0} into field {1} using path {2}",
+                                LOG.ok("Loaded Boolean data {0} into field {1} using path {2}",
                                         propertyValue, field.getName(), configPath);
                                 break;
                             case "Integer":
                                 field.setAccessible(true);
                                 field.set(configuration, Integer.parseInt(propertyValue));
-                                LOG.info("Loaded Integer data {0} into field {1} using path {2}",
+                                LOG.ok("Loaded Integer data {0} into field {1} using path {2}",
                                         propertyValue, field.getName(), configPath);
                                 break;
                             case "Long":
                                 field.setAccessible(true);
                                 field.set(configuration, Long.parseLong(propertyValue));
-                                LOG.info("Loaded Long data {0} into field {1} using path {2}",
+                                LOG.ok("Loaded Long data {0} into field {1} using path {2}",
                                         propertyValue, field.getName(), configPath);
                                 break;
                             default:
@@ -132,7 +132,7 @@ public class ConfigurationReader {
                     }
 
                 } else {
-                    LOG.info("Data not set.  No property data found for field {0} using path {1}",
+                    LOG.ok("Data not set.  No property data found for field {0} using path {1}",
                             field.getName(), configPath);
                 }
             }

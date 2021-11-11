@@ -89,11 +89,11 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.oauth2Information")
         private Map<String, String> oauth2Information;
 
-        @ConfigurationInfo(path = "security.pfx.file")
-        private String file;
+        @ConfigurationInfo(path = "security.pfx.pfxFile")
+        private String pfxFile;
 
-        @ConfigurationInfo(path = "security.pfx.password")
-        private String password;
+        @ConfigurationInfo(path = "security.pfx.pfxPassword")
+        private String pfxPassword;
 
         public TestConfiguration(String nameIn) {
             name = nameIn;
@@ -150,23 +150,23 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         }
 
         @Override
-        public String getFile() {
-            return file;
+        public String getPfxFile() {
+            return pfxFile;
         }
 
         @Override
-        public void setFile(String input) {
-            file = input;
+        public void setPfxFile(String input) {
+            pfxFile = input;
         }
 
         @Override
-        public String getPassword() {
-            return password;
+        public String getPfxPassword() {
+            return pfxPassword;
         }
 
         @Override
-        public void setPassword(String input) {
-            password = input;
+        public void setPfxPassword(String input) {
+            pfxPassword = input;
         }
     }
 }

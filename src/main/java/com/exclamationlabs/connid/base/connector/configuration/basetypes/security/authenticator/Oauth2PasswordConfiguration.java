@@ -27,8 +27,8 @@ public interface Oauth2PasswordConfiguration extends ConnectorConfiguration, Oau
     void setTokenUrl(String input);
     String getEncodedSecret();
     void setEncodedSecret(String input);
-    String getUsername();
-    void setUsername(String input);
-    String getPassword();
-    void setPassword(String input);
+    String getOauth2Username();
+    void setOauth2Username(String input);
+    String getOauth2Password();
+    void setOauth2Password(String input);
 }

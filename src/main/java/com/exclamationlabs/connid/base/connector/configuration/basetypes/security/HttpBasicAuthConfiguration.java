@@ -23,8 +23,8 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * at their HTTP/HTTPS endpoint.
  */
 public interface HttpBasicAuthConfiguration extends ConnectorConfiguration {
-    String getSecurityHttpBasicAuthUsername();
-    void setSecurityHttpBasicAuthUsername(String input);
-    String getSecurityHttpBasicAuthPassword();
-    void setSecurityHttpBasicAuthPassword(String input);
+    String getBasicUsername();
+    void setBasicUsername(String input);
+    String getBasicPassword();
+    void setBasicPassword(String input);
 }

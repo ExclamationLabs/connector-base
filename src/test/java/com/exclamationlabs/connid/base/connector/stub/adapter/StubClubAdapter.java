@@ -54,7 +54,9 @@ public class StubClubAdapter extends BaseAdapter<StubClub, ComplexStubConfigurat
     }
 
     @Override
-    protected StubClub constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubClub constructModel(Set<Attribute> attributes, Set<Attribute> added,
+                                      Set<Attribute> removed,
+                                      boolean isCreate) {
         StubClub club = new StubClub();
         club.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         club.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, CLUB_NAME));

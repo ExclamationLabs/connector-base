@@ -19,7 +19,6 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.adapter.*;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
-import com.exclamationlabs.connid.base.connector.configuration.ConfigurationReader;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
@@ -163,6 +162,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
      *                      concrete connector class)
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void init(Configuration configuration) throws ConfigurationException {
         if (configurationType.isInstance(configuration)) {
             initializeBaseConnector((T) configuration);
@@ -182,6 +182,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
     @Override
     public void test() {
+        LOG.ok("Connector Configuration for connector {0}: {0}",
+                this.getClass().getSimpleName(), configuration.write());
         driver.test();
     }
 
@@ -284,7 +286,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
         if (getAuthenticator() == null) {
             LOG.info("No authenticator found, using default no-op Authenticator for Connector {0}, already validated", getName());
-            setAuthenticator((Authenticator<T>) new DefaultAuthenticator());
+            setDefaultAuthenticator();
         } else {
             LOG.info("Using authenticator {0} for connector {1}", getAuthenticator().getClass().getName(),
                     this.getName());
@@ -305,7 +307,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
         if (getConnectorConfiguration().isTestConfiguration()) {
             LOG.info("Test configuration detected, loading configuration properties from file ...");
-            ConfigurationReader.readPropertiesFromSource(getConnectorConfiguration());
+            getConnectorConfiguration().read();
         }
 
         getConnectorConfiguration().validate();
@@ -335,6 +337,11 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
                     adapter.getClass().getSimpleName());
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setDefaultAuthenticator() {
+        setAuthenticator((Authenticator<T>) new DefaultAuthenticator());
     }
 
 }

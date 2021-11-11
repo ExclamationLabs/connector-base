@@ -23,8 +23,8 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * as part of their credentials for authentication.
  */
 public interface PfxConfiguration extends ConnectorConfiguration {
-    String getFile();
-    void setFile(String input);
-    String getPassword();
-    void setPassword(String input);
+    String getPfxFile();
+    void setPfxFile(String input);
+    String getPfxPassword();
+    void setPfxPassword(String input);
 }

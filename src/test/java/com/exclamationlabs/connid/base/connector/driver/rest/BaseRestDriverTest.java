@@ -16,7 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
-import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.driver.exception.DriverRenewableTokenExpiredException;
@@ -93,7 +92,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Before
     public void setup() {
         CustomRetryConfiguration retryConfiguration = new CustomRetryConfiguration();
-        retryConfiguration.setRestIoErrorRetries(5);
+        retryConfiguration.setIoErrorRetries(5);
         driver = new TestRestDriver();
         driver.initialize(retryConfiguration, configuration -> "good");
         moreHeaders.put("uno", "one");
@@ -196,7 +195,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Test
     public void testIOExceptionRetries() throws IOException {
         CustomRetryConfiguration retryConfiguration = new CustomRetryConfiguration();
-        retryConfiguration.setRestIoErrorRetries(2);
+        retryConfiguration.setIoErrorRetries(2);
         driver = new TestRestDriver();
         driver.initialize(retryConfiguration, configuration -> "good");
         moreHeaders.put("uno", "one");
@@ -415,12 +414,12 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         }
 
         @Override
-        public Integer getRestIoErrorRetries() {
+        public Integer getIoErrorRetries() {
             return retries;
         }
 
         @Override
-        public void setRestIoErrorRetries(Integer input) {
+        public void setIoErrorRetries(Integer input) {
             retries = input;
         }
     }

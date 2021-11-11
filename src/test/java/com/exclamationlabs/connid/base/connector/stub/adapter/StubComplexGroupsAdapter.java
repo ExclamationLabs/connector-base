@@ -54,7 +54,8 @@ public class StubComplexGroupsAdapter extends BaseAdapter<StubGroup, ComplexStub
     }
 
     @Override
-    protected StubGroup constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubGroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
+                                       Set<Attribute> removed, boolean isCreate) {
         StubGroup group = new StubGroup();
         group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));

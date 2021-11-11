@@ -14,7 +14,7 @@ public class ConfigurationValidator {
 
     public static void validate(ConnectorConfiguration configuration) throws ConfigurationException {
         if (configuration.getActive()) {
-            LOG.info("Validating configuration rules for configuration {0} ...",
+            LOG.ok("Validating configuration rules for configuration {0} ...",
                     configuration.getClass().getSimpleName()  );
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             Validator validator = factory.getValidator();
@@ -26,7 +26,7 @@ public class ConfigurationValidator {
                         configuration.getClass().getSimpleName() + " failed", new ConstraintViolationException(violations));
             }
         } else {
-            LOG.info("Skipping validation, validation not active for {0}, name:{1} source:{2}" +
+            LOG.ok("Skipping validation, validation not active for {0}, name:{1} source:{2}" +
                     configuration.getClass().getSimpleName(), configuration.getName(),
                     configuration.getSource());
             throw new ConfigurationException("Skipped integration test");

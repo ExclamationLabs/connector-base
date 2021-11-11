@@ -75,7 +75,9 @@ public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubCo
     }
 
     @Override
-    protected StubUser constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubUser constructModel(Set<Attribute> attributes, Set<Attribute> added,
+                                      Set<Attribute> removed,
+                                      boolean isCreate) {
         StubUser user = new StubUser();
         user.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         user.setUserName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_NAME));

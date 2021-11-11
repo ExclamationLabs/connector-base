@@ -23,10 +23,10 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * to use a HTTP/SOCKS5 proxy in order to connect to the destination system.
  */
 public interface ProxyConfiguration extends ConnectorConfiguration {
-    String getSecurityProxyHost();
-    void setSecurityProxyHost(String input);
-    Integer getSecurityProxyPort();
-    void setSecurityProxyPort(Integer input);
-    String getSecurityProxyType();
-    void setSecurityProxyType(String input);
+    String getProxyHost();
+    void setProxyHost(String input);
+    Integer getProxyPort();
+    void setProxyPort(Integer input);
+    String getProxyType();
+    void setProxyType(String input);
 }

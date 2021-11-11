@@ -10,7 +10,7 @@ taken care of by a common API.
 
 # Change Log
 
-+ **2.0.1** - Added plugin-generated Configuration, improved pagination and results filtering support(10/29/2021)
++ **2.0.1** - Added plugin-generated Configuration, improved pagination and results filtering support(11/10/2021)
 + **1.2.0** - Add filtering support for resources(09/16/2021)
 + **1.1.5** - Add support for nativeName attribute info to schema building(08/12/2021)
 + **1.1.4** - Add retry logic support for BaseRestDriver(05/10/2021)

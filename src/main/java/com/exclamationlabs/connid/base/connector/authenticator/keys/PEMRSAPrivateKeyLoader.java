@@ -37,7 +37,7 @@ public class PEMRSAPrivateKeyLoader implements RSAPrivateKeyLoader<PemConfigurat
     public RSAPrivateKey load(PemConfiguration configuration)
             throws ConnectorSecurityException {
         Security.addProvider(new BouncyCastleProvider());
-        String pemFile = configuration.getFile();
+        String pemFile = configuration.getPemFile();
         try (PEMParser pemParser = new PEMParser(new FileReader(pemFile))) {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             Object object = pemParser.readObject();

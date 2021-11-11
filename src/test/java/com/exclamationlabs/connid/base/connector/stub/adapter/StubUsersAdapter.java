@@ -72,7 +72,7 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
     }
 
     @Override
-    protected StubUser constructModel(Set<Attribute> attributes, boolean isCreate) {
+    protected StubUser constructModel(Set<Attribute> attributes, Set<Attribute> addedMultiValueAttributes, Set<Attribute> removedMultiValueAttributes, boolean isCreate) {
         StubUser user = new StubUser();
         user.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         user.setUserName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, USER_NAME));

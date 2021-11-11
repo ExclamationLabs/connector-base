@@ -84,12 +84,12 @@ public class ComplexStubConfiguration extends StubConfiguration
     }
 
     @Override
-    public String getServiceServiceUrl() {
+    public String getServiceUrl() {
         return "testurl";
     }
 
     @Override
-    public void setServiceServiceUrl(String input) {
+    public void setServiceUrl(String input) {
 
     }
 
