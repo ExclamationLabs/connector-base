@@ -75,6 +75,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
     protected HttpClientContext socksProxyClientContext;
 
+    protected HttpClient restClient = null;
+
     @Override
     public void initialize(U config, Authenticator<U> auth)
             throws ConnectorException {
@@ -105,6 +107,12 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
      *
      */
     protected HttpClient createClient() {
+        if (restClient != null) {
+            LOG.ok("Reusing prior restClient {0} for driver {1}", restClient.getClass().getName(),
+                    this.getClass().getSimpleName());
+            return restClient;
+        }
+
         boolean usesHttpBasicAuth = getConfiguration() instanceof HttpBasicAuthConfiguration;
         boolean usesProxy = getConfiguration() instanceof ProxyConfiguration;
         boolean socksProxy = false;
@@ -128,18 +136,18 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         if (usesHttpBasicAuth) {
             if (usesProxy) {
                 if (socksProxy) {
-                    return HttpClients.custom()
+                    restClient = HttpClients.custom()
                             .setConnectionManager(socksProxyConnectionManager)
                             .setDefaultCredentialsProvider(basicAuthProvider)
                             .build();
                 } else {
-                    return HttpClients.custom()
+                    restClient = HttpClients.custom()
                             .setRoutePlanner(httpProxyRoutePlanner)
                             .setDefaultCredentialsProvider(basicAuthProvider)
                             .build();
                 }
             } else {
-                return HttpClients.custom()
+                restClient = HttpClients.custom()
                         .setDefaultCredentialsProvider(basicAuthProvider)
                         .build();
             }
@@ -147,19 +155,23 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         } else {
             if (usesProxy) {
                 if (socksProxy) {
-                    return HttpClients.custom()
+                    restClient = HttpClients.custom()
                             .setConnectionManager(socksProxyConnectionManager)
                             .build();
                 } else {
-                    return HttpClients.custom()
+                    restClient = HttpClients.custom()
                             .setRoutePlanner(httpProxyRoutePlanner)
                             .build();
                 }
             } else {
-                return HttpClients.custom()
+                restClient = HttpClients.custom()
                         .build();
             }
         }
+
+        LOG.ok("Calculated new restClient {0} for driver {1}", restClient.getClass().getName(),
+                this.getClass().getSimpleName());
+        return restClient;
     }
 
     protected DefaultProxyRoutePlanner setupHttpProxyRouteManager(ProxyConfiguration configuration) {
