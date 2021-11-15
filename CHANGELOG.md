@@ -10,6 +10,7 @@ taken care of by a common API.
 
 # Change Log
 
++ **2.0.3** - Change BaseRestDriver to reuse prior http client - helps with import and calls with repetitive use (11/15/2021)
 + **2.0.2** - Fix integration test validation - delegate to connector init method (11/10/2021)
 + **2.0.1** - Added plugin-generated Configuration, improved pagination and results filtering support(11/10/2021)
 + **1.2.0** - Add filtering support for resources(09/16/2021)
