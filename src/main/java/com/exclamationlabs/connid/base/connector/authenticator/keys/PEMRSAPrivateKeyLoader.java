@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.FileLoaderUtil;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PemConfiguration;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -37,7 +38,10 @@ public class PEMRSAPrivateKeyLoader implements RSAPrivateKeyLoader<PemConfigurat
     public RSAPrivateKey load(PemConfiguration configuration)
             throws ConnectorSecurityException {
         Security.addProvider(new BouncyCastleProvider());
-        String pemFile = configuration.getPemFile();
+        String pemFile = FileLoaderUtil.getFileLocation(configuration.getName(),
+                "pemFile",
+                configuration.getPemFile());
+
         try (PEMParser pemParser = new PEMParser(new FileReader(pemFile))) {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             Object object = pemParser.readObject();
