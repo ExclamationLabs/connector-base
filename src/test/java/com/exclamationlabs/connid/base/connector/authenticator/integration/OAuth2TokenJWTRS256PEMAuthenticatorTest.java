@@ -54,16 +54,19 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
 
         JWTRS256Authenticator jwtAuthenticator = new JWTRS256Authenticator() {
             @Override
+            protected Map<String, String> getExtraClaimData() {
+                Map<String, String> extraData = new HashMap<>();
+                extraData.put("scope", "signature impersonation");
+                return extraData;
+            }
+
+            @Override
             protected RSAPrivateKey getPrivateKey() {
                 return new PEMRSAPrivateKeyLoader().load((PemConfiguration) configuration);
             }
 
         };
         OAuth2TokenJWTAuthenticator oauth2Authenticator = new OAuth2TokenJWTAuthenticator(jwtAuthenticator);
-
-        Map<String, String> extraData = new HashMap<>();
-        extraData.put("scope", "signature impersonation");
-        ((JwtRs256Configuration) configuration).setExtraClaimData(extraData);
 
         String response = oauth2Authenticator.authenticate(configuration);
         assertNotNull(response);
@@ -92,9 +95,6 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
 
         @ConfigurationInfo(path = "security.authenticator.jwtRs256.useIssuedAt")
         private Boolean useIssuedAt;
-
-        @ConfigurationInfo(path = "security.authenticator.jwtRs256.extraClaimData")
-        private Map<String,String> extraClaimData;
 
         @ConfigurationInfo(path = "security.authenticator.oauth2Jwt.tokenUrl")
         private String tokenUrl;
@@ -164,16 +164,6 @@ public class OAuth2TokenJWTRS256PEMAuthenticatorTest extends IntegrationTest {
         @Override
         public void setUseIssuedAt(Boolean input) {
             useIssuedAt = input;
-        }
-
-        @Override
-        public Map<String, String> getExtraClaimData() {
-            return extraClaimData;
-        }
-
-        @Override
-        public void setExtraClaimData(Map<String, String> data) {
-            extraClaimData = data;
         }
 
         @Override
