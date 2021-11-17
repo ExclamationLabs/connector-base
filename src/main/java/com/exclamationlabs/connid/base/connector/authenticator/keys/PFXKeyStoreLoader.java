@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
+import com.exclamationlabs.connid.base.connector.authenticator.util.FileLoaderUtil;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
@@ -33,7 +34,10 @@ public class PFXKeyStoreLoader implements KeyStoreLoader<PfxConfiguration> {
     @Override
     public KeyStore load(PfxConfiguration configuration) throws ConnectorSecurityException {
         final String KEYSTORE_PASSWORD = configuration.getPfxPassword();
-        final String KEYSTORE_PATH = configuration.getPfxFile();
+
+        final String KEYSTORE_PATH = FileLoaderUtil.getFileLocation(configuration.getName(),
+                "pfxFile",
+                configuration.getPfxFile());
 
         try(InputStream inputStream = new FileInputStream(new File(KEYSTORE_PATH))) {
             KeyStore keystore = KeyStore.getInstance("PKCS12");
