@@ -39,6 +39,4 @@ public interface JwtRs256Configuration extends ConnectorConfiguration {
     void setAudience(String input);
     Boolean getUseIssuedAt();
     void setUseIssuedAt(Boolean input);
-    Map<String,String> getExtraClaimData();
-    void setExtraClaimData(Map<String, String> data);
 }
