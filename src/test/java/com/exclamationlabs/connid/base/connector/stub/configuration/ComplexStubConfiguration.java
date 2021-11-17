@@ -144,16 +144,6 @@ public class ComplexStubConfiguration extends StubConfiguration
     }
 
     @Override
-    public Map<String, String> getExtraClaimData() {
-        return null;
-    }
-
-    @Override
-    public void setExtraClaimData(Map<String, String> data) {
-
-    }
-
-    @Override
     public String getTokenUrl() {
         return null;
     }

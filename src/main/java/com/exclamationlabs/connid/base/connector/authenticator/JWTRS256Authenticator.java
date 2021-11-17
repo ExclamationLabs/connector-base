@@ -50,6 +50,10 @@ public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Con
 
     protected abstract RSAPrivateKey getPrivateKey();
 
+    protected Map<String, String> getExtraClaimData() {
+        return Collections.emptyMap();
+    }
+
     @Override
     public String authenticate(JwtRs256Configuration configuration) throws ConnectorSecurityException {
         try {
@@ -76,8 +80,8 @@ public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Con
                 builder.withIssuedAt(new Date());
             }
 
-            if (configuration.getExtraClaimData() != null && (!configuration.getExtraClaimData().isEmpty())) {
-                configuration.getExtraClaimData().forEach(builder::withClaim);
+            if (getExtraClaimData() != null && (!getExtraClaimData().isEmpty())) {
+                getExtraClaimData().forEach(builder::withClaim);
             }
 
             return builder.sign(algorithm);

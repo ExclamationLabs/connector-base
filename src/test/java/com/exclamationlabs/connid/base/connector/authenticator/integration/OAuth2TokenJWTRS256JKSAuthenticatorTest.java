@@ -190,16 +190,6 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
         }
 
         @Override
-        public Map<String, String> getExtraClaimData() {
-            return extraClaimData;
-        }
-
-        @Override
-        public void setExtraClaimData(Map<String, String> data) {
-            extraClaimData = data;
-        }
-
-        @Override
         public String getTokenUrl() {
             return tokenUrl;
         }
