@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import org.identityconnectors.common.security.GuardedString;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -63,6 +64,10 @@ public class ConfigurationReaderTest {
         assertNotNull(configuration.getThing3());
         assertTrue(configuration.getThing3());
         assertTrue(configuration.getActive());
+        GuardedString hiddenString = configuration.getGuardedValue();
+        hiddenString.access(clearChars ->
+                assertEquals("testMe", new String(clearChars)));
+
     }
 
     @Test

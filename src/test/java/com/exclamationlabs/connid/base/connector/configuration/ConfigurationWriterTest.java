@@ -40,7 +40,8 @@ public class ConfigurationWriterTest {
             "custom.thing1=customValue\n" +
             "custom.thing2=5555566666\n" +
             "custom.thing3=true\n" +
-            "rest.ioErrorRetries=15\n";
+            "rest.ioErrorRetries=15\n" +
+            "custom.guardedValue=testMe\n";
         String output = ConfigurationWriter.writeToString(configuration);
         assertEquals(expectedOutput, output);
     }

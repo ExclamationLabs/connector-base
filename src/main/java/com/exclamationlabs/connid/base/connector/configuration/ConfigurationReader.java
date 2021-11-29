@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.util.Properties;
 
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 
 public class ConfigurationReader {
@@ -102,6 +103,13 @@ public class ConfigurationReader {
                                 field.setAccessible(true);
                                 field.set(configuration, propertyValue);
                                 LOG.ok("Loaded String data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
+                            case "GuardedString":
+                                field.setAccessible(true);
+                                field.set(configuration, new GuardedString(
+                                        propertyValue.toCharArray()));
+                                LOG.ok("Loaded Guarded String data {0} into field {1} using path {2}",
                                         propertyValue, field.getName(), configPath);
                                 break;
                             case "Boolean":

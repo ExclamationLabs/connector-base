@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.security.GuardedString;
 
 import java.lang.reflect.Field;
 
@@ -45,10 +46,27 @@ public class ConfigurationWriter {
                 String configPath = configInfo.path();
                 try {
                     field.setAccessible(true);
+
+                    String dataValue;
                     Object fieldValue = field.get(configuration);
+                    if (fieldValue == null) {
+                        dataValue = "";
+                    } else {
+                        if (GuardedString.class == field.getType()) {
+                            // Obtain value from GuardedString
+                            final String[] retrievedValue = new String[1];
+                            GuardedString hiddenString = (GuardedString) field.get(configuration);
+                            hiddenString.access(clearChars ->
+                                    retrievedValue[0] = new String(clearChars));
+                            dataValue = retrievedValue[0];
+                        } else {
+                            dataValue = fieldValue.toString();
+                        }
+                    }
+
                     build.append(configPath);
                     build.append("=");
-                    build.append(fieldValue == null ? "" : fieldValue.toString());
+                    build.append(dataValue);
                     build.append("\n");
                 } catch (IllegalAccessException ill) {
                     LOG.warn("Error while reading field value " + field.getName(), ill);

@@ -1,5 +1,6 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ConnectorMessages;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 
@@ -40,6 +41,10 @@ public class TestingConfiguration implements ConnectorConfiguration {
     @Max(100)
     @ConfigurationInfo(path="rest.ioErrorRetries")
     private Integer restIoErrorRetries;
+
+    @NotNull(message="loginPassword cannot be null")
+    @ConfigurationInfo(path="custom.guardedValue")
+    private GuardedString guardedValue;
 
     public TestingConfiguration() {
     }
@@ -90,6 +95,19 @@ public class TestingConfiguration implements ConnectorConfiguration {
 
     public void setThing3(Boolean thing3) {
         this.thing3 = thing3;
+    }
+
+
+    @ConfigurationProperty(
+            displayMessageKey = "guarded value",
+            helpMessageKey = "guarded value help",
+            required = true)
+    public GuardedString getGuardedValue() {
+        return guardedValue;
+    }
+
+    public void setGuardedValue(GuardedString guardedValue) {
+        this.guardedValue = guardedValue;
     }
 
     @Override
