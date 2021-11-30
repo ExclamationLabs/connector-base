@@ -214,8 +214,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
     protected void executeGetAll(ResultsFilter resultsFilter, ResultsHandler resultsHandler, OperationOptions options) {
         ResultsConfiguration resultsConfiguration;
-        if (getConfiguration() instanceof ResultsConfiguration) {
-            resultsConfiguration = (ResultsConfiguration) getConfiguration();
+        if (configuration instanceof ResultsConfiguration) {
+            resultsConfiguration = (ResultsConfiguration) configuration;
         } else {
             resultsConfiguration = new DefaultResultsConfiguration();
         }

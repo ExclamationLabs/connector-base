@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **2.0.7** - Fix strange bug where BaseAdapter does not see generic configuration object (11/30/2021)
 + **2.0.6** - Fix support for GuardedString and improve test validation output (11/29/2021)
 + **2.0.5** - Added FileLoaderUtil to get key file loading working again for Jenkins (11/17/2021)
 + **2.0.4** - Adjust JWTRS256Authenticator to get Docusign working with extraClaimData (11/16/2021)
