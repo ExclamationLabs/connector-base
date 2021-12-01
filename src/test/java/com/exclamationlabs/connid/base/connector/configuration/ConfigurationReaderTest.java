@@ -67,7 +67,9 @@ public class ConfigurationReaderTest {
         GuardedString hiddenString = configuration.getGuardedValue();
         hiddenString.access(clearChars ->
                 assertEquals("testMe", new String(clearChars)));
-
+        assertNotNull(configuration.getArrayValue());
+        assertEquals(3, configuration.getArrayValue().length);
+        assertEquals("Uno", configuration.getArrayValue()[0]);
     }
 
     @Test

@@ -33,6 +33,7 @@ public class ResultsPaginator {
     private Integer numberOfTotalPages;
 
     private Boolean noMoreResults;
+    private Boolean allowPartialAttributeValues;
 
     private Object token;
 
@@ -122,6 +123,14 @@ public class ResultsPaginator {
 
     public void setNoMoreResults(Boolean noMoreResults) {
         this.noMoreResults = noMoreResults;
+    }
+
+    public Boolean getAllowPartialAttributeValues() {
+        return allowPartialAttributeValues;
+    }
+
+    public void setAllowPartialAttributeValues(Boolean allowPartialAttributeValues) {
+        this.allowPartialAttributeValues = allowPartialAttributeValues;
     }
 
     public Object getToken() {

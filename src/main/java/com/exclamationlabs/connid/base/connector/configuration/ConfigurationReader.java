@@ -99,6 +99,15 @@ public class ConfigurationReader {
                     Class<?> fieldType = field.getType();
                     try {
                         switch (fieldType.getSimpleName()) {
+                            case "String[]":
+                                field.setAccessible(true);
+                                String result = propertyValue.replace("[", "");
+                                result = result.replace("]", "");
+                                String[] splitData = result.split(",");
+                                field.set(configuration, splitData);
+                                LOG.ok("Loaded String array data {0} into field {1} using path {2}",
+                                        propertyValue, field.getName(), configPath);
+                                break;
                             case "String":
                                 field.setAccessible(true);
                                 field.set(configuration, propertyValue);
