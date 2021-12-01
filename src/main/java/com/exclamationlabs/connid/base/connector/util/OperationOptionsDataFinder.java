@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.util;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 
@@ -93,4 +94,11 @@ public class OperationOptionsDataFinder {
 
         return pageNumber;
     }
+
+    public static Boolean getAllowPartialAttributeValues(Map<String, Object> operationOptionsData) {
+        Object value = operationOptionsData.get(OperationOptions.OP_ALLOW_PARTIAL_ATTRIBUTE_VALUES);
+        return (value instanceof Boolean && BooleanUtils.isTrue((Boolean) value));
+    }
+
+    //Object obj = pagingData.get(OperationOptions.OP_ALLOW_PARTIAL_ATTRIBUTE_VALUES);
 }
