@@ -243,6 +243,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                 }
             }
         }
+        paginator.setAllowPartialAttributeValues(
+                OperationOptionsDataFinder.getAllowPartialAttributeValues(options.getOptions()));
 
         if (importAll && paginator.hasPagination()) {
             LOG.info("Starting batch import using pagination: {0}, deep: {1} for type {2}",
