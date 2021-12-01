@@ -20,6 +20,7 @@ import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public class ConfigurationWriter {
 
@@ -59,6 +60,8 @@ public class ConfigurationWriter {
                             hiddenString.access(clearChars ->
                                     retrievedValue[0] = new String(clearChars));
                             dataValue = retrievedValue[0];
+                        } else if (String[].class == field.getType()) {
+                            dataValue = Arrays.toString((String[]) fieldValue);
                         } else {
                             dataValue = fieldValue.toString();
                         }
