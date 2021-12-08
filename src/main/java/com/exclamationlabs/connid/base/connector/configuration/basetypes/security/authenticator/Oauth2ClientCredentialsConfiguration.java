@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that authenticate using
@@ -27,8 +28,8 @@ public interface Oauth2ClientCredentialsConfiguration extends ConnectorConfigura
     void setTokenUrl(String input);
     String getClientId();
     void setClientId(String input);
-    String getClientSecret();
-    void setClientSecret(String input);
+    GuardedString getClientSecret();
+    void setClientSecret(GuardedString input);
     String getScope();
     void setScope(String input);
 }
