@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that need to provide a PFX file
@@ -25,6 +26,6 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 public interface PfxConfiguration extends ConnectorConfiguration {
     String getPfxFile();
     void setPfxFile(String input);
-    String getPfxPassword();
-    void setPfxPassword(String input);
+    GuardedString getPfxPassword();
+    void setPfxPassword(GuardedString input);
 }

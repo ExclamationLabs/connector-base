@@ -26,6 +26,7 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.securit
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2ClientCredentialsConfiguration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import org.apache.http.client.HttpClient;
+import org.identityconnectors.common.security.GuardedString;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -81,7 +82,7 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         private String clientId;
 
         @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.clientSecret")
-        private String clientSecret;
+        private GuardedString clientSecret;
 
         @ConfigurationInfo(path = "security.authenticator.oauth2ClientCredentials.scope")
         private String scope;
@@ -93,7 +94,7 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         private String pfxFile;
 
         @ConfigurationInfo(path = "security.pfx.pfxPassword")
-        private String pfxPassword;
+        private GuardedString pfxPassword;
 
         public TestConfiguration(String nameIn) {
             name = nameIn;
@@ -120,12 +121,12 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         }
 
         @Override
-        public String getClientSecret() {
+        public GuardedString getClientSecret() {
             return clientSecret;
         }
 
         @Override
-        public void setClientSecret(String input) {
+        public void setClientSecret(GuardedString input) {
             clientSecret = input;
         }
 
@@ -160,12 +161,12 @@ public class OAuth2TokenClientCredentialsAuthenticatorTest extends IntegrationTe
         }
 
         @Override
-        public String getPfxPassword() {
+        public GuardedString getPfxPassword() {
             return pfxPassword;
         }
 
         @Override
-        public void setPfxPassword(String input) {
+        public void setPfxPassword(GuardedString input) {
             pfxPassword = input;
         }
     }

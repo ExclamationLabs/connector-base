@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **2.0.9** - Enhance security support for FIS ClientCredentials/PFX setup (12/08/2021)
 + **2.0.8** - Add string array and paginator allowPartialAttributeValues needed for Paycom (12/01/2021)
 + **2.0.7** - Fix strange bug where BaseAdapter does not see generic configuration object (11/30/2021)
 + **2.0.6** - Fix support for GuardedString and improve test validation output (11/29/2021)

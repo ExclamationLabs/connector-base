@@ -25,6 +25,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import javax.net.ssl.*;
@@ -45,8 +46,12 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
 
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                     KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore,
-                    configuration.getPfxPassword().toCharArray());
+
+            final String[] accessPassword = new String[1];
+            GuardedString guardedPassword = configuration.getPfxPassword();
+            guardedPassword.access(clearChars ->
+                    accessPassword[0] = new String(clearChars));
+            keyManagerFactory.init(keyStore, accessPassword[0].toCharArray());
 
             KeyManager[] managers = keyManagerFactory.getKeyManagers();
             sslContext.init(managers, new TrustManager[]{trustManager}, null);
