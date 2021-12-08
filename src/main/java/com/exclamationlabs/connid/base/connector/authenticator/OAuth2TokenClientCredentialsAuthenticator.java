@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2ClientCredentialsConfiguration;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.codec.binary.Base64;
@@ -29,6 +28,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.io.IOException;
@@ -64,9 +64,11 @@ public class OAuth2TokenClientCredentialsAuthenticator implements Authenticator<
 
             request.setEntity(new UrlEncodedFormEntity(params));
 
-            String auth =
-                    configuration.getClientId() + ":" +
-                            configuration.getClientSecret();
+            final String[] accessSecret = new String[1];
+            GuardedString guardedSecret = configuration.getClientSecret();
+            guardedSecret.access(clearChars ->
+                    accessSecret[0] = new String(clearChars));
+            String auth = configuration.getClientId() + ":" + accessSecret[0];
 
             byte[] encodedAuth = Base64.encodeBase64(
                     auth.getBytes(StandardCharsets.ISO_8859_1));
