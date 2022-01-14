@@ -46,6 +46,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -147,7 +148,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
                             .build();
                 }
             } else {
-                restClient = HttpClients.custom()
+                restClient = HttpClientBuilder.create()
                         .setDefaultCredentialsProvider(basicAuthProvider)
                         .build();
             }
