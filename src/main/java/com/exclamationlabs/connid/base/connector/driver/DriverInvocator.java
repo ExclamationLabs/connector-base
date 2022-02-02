@@ -102,4 +102,25 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
      * @throws ConnectorException If get request failed, was invalid or was not permitted.
      */
     T getOne(D driver, String objectId, Map<String, Object> operationOptionsData) throws ConnectorException;
+
+    /**
+     * Get a single object of this invocator's particular type on the destination system
+     * that matches the given name value.
+     *
+     * Default behavior is to throw UnsupportedOperationException.  Underlying driver/invocator must
+     * both provide their own support for this method if it supported and needed.
+     *
+     * @param driver Driver belonging to this Invocator and providing interaction
+     *               with the applicable destination system.
+     * @param objectName String holding the identifier for the object being sought on
+     *                 the destination system.
+     * @return An IdentityModel object of this Invocator's particular type that corresponds
+     * to the given name value.  Can return null if no record matching the name was found on the
+     * destination system.
+     * @throws ConnectorException If get request failed, was invalid or was not permitted.
+     */
+    default T getOneByName(D driver, String objectName) throws ConnectorException {
+        throw new UnsupportedOperationException("DriverInvocator does not support getOneByName");
+    }
+
 }

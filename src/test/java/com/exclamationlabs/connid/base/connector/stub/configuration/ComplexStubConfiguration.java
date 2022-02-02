@@ -94,6 +94,15 @@ public class ComplexStubConfiguration extends StubConfiguration
     }
 
     @Override
+    public Boolean getDuplicateErrorReturnsId() {
+        return true;
+    }
+
+    @Override
+    public void setDuplicateErrorReturnsId(Boolean input) {
+    }
+
+    @Override
     public String getIssuer() {
         return null;
     }

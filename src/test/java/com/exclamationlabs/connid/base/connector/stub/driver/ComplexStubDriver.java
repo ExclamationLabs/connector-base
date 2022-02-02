@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.stub.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
+import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
@@ -59,6 +60,11 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
     }
 
+    @Override
+    public IdentityModel getOneByName(Class<? extends IdentityModel> identityModelClass, String nameValue)
+            throws ConnectorException {
+         return getInvocator(identityModelClass).getOneByName(this, nameValue);
+    }
 
     public String getMethodInvoked() {
         return methodInvoked;

@@ -25,4 +25,7 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 public interface ServiceConfiguration extends ConnectorConfiguration {
     String getServiceUrl();
     void setServiceUrl(String input);
+
+    Boolean getDuplicateErrorReturnsId();
+    void setDuplicateErrorReturnsId(Boolean input);
 }
