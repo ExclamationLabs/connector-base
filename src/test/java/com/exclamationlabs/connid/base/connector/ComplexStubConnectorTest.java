@@ -221,6 +221,25 @@ public class ComplexStubConnectorTest {
     }
 
     @Test
+    public void testUserCreateHandleDuplicateErrorReturnsId() {
+        Set<Attribute> attributes = new HashSet<>();
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.USER_NAME.name()).addValue("duplicateId").build());
+        attributes.add(new AttributeBuilder().setName(StubUserAttribute.EMAIL.name()).addValue("duplicateId").build());
+
+        Uid existingId = connector.create(ObjectClass.ACCOUNT, attributes, testOperationOptions);
+        assertNotNull(existingId);
+        assertEquals("dupe", existingId.getUidValue());
+        assertTrue(driver.isInitializeInvoked());
+        assertEquals("got existing id", driver.getMethodInvoked());
+        assertNotNull(driver.getMethodParameter1());
+        assertTrue(driver.getMethodParameter1() instanceof StubUser);
+        IdentityModel userParameter = (IdentityModel) driver.getMethodParameter1();
+        assertNull(userParameter.getIdentityIdValue());
+        assertNotNull(userParameter.getIdentityNameValue());
+        assertNull(driver.getMethodParameter2());
+    }
+
+    @Test
     public void testUserCreateClub() {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new AttributeBuilder().setName(StubClubAttribute.CLUB_ID.name()).addValue("Club Ninja").build());
