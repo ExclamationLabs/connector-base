@@ -20,6 +20,8 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.common.exceptions.AlreadyExistsException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 import java.util.*;
@@ -28,6 +30,12 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
 
     @Override
     public String create(ComplexStubDriver driver, StubUser model) throws ConnectorException {
+        if (StringUtils.equalsIgnoreCase("duplicateId", model.getIdentityNameValue())) {
+            driver.setMethodInvoked("got existing id");
+            driver.setMethodParameter1(model);
+            throw new AlreadyExistsException("test");
+        }
+
         driver.setMethodInvoked("user create");
         if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
             driver.setMethodInvoked("user create with group and club ids");
@@ -103,6 +111,14 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
             user1.setEmail("ying@yahoo.com");
         }
 
+        return user1;
+    }
+
+    @Override
+    public StubUser getOneByName(ComplexStubDriver driver, String objectName) throws ConnectorException {
+        StubUser user1 = new StubUser();
+        user1.setId("dupe");
+        user1.setUserName(objectName);
         return user1;
     }
 }

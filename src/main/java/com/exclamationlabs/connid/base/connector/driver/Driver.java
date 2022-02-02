@@ -151,14 +151,34 @@ public interface Driver<T extends ConnectorConfiguration> {
      * matching the requested id.
      * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
     *                                     the get request.
-     * @param userId String containing the id for the record to be retrieved.
+     * @param idValue String containing the id for the record to be retrieved.
      * @param operationOptionsData data map possibly containing current paging information
      * @return An IdentityModel instance representing the object for the given id.  Or null
      * if a record was not found.
      * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
      * no matching record for the given id is not considered an exception condition.
      */
-    IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String userId,
+    IdentityModel getOne(Class<? extends IdentityModel> identityModelClass, String idValue,
                          Map<String, Object> operationOptionsData) throws ConnectorException;
+
+    /**
+     * Process a request to get a single object of a particular type from the destination system,
+     * matching the requested name.
+     *
+     * Default behavior is to throw UnsupportedOperationException.  Underlying driver/invocator must
+     * both provide their own support for this method if it supported and needed.
+     *
+     * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
+     *                                     the get request.
+     * @param nameValue String containing the id for the record to be retrieved.
+     * @return An IdentityModel instance representing the object for the given id.  Or null
+     * if a record was not found.
+     * @throws ConnectorException If get operation failed or was invalid.  Note: A request returning
+     * no matching record for the given name is not considered an exception condition.
+     */
+    default IdentityModel getOneByName(Class<? extends IdentityModel> identityModelClass, String nameValue)
+            throws ConnectorException {
+        throw new UnsupportedOperationException("Driver does not support getOneByName");
+    }
 
 }

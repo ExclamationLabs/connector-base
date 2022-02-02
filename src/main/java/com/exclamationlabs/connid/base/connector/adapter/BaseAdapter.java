@@ -21,6 +21,7 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ServiceConfiguration;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
@@ -29,6 +30,8 @@ import com.exclamationlabs.connid.base.connector.util.OperationOptionsDataFinder
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.framework.common.exceptions.AlreadyExistsException;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 
 import java.util.Collections;
@@ -131,7 +134,30 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      */
     public final Uid create(Set<Attribute> attributes) {
         T model = constructModel(attributes, null, null,true);
-        String newId = getDriver().create(getIdentityModelClass(), model);
+        String newId = null;
+
+        try {
+            newId = getDriver().create(getIdentityModelClass(), model);
+        } catch (AlreadyExistsException aee) {
+            if (supportsDuplicateErrorReturnsId()) {
+                try {
+                    IdentityModel duplicateModel = getDriver().getOneByName(getIdentityModelClass(), model.getIdentityNameValue());
+                    if (duplicateModel != null && duplicateModel.getIdentityIdValue() != null) {
+                        newId = duplicateModel.getIdentityIdValue();
+                    } else {
+                        throw new AlreadyExistsException("Driver/invocator could not obtain existing" +
+                                " record for duplicate creation lookup");
+                    }
+                } catch (UnsupportedOperationException uoe) {
+                    throw new AlreadyExistsException("Driver/invocator does not" +
+                            " support duplicate creation lookup", uoe);
+                } catch (ConnectorException ce) {
+                    throw new AlreadyExistsException("Unexpected error occurred while attempting " +
+                            "duplicate creation lookup", ce);
+                }
+            }
+        }
+
         return new Uid(newId);
     }
 
@@ -375,6 +401,15 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
     protected final boolean queryAllRecords(String query) {
         return (query == null || StringUtils.isBlank(query) || StringUtils.equalsIgnoreCase(query, "ALL"));
+    }
+
+    private boolean supportsDuplicateErrorReturnsId() {
+        if (configuration instanceof ServiceConfiguration) {
+            ServiceConfiguration serviceConfiguration = (ServiceConfiguration) configuration;
+            return BooleanUtils.isTrue(serviceConfiguration.getDuplicateErrorReturnsId());
+        }
+
+        return false;
     }
 
     protected static class DefaultResultsConfiguration extends DefaultConnectorConfiguration implements ResultsConfiguration {
