@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **2.0.11.1** - bug fix - Make sure AlreadyExistsException is thrown when duplicateErrorReturnsId is false (02/22/2022)
 + **2.0.11** - Add duplicateErrorReturnsId support FIN-8819 (02/02/2022)
 + **2.0.10** - Fix HttpBasicAuth in BaseRestDriver (needed for Bamboo HR) (01/14/2022)
 + **2.0.9** - Enhance security support for FIS ClientCredentials/PFX setup (12/08/2021)
