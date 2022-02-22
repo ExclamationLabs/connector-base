@@ -134,7 +134,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      */
     public final Uid create(Set<Attribute> attributes) {
         T model = constructModel(attributes, null, null,true);
-        String newId = null;
+        String newId;
 
         try {
             newId = getDriver().create(getIdentityModelClass(), model);
@@ -155,6 +155,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                     throw new AlreadyExistsException("Unexpected error occurred while attempting " +
                             "duplicate creation lookup", ce);
                 }
+            } else {
+                throw aee;
             }
         }
 
