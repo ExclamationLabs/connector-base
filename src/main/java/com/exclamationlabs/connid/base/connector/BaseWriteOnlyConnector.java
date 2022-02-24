@@ -58,6 +58,11 @@ public abstract class BaseWriteOnlyConnector<T extends ConnectorConfiguration> e
     }
 
     @Override
+    public void executeQuery(final ObjectClass objectClass, String itemId, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
+        throw new UnsupportedOperationException("Search query not permitted for write only connector.");
+    }
+
+    @Override
     protected boolean readEnabled() {
         return false;
     }

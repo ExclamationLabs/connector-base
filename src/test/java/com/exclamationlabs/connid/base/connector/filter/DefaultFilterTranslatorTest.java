@@ -1,9 +1,9 @@
 package com.exclamationlabs.connid.base.connector.filter;
 
-import com.exclamationlabs.connid.base.connector.BaseConnector;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.junit.Before;
@@ -29,10 +29,10 @@ public class DefaultFilterTranslatorTest {
     public void createContainsExpressionNoFilterIdFilter() {
         final String idValue = "id1";
         List<String> data = Collections.singletonList(idValue);
-        String response = filter.createContainsExpression(
+        AttributeFilter response = filter.createContainsExpression(
                 new ContainsFilter(AttributeBuilder.build(Uid.NAME, data)), false);
-        assertEquals(Uid.NAME + BaseConnector.FILTER_SEPARATOR + idValue,
-                response);
+        assertEquals(Uid.NAME, response.getName());
+        assertEquals(idValue, response.getAttribute().getValue().get(0));
     }
 
     @Test
@@ -40,10 +40,10 @@ public class DefaultFilterTranslatorTest {
         filter = new DefaultFilterTranslator(new HashSet<>(Collections.singleton("FRANK")));
         final String idValue = "id1";
         List<String> data = Collections.singletonList(idValue);
-        String response = filter.createContainsExpression(
+        AttributeFilter response = filter.createContainsExpression(
                 new ContainsFilter(AttributeBuilder.build(Uid.NAME, data)), false);
-        assertEquals(Uid.NAME + BaseConnector.FILTER_SEPARATOR + idValue,
-                response);
+        assertEquals(Uid.NAME, response.getName());
+        assertEquals(idValue, response.getAttribute().getValue().get(0));
     }
 
     @Test(expected = InvalidAttributeValueException.class)
@@ -68,10 +68,10 @@ public class DefaultFilterTranslatorTest {
         filter = new DefaultFilterTranslator(new HashSet<>(Collections.singleton("FRANK")));
         final String idValue = "test";
         List<String> data = Collections.singletonList(idValue);
-        String response = filter.createContainsExpression(
+        AttributeFilter response = filter.createContainsExpression(
                 new ContainsFilter(AttributeBuilder.build("FRANK", data)), false);
-        assertEquals("FRANK" + BaseConnector.FILTER_SEPARATOR + idValue,
-                response);
+        assertEquals("FRANK", response.getName());
+        assertEquals(idValue, response.getAttribute().getValue().get(0));
     }
 
     @Test
@@ -87,8 +87,8 @@ public class DefaultFilterTranslatorTest {
                 new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), true));
     }
 
-    @Test
-    public void createEqualsExpressionNotUidOrNameReturnsNull() {
+    @Test(expected = InvalidAttributeValueException.class)
+    public void createEqualsExpressionNotUidOrNameThrowsException() {
         assertNull(filter.createEqualsExpression(
                 new EqualsFilter(AttributeBuilder.build("x")), false));
     }
@@ -98,31 +98,8 @@ public class DefaultFilterTranslatorTest {
         final String idValue = "id1";
         List<String> data = Collections.singletonList(idValue);
         assertEquals(idValue, filter.createEqualsExpression(
-                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), false));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createEqualsExpressionIllegalStar() {
-        final String idValue = "*";
-        List<String> data = Collections.singletonList(idValue);
-        filter.createEqualsExpression(
-                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), false);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createEqualsExpressionIllegalAmpersand() {
-        final String idValue = "&";
-        List<String> data = Collections.singletonList(idValue);
-        filter.createEqualsExpression(
-                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), false);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createEqualsExpressionIllegalPipe() {
-        final String idValue = "|";
-        List<String> data = Collections.singletonList(idValue);
-        filter.createEqualsExpression(
-                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), false);
+                new EqualsFilter(AttributeBuilder.build(Uid.NAME, data)), false).
+                getAttribute().getValue().get(0));
     }
 
 }
