@@ -17,9 +17,10 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.SearchOp;
 
@@ -32,20 +33,31 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
  * therefore this connector cannot take in create/update/delete requests from Midpoint.
  */
 public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
-    implements SearchOp<String> {
+    implements SearchOp<AttributeFilter> {
 
     public BaseReadOnlyConnector(Class<T> configurationTypeIn) {
         super(configurationTypeIn);
     }
 
     @Override
-    public FilterTranslator<String> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
+    public FilterTranslator<AttributeFilter> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
         return getConnectorFilterTranslator(objectClass);
     }
 
     @Override
-    public void executeQuery(final ObjectClass objectClass, final String query, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
-        getAdapter(objectClass).get(query, resultsHandler, operationOptions, isEnhancedFiltering());
+    public void executeQuery(final ObjectClass objectClass, final AttributeFilter queryFilter, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
+        getAdapter(objectClass).get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
+    }
+
+    @Override
+    public void executeQuery(final ObjectClass objectClass, String itemId, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
+        if (StringUtils.isEmpty(itemId)) {
+            getAdapter(objectClass).get(null, resultsHandler, operationOptions, isEnhancedFiltering());
+        } else {
+            Attribute attribute = new AttributeBuilder().setName(Uid.NAME).addValue(itemId).build();
+            AttributeFilter queryFilter = new EqualsFilter(attribute);
+            getAdapter(objectClass).get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
+        }
     }
 
     @Override

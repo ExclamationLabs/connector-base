@@ -32,6 +32,8 @@ import com.exclamationlabs.connid.base.connector.test.util.ConnectorTestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -210,8 +212,7 @@ public class StubConnectorTest {
         List<String> nameValues = new ArrayList<>();
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
 
-        connector.executeQuery(ObjectClass.ACCOUNT,
-                Uid.NAME + BaseConnector.FILTER_SEPARATOR + "filteredId", resultsHandler, testOperationOptions);
+        connector.executeQuery(ObjectClass.ACCOUNT, "filteredId", resultsHandler, testOperationOptions);
 
         assertEquals(1, idValues.size());
         assertEquals(1, nameValues.size());
@@ -229,8 +230,10 @@ public class StubConnectorTest {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
-
-        connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
+        Attribute attribute = new AttributeBuilder().setName("ying").addValue("yang").build();
+        AttributeFilter queryFilter = new EqualsFilter(attribute);
+        connector.executeQuery(ObjectClass.ACCOUNT, queryFilter,
+                resultsHandler, testOperationOptions);
         assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
                 new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
@@ -248,8 +251,9 @@ public class StubConnectorTest {
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
-
-        connector.executeQuery(ObjectClass.ACCOUNT,"ying" + BaseConnector.FILTER_SEPARATOR + "yang", resultsHandler, testOperationOptions);
+        Attribute attribute = new AttributeBuilder().setName("ying").addValue("yang").build();
+        AttributeFilter queryFilter = new EqualsFilter(attribute);
+        connector.executeQuery(ObjectClass.ACCOUNT, queryFilter, resultsHandler, testOperationOptions);
         assertEquals(new StubDriver().getAll(StubUser.class, new ResultsFilter(),
                 new ResultsPaginator(), null).size(), idValues.size());
         assertTrue(StringUtils.isNotBlank(idValues.get(0)));
