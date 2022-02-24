@@ -16,20 +16,14 @@
 
 package com.exclamationlabs.connid.base.connector.filter;
 
-import com.exclamationlabs.connid.base.connector.BaseConnector;
-import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.identityconnectors.framework.common.objects.filter.AbstractFilterTranslator;
-import org.identityconnectors.framework.common.objects.filter.ContainsAllValuesFilter;
-import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.filter.*;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -38,9 +32,15 @@ import java.util.Set;
  * been leveraged often up to this point, so we have defined a simple default
  * behavior Midpoint can use.
  */
-public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
+public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeFilter> {
 
+    private static final Set<String> standardAttributeNames;
     private final Set<String> acceptableAttributeNames;
+
+    static {
+        standardAttributeNames = new HashSet<>(
+                Arrays.asList(Uid.NAME, "Id", Name.NAME, "Name"));
+    }
 
     public DefaultFilterTranslator() {
         acceptableAttributeNames = Collections.emptySet();
@@ -52,48 +52,42 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<String> {
 
     @Override
     // Not normally invoked by Midpoint
-    protected String createEqualsExpression(EqualsFilter filter, boolean not) {
-        if (not || filter == null) {
+    protected AttributeFilter createEqualsExpression(EqualsFilter filter, boolean not) {
+        if (filter == null || not) {
             return null;
         }
-
-        Attribute attr = filter.getAttribute();
-        if (!attr.is(Name.NAME) && !attr.is(Uid.NAME)) {
-            return null;
-        }
-        String value = AttributeUtil.getAsStringValue(attr);
-
-        return (checkSearchValue(value) == null) ? null : value;
+        validateAttributeName(filter);
+        return filter;
     }
 
     @Override
-    protected String createContainsAllValuesExpression(ContainsAllValuesFilter filter, boolean not) {
-        if (StringUtils.equals(filter.getAttribute().getName(), Uid.NAME) || acceptableAttributeNames.contains(filter.getAttribute().getName())) {
-            return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getAttribute().getValue().get(0);
-        } else {
-            throw new InvalidAttributeValueException("Filter on attribute " + filter.getAttribute().getName() + " not supported.");
+    protected AttributeFilter createContainsAllValuesExpression(ContainsAllValuesFilter filter, boolean not) {
+        if (filter == null || not) {
+            return null;
         }
+        validateAttributeName(filter);
+        return filter;
     }
 
 
     @Override
     // Normally invoked by Midpoint for filtering
-    protected String createContainsExpression(ContainsFilter filter, boolean not) {
-        if (StringUtils.equals(filter.getAttribute().getName(), Uid.NAME) || acceptableAttributeNames.contains(filter.getAttribute().getName())) {
-            return filter.getAttribute().getName() + BaseConnector.FILTER_SEPARATOR + filter.getValue();
-        } else {
-            throw new InvalidAttributeValueException("Filter on attribute " + filter.getAttribute().getName() + " not supported.");
-        }
-    }
-
-    private static String checkSearchValue(String value) {
-        if (StringUtil.isEmpty(value)) {
+    protected AttributeFilter createContainsExpression(ContainsFilter filter, boolean not) {
+        if (filter == null || not) {
             return null;
         }
-        if (value.contains("*") || value.contains("&") || value.contains("|")) {
-            throw new IllegalArgumentException(
-                    "Value of search attribute contains illegal character(s).");
+        validateAttributeName(filter);
+        return filter;
+    }
+
+    protected void validateAttributeName(AttributeFilter filter) {
+        if (standardAttributeNames.contains(filter.getName())) {
+            return;
         }
-        return value;
+
+        if (!acceptableAttributeNames.contains(filter.getName())) {
+            throw new InvalidAttributeValueException("Unsupported filter attribute with name " +
+                    filter.getName());
+        }
     }
 }
