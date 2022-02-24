@@ -28,6 +28,7 @@ import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.PoolableConnector;
@@ -69,8 +70,6 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         implements PoolableConnector, SchemaOp, TestOp {
 
     private static final Log LOG = Log.getLog(BaseConnector.class);
-
-    public static final String FILTER_SEPARATOR = "^|^";
 
     @NotBlank
     protected Driver<T> driver;
@@ -204,7 +203,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         return getClass().getSimpleName();
     }
 
-    protected FilterTranslator<String> getConnectorFilterTranslator(ObjectClass objectClass) {
+    protected FilterTranslator<AttributeFilter> getConnectorFilterTranslator(ObjectClass objectClass) {
         BaseAdapter<?, T> matchedAdapter = adapterMap.get(objectClass);
         if (matchedAdapter == null) {
             throw new ConnectorException("Unsupported object class for filter translator: " + objectClass);
@@ -344,4 +343,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         setAuthenticator((Authenticator<T>) new DefaultAuthenticator());
     }
 
-}
+    abstract public void executeQuery(final ObjectClass objectClass, String itemId,
+                                      final ResultsHandler resultsHandler, final OperationOptions operationOptions);
+
+
+    }

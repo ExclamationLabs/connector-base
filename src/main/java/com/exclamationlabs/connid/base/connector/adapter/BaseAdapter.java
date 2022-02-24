@@ -16,7 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
-import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
@@ -33,6 +32,7 @@ import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.AlreadyExistsException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -189,51 +189,52 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
     /**
      * Service a request from IAM to get one, some, or all items of a data type from the destination system.
-     * @param queryIdentifier Query string to help identify which item(s) need to be retrieved.
+     * @param queryFilter Query filter item to help identify which item(s) need to be retrieved.
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
      * @param options OperationOptions object received by connector.  Not currently used but may be supported in
      *                the future for paging or other purposes.
      */
-    public void get(String queryIdentifier, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
-        if (queryIdentifierContainsFilter(queryIdentifier)) {
+    public void get(AttributeFilter queryFilter, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
 
-            if (StringUtils.equalsIgnoreCase(
-                    StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
-                    Uid.NAME)) {
+        if (queryFilter == null || queryFilter.getAttribute() == null) {
+            LOG.info("Filter absent.  Perform getAll unfiltered for type {0}",
+                    getIdentityModelClass().getSimpleName());
+            executeGetAll(new ResultsFilter(), resultsHandler, options);
+        } else {
+            if (StringUtils.equalsIgnoreCase(queryFilter.getAttribute().getName(), Uid.NAME) ||
+                    StringUtils.equalsIgnoreCase(queryFilter.getAttribute().getName(), "Id")) {
                 // Simple Filter by UID happened - query for single record
-                LOG.info("Exact uid match for {0} requested by filter for type {1}", queryIdentifier,
+                LOG.info("Exact uid match for {0} requested by filter for type {1}", queryFilter.getAttribute().getName(),
                         getIdentityModelClass().getSimpleName());
                 IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(),
-                        StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR), options.getOptions());
+                        queryFilter.getAttribute().getValue().get(0).toString(), options.getOptions());
                 if (singleItem != null) {
                     passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
                 }
             } else {
-                if (hasEnhancedFiltering) {
-                    ResultsFilter resultsFilter = new ResultsFilter(StringUtils.substringBefore(queryIdentifier, BaseConnector.FILTER_SEPARATOR),
-                            StringUtils.substringAfter(queryIdentifier, BaseConnector.FILTER_SEPARATOR));
-                    LOG.info("Perform getAll using filter {0} for type {1}", resultsFilter,
+                if (StringUtils.equalsIgnoreCase(queryFilter.getAttribute().getName(), Name.NAME) ||
+                        StringUtils.equalsIgnoreCase(queryFilter.getAttribute().getName(), "Name")) {
+                    // Simple Filter by Name happened - query for single record
+                    LOG.info("Exact Name match for {0} requested by filter for type {1}", queryFilter.getAttribute().getName(),
                             getIdentityModelClass().getSimpleName());
-                    executeGetAll(resultsFilter, resultsHandler, options);
-
+                    IdentityModel singleItem = getDriver().getOneByName(getIdentityModelClass(),
+                            queryFilter.getAttribute().getValue().get(0).toString());
+                    if (singleItem != null) {
+                        passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
+                    }
                 } else {
-                    LOG.info("Filtering present but not supported.  Perform getAll unfiltered for type {0}",
-                            getIdentityModelClass().getSimpleName());
-                    executeGetAll(new ResultsFilter(), resultsHandler, options);
-                }
-            }
-        } else {
-            if (queryAllRecords(queryIdentifier)) {
-                LOG.info("Filter absent.  Perform getAll unfiltered for type {0}",
-                        getIdentityModelClass().getSimpleName());
-                executeGetAll(new ResultsFilter(), resultsHandler, options);
-            } else {
-                // Query for single item
-                LOG.info("Exact uid match for {0} requested by caller for type {1}", queryIdentifier,
-                        getIdentityModelClass().getSimpleName());
-                IdentityModel singleItem = getDriver().getOne(getIdentityModelClass(), queryIdentifier, options.getOptions());
-                if (singleItem != null) {
-                    passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
+                    if (hasEnhancedFiltering) {
+                        ResultsFilter resultsFilter = new ResultsFilter(queryFilter.getAttribute().getName(),
+                                queryFilter.getAttribute().getValue().get(0).toString());
+                        LOG.info("Perform getAll using filter {0} for type {1}", resultsFilter,
+                                getIdentityModelClass().getSimpleName());
+                        executeGetAll(resultsFilter, resultsHandler, options);
+
+                    } else {
+                        LOG.info("Filtering present but not supported.  Perform getAll unfiltered for type {0}",
+                                getIdentityModelClass().getSimpleName());
+                        executeGetAll(new ResultsFilter(), resultsHandler, options);
+                    }
                 }
             }
         }
@@ -335,11 +336,6 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
             LOG.ok("Passed {0} shallow items to result handler for type {1}",
                     passCount, getIdentityModelClass().getSimpleName());
         }
-    }
-
-
-    private boolean queryIdentifierContainsFilter(String query) {
-        return query != null && StringUtils.contains(query, BaseConnector.FILTER_SEPARATOR);
     }
 
     public final void setDriver(Driver<U> component) {
