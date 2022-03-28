@@ -7,6 +7,10 @@ repositories {
     mavenCentral()
     maven {
         url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
+        credentials {
+                username = System.getenv('ARTIFACTORY_GRADLE_USER')
+                password = System.getenv('ARTIFACTORY_GRADLE_PASS')
+            }
     }
 }
 
