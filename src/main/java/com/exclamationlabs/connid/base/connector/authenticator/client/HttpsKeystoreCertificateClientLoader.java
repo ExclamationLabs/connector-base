@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -25,7 +26,6 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import javax.net.ssl.*;
@@ -47,11 +47,8 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
                     KeyManagerFactory.getDefaultAlgorithm());
 
-            final String[] accessPassword = new String[1];
-            GuardedString guardedPassword = configuration.getPfxPassword();
-            guardedPassword.access(clearChars ->
-                    accessPassword[0] = new String(clearChars));
-            keyManagerFactory.init(keyStore, accessPassword[0].toCharArray());
+            keyManagerFactory.init(keyStore,
+                    GuardedStringUtil.read(configuration.getPfxPassword()).toCharArray());
 
             KeyManager[] managers = keyManagerFactory.getKeyManagers();
             sslContext.init(managers, new TrustManager[]{trustManager}, null);
