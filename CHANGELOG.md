@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **2.0.14** - Add GuardedString read utility FIN-918 (05/27/2022)
 + **2.0.13.3** - Add API integration test support FIN-9158 (03/30/2022)
 + **2.0.12** - Refactor filtering to allow for equals/contains of both id's/name searches FIN-8980 (Salesforce/CNOB discovery support solution) (02/24/2022)
 + **2.0.11.1** - bug fix - Make sure AlreadyExistsException is thrown when duplicateErrorReturnsId is false (02/22/2022)
