@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.authenticator.keys;
 import com.exclamationlabs.connid.base.connector.authenticator.util.FileLoaderUtil;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 import java.io.*;
@@ -38,10 +39,19 @@ public class PFXKeyStoreLoader implements KeyStoreLoader<PfxConfiguration> {
         final String KEYSTORE_PATH = FileLoaderUtil.getFileLocation(configuration.getName(),
                 "pfxFile",
                 configuration.getPfxFile());
-
-        try(InputStream inputStream = new FileInputStream(new File(KEYSTORE_PATH))) {
+        InputStream pfxInputStream;
+        try {
+            if (StringUtils.startsWith(KEYSTORE_PATH, "resource:")) {
+                final String RESOURCE_NAME = StringUtils.substringAfter(KEYSTORE_PATH, "resource:");
+                pfxInputStream = getClass().getClassLoader().getResourceAsStream(RESOURCE_NAME);
+                if (pfxInputStream == null) {
+                    throw new ConnectorSecurityException("PFX File resource not found: " + RESOURCE_NAME);
+                }
+            } else {
+                pfxInputStream = new FileInputStream(KEYSTORE_PATH);
+            }
             KeyStore keystore = KeyStore.getInstance("PKCS12");
-            keystore.load(inputStream, KEYSTORE_PASSWORD.toCharArray());
+            keystore.load(pfxInputStream, KEYSTORE_PASSWORD.toCharArray());
             return keystore;
         } catch (FileNotFoundException fnfe) {
             throw new ConnectorSecurityException("PFX file not found for keystore: " + KEYSTORE_PATH, fnfe);
