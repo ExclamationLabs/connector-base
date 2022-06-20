@@ -292,3 +292,5 @@ to show you a relatively simple implementation of an end-use connector and how
 it can be built in Gradle to be utilized in MidPoint.  This project leverages a just-in-time
  in-memory H2 database to test its IAM operations.
 
+## Stats
+![Statistics of this Repo by Repobeats](https://repobeats.axiom.co/api/embed/b83c75e67c47fe0f0222c60f9aead02471fd53e0.svg "Repobeats analytics image")
