@@ -16,22 +16,14 @@
 
 package com.exclamationlabs.connid.base.connector.stub.configuration;
 
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.ServiceConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.behaviors.DeepGet;
+import com.exclamationlabs.connid.base.connector.configuration.behaviors.DeepImport;
 import org.identityconnectors.framework.spi.ConfigurationClass;
 
-import java.util.Map;
 
 @ConfigurationClass(skipUnsupported = true)
-public class ComplexStubConfiguration extends StubConfiguration
-        implements ServiceConfiguration, ResultsConfiguration, JwtRs256Configuration, Oauth2JwtConfiguration {
-
-    private Boolean deepGet = true;
-    private Boolean deepImport = true;
-    private Integer importBatchSize = 5;
-    private Boolean pagination = true;
+public class ComplexStubConfiguration extends ComplexStubShallowConfiguration
+        implements DeepGet, DeepImport {
 
     @SuppressWarnings("unused")
     public ComplexStubConfiguration(String configName) {
@@ -42,133 +34,4 @@ public class ComplexStubConfiguration extends StubConfiguration
         super();
     }
 
-
-    @Override
-    public Boolean getDeepGet() {
-        return deepGet;
-    }
-
-    @Override
-    public void setDeepGet(Boolean input) {
-        deepGet = input;
-    }
-
-    @Override
-    public Boolean getDeepImport() {
-        return deepImport;
-    }
-
-    @Override
-    public void setDeepImport(Boolean input) {
-        deepImport = input;
-    }
-
-    @Override
-    public Integer getImportBatchSize() {
-        return importBatchSize;
-    }
-
-    @Override
-    public void setImportBatchSize(Integer input) {
-        importBatchSize = input;
-    }
-
-    @Override
-    public Boolean getPagination() {
-        return pagination;
-    }
-
-    @Override
-    public void setPagination(Boolean input) {
-        pagination = input;
-    }
-
-    @Override
-    public String getServiceUrl() {
-        return "testurl";
-    }
-
-    @Override
-    public void setServiceUrl(String input) {
-
-    }
-
-    @Override
-    public Boolean getDuplicateErrorReturnsId() {
-        return true;
-    }
-
-    @Override
-    public void setDuplicateErrorReturnsId(Boolean input) {
-    }
-
-    @Override
-    public String getIssuer() {
-        return null;
-    }
-
-    @Override
-    public void setIssuer(String input) {
-
-    }
-
-    @Override
-    public String getSubject() {
-        return null;
-    }
-
-    @Override
-    public void setSubject(String input) {
-
-    }
-
-    @Override
-    public Long getExpirationPeriod() {
-        return null;
-    }
-
-    @Override
-    public void setExpirationPeriod(Long input) {
-
-    }
-
-    @Override
-    public String getAudience() {
-        return null;
-    }
-
-    @Override
-    public void setAudience(String input) {
-
-    }
-
-    @Override
-    public Boolean getUseIssuedAt() {
-        return null;
-    }
-
-    @Override
-    public void setUseIssuedAt(Boolean input) {
-
-    }
-
-    @Override
-    public String getTokenUrl() {
-        return null;
-    }
-
-    @Override
-    public void setTokenUrl(String input) {
-
-    }
-
-    @Override
-    public Map<String, String> getOauth2Information() {
-        return null;
-    }
-
-    @Override
-    public void setOauth2Information(Map<String, String> info) {
-
-    }
 }
