@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -33,7 +33,7 @@ import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserA
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.MULTIVALUED;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubConfiguration> {
+public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubShallowConfiguration> {
 
     @Override
     public ObjectClass getType() {

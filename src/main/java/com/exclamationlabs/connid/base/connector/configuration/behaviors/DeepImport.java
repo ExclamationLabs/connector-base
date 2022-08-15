@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Exclamation Labs
+    Copyright 2022 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.configuration.basetypes;
-
-import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+package com.exclamationlabs.connid.base.connector.configuration.behaviors;
 
 /**
- * Configuration properties common to connectors that support pagination
- * or need to perform deep gets or deep imports on each record when performing a getAll.
+ * Marker interface for connectors requiring DeepImport (getOne for each item retrieved
+ * via getAll when import of all records is running) functionality
  */
-public interface ResultsConfiguration extends ConnectorConfiguration {
-
-    Integer getImportBatchSize();
-    void setImportBatchSize(Integer input);
+public interface DeepImport {
 }
