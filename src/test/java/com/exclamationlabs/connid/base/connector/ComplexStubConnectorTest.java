@@ -24,6 +24,7 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribu
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute;
 import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
@@ -61,8 +62,6 @@ public class ComplexStubConnectorTest {
 
     @Test
     public void testGetAllWithResultCap() {
-        driver.getConfiguration().setDeepGet(false);
-        driver.getConfiguration().setDeepImport(false);
         connector.test();
         assertEquals("user got seven", driver.getMethodInvoked());
         assertNull(driver.getMethodParameter1());
@@ -88,9 +87,8 @@ public class ComplexStubConnectorTest {
 
     @Test
     public void testGetAllImportShallowBatch() {
+        shallowSetup();
         driver.getConfiguration().setImportBatchSize(12);
-        driver.getConfiguration().setDeepGet(false);
-        driver.getConfiguration().setDeepImport(false);
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
         ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
@@ -125,8 +123,7 @@ public class ComplexStubConnectorTest {
 
     @Test
     public void testGetAllImportShallowNoBatch() {
-        driver.getConfiguration().setDeepGet(false);
-        driver.getConfiguration().setDeepImport(false);
+        shallowSetup();
         driver.getConfiguration().setImportBatchSize(null);
         List<String> idValues = new ArrayList<>();
         List<String> nameValues = new ArrayList<>();
@@ -164,7 +161,7 @@ public class ComplexStubConnectorTest {
 
     @Test
     public void testGetAllSinglePageShallow() {
-        driver.getConfiguration().setDeepGet(false);
+        shallowSetup();
         testOperationOptions = new OperationOptionsBuilder()
                 .setPageSize(8)
                 .setPagedResultsOffset(1)
@@ -384,5 +381,13 @@ public class ComplexStubConnectorTest {
     @Test
     public void testAuthentication() {
         assertEquals("ying-yang", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+    }
+
+    private void shallowSetup() {
+        connector = new ComplexStubConnector();
+        ComplexStubShallowConfiguration configuration = new ComplexStubShallowConfiguration();
+        connector.init(configuration);
+        driver = (ComplexStubDriver) connector.getDriver();
+        testOperationOptions = new OperationOptionsBuilder().build();
     }
 }

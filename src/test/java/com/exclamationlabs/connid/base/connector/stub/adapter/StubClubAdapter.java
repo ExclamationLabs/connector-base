@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -32,7 +32,7 @@ import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttri
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubClubAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubClubAdapter extends BaseAdapter<StubClub, ComplexStubConfiguration> {
+public class StubClubAdapter extends BaseAdapter<StubClub, ComplexStubShallowConfiguration> {
 
 
     @Override

@@ -164,60 +164,12 @@ the associations as needed on the destination system.
 
 #### Configuration
 
-*Abstract base class `BaseConnectorConfiguration`*
+Effective version 2.0.1, the base connector framework no longer requires
+complex and specific setup of the Configuration class.  Instead, all of the code
+for the Configuration class now is generated via [Gradle plugin project](https://github.com/ExclamationLabs/connector-base-config-plugin). 
 
-Your connector must specify a configuration object in order to make configuration
-values available to your connector as well as the other objects involved.  Your
-configuration class must override the abstract class and must also have the
-`org.identityconnectors.framework.spi.ConfigurationClass` annotation.
-
-Your configuration is also required to have two constructors.  A zero-argument 
-constructor is used by MidPoint to instantiate your class.  A second argument,
-receving a String for configurationName, is needed in order to provide flexible
-testing for unit and integration tests you may write for your connector.  
-
-If your configuration values need to be loaded from a file (as most MidPoint
-connectors do), your configuration must also override the getConfigurationFilePath(), which 
-should look something like the below example. `displayMessageKey` and
-`helpMessageKey` should provide helpful text for your Connector since this
-will be displayed in MidPoint.
-
-```    @Override
-     @ConfigurationProperty(
-             displayMessageKey = "Some Configuration File Path",
-             helpMessageKey = "File path for the Some Configuration File",
-             required = true)
-     public String getConfigurationFilePath() {
-         return getMidPointConfigurationFilePath();
-     } 
-```
-     
-If your Connector does NOT load its configuration values from a file, 
-override `getConfigurationFilePath()` and return null.  To load configuration
-values from some other means, write code to do so and assemble the configuration
-values in a Java Properties object.  Then call `setConnectorProperties()` with
-your Properties object.
-
-If you have configuration values that you wish to be manageable from the MidPoint
-UI, then you need to create `get` and `set` methods for each of these values.  The
-`get` method must also be annotated with @ConfigurationProperty.  See the example 
-below, for having a configuration value named `thing` which is a String:
-
-```
-private String thing;
- 
-     @ConfigurationProperty(
-             displayMessageKey = "Pretend thing",
-             helpMessageKey = "Some pretend thing value to be configured",
-             required = true)
-     public String getThing() {
-         return thing;
-     }
-  
-     public void set(String input) {
-         this.thing = flag;
-     }
-```
+Code is generated based upon the `configuration.structure.yml` file in the base directory of your project.
+Expanded documentation on the structure of this .yml file is coming soon.
  
 #### Authenticator
 
