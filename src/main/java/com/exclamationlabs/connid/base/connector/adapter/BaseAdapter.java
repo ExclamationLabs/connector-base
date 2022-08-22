@@ -21,9 +21,6 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ServiceConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.behaviors.DeepGet;
-import com.exclamationlabs.connid.base.connector.configuration.behaviors.DeepImport;
-import com.exclamationlabs.connid.base.connector.configuration.behaviors.Paginating;
 import com.exclamationlabs.connid.base.connector.driver.Driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
@@ -254,9 +251,10 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
         boolean hasPagingOptions = OperationOptionsDataFinder.hasPagingOptions(options.getOptions());
         boolean importAll = (!hasPagingOptions) && (!resultsFilter.hasFilter());
-        boolean deep = configuration instanceof DeepGet || (importAll && configuration instanceof DeepImport);
+        boolean deep = BooleanUtils.isTrue(resultsConfiguration.getDeepGet()) ||
+                (importAll && BooleanUtils.isTrue(resultsConfiguration.getDeepImport()));
         ResultsPaginator paginator;
-        if (!(configuration instanceof Paginating)) {
+        if (BooleanUtils.isNotTrue(resultsConfiguration.getPagination())) {
             paginator = new ResultsPaginator();
         } else {
             if (hasPagingOptions) {
@@ -414,6 +412,23 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
     protected static class DefaultResultsConfiguration extends DefaultConnectorConfiguration implements ResultsConfiguration {
 
+        @Override
+        public Boolean getDeepGet() {
+            return false;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return false;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+        }
 
         @Override
         public Integer getImportBatchSize() {
@@ -422,6 +437,15 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
         @Override
         public void setImportBatchSize(Integer input) {
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return false;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
         }
 
     }

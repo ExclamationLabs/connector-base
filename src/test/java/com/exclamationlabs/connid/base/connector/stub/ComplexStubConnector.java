@@ -24,7 +24,6 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.securit
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.adapter.*;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
@@ -43,10 +42,10 @@ import java.security.interfaces.RSAPrivateKey;
  *
  */
 @ConnectorClass(displayNameKey = "test.display", configurationClass = ComplexStubConfiguration.class)
-public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubShallowConfiguration> {
+public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubConfiguration> {
 
     public ComplexStubConnector() {
-        super(ComplexStubShallowConfiguration.class);
+        super(ComplexStubConfiguration.class);
         JWTRS256Authenticator innerAuthenticator = new JWTRS256Authenticator() {
 
             @Override
