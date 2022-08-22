@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.behaviors.Paginating;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
@@ -442,8 +441,27 @@ public class StubConnectorTest {
         assertEquals(expectedOperationOptions, info.size());
     }
 
-    static class StubPagingConfiguration extends StubConfiguration
-            implements ResultsConfiguration, Paginating {
+    static class StubPagingConfiguration extends StubConfiguration implements ResultsConfiguration {
+
+        @Override
+        public Boolean getDeepGet() {
+            return null;
+        }
+
+        @Override
+        public void setDeepGet(Boolean input) {
+
+        }
+
+        @Override
+        public Boolean getDeepImport() {
+            return null;
+        }
+
+        @Override
+        public void setDeepImport(Boolean input) {
+
+        }
 
         @Override
         public Integer getImportBatchSize() {
@@ -452,6 +470,16 @@ public class StubConnectorTest {
 
         @Override
         public void setImportBatchSize(Integer input) {
+
+        }
+
+        @Override
+        public Boolean getPagination() {
+            return true;
+        }
+
+        @Override
+        public void setPagination(Boolean input) {
 
         }
     }

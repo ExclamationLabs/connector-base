@@ -21,21 +21,21 @@ import com.exclamationlabs.connid.base.connector.driver.BaseDriver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-public class ComplexStubDriver extends BaseDriver<ComplexStubShallowConfiguration> {
+public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
     private String methodInvoked;
     private Object methodParameter1;
     private Object methodParameter2;
     private boolean initializeInvoked = false;
 
-    private ComplexStubShallowConfiguration configuration;
+    private ComplexStubConfiguration configuration;
 
     public ComplexStubDriver() {
         addInvocator(StubUser.class, new StubComplexUserInvocator());
@@ -45,7 +45,7 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubShallowConfiguratio
     }
 
     @Override
-    public void initialize(ComplexStubShallowConfiguration configurationInput, Authenticator<ComplexStubShallowConfiguration> authenticator) throws ConnectorException {
+    public void initialize(ComplexStubConfiguration configurationInput, Authenticator<ComplexStubConfiguration> authenticator) throws ConnectorException {
         initializeInvoked = true;
         configuration = configurationInput;
     }
@@ -94,7 +94,7 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubShallowConfiguratio
         return initializeInvoked;
     }
 
-    public ComplexStubShallowConfiguration getConfiguration() {
+    public ComplexStubConfiguration getConfiguration() {
         return configuration;
     }
 }
