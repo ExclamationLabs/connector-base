@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubShallowConfiguration;
+import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -32,7 +32,7 @@ import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttri
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute.*;
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
 
-public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexStubShallowConfiguration> {
+public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexStubConfiguration> {
 
 
     @Override
@@ -55,8 +55,8 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexSt
 
     @Override
     protected StubSupergroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
-                                      Set<Attribute> removed,
-                                      boolean isCreate) {
+                                            Set<Attribute> removed,
+                                            boolean isCreate) {
         StubSupergroup supergroup = new StubSupergroup();
         supergroup.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         supergroup.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, SUPERGROUP_NAME));

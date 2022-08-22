@@ -20,7 +20,8 @@ import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.configuration.behaviors.Paginating;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
+import org.apache.commons.lang3.BooleanUtils;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
@@ -58,7 +59,8 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
         }
 
         T configuration = connector.getConnectorConfiguration();
-        if (configuration instanceof Paginating) {
+        if (configuration instanceof ResultsConfiguration &&
+                BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAttributesToGet(), SyncOp.class, SearchOp.class);
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildReturnDefaultAttributes(), SearchOp.class, SyncOp.class);
