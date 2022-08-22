@@ -28,17 +28,34 @@ This jar contains the Base Connector
 framework API/code classes.  You can add the following to your build.gradle to leverage
 the Base Connector in your connector project.
 
-Inside the build.gradle repositories { } section:
+Place a `buildscript` closure at the top of the build.gradle file. with the following:
+`
+buildscript {
+    ext {}
+    repositories {
+        maven {
+            url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
+        }
+    }
+    dependencies {
+        classpath(group: 'com.exclamationlabs.connid', name: 'connector-base-config-plugin', version: "${config_plugin_version}-+")
+    }
+}
+`
+
+The above is needed so that the Configuration class for your connector will now be built automatically during each
+build, based on the `configuration.structure.yml` file in your project (more on that later).
+
+Below, inside the build.gradle repositories { } section, you will need:
 
 `    maven {
          url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
      }
 `
 
-Inside build.gradle, listed with any other dependencies, replacing 1.0.3
- with the current version:
+Inside build.gradle, listed with any other dependencies, add this dependency:
  
-`implementation 'com.exclamationlabs.connid:connector-base:1.0.3-+'`
+`implementation "com.exclamationlabs.connid:connector-base:${base_connector_version}-+"`
 
 The critical dependencies of the Base Connector framework are described in build.gradle under
 'Vital dependencies' block.  If your connector project uses the Base Connector and pulls it in
@@ -47,6 +64,20 @@ on Artifactory.  Any remaining dependencies
 are dependent on your particular connector's needs ... for example if you have
 a simple CSV connector, you should not need HTTP/RESTful or JWT support at runtime
 and shouldn't need to include these dependencies in your connector project.
+
+In addition to the `build.gradle` file, your project also needs a `gradle.properties` file with the 
+following:
+
+```
+project_version=1.2.3
+base_connector_version=2.0.13
+config_plugin_version=2.1
+```
+
+- The `project_version` should be the version number for your own connector software
+- The `base_connector_version` should specify the version of the base connector you are leveraging
+- The `config_plugin_version` should specify the version of the configuration plugin you are leveraging
+
 
 ## Developer Guide
 
@@ -166,10 +197,12 @@ the associations as needed on the destination system.
 
 Effective version 2.0.1, the base connector framework no longer requires
 complex and specific setup of the Configuration class.  Instead, all of the code
-for the Configuration class now is generated via [Gradle plugin project](https://github.com/ExclamationLabs/connector-base-config-plugin). 
+for the Configuration class is now generated via [Gradle plugin project](https://github.com/ExclamationLabs/connector-base-config-plugin). 
 
-Code is generated based upon the `configuration.structure.yml` file in the base directory of your project.
-Expanded documentation on the structure of this .yml file is coming soon.
+Code is generated based upon the `configuration.structure.yml` file in the base directory 
+of your project.  See the [Sample Configuraton structure yml](configuration-example/SAMPLE.configuration.structure.yml) file in this project for a sample version of
+`configuration.structure.yml` with commented documentation on each line explaining the structure.
+Also see the `configuration-example/example.md` showing the configuration plugin in action.
  
 #### Authenticator
 
