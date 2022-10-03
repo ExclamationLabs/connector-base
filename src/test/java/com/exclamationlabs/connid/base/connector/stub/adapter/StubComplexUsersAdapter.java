@@ -116,4 +116,4 @@ public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubCo
 
         return attributes;
     }
- }
+}

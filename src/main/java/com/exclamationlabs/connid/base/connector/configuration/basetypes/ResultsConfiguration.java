@@ -20,9 +20,10 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 
 /**
  * Configuration properties common to connectors that support pagination
- * or need to perform deep gets on each record when performing a getAll.
+ * or need to perform deep gets or deep imports on each record when performing a getAll.
  */
 public interface ResultsConfiguration extends ConnectorConfiguration {
+
     Boolean getDeepGet();
     void setDeepGet(Boolean input);
 

@@ -60,7 +60,7 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
 
         T configuration = connector.getConnectorConfiguration();
         if (configuration instanceof ResultsConfiguration &&
-               BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
+                BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAttributesToGet(), SyncOp.class, SearchOp.class);
             schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildReturnDefaultAttributes(), SearchOp.class, SyncOp.class);
