@@ -447,6 +447,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
         @Override
         public void setPagination(Boolean input) {
         }
+
     }
 
     private ConsolidatedValues consolidateAttributeValues(Set<AttributeDelta> delta) {
