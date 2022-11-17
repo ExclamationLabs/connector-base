@@ -193,6 +193,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
      * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
      * @param options OperationOptions object received by connector.  Not currently used but may be supported in
      *                the future for paging or other purposes.
+     * @param hasEnhancedFiltering
      */
     public void get(AttributeFilter queryFilter, ResultsHandler resultsHandler, OperationOptions options, boolean hasEnhancedFiltering) {
 

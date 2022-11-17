@@ -29,7 +29,7 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
  * a destination system.  This class should be subclassed if your primary desire is to have
  * just read-only access to the data types on the destination system.
  *
- * Note that only the ConnId SearchOp<String> interface is implemented for this class;
+ * Note that only the ConnId SearchOp&lt;String&gt; interface is implemented for this class;
  * therefore this connector cannot take in create/update/delete requests from Midpoint.
  */
 public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration> extends BaseConnector<T>

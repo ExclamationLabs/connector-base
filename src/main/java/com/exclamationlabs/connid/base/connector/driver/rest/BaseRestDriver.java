@@ -93,6 +93,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     /**
      * Return the fault processor that will be used to analyze and respond
      * to HTTP error responses.
+     * @return RestFaultProcessor
      */
     abstract protected RestFaultProcessor getFaultProcessor();
 
@@ -106,6 +107,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
      * with Proxy connection information will be established.  Supported
      * proxy types are 'socks5' and 'http'.
      *
+     * @return HttpClient to be used for communication with the end point
      */
     protected HttpClient createClient() {
         if (restClient != null) {
