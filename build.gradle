@@ -1,16 +1,13 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.google.cloud.artifactregistry.gradle-plugin' version '2.2.0'
 }
 
 repositories {
     mavenCentral()
     maven {
-        url "https://artifactory.exclamationlabs.com/artifactory/libs-release-local"
-        credentials {
-                username = System.getenv('ARTIFACTORY_GRADLE_USER')
-                password = System.getenv('ARTIFACTORY_GRADLE_PASS')
-            }
+        url "https://us-east1-maven.pkg.dev/provision-general-operations/provision-public"
     }
 }
 
@@ -18,7 +15,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 group = 'com.exclamationlabs.connid'
 
-def build_version = System.getenv('BUILD_NUMBER') == null ? 'SNAPSHOT' : System.getenv('BUILD_NUMBER')
+def build_version = System.getenv('BUILD_NUMBER') == null ? "${local_build_version}" : System.getenv('BUILD_NUMBER')
 project.version="${software_version}-${build_version}"
 
 dependencies {
@@ -38,8 +35,11 @@ dependencies {
     // PEM Private key support
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.58'
 
-    testImplementation "com.exclamationlabs.connid:connector-base-test-support:2.0.14.1-+"
+    testImplementation "com.exclamationlabs.connid:connector-base-test-support:${test_connector_version}-+"
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
+
+    // TODO: Upgrade to JUnit 5
+    //testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
 }
 
 
@@ -47,6 +47,11 @@ dependencies {
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'source'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
 }
 
 task copyPom(type: Copy) {
@@ -60,6 +65,7 @@ publishing {
         connector_base(MavenPublication) {
             from components.java
             artifact sourceJar
+            artifact javadocJar
             pom {
                 name = "Connector Base: Framework"
                 description = "Base Connector Framework"
@@ -76,7 +82,18 @@ publishing {
             }
         }
     }
+    repositories {
+        maven {
+            url "artifactregistry://us-east1-maven.pkg.dev/provision-general-operations/provision-public/"
+        }
+    }
 }
+
+/* // For JUnit 5
+test {
+    useJUnitPlatform() {}
+}
+*/
 
 build.dependsOn(copyPom)
 copyPom.dependsOn(publishToMavenLocal)

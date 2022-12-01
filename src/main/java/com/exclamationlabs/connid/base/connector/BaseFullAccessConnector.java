@@ -31,7 +31,7 @@ import java.util.Set;
  * a destination system.  This class should be subclassed if your primary desire is to have
  * full access on most/all of the data types on the destination system.
  *
- * Note that ConnId interfaces DeleteOp, CreateOp, UpdateOp and SearchOp<String>
+ * Note that ConnId interfaces DeleteOp, CreateOp, UpdateOp and SearchOp&lt;String&gt;
  * are implemented.  This means that this connector will be able to
  * receive create, update, delete and get/search requests from Midpoint.
  */
