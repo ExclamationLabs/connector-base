@@ -135,7 +135,7 @@ public interface Driver<T extends ConnectorConfiguration> {
      * @param pagination Object possibly containing current pagination information for results
      *                   being processed.  Fields in this pagination could/should be
      *                   updated by the driver or invocator as results are processed for the connector.
-*    * @param resultCap The maximum number of results that should be returned by getAll.  This
+     * @param resultCap The maximum number of results that should be returned by getAll.  This
      *                        can be null but if present will override the pagination pageSize.
      *
      * @return A set of IdentityModel instances representing all the objects of a particular type.  Or

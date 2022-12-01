@@ -33,6 +33,8 @@ public interface ConnectorSchemaBuilder<T extends ConnectorConfiguration> {
     /**
      * Build and define the schema, capturing all the Attribute definitions for
      * object types for this connector.
+     * @param connector Applicable Connector object.
+     * @param adapterMap Map of adapters defined for this Connector.
      * @return Schema object needed for ConnId identity management system (normally MidPoint)
      * @throws ConfigurationException if exception or failure occurred while trying
      * to read or construct the schema.

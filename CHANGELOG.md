@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **2.1.1** - Migrate to Google Archive Repository FIN-9902 (11/28/2022)
 + **2.0.16** - Revert Behavior Interfaces; update configuration documentation (08/19/2022)
 + **2.0.15** - Added Behavior Interfaces for configuration ref FIN-9503 (08/15/2022)
 + **2.0.14.1** - Add support to read in PFX certificate as a resource FIN-9320 (06/14/2022)

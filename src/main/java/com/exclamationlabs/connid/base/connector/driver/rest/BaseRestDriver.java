@@ -93,6 +93,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     /**
      * Return the fault processor that will be used to analyze and respond
      * to HTTP error responses.
+     * @return RestFaultProcessor subclass to handle REST faults for this Driver.
      */
     abstract protected RestFaultProcessor getFaultProcessor();
 
@@ -105,7 +106,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
      * If configuration implements ProxyConfiguration, a Client
      * with Proxy connection information will be established.  Supported
      * proxy types are 'socks5' and 'http'.
-     *
+     * @return A constructed HttpClient set up as needed per configuration values.
      */
     protected HttpClient createClient() {
         if (restClient != null) {
@@ -212,6 +213,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
      * require Authorization: Bearer [token] in the HTTP header. If true,
      * this header will be added to all requests, with the token coming from
      * value stored in ConnectorConfiguration getCredentialAccessToken().
+     * @return true if Driver uses Bearer authorization.
      */
     protected boolean usesBearerAuthorization() {
         return false;
@@ -222,6 +224,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
      * require Authorization: Token token=[token] in the HTTP header. If true,
      * this header will be added to all requests, with the token coming from
      * value stored in ConnectorConfiguration getCredentialAccessToken().
+     * @return true if Driver uses Token authorization.
      */
     protected boolean usesTokenAuthorization() {
         return false;

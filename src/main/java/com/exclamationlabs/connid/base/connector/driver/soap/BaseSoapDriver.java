@@ -58,6 +58,8 @@ public abstract class BaseSoapDriver<S extends Service,P> extends BaseDriver {
     /**
      * Return the fault processor that will be used to analyze and respond
      * to HTTP error responses.
+     * @return The SoapFaultProcessor subclass to be used when SOAP invocation
+     * receives response fault(s).
      */
     abstract protected SoapFaultProcessor getFaultProcessor();
 

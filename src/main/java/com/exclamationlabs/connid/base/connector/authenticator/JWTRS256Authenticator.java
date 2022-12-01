@@ -43,10 +43,8 @@ import java.util.*;
  */
 public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Configuration> {
 
-    /**
-     * NOTE: SUBJECT AND AUDIENCE must be supplied as configuration properties,
-     * but if left blank they will not be included in the invocation.
-     */
+    // NOTE: SUBJECT AND AUDIENCE must be supplied as configuration properties,
+    // but if left blank they will not be included in the invocation.
 
     protected abstract RSAPrivateKey getPrivateKey();
 
