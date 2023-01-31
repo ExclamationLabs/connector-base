@@ -20,15 +20,16 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 /**
- * Internal do-nothing Authenticator which is used if a connector
- * does not specify an authenticator using setAuthenticator() in its constructor.
+ * Internal do-nothing Authenticator which is used if a connector does not specify an authenticator
+ * using setAuthenticator() in its constructor.
  */
 public class DefaultAuthenticator implements Authenticator<ConnectorConfiguration> {
 
-    public DefaultAuthenticator() {}
+  public DefaultAuthenticator() {}
 
-    @Override
-    public String authenticate(ConnectorConfiguration configuration) throws ConnectorSecurityException {
-        return "NA";
-    }
+  @Override
+  public String authenticate(ConnectorConfiguration configuration)
+      throws ConnectorSecurityException {
+    return "NA";
+  }
 }

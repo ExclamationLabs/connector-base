@@ -18,11 +18,9 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
-/**
- * Configuration properties for connectors that require a fixed
- * token for authentication.
- */
+/** Configuration properties for connectors that require a fixed token for authentication. */
 public interface DirectAccessTokenConfiguration extends ConnectorConfiguration {
-    String getToken();
-    void setToken(String input);
+  String getToken();
+
+  void setToken(String input);
 }

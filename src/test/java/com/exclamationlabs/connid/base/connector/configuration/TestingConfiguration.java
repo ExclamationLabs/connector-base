@@ -16,179 +16,165 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import org.identityconnectors.common.security.GuardedString;
-import org.identityconnectors.framework.common.objects.ConnectorMessages;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.objects.ConnectorMessages;
+import org.identityconnectors.framework.spi.ConfigurationProperty;
 
 public class TestingConfiguration implements ConnectorConfiguration {
 
-    @ConfigurationInfo(path="currentToken", internal=true)
-    protected String currentToken;
+  @ConfigurationInfo(path = "currentToken", internal = true)
+  protected String currentToken;
 
-    @ConfigurationInfo(path="source", internal=true)
-    protected String source;
+  @ConfigurationInfo(path = "source", internal = true)
+  protected String source;
 
-    @ConfigurationInfo(path="name", internal=true)
-    protected String name;
+  @ConfigurationInfo(path = "name", internal = true)
+  protected String name;
 
-    @ConfigurationInfo(path="active", internal=true)
-    protected Boolean active;
+  @ConfigurationInfo(path = "active", internal = true)
+  protected Boolean active;
 
-    protected ConnectorMessages connectorMessages;
+  protected ConnectorMessages connectorMessages;
 
-    @NotBlank
-    @ConfigurationInfo(path="custom.thing1")
-    private String thing1;
+  @NotBlank
+  @ConfigurationInfo(path = "custom.thing1")
+  private String thing1;
 
-    @NotNull
-    @ConfigurationInfo(path="custom.thing2")
-    private Long thing2;
+  @NotNull
+  @ConfigurationInfo(path = "custom.thing2")
+  private Long thing2;
 
-    @NotNull
-    @ConfigurationInfo(path="custom.thing3")
-    private Boolean thing3;
+  @NotNull
+  @ConfigurationInfo(path = "custom.thing3")
+  private Boolean thing3;
 
-    @Min(0)
-    @Max(100)
-    @ConfigurationInfo(path="rest.ioErrorRetries")
-    private Integer restIoErrorRetries;
+  @Min(0)
+  @Max(100)
+  @ConfigurationInfo(path = "rest.ioErrorRetries")
+  private Integer restIoErrorRetries;
 
-    @NotNull(message="loginPassword cannot be null")
-    @ConfigurationInfo(path="custom.guardedValue")
-    private GuardedString guardedValue;
+  @NotNull(message = "loginPassword cannot be null")
+  @ConfigurationInfo(path = "custom.guardedValue")
+  private GuardedString guardedValue;
 
-    @ConfigurationInfo(path="custom.arrayValue")
-    private String[] arrayValue;
+  @ConfigurationInfo(path = "custom.arrayValue")
+  private String[] arrayValue;
 
-    public TestingConfiguration() {
-    }
+  public TestingConfiguration() {}
 
-    public TestingConfiguration(String configurationName) {
-        name = configurationName;
-    }
+  public TestingConfiguration(String configurationName) {
+    name = configurationName;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "test1",
-            helpMessageKey = "test1")
-    public String getThing1() {
-        return thing1;
-    }
+  @ConfigurationProperty(displayMessageKey = "test1", helpMessageKey = "test1")
+  public String getThing1() {
+    return thing1;
+  }
 
-    public void setThing1(String input) {
-        this.thing1 = input;
-    }
+  public void setThing1(String input) {
+    this.thing1 = input;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "retry",
-            helpMessageKey = "retry")
-    public Integer getRestIoErrorRetries() {
-        return restIoErrorRetries;
-    }
+  @ConfigurationProperty(displayMessageKey = "retry", helpMessageKey = "retry")
+  public Integer getRestIoErrorRetries() {
+    return restIoErrorRetries;
+  }
 
-    public void setRestIoErrorRetries(Integer restIoErrorRetries) {
-        this.restIoErrorRetries = restIoErrorRetries;
-    }
+  public void setRestIoErrorRetries(Integer restIoErrorRetries) {
+    this.restIoErrorRetries = restIoErrorRetries;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "test2",
-            helpMessageKey = "test2")
-    public Long getThing2() {
-        return thing2;
-    }
+  @ConfigurationProperty(displayMessageKey = "test2", helpMessageKey = "test2")
+  public Long getThing2() {
+    return thing2;
+  }
 
-    public void setThing2(Long thing2) {
-        this.thing2 = thing2;
-    }
+  public void setThing2(Long thing2) {
+    this.thing2 = thing2;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "test3",
-            helpMessageKey = "test3")
-    public Boolean getThing3() {
-        return thing3;
-    }
+  @ConfigurationProperty(displayMessageKey = "test3", helpMessageKey = "test3")
+  public Boolean getThing3() {
+    return thing3;
+  }
 
-    public void setThing3(Boolean thing3) {
-        this.thing3 = thing3;
-    }
+  public void setThing3(Boolean thing3) {
+    this.thing3 = thing3;
+  }
 
+  @ConfigurationProperty(
+      displayMessageKey = "guarded value",
+      helpMessageKey = "guarded value help",
+      required = true)
+  public GuardedString getGuardedValue() {
+    return guardedValue;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "guarded value",
-            helpMessageKey = "guarded value help",
-            required = true)
-    public GuardedString getGuardedValue() {
-        return guardedValue;
-    }
+  public void setGuardedValue(GuardedString guardedValue) {
+    this.guardedValue = guardedValue;
+  }
 
-    public void setGuardedValue(GuardedString guardedValue) {
-        this.guardedValue = guardedValue;
-    }
+  @ConfigurationProperty(
+      displayMessageKey = "array value",
+      helpMessageKey = "array value help",
+      required = false)
+  public String[] getArrayValue() {
+    return arrayValue;
+  }
 
-    @ConfigurationProperty(
-            displayMessageKey = "array value",
-            helpMessageKey = "array value help",
-            required = false)
-    public String[] getArrayValue() {
-        return arrayValue;
-    }
+  public void setArrayValue(String[] arrayValue) {
+    this.arrayValue = arrayValue;
+  }
 
-    public void setArrayValue(String[] arrayValue) {
-        this.arrayValue = arrayValue;
-    }
+  @Override
+  public String getCurrentToken() {
+    return currentToken;
+  }
 
+  @Override
+  public void setCurrentToken(String input) {
+    currentToken = input;
+  }
 
-    @Override
-    public String getCurrentToken() {
-        return currentToken;
-    }
+  @Override
+  public String getSource() {
+    return source;
+  }
 
-    @Override
-    public void setCurrentToken(String input) {
-        currentToken = input;
-    }
+  @Override
+  public void setSource(String input) {
+    source = input;
+  }
 
-    @Override
-    public String getSource() {
-        return source;
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public void setSource(String input) {
-        source = input;
-    }
+  @Override
+  public void setName(String input) {
+    name = input;
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @Override
+  public Boolean getActive() {
+    return active;
+  }
 
-    @Override
-    public void setName(String input) {
-        name = input;
-    }
+  @Override
+  public void setActive(Boolean input) {
+    active = input;
+  }
 
-    @Override
-    public Boolean getActive() {
-        return active;
-    }
+  @Override
+  public ConnectorMessages getConnectorMessages() {
+    return null;
+  }
 
-    @Override
-    public void setActive(Boolean input) {
-        active = input;
-    }
-
-    @Override
-    public ConnectorMessages getConnectorMessages() {
-        return null;
-    }
-
-    @Override
-    public void setConnectorMessages(ConnectorMessages messages) {
-
-    }
+  @Override
+  public void setConnectorMessages(ConnectorMessages messages) {}
 }

@@ -21,92 +21,99 @@ import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
-import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.SearchOp;
 import org.identityconnectors.framework.spi.operations.SyncOp;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- * Default Connector Schema builder for Base Connector framework.  This will likely
- * fit the needs for all future connectors developed; but if a custom solution is needed,
- * use {@link com.exclamationlabs.connid.base.connector.BaseConnector#setConnectorSchemaBuilder}
+ * Default Connector Schema builder for Base Connector framework. This will likely fit the needs for
+ * all future connectors developed; but if a custom solution is needed, use {@link
+ * com.exclamationlabs.connid.base.connector.BaseConnector#setConnectorSchemaBuilder}
  */
 public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
-        implements ConnectorSchemaBuilder<T> {
+    implements ConnectorSchemaBuilder<T> {
 
-    private static final Log LOG = Log.getLog(DefaultConnectorSchemaBuilder.class);
+  @Override
+  public Schema build(BaseConnector<T> connector, Map<ObjectClass, BaseAdapter<?, T>> adapterMap)
+      throws ConfigurationException {
+    Logger.info(this, String.format("Building schema for connector %s ...", connector.getName()));
+    SchemaBuilder schemaBuilder = new SchemaBuilder(connector.getClass());
 
-    @Override
-    public Schema build(BaseConnector<T> connector, Map<ObjectClass, BaseAdapter<?, T>> adapterMap)
-            throws ConfigurationException {
-        LOG.info("Building schema for connector {0} ...", connector.getName());
-        SchemaBuilder schemaBuilder = new SchemaBuilder(connector.getClass());
+    for (BaseAdapter<?, T> currentAdapter : adapterMap.values()) {
+      Set<ConnectorAttribute> currentAttributes = currentAdapter.getConnectorAttributes();
 
-        for (BaseAdapter<?, T> currentAdapter : adapterMap.values()) {
-            Set<ConnectorAttribute> currentAttributes = currentAdapter.getConnectorAttributes();
-
-            LOG.info("Determining schema elements for connector {0}, object class {1} ...",
-                    connector.getName(), currentAdapter.getType());
-            schemaBuilder.defineObjectClass(buildObjectClassInfo(currentAdapter.getType(),
-                    currentAttributes));
-        }
-
-        T configuration = connector.getConnectorConfiguration();
-        if (configuration instanceof ResultsConfiguration &&
-                BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAttributesToGet(), SyncOp.class, SearchOp.class);
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildReturnDefaultAttributes(), SearchOp.class, SyncOp.class);
-
-            // more operation options support for Paging
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPagedResultsOffset(), SearchOp.class);
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildPagedResultsCookie(), SearchOp.class);
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAllowPartialResults(), SearchOp.class);
-            schemaBuilder.defineOperationOption(OperationOptionInfoBuilder.buildAllowPartialAttributeValues(), SearchOp.class);
-        }
-
-
-        LOG.info("Finished building schema for connector {0}", connector.getName());
-
-        return schemaBuilder.build();
+      Logger.info(
+          this,
+          String.format(
+              "Determining schema elements for connector %s, object class %s ...",
+              connector.getName(), currentAdapter.getType()));
+      schemaBuilder.defineObjectClass(
+          buildObjectClassInfo(currentAdapter.getType(), currentAttributes));
     }
 
-    protected static ObjectClassInfo buildObjectClassInfo(ObjectClass classType,
-                                                          Set<ConnectorAttribute> attributes) {
-        ObjectClassInfoBuilder builder = new ObjectClassInfoBuilder();
-        builder.setType(classType.getObjectClassValue());
+    T configuration = connector.getConnectorConfiguration();
+    if (configuration instanceof ResultsConfiguration
+        && BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildAttributesToGet(), SyncOp.class, SearchOp.class);
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildReturnDefaultAttributes(), SearchOp.class, SyncOp.class);
 
-        Collection<AttributeInfo> attributeInfoSet =
-                attributes
-                        .stream()
-                        .map(DefaultConnectorSchemaBuilder::buildAttributeInfo)
-                        .collect(Collectors.toSet());
-        builder.addAllAttributeInfo(attributeInfoSet);
-        LOG.info("Added {0} schema elements for type {1}", attributeInfoSet.size(), classType);
-
-        return builder.build();
+      // more operation options support for Paging
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildPagedResultsOffset(), SearchOp.class);
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildPagedResultsCookie(), SearchOp.class);
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildAllowPartialResults(), SearchOp.class);
+      schemaBuilder.defineOperationOption(
+          OperationOptionInfoBuilder.buildAllowPartialAttributeValues(), SearchOp.class);
     }
 
-    private static AttributeInfo buildAttributeInfo(ConnectorAttribute current) {
+    Logger.info(
+        this, String.format("Finished building schema for connector %s", connector.getName()));
 
-        LOG.ok("Current schema element for attribute: {0}; {1}; {2}", current.getName(),
-                current.getDataType().getClassType(), current.getFlags());
+    return schemaBuilder.build();
+  }
 
-        return new AttributeInfoBuilder(current.getName())
-                    .setNativeName(current.getNativeName())
-                    .setType(current.getDataType().getClassType())
-                    .setFlags(current.getFlags())
-                    .build();
+  protected static ObjectClassInfo buildObjectClassInfo(
+      ObjectClass classType, Set<ConnectorAttribute> attributes) {
+    ObjectClassInfoBuilder builder = new ObjectClassInfoBuilder();
+    builder.setType(classType.getObjectClassValue());
 
+    Collection<AttributeInfo> attributeInfoSet =
+        attributes.stream()
+            .map(DefaultConnectorSchemaBuilder::buildAttributeInfo)
+            .collect(Collectors.toSet());
+    builder.addAllAttributeInfo(attributeInfoSet);
+    Logger.debug(
+        DefaultConnectorSchemaBuilder.class,
+        String.format("Added %s schema elements for type %s", attributeInfoSet.size(), classType));
 
-    }
+    return builder.build();
+  }
 
+  private static AttributeInfo buildAttributeInfo(ConnectorAttribute current) {
 
+    Logger.debug(
+        DefaultConnectorSchemaBuilder.class,
+        String.format(
+            "Current schema element for attribute: %s; %s; %s",
+            current.getName(), current.getDataType().getClassType(), current.getFlags()));
+
+    return new AttributeInfoBuilder(current.getName())
+        .setNativeName(current.getNativeName())
+        .setType(current.getDataType().getClassType())
+        .setFlags(current.getFlags())
+        .build();
+  }
 }

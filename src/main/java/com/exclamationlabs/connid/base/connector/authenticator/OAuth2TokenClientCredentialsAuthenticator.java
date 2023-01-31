@@ -20,6 +20,9 @@ import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenE
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2ClientCredentialsConfiguration;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -31,56 +34,56 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+/** This implementation performs the OAuth2 "client_credentials" grant type. */
+public class OAuth2TokenClientCredentialsAuthenticator
+    implements Authenticator<Oauth2ClientCredentialsConfiguration> {
+  protected static GsonBuilder gsonBuilder;
 
-/**
- * This implementation performs the OAuth2 "client_credentials" grant type.
- */
-public class OAuth2TokenClientCredentialsAuthenticator implements Authenticator<Oauth2ClientCredentialsConfiguration> {
-    protected static GsonBuilder gsonBuilder;
+  static {
+    gsonBuilder = new GsonBuilder();
+  }
 
-    static {
-        gsonBuilder = new GsonBuilder();
+  @Override
+  public String authenticate(Oauth2ClientCredentialsConfiguration configuration)
+      throws ConnectorSecurityException {
+    try {
+      OAuth2TokenExecution.initializeForHttp();
+
+      HttpPost request = new HttpPost(configuration.getTokenUrl());
+
+      List<NameValuePair> params = new ArrayList<>();
+      params.add(new BasicNameValuePair("grant_type", "client_credentials"));
+
+      // Scope is optional for OAuth2 client credentials
+      if (StringUtils.isNotBlank(configuration.getScope())) {
+        params.add(new BasicNameValuePair("scope", configuration.getScope()));
+      }
+
+      request.setEntity(new UrlEncodedFormEntity(params));
+
+      String auth =
+          configuration.getClientId()
+              + ":"
+              + GuardedStringUtil.read(configuration.getClientSecret());
+
+      byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+      String authHeader = "Basic " + new String(encodedAuth);
+      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+      return OAuth2TokenExecution.executeRequest(
+          this,
+          configuration,
+          getHttpClient(),
+          request,
+          new UrlEncodedFormEntity(params),
+          gsonBuilder);
+
+    } catch (IOException e) {
+      throw new ConnectorSecurityException(
+          "Unexpected error occurred during OAuth2 call: " + e.getMessage(), e);
     }
+  }
 
-
-    @Override
-    public String authenticate(Oauth2ClientCredentialsConfiguration configuration) throws ConnectorSecurityException {
-        try {
-            OAuth2TokenExecution.initializeForHttp();
-
-            HttpPost request = new HttpPost(configuration.getTokenUrl());
-
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("grant_type", "client_credentials"));
-
-            // Scope is optional for OAuth2 client credentials
-            if (StringUtils.isNotBlank(
-                    configuration.getScope())) {
-                params.add(new BasicNameValuePair("scope", configuration.getScope()));
-            }
-
-            request.setEntity(new UrlEncodedFormEntity(params));
-
-            String auth = configuration.getClientId() + ":" +
-                    GuardedStringUtil.read(configuration.getClientSecret());
-
-            byte[] encodedAuth = Base64.encodeBase64(
-                    auth.getBytes(StandardCharsets.ISO_8859_1));
-            String authHeader = "Basic " + new String(encodedAuth);
-            request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-            return OAuth2TokenExecution.executeRequest(this, configuration, getHttpClient(), request,
-                    new UrlEncodedFormEntity(params), gsonBuilder);
-
-        } catch (IOException e) {
-            throw new ConnectorSecurityException(
-                    "Unexpected error occurred during OAuth2 call: " + e.getMessage(), e);
-        }
-    }
-
-    public HttpClient getHttpClient() {
-        return HttpClients.createDefault();
-    }
+  public HttpClient getHttpClient() {
+    return HttpClients.createDefault();
+  }
 }

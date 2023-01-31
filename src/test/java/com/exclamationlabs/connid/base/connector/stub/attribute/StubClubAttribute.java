@@ -17,6 +17,6 @@
 package com.exclamationlabs.connid.base.connector.stub.attribute;
 
 public enum StubClubAttribute {
-    CLUB_ID,
-    CLUB_NAME
+  CLUB_ID,
+  CLUB_NAME
 }

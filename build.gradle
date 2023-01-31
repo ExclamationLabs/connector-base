@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.google.cloud.artifactregistry.gradle-plugin' version '2.2.0'
+    id 'com.github.sherter.google-java-format' version '0.9'
 }
 
 repositories {
@@ -11,35 +12,39 @@ repositories {
     }
 }
 
+googleJavaFormat {}
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 group = 'com.exclamationlabs.connid'
 
-def build_version = System.getenv('BUILD_NUMBER') == null ? "${local_build_version}" : System.getenv('BUILD_NUMBER')
+def build_version = System.getenv('BUILD_NUMBER') == null ? System.currentTimeMillis() : System.getenv('BUILD_NUMBER')
 project.version="${software_version}-${build_version}"
 
 dependencies {
 
     ////// Begin - Vital dependencies for Base Connector
-    api 'org.apache.commons:commons-lang3:3.8.1'
+    api 'org.apache.commons:commons-lang3:3.12.0'
     api 'net.tirasa.connid:connector-test-common:1.5.0.0'
-    api 'com.auth0:java-jwt:3.10.3'
+    api 'com.auth0:java-jwt:3.19.4'
 
-    api 'org.springframework.boot:spring-boot-starter-validation:2.5.14'
+    api 'org.springframework.boot:spring-boot-starter-validation:2.7.4'
     ////// End - Vital dependencies for Base Connector
 
     // HTTP/RESTful support
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.10'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 
     // PEM Private key support
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.58'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+
+    // SOAP support
+    // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'
 
     testImplementation "com.exclamationlabs.connid:connector-base-test-support:${test_connector_version}-+"
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
 
-    // TODO: Upgrade to JUnit 5
-    //testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
 }
 
 
@@ -73,7 +78,7 @@ publishing {
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 scm {
@@ -89,11 +94,9 @@ publishing {
     }
 }
 
-/* // For JUnit 5
 test {
     useJUnitPlatform() {}
 }
-*/
 
 build.dependsOn(copyPom)
 copyPom.dependsOn(publishToMavenLocal)

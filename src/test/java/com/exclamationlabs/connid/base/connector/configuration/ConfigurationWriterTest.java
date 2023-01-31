@@ -16,35 +16,36 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurationWriterTest {
 
-    @Test
-    public void writeToString() {
-        TestingConfiguration configuration = new TestingConfiguration("testing");
-        ConfigurationReader.prepareTestConfiguration(configuration);
+  @Test
+  public void writeToString() {
+    TestingConfiguration configuration = new TestingConfiguration("testing");
+    ConfigurationReader.prepareTestConfiguration(configuration);
 
-        assertEquals("testing", configuration.getName());
-        assertEquals("src/test/resources/testing.properties", configuration.getSource());
-        assertNull(configuration.getActive());
+    assertEquals("testing", configuration.getName());
+    assertEquals("src/test/resources/testing.properties", configuration.getSource());
+    assertNull(configuration.getActive());
 
-        ConfigurationReader.readPropertiesFromSource(configuration);
+    ConfigurationReader.readPropertiesFromSource(configuration);
 
-        final String expectedOutput = "currentToken=\n" +
-            "source=src/test/resources/testing.properties\n" +
-            "name=testing\n" +
-            "active=true\n" +
-            "custom.thing1=customValue\n" +
-            "custom.thing2=5555566666\n" +
-            "custom.thing3=true\n" +
-            "rest.ioErrorRetries=15\n" +
-            "custom.guardedValue=testMe\n" +
-            "custom.arrayValue=[Uno, Dos, Tres]\n";
-        String output = ConfigurationWriter.writeToString(configuration);
-        assertEquals(expectedOutput, output);
-    }
-
+    final String expectedOutput =
+        "currentToken=\n"
+            + "source=src/test/resources/testing.properties\n"
+            + "name=testing\n"
+            + "active=true\n"
+            + "custom.thing1=customValue\n"
+            + "custom.thing2=5555566666\n"
+            + "custom.thing3=true\n"
+            + "rest.ioErrorRetries=15\n"
+            + "custom.guardedValue=testMe\n"
+            + "custom.arrayValue=[Uno, Dos, Tres]\n";
+    String output = ConfigurationWriter.writeToString(configuration);
+    assertEquals(expectedOutput, output);
+  }
 }

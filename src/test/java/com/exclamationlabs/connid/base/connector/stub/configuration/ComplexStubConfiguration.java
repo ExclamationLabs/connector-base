@@ -20,155 +20,139 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.Results
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ServiceConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationClass;
-
 import java.util.Map;
+import org.identityconnectors.framework.spi.ConfigurationClass;
 
 @ConfigurationClass(skipUnsupported = true)
 public class ComplexStubConfiguration extends StubConfiguration
-        implements ServiceConfiguration, ResultsConfiguration, JwtRs256Configuration, Oauth2JwtConfiguration {
+    implements ServiceConfiguration,
+        ResultsConfiguration,
+        JwtRs256Configuration,
+        Oauth2JwtConfiguration {
 
-    private Boolean deepGet = true;
-    private Boolean deepImport = true;
-    private Integer importBatchSize = 5;
-    private Boolean pagination = true;
+  private Boolean deepGet = true;
+  private Boolean deepImport = true;
+  private Integer importBatchSize = 5;
+  private Boolean pagination = true;
 
-    @SuppressWarnings("unused")
-    public ComplexStubConfiguration(String configName) {
-        super();
-    }
+  @SuppressWarnings("unused")
+  public ComplexStubConfiguration(String configName) {
+    super();
+  }
 
-    public ComplexStubConfiguration() {
-        super();
-    }
+  public ComplexStubConfiguration() {
+    super();
+  }
 
+  @Override
+  public Boolean getDeepGet() {
+    return deepGet;
+  }
 
-    @Override
-    public Boolean getDeepGet() {
-        return deepGet;
-    }
+  @Override
+  public void setDeepGet(Boolean input) {
+    deepGet = input;
+  }
 
-    @Override
-    public void setDeepGet(Boolean input) {
-        deepGet = input;
-    }
+  @Override
+  public Boolean getDeepImport() {
+    return deepImport;
+  }
 
-    @Override
-    public Boolean getDeepImport() {
-        return deepImport;
-    }
+  @Override
+  public void setDeepImport(Boolean input) {
+    deepImport = input;
+  }
 
-    @Override
-    public void setDeepImport(Boolean input) {
-        deepImport = input;
-    }
+  @Override
+  public Integer getImportBatchSize() {
+    return importBatchSize;
+  }
 
-    @Override
-    public Integer getImportBatchSize() {
-        return importBatchSize;
-    }
+  @Override
+  public void setImportBatchSize(Integer input) {
+    importBatchSize = input;
+  }
 
-    @Override
-    public void setImportBatchSize(Integer input) {
-        importBatchSize = input;
-    }
+  @Override
+  public Boolean getPagination() {
+    return pagination;
+  }
 
-    @Override
-    public Boolean getPagination() {
-        return pagination;
-    }
+  @Override
+  public void setPagination(Boolean input) {
+    pagination = input;
+  }
 
-    @Override
-    public void setPagination(Boolean input) {
-        pagination = input;
-    }
+  @Override
+  public String getServiceUrl() {
+    return "testurl";
+  }
 
-    @Override
-    public String getServiceUrl() {
-        return "testurl";
-    }
+  @Override
+  public void setServiceUrl(String input) {}
 
-    @Override
-    public void setServiceUrl(String input) {
+  @Override
+  public Boolean getDuplicateErrorReturnsId() {
+    return true;
+  }
 
-    }
+  @Override
+  public void setDuplicateErrorReturnsId(Boolean input) {}
 
-    @Override
-    public Boolean getDuplicateErrorReturnsId() {
-        return true;
-    }
+  @Override
+  public String getIssuer() {
+    return null;
+  }
 
-    @Override
-    public void setDuplicateErrorReturnsId(Boolean input) {
-    }
+  @Override
+  public void setIssuer(String input) {}
 
-    @Override
-    public String getIssuer() {
-        return null;
-    }
+  @Override
+  public String getSubject() {
+    return null;
+  }
 
-    @Override
-    public void setIssuer(String input) {
+  @Override
+  public void setSubject(String input) {}
 
-    }
+  @Override
+  public Long getExpirationPeriod() {
+    return null;
+  }
 
-    @Override
-    public String getSubject() {
-        return null;
-    }
+  @Override
+  public void setExpirationPeriod(Long input) {}
 
-    @Override
-    public void setSubject(String input) {
+  @Override
+  public String getAudience() {
+    return null;
+  }
 
-    }
+  @Override
+  public void setAudience(String input) {}
 
-    @Override
-    public Long getExpirationPeriod() {
-        return null;
-    }
+  @Override
+  public Boolean getUseIssuedAt() {
+    return null;
+  }
 
-    @Override
-    public void setExpirationPeriod(Long input) {
+  @Override
+  public void setUseIssuedAt(Boolean input) {}
 
-    }
+  @Override
+  public String getTokenUrl() {
+    return null;
+  }
 
-    @Override
-    public String getAudience() {
-        return null;
-    }
+  @Override
+  public void setTokenUrl(String input) {}
 
-    @Override
-    public void setAudience(String input) {
+  @Override
+  public Map<String, String> getOauth2Information() {
+    return null;
+  }
 
-    }
-
-    @Override
-    public Boolean getUseIssuedAt() {
-        return null;
-    }
-
-    @Override
-    public void setUseIssuedAt(Boolean input) {
-
-    }
-
-    @Override
-    public String getTokenUrl() {
-        return null;
-    }
-
-    @Override
-    public void setTokenUrl(String input) {
-
-    }
-
-    @Override
-    public Map<String, String> getOauth2Information() {
-        return null;
-    }
-
-    @Override
-    public void setOauth2Information(Map<String, String> info) {
-
-    }
+  @Override
+  public void setOauth2Information(Map<String, String> info) {}
 }

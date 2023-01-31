@@ -16,55 +16,61 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurationValidatorTest {
 
-    private TestingConfiguration configuration;
+  private TestingConfiguration configuration;
 
-    @Before
-    public void setup() {
-        configuration = new TestingConfiguration("testing");
-        ConfigurationReader.prepareTestConfiguration(configuration);
-        ConfigurationReader.readPropertiesFromSource(configuration);
-    }
+  @BeforeEach
+  public void setup() {
+    configuration = new TestingConfiguration("testing");
+    ConfigurationReader.prepareTestConfiguration(configuration);
+    ConfigurationReader.readPropertiesFromSource(configuration);
+  }
 
-    @Test
-    public void validateHappy() {
-        ConfigurationValidator.validate(configuration);
-    }
+  @Test
+  public void validateHappy() {
+    ConfigurationValidator.validate(configuration);
+  }
 
-    @Test(expected = ConfigurationException.class)
-    public void validateSadInvalidNumber() {
-        configuration.setRestIoErrorRetries(4444);
-        ConfigurationValidator.validate(configuration);
-    }
+  @Test
+  public void validateSadInvalidNumber() {
+    configuration.setRestIoErrorRetries(4444);
+    assertThrows(
+        ConfigurationException.class, () -> ConfigurationValidator.validate(configuration));
+  }
 
-    @Test(expected = ConfigurationException.class)
-    public void validateSadEmptyString() {
-        configuration.setThing1("");
-        ConfigurationValidator.validate(configuration);
-    }
+  @Test
+  public void validateSadEmptyString() {
+    configuration.setThing1("");
+    assertThrows(
+        ConfigurationException.class, () -> ConfigurationValidator.validate(configuration));
+  }
 
-    @Test(expected = ConfigurationException.class)
-    public void validateSadNullString() {
-        configuration.setThing1(null);
-        ConfigurationValidator.validate(configuration);
-    }
+  @Test
+  public void validateSadNullString() {
+    configuration.setThing1(null);
+    assertThrows(
+        ConfigurationException.class, () -> ConfigurationValidator.validate(configuration));
+  }
 
-    @Test(expected = ConfigurationException.class)
-    public void validateSadNullNumber() {
-        configuration.setThing2(null);
-        ConfigurationValidator.validate(configuration);
-    }
+  @Test
+  public void validateSadNullNumber() {
+    configuration.setThing2(null);
+    assertThrows(
+        ConfigurationException.class, () -> ConfigurationValidator.validate(configuration));
+  }
 
-    @Test(expected = ConfigurationException.class)
-    public void validateSkipInactive() {
-        configuration.setRestIoErrorRetries(4444);
-        configuration.setActive(false);
-        ConfigurationValidator.validate(configuration);
-    }
-
+  @Test
+  public void validateSkipInactive() {
+    configuration.setRestIoErrorRetries(4444);
+    configuration.setActive(false);
+    assertThrows(
+        ConfigurationException.class, () -> ConfigurationValidator.validate(configuration));
+  }
 }

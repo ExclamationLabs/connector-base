@@ -17,51 +17,50 @@
 package com.exclamationlabs.connid.base.connector.results;
 
 /**
- * ResultsFilter is used to store, if applicable, the attribute name and value
- * that the user wishes to filter data on.  The driver/invocator getAll method
- * may or may not support results filtering (this is determined by getEnhancedFiltering()
- * and getFilterAttributes() in the Connector).
+ * ResultsFilter is used to store, if applicable, the attribute name and value that the user wishes
+ * to filter data on. The driver/invocator getAll method may or may not support results filtering
+ * (this is determined by getEnhancedFiltering() and getFilterAttributes() in the Connector).
  *
- * Note: If deemed useful, this object could possibly be enhanced in the future to
- * support multiple filter attribute/value pairs, instead of a single one.
+ * <p>Note: If deemed useful, this object could possibly be enhanced in the future to support
+ * multiple filter attribute/value pairs, instead of a single one.
  */
 public class ResultsFilter {
 
-    private String attribute;
-    private String value;
+  private String attribute;
+  private String value;
 
-    public ResultsFilter() {
-        setAttribute(null);
-        setValue(null);
-    }
+  public ResultsFilter() {
+    setAttribute(null);
+    setValue(null);
+  }
 
-    public ResultsFilter(String filterAttribute, String filterValue) {
-        setAttribute(filterAttribute);
-        setValue(filterValue);
-    }
+  public ResultsFilter(String filterAttribute, String filterValue) {
+    setAttribute(filterAttribute);
+    setValue(filterValue);
+  }
 
-    public boolean hasFilter() {
-        return getAttribute() != null && getValue() != null;
-    }
+  public boolean hasFilter() {
+    return getAttribute() != null && getValue() != null;
+  }
 
-    public String getAttribute() {
-        return attribute;
-    }
+  public String getAttribute() {
+    return attribute;
+  }
 
-    public void setAttribute(String attribute) {
-        this.attribute = attribute;
-    }
+  public void setAttribute(String attribute) {
+    this.attribute = attribute;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public String toString() {
-        return hasFilter() ? attribute + ":" + value : "none";
-    }
+  @Override
+  public String toString() {
+    return hasFilter() ? attribute + ":" + value : "none";
+  }
 }

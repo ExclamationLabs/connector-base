@@ -17,10 +17,9 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
 /**
- * Return the name of the connector, for use in configuration loading.
- * Ideally, the name returned should be all uppercase and underscores, with
- * no other spaces or punctuation.
+ * Return the name of the connector, for use in configuration loading. Ideally, the name returned
+ * should be all uppercase and underscores, with no other spaces or punctuation.
  */
 public interface ConfigurationConnector {
-    String getName();
+  String getName();
 }
