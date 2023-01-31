@@ -16,52 +16,47 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
+import javax.validation.constraints.NotBlank;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
-import org.junit.Test;
-
-import javax.validation.constraints.NotBlank;
+import org.junit.jupiter.api.Test;
 
 public class ConnectorConfigurationTest {
 
-    @Test(expected=ConfigurationException.class)
-    public void testConfigurationValidationFailed() {
-        ConnectorConfiguration configuration = new ValidatingConfiguration();
-        new StubConnector().init(configuration);
+  @Test
+  public void testConfigurationValidationFailed() {
+    ConnectorConfiguration configuration = new ValidatingConfiguration();
+    assertThrows(ConfigurationException.class, () -> new StubConnector().init(configuration));
+  }
+
+  @Test
+  public void testConfigurationValidationPassed() {
+    ValidatingConfiguration configuration = new ValidatingConfiguration();
+
+    configuration.setUnsetItem("Test");
+    new StubConnector().init(configuration);
+  }
+
+  static class ValidatingConfiguration extends StubConfiguration {
+
+    public ValidatingConfiguration() {
+      super();
+      setActive(true);
     }
 
-    @Test
-    public void testConfigurationValidationPassed() {
-        ValidatingConfiguration configuration = new ValidatingConfiguration();
+    @NotBlank private String unsetItem;
 
-        configuration.setUnsetItem("Test");
-        new StubConnector().init(configuration);
+    @ConfigurationProperty(displayMessageKey = "test1", helpMessageKey = "test2", required = true)
+    public String getUnsetItem() {
+      return unsetItem;
     }
 
-    static class ValidatingConfiguration extends StubConfiguration {
-
-        public ValidatingConfiguration() {
-            super();
-            setActive(true);
-        }
-
-        @NotBlank
-        private String unsetItem;
-
-        @ConfigurationProperty(
-                displayMessageKey = "test1",
-                helpMessageKey = "test2",
-                required = true)
-        public String getUnsetItem() {
-            return unsetItem;
-        }
-
-        public void setUnsetItem(String input) {
-            this.unsetItem = input;
-        }
-
+    public void setUnsetItem(String input) {
+      this.unsetItem = input;
     }
-
+  }
 }

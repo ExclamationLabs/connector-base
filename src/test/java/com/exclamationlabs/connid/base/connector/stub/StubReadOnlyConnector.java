@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseReadOnlyConnector;
-import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
@@ -25,13 +24,11 @@ import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
-public class StubReadOnlyConnector extends BaseReadOnlyConnector {
+public class StubReadOnlyConnector extends BaseReadOnlyConnector<StubConfiguration> {
 
-    public StubReadOnlyConnector() {
-        super(DefaultConnectorConfiguration.class);
-        setDriver(new StubDriver());
-        setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
-    }
-
-
+  public StubReadOnlyConnector() {
+    super(StubConfiguration.class);
+    setDriver(new StubDriver());
+    setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
+  }
 }

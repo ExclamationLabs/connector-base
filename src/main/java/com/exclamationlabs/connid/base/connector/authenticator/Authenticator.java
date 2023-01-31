@@ -17,36 +17,38 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 /**
- * An Authenticator is an object that might be needed by a connector implementation
- * in order to obtain some kind of access token (String) required to
- * authenticate to its destination system (usually via a Driver).
+ * An Authenticator is an object that might be needed by a connector implementation in order to
+ * obtain some kind of access token (String) required to authenticate to its destination system
+ * (usually via a Driver).
  */
 public interface Authenticator<T extends ConnectorConfiguration> {
 
-    /**
-     * Perform all required authentication needed for this connector.
-     * @param configuration The configuration object respective to this connector
-     * @return String containing an access token or other value produced as a result of
-     * authentication.  In some implementations this could return a String flag of some kind
-     * or null if authenticator has no meaningful output or actual authentication.
-     * @throws ConnectorSecurityException if could not authenticate or permissions was denied
-     */
-    String authenticate(T configuration) throws ConnectorSecurityException;
+  /**
+   * Perform all required authentication needed for this connector.
+   *
+   * @param configuration The configuration object respective to this connector
+   * @return String containing an access token or other value produced as a result of
+   *     authentication. In some implementations this could return a String flag of some kind or
+   *     null if authenticator has no meaningful output or actual authentication.
+   * @throws ConnectorSecurityException if could not authenticate or permissions was denied
+   */
+  String authenticate(T configuration) throws ConnectorSecurityException;
 
-    /**
-     * Define any additional authentication headers needed during authentication.  Usually these are HTTP
-     * headers.
-     * @param configuration Reference to Configuration to aid implementing authentications setup proper
-     *                      authentication values.
-     * @return Map containg key/value pairs of additional authentication values.
-     */
-    default Map<String, String> getAdditionalAuthenticationHeaders(ConnectorConfiguration configuration) {
-        return new HashMap<>();
-    }
+  /**
+   * Define any additional authentication headers needed during authentication. Usually these are
+   * HTTP headers.
+   *
+   * @param configuration Reference to Configuration to aid implementing authentications setup
+   *     proper authentication values.
+   * @return Map containg key/value pairs of additional authentication values.
+   */
+  default Map<String, String> getAdditionalAuthenticationHeaders(
+      ConnectorConfiguration configuration) {
+    return new HashMap<>();
+  }
 }

@@ -16,41 +16,45 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import org.identityconnectors.common.logging.Log;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
 
 /**
- * This utility class is used to clear out Java system properties for
- * trust store setup.  This seems to be needed in current MidPoint versions
- * where these default Java system property values cause problems
- * with any usage of HttpClient from a connector.
+ * This utility class is used to clear out Java system properties for trust store setup. This seems
+ * to be needed in current MidPoint versions where these default Java system property values cause
+ * problems with any usage of HttpClient from a connector.
  */
 public class TrustStoreConfiguration {
-    static final String TRUST_STORE_TYPE_PROPERTY = "javax.net.ssl.trustStoreType";
-    static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";
+  static final String TRUST_STORE_TYPE_PROPERTY = "javax.net.ssl.trustStoreType";
+  static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";
 
-    private static final Log LOG = Log.getLog(TrustStoreConfiguration.class);
+  private static boolean propertiesCleared = false;
 
-    private static boolean propertiesCleared = false;
+  private TrustStoreConfiguration() {}
 
-    private TrustStoreConfiguration() {}
+  static void clearJdkPropertiesForce() {
+    propertiesCleared = false;
+    clearJdkProperties();
+  }
 
-    static void clearJdkPropertiesForce() {
-        propertiesCleared = false;
-        clearJdkProperties();
+  public static void clearJdkProperties() {
+    if (!propertiesCleared) {
+      Logger.debug(
+          TrustStoreConfiguration.class,
+          String.format(
+              "Clearing out property %s for MidPoint integration.  Value was %s",
+              TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY)));
+      Logger.debug(
+          TrustStoreConfiguration.class,
+          String.format(
+              "Clearing out property %s for MidPoint integration.  Value was %s",
+              TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY)));
+
+      System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
+      System.clearProperty(TRUST_STORE_PROPERTY);
+      propertiesCleared = true;
+    } else {
+      Logger.debug(
+          TrustStoreConfiguration.class, "Trust store properties already cleared for connector.");
     }
-
-    public static void clearJdkProperties() {
-        if (!propertiesCleared) {
-            LOG.ok("Clearing out property {0} for MidPoint integration.  Value was {1}",
-                    TRUST_STORE_TYPE_PROPERTY, System.getProperty(TRUST_STORE_TYPE_PROPERTY));
-            LOG.ok("Clearing out property {0} for MidPoint integration.  Value was {1}",
-                    TRUST_STORE_PROPERTY, System.getProperty(TRUST_STORE_PROPERTY));
-
-            System.clearProperty(TRUST_STORE_TYPE_PROPERTY);
-            System.clearProperty(TRUST_STORE_PROPERTY);
-            propertiesCleared = true;
-        } else {
-            LOG.ok("Trust store properties already cleared for connector.");
-        }
-    }
+  }
 }

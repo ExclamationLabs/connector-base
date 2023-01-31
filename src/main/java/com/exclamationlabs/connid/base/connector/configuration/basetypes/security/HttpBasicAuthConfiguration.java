@@ -19,12 +19,15 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that require HTTP Basic Authentication
- * at their HTTP/HTTPS endpoint.
+ * Configuration properties for connectors that require HTTP Basic Authentication at their
+ * HTTP/HTTPS endpoint.
  */
 public interface HttpBasicAuthConfiguration extends ConnectorConfiguration {
-    String getBasicUsername();
-    void setBasicUsername(String input);
-    String getBasicPassword();
-    void setBasicPassword(String input);
+  String getBasicUsername();
+
+  void setBasicUsername(String input);
+
+  String getBasicPassword();
+
+  void setBasicPassword(String input);
 }

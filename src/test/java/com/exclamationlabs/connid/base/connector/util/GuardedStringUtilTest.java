@@ -16,18 +16,17 @@
 
 package com.exclamationlabs.connid.base.connector.util;
 
-import org.identityconnectors.common.security.GuardedString;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.*;
+import org.identityconnectors.common.security.GuardedString;
+import org.junit.jupiter.api.Test;
 
 public class GuardedStringUtilTest {
 
-    @Test
-    public void testRead() {
-        final String SECRET_VALUE = "I am a secret!";
-        GuardedString guardedString = new GuardedString(SECRET_VALUE.toCharArray());
-        assertEquals(SECRET_VALUE, GuardedStringUtil.read(guardedString));
-    }
-
+  @Test
+  public void testRead() {
+    final String SECRET_VALUE = "I am a secret!";
+    GuardedString guardedString = new GuardedString(SECRET_VALUE.toCharArray());
+    assertEquals(SECRET_VALUE, GuardedStringUtil.read(guardedString));
+  }
 }

@@ -25,52 +25,52 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.securit
 import com.exclamationlabs.connid.base.connector.stub.adapter.*;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
+import java.security.interfaces.RSAPrivateKey;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
-import java.security.interfaces.RSAPrivateKey;
-
-
 /**
- * Test of complex connector tests
- * - deep authenticator setup
- * - nested hierarchy
- *  Users
- *      - Groups
- *          - Supergroups (object class "SUPERGROUP")
- *      - Clubs (object class "CLUB")
- *
+ * Test of complex connector tests - deep authenticator setup - nested hierarchy Users - Groups -
+ * Supergroups (object class "SUPERGROUP") - Clubs (object class "CLUB")
  */
-@ConnectorClass(displayNameKey = "test.display", configurationClass = ComplexStubConfiguration.class)
+@ConnectorClass(
+    displayNameKey = "test.display",
+    configurationClass = ComplexStubConfiguration.class)
 public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubConfiguration> {
 
-    public ComplexStubConnector() {
-        super(ComplexStubConfiguration.class);
-        JWTRS256Authenticator innerAuthenticator = new JWTRS256Authenticator() {
+  public ComplexStubConnector() {
+    super(ComplexStubConfiguration.class);
+    JWTRS256Authenticator innerAuthenticator =
+        new JWTRS256Authenticator() {
 
-            @Override
-            protected RSAPrivateKey getPrivateKey() {
-                return null;
-            }
+          @Override
+          protected RSAPrivateKey getPrivateKey() {
+            return null;
+          }
 
-            @Override
-            public String authenticate(JwtRs256Configuration configuration) throws ConnectorSecurityException {
-                return "yang";
-            }
+          @Override
+          public String authenticate(JwtRs256Configuration configuration)
+              throws ConnectorSecurityException {
+            return "yang";
+          }
         };
 
-        OAuth2TokenJWTAuthenticator outerAuthenticator = new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
-            @Override
-            public String authenticate(Oauth2JwtConfiguration configuration) throws ConnectorSecurityException {
-                return "ying-" + jwtAuthenticator.authenticate((JwtRs256Configuration) configuration);
-            }
+    OAuth2TokenJWTAuthenticator outerAuthenticator =
+        new OAuth2TokenJWTAuthenticator(innerAuthenticator) {
+          @Override
+          public String authenticate(Oauth2JwtConfiguration configuration)
+              throws ConnectorSecurityException {
+            return "ying-" + jwtAuthenticator.authenticate((JwtRs256Configuration) configuration);
+          }
         };
 
-        setAuthenticator((Authenticator) outerAuthenticator);
-        setDriver(new ComplexStubDriver());
+    setAuthenticator((Authenticator) outerAuthenticator);
+    setDriver(new ComplexStubDriver());
 
-        setAdapters(new StubComplexUsersAdapter(), new StubComplexGroupsAdapter(),
-                new StubClubAdapter(), new StubSupergroupAdapter());
-    }
-
+    setAdapters(
+        new StubComplexUsersAdapter(),
+        new StubComplexGroupsAdapter(),
+        new StubClubAdapter(),
+        new StubSupergroupAdapter());
+  }
 }

@@ -17,14 +17,13 @@
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import java.security.KeyStore;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-import java.security.KeyStore;
-
 /**
- * A KeyStoreLoader can be used to load a KeyStore (of various kinds), given
- * configuration information.
+ * A KeyStoreLoader can be used to load a KeyStore (of various kinds), given configuration
+ * information.
  */
 public interface KeyStoreLoader<T extends ConnectorConfiguration> {
-    KeyStore load(T configuration) throws ConnectorSecurityException;
+  KeyStore load(T configuration) throws ConnectorSecurityException;
 }

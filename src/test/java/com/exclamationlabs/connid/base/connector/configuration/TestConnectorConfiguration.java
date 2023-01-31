@@ -16,15 +16,13 @@
 
 package com.exclamationlabs.connid.base.connector.configuration;
 
-import java.util.Properties;
-
 /**
- * Minimal Test configuration used for Authenticator integration testing
- * and any other isolated integration testing.
+ * Minimal Test configuration used for Authenticator integration testing and any other isolated
+ * integration testing.
  */
 public class TestConnectorConfiguration extends DefaultConnectorConfiguration {
 
-    public TestConnectorConfiguration() {
-        super();
-    }
+  public TestConnectorConfiguration() {
+    super();
+  }
 }

@@ -17,25 +17,24 @@
 package com.exclamationlabs.connid.base.connector.authenticator.util;
 
 /**
- * Special utility to allow Jenkins/CI to load file using environment variable
- * value in lieu of an actual file path reference, since Jenkins/CI does not hardcode
- * file pathing.
+ * Special utility to allow Jenkins/CI to load file using environment variable value in lieu of an
+ * actual file path reference, since Jenkins/CI does not hardcode file pathing.
  */
 public class FileLoaderUtil {
 
-    private FileLoaderUtil() {}
+  private FileLoaderUtil() {}
 
-    public static String getFileLocation(final String configurationName, final String propertyName,
-                                  final String propertyValue) {
-        if (configurationName != null) {
-            String fullIdentifier = configurationName + "__" + propertyName;
-            if (System.getenv(fullIdentifier) != null) {
-                // Concatenated environment variable found on Jenkins/CI - use this environment
-                // variable value in lieu of file path
-                return System.getenv(fullIdentifier);
-            }
-        }
-        // Environment variable not found, use configured property value as file location
-        return propertyValue;
+  public static String getFileLocation(
+      final String configurationName, final String propertyName, final String propertyValue) {
+    if (configurationName != null) {
+      String fullIdentifier = configurationName + "__" + propertyName;
+      if (System.getenv(fullIdentifier) != null) {
+        // Concatenated environment variable found on Jenkins/CI - use this environment
+        // variable value in lieu of file path
+        return System.getenv(fullIdentifier);
+      }
     }
+    // Environment variable not found, use configured property value as file location
+    return propertyValue;
+  }
 }

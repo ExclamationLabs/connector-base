@@ -19,131 +19,138 @@ package com.exclamationlabs.connid.base.connector.results;
 import org.apache.commons.lang3.BooleanUtils;
 
 /**
- * ResultsPaginator is used to store, if applicable, the current pagination
- * state of data being returned by a driver/invocator through getAll.
+ * ResultsPaginator is used to store, if applicable, the current pagination state of data being
+ * returned by a driver/invocator through getAll.
  */
 public class ResultsPaginator {
 
-    private Integer totalResults;
-    private Integer pageSize;
-    private Integer currentOffset;
-    private Integer currentPageNumber;
-    private Integer numberOfProcessedPages;
-    private Integer numberOfProcessedResults;
-    private Integer numberOfTotalPages;
+  private Integer totalResults;
+  private Integer pageSize;
+  private Integer currentOffset;
+  private Integer currentPageNumber;
+  private Integer numberOfProcessedPages;
+  private Integer numberOfProcessedResults;
+  private Integer numberOfTotalPages;
 
-    private Boolean noMoreResults;
-    private Boolean allowPartialAttributeValues;
+  private Boolean noMoreResults;
+  private Boolean allowPartialAttributeValues;
 
-    private Object token;
+  private Object token;
 
-    public ResultsPaginator() {
-        setPageSize(null);
+  public ResultsPaginator() {
+    setPageSize(null);
+  }
+
+  public ResultsPaginator(Integer pageSizeIn, Integer offsetIn) {
+    setPageSize(pageSizeIn);
+    setCurrentOffset(offsetIn);
+
+    int pageNumber = 1;
+    if (getCurrentOffset() > getPageSize()) {
+      pageNumber = 1 + (getCurrentOffset() / getPageSize());
     }
+    setCurrentPageNumber(pageNumber);
 
-    public ResultsPaginator(Integer pageSizeIn, Integer offsetIn) {
-        setPageSize(pageSizeIn);
-        setCurrentOffset(offsetIn);
+    setTotalResults(0);
+    setNumberOfProcessedPages(0);
+    setNumberOfProcessedResults(0);
+    setNoMoreResults(false);
+  }
 
-        int pageNumber = 1;
-        if (getCurrentOffset() > getPageSize()) {
-            pageNumber = 1 + (getCurrentOffset() / getPageSize());
-        }
-        setCurrentPageNumber(pageNumber);
+  public boolean hasPagination() {
+    return getPageSize() != null;
+  }
 
-        setTotalResults(0);
-        setNumberOfProcessedPages(0);
-        setNumberOfProcessedResults(0);
-        setNoMoreResults(false);
-    }
+  public Integer getTotalResults() {
+    return totalResults;
+  }
 
-    public boolean hasPagination() {
-        return getPageSize() != null;
-    }
+  public void setTotalResults(Integer totalResults) {
+    this.totalResults = totalResults;
+  }
 
-    public Integer getTotalResults() {
-        return totalResults;
-    }
+  public Integer getPageSize() {
+    return pageSize;
+  }
 
-    public void setTotalResults(Integer totalResults) {
-        this.totalResults = totalResults;
-    }
+  public void setPageSize(Integer pageSize) {
+    this.pageSize = pageSize;
+  }
 
-    public Integer getPageSize() {
-        return pageSize;
-    }
+  public Integer getCurrentOffset() {
+    return currentOffset;
+  }
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
+  public void setCurrentOffset(Integer currentOffset) {
+    this.currentOffset = currentOffset;
+  }
 
-    public Integer getCurrentOffset() {
-        return currentOffset;
-    }
+  public Integer getCurrentPageNumber() {
+    return currentPageNumber;
+  }
 
-    public void setCurrentOffset(Integer currentOffset) {
-        this.currentOffset = currentOffset;
-    }
+  public void setCurrentPageNumber(Integer currentPageNumber) {
+    this.currentPageNumber = currentPageNumber;
+  }
 
-    public Integer getCurrentPageNumber() {
-        return currentPageNumber;
-    }
+  public Integer getNumberOfProcessedPages() {
+    return numberOfProcessedPages;
+  }
 
-    public void setCurrentPageNumber(Integer currentPageNumber) {
-        this.currentPageNumber = currentPageNumber;
-    }
+  public void setNumberOfProcessedPages(Integer numberOfProcessedPages) {
+    this.numberOfProcessedPages = numberOfProcessedPages;
+  }
 
-    public Integer getNumberOfProcessedPages() {
-        return numberOfProcessedPages;
-    }
+  public Integer getNumberOfProcessedResults() {
+    return numberOfProcessedResults;
+  }
 
-    public void setNumberOfProcessedPages(Integer numberOfProcessedPages) {
-        this.numberOfProcessedPages = numberOfProcessedPages;
-    }
+  public void setNumberOfProcessedResults(Integer numberOfProcessedResults) {
+    this.numberOfProcessedResults = numberOfProcessedResults;
+  }
 
-    public Integer getNumberOfProcessedResults() {
-        return numberOfProcessedResults;
-    }
+  public Integer getNumberOfTotalPages() {
+    return numberOfTotalPages;
+  }
 
-    public void setNumberOfProcessedResults(Integer numberOfProcessedResults) {
-        this.numberOfProcessedResults = numberOfProcessedResults;
-    }
+  public void setNumberOfTotalPages(Integer numberOfTotalPages) {
+    this.numberOfTotalPages = numberOfTotalPages;
+  }
 
-    public Integer getNumberOfTotalPages() {
-        return numberOfTotalPages;
-    }
+  public Boolean getNoMoreResults() {
+    return noMoreResults;
+  }
 
-    public void setNumberOfTotalPages(Integer numberOfTotalPages) {
-        this.numberOfTotalPages = numberOfTotalPages;
-    }
+  public void setNoMoreResults(Boolean noMoreResults) {
+    this.noMoreResults = noMoreResults;
+  }
 
-    public Boolean getNoMoreResults() {
-        return noMoreResults;
-    }
+  public Boolean getAllowPartialAttributeValues() {
+    return allowPartialAttributeValues;
+  }
 
-    public void setNoMoreResults(Boolean noMoreResults) {
-        this.noMoreResults = noMoreResults;
-    }
+  public void setAllowPartialAttributeValues(Boolean allowPartialAttributeValues) {
+    this.allowPartialAttributeValues = allowPartialAttributeValues;
+  }
 
-    public Boolean getAllowPartialAttributeValues() {
-        return allowPartialAttributeValues;
-    }
+  public Object getToken() {
+    return token;
+  }
 
-    public void setAllowPartialAttributeValues(Boolean allowPartialAttributeValues) {
-        this.allowPartialAttributeValues = allowPartialAttributeValues;
-    }
+  public void setToken(Object token) {
+    this.token = token;
+  }
 
-    public Object getToken() {
-        return token;
-    }
-
-    public void setToken(Object token) {
-        this.token = token;
-    }
-
-    @Override
-    public String toString() {
-        return hasPagination() ? ("[size:" + getPageSize() + ",offset:" + getCurrentOffset() +
-                ",done=" + (BooleanUtils.isTrue(getNoMoreResults()) ? "true" : "false") + "]") : "none";
-    }
+  @Override
+  public String toString() {
+    return hasPagination()
+        ? ("[size:"
+            + getPageSize()
+            + ",offset:"
+            + getCurrentOffset()
+            + ",done="
+            + (BooleanUtils.isTrue(getNoMoreResults()) ? "true" : "false")
+            + "]")
+        : "none";
+  }
 }

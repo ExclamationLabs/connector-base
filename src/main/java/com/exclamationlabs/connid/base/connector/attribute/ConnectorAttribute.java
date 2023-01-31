@@ -16,96 +16,112 @@
 
 package com.exclamationlabs.connid.base.connector.attribute;
 
-import org.identityconnectors.framework.common.objects.AttributeInfo;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 /**
- * Describes an immutable Connector Attribute definition - it's name, data type,
- * ConnId Flags and current value (held in Object).  This needs to be in place
- * so the ConnId Schema can be built, and also inform the Adapter of the attribute
- * types applicable to this connector.
+ * Describes an immutable Connector Attribute definition - it's name, data type, ConnId Flags and
+ * current value (held in Object). This needs to be in place so the ConnId Schema can be built, and
+ * also inform the Adapter of the attribute types applicable to this connector.
  */
 public final class ConnectorAttribute {
 
-    private final String name;
-    private final String nativeName;
+  private final String name;
+  private final String nativeName;
 
-    private final ConnectorAttributeDataType dataType;
+  private final ConnectorAttributeDataType dataType;
 
-    private final Set<AttributeInfo.Flags> flags;
+  private final Set<AttributeInfo.Flags> flags;
 
-    private Object value;
+  private Object value;
 
-    public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
-            attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
-        this(attributeName, attributeName, attributeDataType, attributeFlags);
-    }
+  public ConnectorAttribute(
+      String attributeName,
+      ConnectorAttributeDataType attributeDataType,
+      Set<AttributeInfo.Flags> attributeFlags) {
+    this(attributeName, attributeName, attributeDataType, attributeFlags);
+  }
 
-    public ConnectorAttribute(String attributeName, String nativeNameInput, ConnectorAttributeDataType
-            attributeDataType, Set<AttributeInfo.Flags> attributeFlags) {
-        name = attributeName;
-        nativeName = nativeNameInput;
-        dataType = attributeDataType;
-        flags = attributeFlags;
-    }
+  public ConnectorAttribute(
+      String attributeName,
+      String nativeNameInput,
+      ConnectorAttributeDataType attributeDataType,
+      Set<AttributeInfo.Flags> attributeFlags) {
+    name = attributeName;
+    nativeName = nativeNameInput;
+    dataType = attributeDataType;
+    flags = attributeFlags;
+  }
 
-    public ConnectorAttribute(String attributeName, ConnectorAttributeDataType
-            attributeDataType, AttributeInfo.Flags... attributeFlags) {
-        this(attributeName, attributeName, attributeDataType, attributeFlags);
-    }
+  public ConnectorAttribute(
+      String attributeName,
+      ConnectorAttributeDataType attributeDataType,
+      AttributeInfo.Flags... attributeFlags) {
+    this(attributeName, attributeName, attributeDataType, attributeFlags);
+  }
 
-    public ConnectorAttribute(String attributeName, String nativeNameInput, ConnectorAttributeDataType
-            attributeDataType, AttributeInfo.Flags... attributeFlags) {
-        name = attributeName;
-        nativeName = nativeNameInput;
-        dataType = attributeDataType;
-        flags = new HashSet<>();
-        flags.addAll(Arrays.asList(attributeFlags));
-    }
+  public ConnectorAttribute(
+      String attributeName,
+      String nativeNameInput,
+      ConnectorAttributeDataType attributeDataType,
+      AttributeInfo.Flags... attributeFlags) {
+    name = attributeName;
+    nativeName = nativeNameInput;
+    dataType = attributeDataType;
+    flags = new HashSet<>();
+    flags.addAll(Arrays.asList(attributeFlags));
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public ConnectorAttributeDataType getDataType() {
-        return dataType;
-    }
+  public ConnectorAttributeDataType getDataType() {
+    return dataType;
+  }
 
-    public Set<AttributeInfo.Flags> getFlags() {
-        return flags;
-    }
+  public Set<AttributeInfo.Flags> getFlags() {
+    return flags;
+  }
 
-    public Object getValue() {
-        return value;
-    }
+  public Object getValue() {
+    return value;
+  }
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
+  public void setValue(Object value) {
+    this.value = value;
+  }
 
-    public String getNativeName() {
-        return nativeName;
-    }
+  public String getNativeName() {
+    return nativeName;
+  }
 
-    @Override
-    public String toString() {
-        return name + "(" + nativeName + ") [" + dataType + "] {"
-                + flags.toString() + "}: " + value.toString();
-    }
+  @Override
+  public String toString() {
+    return name
+        + "("
+        + nativeName
+        + ") ["
+        + dataType
+        + "] {"
+        + flags.toString()
+        + "}: "
+        + value.toString();
+  }
 
-    @Override
-    public boolean equals(Object in) {
-        return in != null && in.getClass().isInstance(ConnectorAttribute.class) &&
-                ((ConnectorAttribute) in).getName().equals(this.getName()) &&
-                ((ConnectorAttribute) in).getNativeName().equals(this.getNativeName());
-    }
+  @Override
+  public boolean equals(Object in) {
+    return in != null
+        && in.getClass().isInstance(ConnectorAttribute.class)
+        && ((ConnectorAttribute) in).getName().equals(this.getName())
+        && ((ConnectorAttribute) in).getNativeName().equals(this.getNativeName());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.getName(), this.getNativeName());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.getName(), this.getNativeName());
+  }
 }

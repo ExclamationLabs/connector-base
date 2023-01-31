@@ -31,38 +31,41 @@ pagination - if true, this indicates the driver supports pagination
  */
 
 /**
- * Architectural interface used to wrap ConnId's Configuration interface,
- * which the BaseConnectorConfiguration implements.
+ * Architectural interface used to wrap ConnId's Configuration interface, which the
+ * BaseConnectorConfiguration implements.
  */
 public interface ConnectorConfiguration extends Configuration {
 
-    String getCurrentToken();
-    void setCurrentToken(String input);
+  String getCurrentToken();
 
-    String getSource();
-    void setSource(String input);
+  void setCurrentToken(String input);
 
-    String getName();
-    void setName(String input);
+  String getSource();
 
-    Boolean getActive();
-    void setActive(Boolean input);
+  void setSource(String input);
 
-    @Override
-    default void validate() {
-        ConfigurationValidator.validate(this);
-    }
+  String getName();
 
-    default void read() {
-        ConfigurationReader.readPropertiesFromSource(this);
-    }
+  void setName(String input);
 
-    default String write() {
-        return ConfigurationWriter.writeToString(this);
-    }
+  Boolean getActive();
 
-    default boolean isTestConfiguration() {
-        return (!StringUtils.equalsIgnoreCase("default", getName()));
-    }
+  void setActive(Boolean input);
 
+  @Override
+  default void validate() {
+    ConfigurationValidator.validate(this);
+  }
+
+  default void read() {
+    ConfigurationReader.readPropertiesFromSource(this);
+  }
+
+  default String write() {
+    return ConfigurationWriter.writeToString(this);
+  }
+
+  default boolean isTestConfiguration() {
+    return (!StringUtils.equalsIgnoreCase("default", getName()));
+  }
 }

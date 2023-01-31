@@ -16,75 +16,60 @@
 
 package com.exclamationlabs.connid.base.connector.attribute;
 
-import org.identityconnectors.common.security.GuardedByteArray;
-import org.identityconnectors.common.security.GuardedString;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import org.identityconnectors.common.security.GuardedByteArray;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
- * This is an enum to denote which Java object types are
- * supported within ConnId.
+ * This is an enum to denote which Java object types are supported within ConnId.
  *
- * ASSIGNMENT_IDENTIFIER is used to represent a list of identifiers
- * that are assigned to an object that belong to a different object
- * type (ex. a user with a list of different groups they belong to)
+ * <p>ASSIGNMENT_IDENTIFIER is used to represent a list of identifiers that are assigned to an
+ * object that belong to a different object type (ex. a user with a list of different groups they
+ * belong to)
  *
- * Except for ASSIGNMENT_IDENTIFIER, these are derived From ConnId
- * source of org.identityconnectors.framework.common.FrameworkUtil
- * version 1.5.0.0
+ * <p>Except for ASSIGNMENT_IDENTIFIER, these are derived From ConnId source of
+ * org.identityconnectors.framework.common.FrameworkUtil version 1.5.0.0
  *
- *         ATTR_SUPPORTED_TYPES.add(String.class);
- *         ATTR_SUPPORTED_TYPES.add(Long.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Long.class);
- *         ATTR_SUPPORTED_TYPES.add(Character.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Character.class);
- *         ATTR_SUPPORTED_TYPES.add(Double.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Double.class);
- *         ATTR_SUPPORTED_TYPES.add(Float.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Float.class);
- *         ATTR_SUPPORTED_TYPES.add(Integer.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Integer.class);
- *         ATTR_SUPPORTED_TYPES.add(Boolean.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Boolean.class);
- *         ATTR_SUPPORTED_TYPES.add(Byte.TYPE);
- *         ATTR_SUPPORTED_TYPES.add(Byte.class);
- *         ATTR_SUPPORTED_TYPES.add(byte[].class);
- *         ATTR_SUPPORTED_TYPES.add(BigDecimal.class);
- *         ATTR_SUPPORTED_TYPES.add(BigInteger.class);
- *         ATTR_SUPPORTED_TYPES.add(GuardedByteArray.class);
- *         ATTR_SUPPORTED_TYPES.add(GuardedString.class);
- *         ATTR_SUPPORTED_TYPES.add(Map.class);
- *         ATTR_SUPPORTED_TYPES.add(ZonedDateTime.class);
+ * <p>ATTR_SUPPORTED_TYPES.add(String.class); ATTR_SUPPORTED_TYPES.add(Long.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Long.class); ATTR_SUPPORTED_TYPES.add(Character.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Character.class); ATTR_SUPPORTED_TYPES.add(Double.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Double.class); ATTR_SUPPORTED_TYPES.add(Float.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Float.class); ATTR_SUPPORTED_TYPES.add(Integer.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Integer.class); ATTR_SUPPORTED_TYPES.add(Boolean.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Boolean.class); ATTR_SUPPORTED_TYPES.add(Byte.TYPE);
+ * ATTR_SUPPORTED_TYPES.add(Byte.class); ATTR_SUPPORTED_TYPES.add(byte[].class);
+ * ATTR_SUPPORTED_TYPES.add(BigDecimal.class); ATTR_SUPPORTED_TYPES.add(BigInteger.class);
+ * ATTR_SUPPORTED_TYPES.add(GuardedByteArray.class); ATTR_SUPPORTED_TYPES.add(GuardedString.class);
+ * ATTR_SUPPORTED_TYPES.add(Map.class); ATTR_SUPPORTED_TYPES.add(ZonedDateTime.class);
  */
 public enum ConnectorAttributeDataType {
-    BIG_DECIMAL(BigDecimal.class),
-    BIG_INTEGER(BigInteger.class),
-    BOOLEAN(Boolean.class),
-    BYTE(Byte.class),
-    CHARACTER(String.class),
-    DOUBLE(Double.class),
-    FLOAT(Float.class),
-    GUARDED_BYTE_ARRAY(GuardedByteArray.class),
-    GUARDED_STRING(GuardedString.class),
-    INTEGER(Integer.class),
-    LONG(Long.class),
-    MAP(Map.class), // NOTE: Not supported well at all by Midpoint 4.x
-    STRING(String.class),
-    ZONED_DATE_TIME(ZonedDateTime.class),
+  BIG_DECIMAL(BigDecimal.class),
+  BIG_INTEGER(BigInteger.class),
+  BOOLEAN(Boolean.class),
+  BYTE(Byte.class),
+  CHARACTER(String.class),
+  DOUBLE(Double.class),
+  FLOAT(Float.class),
+  GUARDED_BYTE_ARRAY(GuardedByteArray.class),
+  GUARDED_STRING(GuardedString.class),
+  INTEGER(Integer.class),
+  LONG(Long.class),
+  MAP(Map.class), // NOTE: Not supported well at all by Midpoint 4.x
+  STRING(String.class),
+  ZONED_DATE_TIME(ZonedDateTime.class),
 
-    ASSIGNMENT_IDENTIFIER(String.class);
+  ASSIGNMENT_IDENTIFIER(String.class);
 
-    Class<?> classType;
+  Class<?> classType;
 
-    public Class<?> getClassType() {
-       return classType;
-    }
+  public Class<?> getClassType() {
+    return classType;
+  }
 
-    ConnectorAttributeDataType(Class<?> in) {
-        classType = in;
-    }
-
+  ConnectorAttributeDataType(Class<?> in) {
+    classType = in;
+  }
 }

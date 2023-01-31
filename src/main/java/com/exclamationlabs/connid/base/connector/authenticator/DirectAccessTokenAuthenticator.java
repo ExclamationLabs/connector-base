@@ -19,10 +19,12 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-public class DirectAccessTokenAuthenticator implements Authenticator<DirectAccessTokenConfiguration> {
+public class DirectAccessTokenAuthenticator
+    implements Authenticator<DirectAccessTokenConfiguration> {
 
-    @Override
-    public String authenticate(DirectAccessTokenConfiguration configuration) throws ConnectorSecurityException {
-        return configuration.getToken();
-    }
+  @Override
+  public String authenticate(DirectAccessTokenConfiguration configuration)
+      throws ConnectorSecurityException {
+    return configuration.getToken();
+  }
 }

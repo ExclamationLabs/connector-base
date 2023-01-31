@@ -20,60 +20,61 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
-import org.identityconnectors.framework.common.exceptions.ConnectorException;
-
 import java.util.*;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class StubComplexGroupInvocator implements DriverInvocator<ComplexStubDriver, StubGroup> {
 
-    @Override
-    public String create(ComplexStubDriver driver, StubGroup model) throws ConnectorException {
-        driver.setMethodInvoked("group create");
+  @Override
+  public String create(ComplexStubDriver driver, StubGroup model) throws ConnectorException {
+    driver.setMethodInvoked("group create");
 
-        if (model.getSupergroupIds() != null) {
-            driver.setMethodInvoked("group create with supergroup ids");
-        }
-
-        driver.setMethodParameter1(model);
-        return UUID.randomUUID().toString();
+    if (model.getSupergroupIds() != null) {
+      driver.setMethodInvoked("group create with supergroup ids");
     }
 
-    @Override
-    public void update(ComplexStubDriver driver, String userId, StubGroup model)
-            throws ConnectorException {
-        driver.setMethodInvoked("group update");
-        driver.setMethodParameter1(userId);
-        driver.setMethodParameter2(model);
-    }
+    driver.setMethodParameter1(model);
+    return UUID.randomUUID().toString();
+  }
 
-    @Override
-    public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
-        driver.setMethodInvoked("group delete");
-        driver.setMethodParameter1(id);
-    }
+  @Override
+  public void update(ComplexStubDriver driver, String userId, StubGroup model)
+      throws ConnectorException {
+    driver.setMethodInvoked("group update");
+    driver.setMethodParameter1(userId);
+    driver.setMethodParameter2(model);
+  }
 
-    @Override
-    public Set<StubGroup> getAll(ComplexStubDriver driver, ResultsFilter filter,
-                                 ResultsPaginator paginator, Integer resultCap) throws ConnectorException {
-        driver.setMethodInvoked("group getAll");
-        StubGroup group1 = new StubGroup();
-        group1.setId(UUID.randomUUID().toString());
-        group1.setName("Group Uno");
+  @Override
+  public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
+    driver.setMethodInvoked("group delete");
+    driver.setMethodParameter1(id);
+  }
 
-        StubGroup group2 = new StubGroup();
-        group2.setId(UUID.randomUUID().toString());
-        group2.setName("Group Dos");
-        return new HashSet<>(Arrays.asList(group1, group2));
-    }
+  @Override
+  public Set<StubGroup> getAll(
+      ComplexStubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      throws ConnectorException {
+    driver.setMethodInvoked("group getAll");
+    StubGroup group1 = new StubGroup();
+    group1.setId(UUID.randomUUID().toString());
+    group1.setName("Group Uno");
 
-    @Override
-    public StubGroup getOne(ComplexStubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
-        driver.setMethodInvoked("group getOne");
-        driver.setMethodParameter1(id);
-        StubGroup group = new StubGroup();
-        group.setId(UUID.randomUUID().toString());
-        group.setName("A Group");
+    StubGroup group2 = new StubGroup();
+    group2.setId(UUID.randomUUID().toString());
+    group2.setName("Group Dos");
+    return new HashSet<>(Arrays.asList(group1, group2));
+  }
 
-        return group;
-    }
+  @Override
+  public StubGroup getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
+      throws ConnectorException {
+    driver.setMethodInvoked("group getOne");
+    driver.setMethodParameter1(id);
+    StubGroup group = new StubGroup();
+    group.setId(UUID.randomUUID().toString());
+    group.setName("A Group");
+
+    return group;
+  }
 }
