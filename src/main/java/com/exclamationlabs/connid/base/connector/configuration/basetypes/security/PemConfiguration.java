@@ -19,10 +19,11 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that need to provide a PEM file
- * as part of their credentials for authentication.
+ * Configuration properties for connectors that need to provide a PEM file as part of their
+ * credentials for authentication.
  */
 public interface PemConfiguration extends ConnectorConfiguration {
-    String getPemFile();
-    void setPemFile(String input);
+  String getPemFile();
+
+  void setPemFile(String input);
 }

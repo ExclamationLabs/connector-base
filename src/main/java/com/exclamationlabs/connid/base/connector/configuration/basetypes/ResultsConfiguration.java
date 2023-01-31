@@ -19,20 +19,24 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties common to connectors that support pagination
- * or need to perform deep gets or deep imports on each record when performing a getAll.
+ * Configuration properties common to connectors that support pagination or need to perform deep
+ * gets or deep imports on each record when performing a getAll.
  */
 public interface ResultsConfiguration extends ConnectorConfiguration {
 
-    Boolean getDeepGet();
-    void setDeepGet(Boolean input);
+  Boolean getDeepGet();
 
-    Boolean getDeepImport();
-    void setDeepImport(Boolean input);
+  void setDeepGet(Boolean input);
 
-    Integer getImportBatchSize();
-    void setImportBatchSize(Integer input);
+  Boolean getDeepImport();
 
-    Boolean getPagination();
-    void setPagination(Boolean input);
+  void setDeepImport(Boolean input);
+
+  Integer getImportBatchSize();
+
+  void setImportBatchSize(Integer input);
+
+  Boolean getPagination();
+
+  void setPagination(Boolean input);
 }

@@ -16,45 +16,47 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationInfo;
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
 
 public class DirectAccessTokenAuthenticatorTest {
 
-    @Test
-    public void test() {
-        DirectAccessTokenConfiguration configuration = new TestConfiguration();
-        Authenticator<DirectAccessTokenConfiguration> authenticator = new DirectAccessTokenAuthenticator() {
-            @Override
-            public String authenticate(DirectAccessTokenConfiguration configuration) throws ConnectorSecurityException {
-                return "cooltoken";
-            }
+  @Test
+  public void test() {
+    DirectAccessTokenConfiguration configuration = new TestConfiguration();
+    Authenticator<DirectAccessTokenConfiguration> authenticator =
+        new DirectAccessTokenAuthenticator() {
+          @Override
+          public String authenticate(DirectAccessTokenConfiguration configuration)
+              throws ConnectorSecurityException {
+            return "cooltoken";
+          }
         };
-        String response = authenticator.authenticate(configuration);
-        assertNotNull(response);
-        assertEquals("cooltoken", response);
+    String response = authenticator.authenticate(configuration);
+    assertNotNull(response);
+    assertEquals("cooltoken", response);
+  }
+
+  static class TestConfiguration extends DefaultConnectorConfiguration
+      implements DirectAccessTokenConfiguration {
+
+    @ConfigurationInfo(path = "security.authenticator.directAccessToken.token")
+    private String token;
+
+    @Override
+    public String getToken() {
+      return token;
     }
 
-    static class TestConfiguration extends DefaultConnectorConfiguration
-        implements DirectAccessTokenConfiguration {
-
-        @ConfigurationInfo(path = "security.authenticator.directAccessToken.token")
-        private String token;
-
-        @Override
-        public String getToken() {
-            return token;
-        }
-
-        @Override
-        public void setToken(String input) {
-            token = input;
-        }
+    @Override
+    public void setToken(String input) {
+      token = input;
     }
+  }
 }

@@ -19,13 +19,15 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that use some sort of
- * web service, particularly at a HTTP/HTTPS URL.
+ * Configuration properties for connectors that use some sort of web service, particularly at a
+ * HTTP/HTTPS URL.
  */
 public interface ServiceConfiguration extends ConnectorConfiguration {
-    String getServiceUrl();
-    void setServiceUrl(String input);
+  String getServiceUrl();
 
-    Boolean getDuplicateErrorReturnsId();
-    void setDuplicateErrorReturnsId(Boolean input);
+  void setServiceUrl(String input);
+
+  Boolean getDuplicateErrorReturnsId();
+
+  void setDuplicateErrorReturnsId(Boolean input);
 }

@@ -17,15 +17,11 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-
 import java.util.Map;
 
-/**
- * Configuration properties for connectors that authenticate using
- * any OAuth2 grant type.
- */
+/** Configuration properties for connectors that authenticate using any OAuth2 grant type. */
 public interface Oauth2Configuration extends ConnectorConfiguration {
-    Map<String,String> getOauth2Information();
-    void setOauth2Information(Map<String,String> info);
+  Map<String, String> getOauth2Information();
 
+  void setOauth2Information(Map<String, String> info);
 }

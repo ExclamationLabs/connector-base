@@ -20,16 +20,24 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import org.identityconnectors.common.security.GuardedString;
 
 /**
- * Configuration properties for connectors that authenticate using
- * the OAuth2 "client_credentials" grant type.
+ * Configuration properties for connectors that authenticate using the OAuth2 "client_credentials"
+ * grant type.
  */
-public interface Oauth2ClientCredentialsConfiguration extends ConnectorConfiguration, Oauth2Configuration {
-    String getTokenUrl();
-    void setTokenUrl(String input);
-    String getClientId();
-    void setClientId(String input);
-    GuardedString getClientSecret();
-    void setClientSecret(GuardedString input);
-    String getScope();
-    void setScope(String input);
+public interface Oauth2ClientCredentialsConfiguration
+    extends ConnectorConfiguration, Oauth2Configuration {
+  String getTokenUrl();
+
+  void setTokenUrl(String input);
+
+  String getClientId();
+
+  void setClientId(String input);
+
+  GuardedString getClientSecret();
+
+  void setClientSecret(GuardedString input);
+
+  String getScope();
+
+  void setScope(String input);
 }

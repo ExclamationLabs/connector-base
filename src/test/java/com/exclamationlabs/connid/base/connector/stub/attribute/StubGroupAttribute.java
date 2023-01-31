@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.connector.stub.attribute;
 
 public enum StubGroupAttribute {
-    GROUP_ID,
-    GROUP_NAME,
-    SUPERGROUP_IDS
+  GROUP_ID,
+  GROUP_NAME,
+  SUPERGROUP_IDS
 }

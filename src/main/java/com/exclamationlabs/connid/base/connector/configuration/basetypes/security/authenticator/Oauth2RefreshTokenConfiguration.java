@@ -19,16 +19,24 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that authenticate using
- * the OAuth2 "refresh_token" grant type.
+ * Configuration properties for connectors that authenticate using the OAuth2 "refresh_token" grant
+ * type.
  */
-public interface Oauth2RefreshTokenConfiguration extends ConnectorConfiguration, Oauth2Configuration {
-    String getTokenUrl();
-    void setTokenUrl(String input);
-    String getRefreshToken();
-    void setRefreshToken(String input);
-    String getClientId();
-    void setClientId(String input);
-    String getClientSecret();
-    void setClientSecret(String input);
+public interface Oauth2RefreshTokenConfiguration
+    extends ConnectorConfiguration, Oauth2Configuration {
+  String getTokenUrl();
+
+  void setTokenUrl(String input);
+
+  String getRefreshToken();
+
+  void setRefreshToken(String input);
+
+  String getClientId();
+
+  void setClientId(String input);
+
+  String getClientSecret();
+
+  void setClientSecret(String input);
 }

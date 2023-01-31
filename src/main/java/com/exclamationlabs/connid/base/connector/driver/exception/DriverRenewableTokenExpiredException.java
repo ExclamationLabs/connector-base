@@ -17,24 +17,22 @@
 package com.exclamationlabs.connid.base.connector.driver.exception;
 
 /**
- * This exception can be caught/thrown when a driver attempts a call but
- * determines that it's access token or credentials have expired.  If this particular
- * exception is thrown it is an indicator that the driver should
- * attempt to reauthenticate and then perform one re-attempt of the
- * driver operation that triggered this exception.
+ * This exception can be caught/thrown when a driver attempts a call but determines that it's access
+ * token or credentials have expired. If this particular exception is thrown it is an indicator that
+ * the driver should attempt to reauthenticate and then perform one re-attempt of the driver
+ * operation that triggered this exception.
  */
 public class DriverRenewableTokenExpiredException extends DriverTokenExpiredException {
 
-    public DriverRenewableTokenExpiredException() {
-        super();
-    }
+  public DriverRenewableTokenExpiredException() {
+    super();
+  }
 
-    public DriverRenewableTokenExpiredException(String message) {
-        super(message);
-    }
+  public DriverRenewableTokenExpiredException(String message) {
+    super(message);
+  }
 
-    public DriverRenewableTokenExpiredException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
+  public DriverRenewableTokenExpiredException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

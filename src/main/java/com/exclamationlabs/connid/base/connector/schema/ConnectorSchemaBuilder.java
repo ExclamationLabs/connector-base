@@ -19,26 +19,24 @@ package com.exclamationlabs.connid.base.connector.schema;
 import com.exclamationlabs.connid.base.connector.BaseConnector;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import java.util.Map;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Schema;
 
-import java.util.Map;
-
-/**
- * Interface for building a ConnId schema using the base connector framework.
- */
+/** Interface for building a ConnId schema using the base connector framework. */
 public interface ConnectorSchemaBuilder<T extends ConnectorConfiguration> {
 
-    /**
-     * Build and define the schema, capturing all the Attribute definitions for
-     * object types for this connector.
-     * @param connector Applicable Connector object.
-     * @param adapterMap Map of adapters defined for this Connector.
-     * @return Schema object needed for ConnId identity management system (normally MidPoint)
-     * @throws ConfigurationException if exception or failure occurred while trying
-     * to read or construct the schema.
-     */
-    Schema build(BaseConnector<T> connector, Map<ObjectClass, BaseAdapter<?, T>> adapterMap)
-            throws ConfigurationException;
+  /**
+   * Build and define the schema, capturing all the Attribute definitions for object types for this
+   * connector.
+   *
+   * @param connector Applicable Connector object.
+   * @param adapterMap Map of adapters defined for this Connector.
+   * @return Schema object needed for ConnId identity management system (normally MidPoint)
+   * @throws ConfigurationException if exception or failure occurred while trying to read or
+   *     construct the schema.
+   */
+  Schema build(BaseConnector<T> connector, Map<ObjectClass, BaseAdapter<?, T>> adapterMap)
+      throws ConfigurationException;
 }

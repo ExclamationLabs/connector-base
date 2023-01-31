@@ -17,46 +17,45 @@
 package com.exclamationlabs.connid.base.connector.stub.model;
 
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
-
 import java.util.Set;
 
 public class StubGroup implements IdentityModel {
 
-    private String id;
-    private String name;
-    private Set<String> supergroupIds;
+  private String id;
+  private String name;
+  private Set<String> supergroupIds;
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Set<String> getSupergroupIds() {
-        return supergroupIds;
-    }
+  public Set<String> getSupergroupIds() {
+    return supergroupIds;
+  }
 
-    public void setSupergroupIds(Set<String> supergroupIds) {
-        this.supergroupIds = supergroupIds;
-    }
+  public void setSupergroupIds(Set<String> supergroupIds) {
+    this.supergroupIds = supergroupIds;
+  }
 
-    @Override
-    public String getIdentityIdValue() {
-        return getId();
-    }
+  @Override
+  public String getIdentityIdValue() {
+    return getId();
+  }
 
-    @Override
-    public String getIdentityNameValue() {
-        return getName();
-    }
+  @Override
+  public String getIdentityNameValue() {
+    return getName();
+  }
 }

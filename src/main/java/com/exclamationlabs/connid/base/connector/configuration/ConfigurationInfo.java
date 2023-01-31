@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface ConfigurationInfo {
-    String path();
-    boolean internal() default false;
+  String path();
+
+  boolean internal() default false;
 }

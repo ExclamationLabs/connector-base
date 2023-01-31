@@ -16,80 +16,76 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.integration;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.exclamationlabs.connid.base.connector.authenticator.JWTHS256Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtHs256Configuration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-
-/**
- * Test for JWTHS256Authenticator, using Dev ELabs Zoom configuration
- */
-@Ignore // TODO: put back in place once Zoom is upgraded to 2.0 base
 public class JWTHS256AuthenticatorTest extends IntegrationTest {
 
+  @Override
+  public String getConfigurationName() {
+    return new ConfigurationNameBuilder().withConnector(() -> "jwths").build();
+  }
+
+  @Test
+  public void test() {
+    JwtHs256Configuration configuration = new TestConfiguration(getConfigurationName());
+    ConfigurationReader.setupTestConfiguration(configuration);
+    setup(configuration);
+    String response = new JWTHS256Authenticator().authenticate(configuration);
+    assertNotNull(response);
+    assertTrue(response.length() > 120);
+  }
+
+  protected static class TestConfiguration extends DefaultConnectorConfiguration
+      implements JwtHs256Configuration {
+
+    public TestConfiguration(String nameIn) {
+      name = nameIn;
+    }
+
+    @ConfigurationInfo(path = "security.authenticator.jwtHs256.issuer")
+    private String issuer;
+
+    @ConfigurationInfo(path = "security.authenticator.jwtHs256.secret")
+    private String secret;
+
+    @ConfigurationInfo(path = "security.authenticator.jwtHs256.expirationPeriod")
+    private Long expirationPeriod;
+
     @Override
-    public String getConfigurationName() {
-        return new ConfigurationNameBuilder().withConnector(() -> "ZOOM").build();
-    }
-    @Test
-    public void test() {
-        JwtHs256Configuration configuration = new TestConfiguration(getConfigurationName());
-        ConfigurationReader.setupTestConfiguration(configuration);
-        setup(configuration);
-        String response = new JWTHS256Authenticator().authenticate(configuration);
-        assertNotNull(response);
+    public String getIssuer() {
+      return issuer;
     }
 
-    protected static class TestConfiguration extends DefaultConnectorConfiguration
-        implements JwtHs256Configuration {
-
-        public TestConfiguration(String nameIn) {
-            name = nameIn;
-        }
-
-        @ConfigurationInfo(path = "security.authenticator.jwtHs256.issuer")
-        private String issuer;
-
-        @ConfigurationInfo(path = "security.authenticator.jwtHs256.secret")
-        private String secret;
-
-        @ConfigurationInfo(path = "security.authenticator.jwtHs256.expirationPeriod")
-        private Long expirationPeriod;
-
-        @Override
-        public String getIssuer() {
-            return issuer;
-        }
-
-        @Override
-        public void setIssuer(String input) {
-            issuer = input;
-        }
-
-        @Override
-        public String getSecret() {
-            return secret;
-        }
-
-        @Override
-        public void setSecret(String input) {
-            secret = input;
-        }
-
-        @Override
-        public Long getExpirationPeriod() {
-            return expirationPeriod;
-        }
-
-        @Override
-        public void setExpirationPeriod(Long input) {
-            expirationPeriod = input;
-        }
+    @Override
+    public void setIssuer(String input) {
+      issuer = input;
     }
 
+    @Override
+    public String getSecret() {
+      return secret;
+    }
 
+    @Override
+    public void setSecret(String input) {
+      secret = input;
+    }
+
+    @Override
+    public Long getExpirationPeriod() {
+      return expirationPeriod;
+    }
+
+    @Override
+    public void setExpirationPeriod(Long input) {
+      expirationPeriod = input;
+    }
+  }
 }

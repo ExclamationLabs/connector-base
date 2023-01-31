@@ -19,14 +19,19 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connector setups that require the connector
- * to use a HTTP/SOCKS5 proxy in order to connect to the destination system.
+ * Configuration properties for connector setups that require the connector to use a HTTP/SOCKS5
+ * proxy in order to connect to the destination system.
  */
 public interface ProxyConfiguration extends ConnectorConfiguration {
-    String getProxyHost();
-    void setProxyHost(String input);
-    Integer getProxyPort();
-    void setProxyPort(Integer input);
-    String getProxyType();
-    void setProxyType(String input);
+  String getProxyHost();
+
+  void setProxyHost(String input);
+
+  Integer getProxyPort();
+
+  void setProxyPort(Integer input);
+
+  String getProxyType();
+
+  void setProxyType(String input);
 }

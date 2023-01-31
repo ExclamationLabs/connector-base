@@ -30,71 +30,73 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
-    private String methodInvoked;
-    private Object methodParameter1;
-    private Object methodParameter2;
-    private boolean initializeInvoked = false;
+  private String methodInvoked;
+  private Object methodParameter1;
+  private Object methodParameter2;
+  private boolean initializeInvoked = false;
 
-    private ComplexStubConfiguration configuration;
+  private ComplexStubConfiguration configuration;
 
-    public ComplexStubDriver() {
-        addInvocator(StubUser.class, new StubComplexUserInvocator());
-        addInvocator(StubGroup.class, new StubComplexGroupInvocator());
-        addInvocator(StubClub.class, new StubClubInvocator());
-        addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
-    }
+  public ComplexStubDriver() {
+    addInvocator(StubUser.class, new StubComplexUserInvocator());
+    addInvocator(StubGroup.class, new StubComplexGroupInvocator());
+    addInvocator(StubClub.class, new StubClubInvocator());
+    addInvocator(StubSupergroup.class, new StubSupergroupInvocator());
+  }
 
-    @Override
-    public void initialize(ComplexStubConfiguration configurationInput, Authenticator<ComplexStubConfiguration> authenticator) throws ConnectorException {
-        initializeInvoked = true;
-        configuration = configurationInput;
-    }
+  @Override
+  public void initialize(
+      ComplexStubConfiguration configurationInput,
+      Authenticator<ComplexStubConfiguration> authenticator)
+      throws ConnectorException {
+    initializeInvoked = true;
+    configuration = configurationInput;
+  }
 
-    @Override
-    public void test() throws ConnectorException {
-        getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), 7);
-    }
+  @Override
+  public void test() throws ConnectorException {
+    getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), 7);
+  }
 
-    @Override
-    public void close() {
+  @Override
+  public void close() {}
 
-    }
+  @Override
+  public IdentityModel getOneByName(
+      Class<? extends IdentityModel> identityModelClass, String nameValue)
+      throws ConnectorException {
+    return getInvocator(identityModelClass).getOneByName(this, nameValue);
+  }
 
-    @Override
-    public IdentityModel getOneByName(Class<? extends IdentityModel> identityModelClass, String nameValue)
-            throws ConnectorException {
-         return getInvocator(identityModelClass).getOneByName(this, nameValue);
-    }
+  public String getMethodInvoked() {
+    return methodInvoked;
+  }
 
-    public String getMethodInvoked() {
-        return methodInvoked;
-    }
+  void setMethodInvoked(String methodInvoked) {
+    this.methodInvoked = methodInvoked;
+  }
 
-    void setMethodInvoked(String methodInvoked) {
-        this.methodInvoked = methodInvoked;
-    }
+  public Object getMethodParameter1() {
+    return methodParameter1;
+  }
 
-    public Object getMethodParameter1() {
-        return methodParameter1;
-    }
+  void setMethodParameter1(Object methodParameter1) {
+    this.methodParameter1 = methodParameter1;
+  }
 
-    void setMethodParameter1(Object methodParameter1) {
-        this.methodParameter1 = methodParameter1;
-    }
+  public Object getMethodParameter2() {
+    return methodParameter2;
+  }
 
-    public Object getMethodParameter2() {
-        return methodParameter2;
-    }
+  void setMethodParameter2(Object methodParameter2) {
+    this.methodParameter2 = methodParameter2;
+  }
 
-    void setMethodParameter2(Object methodParameter2) {
-        this.methodParameter2 = methodParameter2;
-    }
+  public boolean isInitializeInvoked() {
+    return initializeInvoked;
+  }
 
-    public boolean isInitializeInvoked() {
-        return initializeInvoked;
-    }
-
-    public ComplexStubConfiguration getConfiguration() {
-        return configuration;
-    }
+  public ComplexStubConfiguration getConfiguration() {
+    return configuration;
+  }
 }

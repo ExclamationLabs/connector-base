@@ -19,24 +19,22 @@ package com.exclamationlabs.connid.base.connector.driver.exception;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 /**
- * This exception can be caught/thrown when a driver attempts a call but
- * determines that it's access token or credentials have expired.  If this particular
- * exception is thrown it is an indicator that the driver cannot/should not
- * attempt to reauthenticate and should instead throw the exception back to
- * MidPoint.
+ * This exception can be caught/thrown when a driver attempts a call but determines that it's access
+ * token or credentials have expired. If this particular exception is thrown it is an indicator that
+ * the driver cannot/should not attempt to reauthenticate and should instead throw the exception
+ * back to MidPoint.
  */
 public class DriverTokenExpiredException extends ConnectorSecurityException {
 
-    public DriverTokenExpiredException() {
-        super();
-    }
+  public DriverTokenExpiredException() {
+    super();
+  }
 
-    public DriverTokenExpiredException(String message) {
-        super(message);
-    }
+  public DriverTokenExpiredException(String message) {
+    super(message);
+  }
 
-    public DriverTokenExpiredException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
+  public DriverTokenExpiredException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

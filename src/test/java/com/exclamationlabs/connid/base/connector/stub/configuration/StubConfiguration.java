@@ -22,7 +22,7 @@ import org.identityconnectors.framework.spi.ConfigurationClass;
 @ConfigurationClass(skipUnsupported = true)
 public class StubConfiguration extends DefaultConnectorConfiguration {
 
-    public StubConfiguration() {
-        super();
-    }
+  public StubConfiguration() {
+    super();
+  }
 }

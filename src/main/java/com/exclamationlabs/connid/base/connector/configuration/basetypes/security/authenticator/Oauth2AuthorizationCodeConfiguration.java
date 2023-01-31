@@ -19,18 +19,28 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that authenticate using
- * the OAuth2 "authorization_code" grant type.
+ * Configuration properties for connectors that authenticate using the OAuth2 "authorization_code"
+ * grant type.
  */
-public interface Oauth2AuthorizationCodeConfiguration extends ConnectorConfiguration, Oauth2Configuration {
-    String getTokenUrl();
-    void setTokenUrl(String input);
-    String getAuthorizationCode();
-    void setAuthorizationCode(String input);
-    String getClientId();
-    void setClientId(String input);
-    String getClientSecret();
-    void setClientSecret(String input);
-    String getRedirectUri();
-    void setRedirectUri(String input);
+public interface Oauth2AuthorizationCodeConfiguration
+    extends ConnectorConfiguration, Oauth2Configuration {
+  String getTokenUrl();
+
+  void setTokenUrl(String input);
+
+  String getAuthorizationCode();
+
+  void setAuthorizationCode(String input);
+
+  String getClientId();
+
+  void setClientId(String input);
+
+  String getClientSecret();
+
+  void setClientSecret(String input);
+
+  String getRedirectUri();
+
+  void setRedirectUri(String input);
 }

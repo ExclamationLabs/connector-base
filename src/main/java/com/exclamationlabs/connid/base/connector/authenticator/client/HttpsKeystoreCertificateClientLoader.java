@@ -18,6 +18,8 @@ package com.exclamationlabs.connid.base.connector.authenticator.client;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
+import java.security.*;
+import javax.net.ssl.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -28,66 +30,64 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-import javax.net.ssl.*;
-import java.security.*;
-
-/**
- * Workhorse to create a secure HttpClient using a supplied KeyStore.
- */
+/** Workhorse to create a secure HttpClient using a supplied KeyStore. */
 public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<PfxConfiguration> {
 
-    @Override
-    public HttpClient load(PfxConfiguration configuration, KeyStore keyStore)
-            throws ConnectorSecurityException {
-        TrustManager trustManager = setupTrustManager();
+  @Override
+  public HttpClient load(PfxConfiguration configuration, KeyStore keyStore)
+      throws ConnectorSecurityException {
+    TrustManager trustManager = setupTrustManager();
 
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+    try {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
 
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(
-                    KeyManagerFactory.getDefaultAlgorithm());
+      KeyManagerFactory keyManagerFactory =
+          KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-            keyManagerFactory.init(keyStore,
-                    GuardedStringUtil.read(configuration.getPfxPassword()).toCharArray());
+      keyManagerFactory.init(
+          keyStore, GuardedStringUtil.read(configuration.getPfxPassword()).toCharArray());
 
-            KeyManager[] managers = keyManagerFactory.getKeyManagers();
-            sslContext.init(managers, new TrustManager[]{trustManager}, null);
+      KeyManager[] managers = keyManagerFactory.getKeyManagers();
+      sslContext.init(managers, new TrustManager[] {trustManager}, null);
 
-            SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+      SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
 
-            Registry<ConnectionSocketFactory> socketFactoryRegistry =
-                    RegistryBuilder.<ConnectionSocketFactory> create()
-                            .register("https", socketFactory)
-                            .register("http", new PlainConnectionSocketFactory())
-                            .build();
+      Registry<ConnectionSocketFactory> socketFactoryRegistry =
+          RegistryBuilder.<ConnectionSocketFactory>create()
+              .register("https", socketFactory)
+              .register("http", new PlainConnectionSocketFactory())
+              .build();
 
-            BasicHttpClientConnectionManager connectionManager =
-                    new BasicHttpClientConnectionManager(socketFactoryRegistry);
-            return HttpClients.custom().setSSLSocketFactory(socketFactory)
-                    .setConnectionManager(connectionManager).build();
-        } catch(NoSuchAlgorithmException | KeyStoreException |
-                KeyManagementException | UnrecoverableKeyException kse) {
-            throw new ConnectorSecurityException(kse.getClass().getSimpleName() +
-                    " while preparing secure client based on keystore: " +
-                    kse.getMessage(), kse);
-        }
-
+      BasicHttpClientConnectionManager connectionManager =
+          new BasicHttpClientConnectionManager(socketFactoryRegistry);
+      return HttpClients.custom()
+          .setSSLSocketFactory(socketFactory)
+          .setConnectionManager(connectionManager)
+          .build();
+    } catch (NoSuchAlgorithmException
+        | KeyStoreException
+        | KeyManagementException
+        | UnrecoverableKeyException kse) {
+      throw new ConnectorSecurityException(
+          kse.getClass().getSimpleName()
+              + " while preparing secure client based on keystore: "
+              + kse.getMessage(),
+          kse);
     }
+  }
 
-    private static TrustManager setupTrustManager() {
-        return new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {
-            }
+  private static TrustManager setupTrustManager() {
+    return new X509TrustManager() {
+      @Override
+      public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {}
 
-            @Override
-            public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {
-            }
+      @Override
+      public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {}
 
-            @Override
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        };
-    }
+      @Override
+      public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+        return null;
+      }
+    };
+  }
 }

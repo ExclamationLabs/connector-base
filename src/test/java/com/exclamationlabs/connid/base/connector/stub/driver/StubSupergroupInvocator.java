@@ -20,54 +20,56 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
+import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
-import java.util.*;
+public class StubSupergroupInvocator implements DriverInvocator<ComplexStubDriver, StubSupergroup> {
 
-public class StubSupergroupInvocator implements DriverInvocator<ComplexStubDriver,StubSupergroup> {
+  @Override
+  public String create(ComplexStubDriver driver, StubSupergroup model) throws ConnectorException {
+    driver.setMethodInvoked("supergroup create");
+    driver.setMethodParameter1(model);
+    return UUID.randomUUID().toString();
+  }
 
-    @Override
-    public String create(ComplexStubDriver driver, StubSupergroup model) throws ConnectorException {
-        driver.setMethodInvoked("supergroup create");
-        driver.setMethodParameter1(model);
-        return UUID.randomUUID().toString();
-    }
+  @Override
+  public void update(ComplexStubDriver driver, String userId, StubSupergroup model)
+      throws ConnectorException {
+    driver.setMethodInvoked("supergroup update");
+    driver.setMethodParameter1(userId);
+    driver.setMethodParameter2(model);
+  }
 
-    @Override
-    public void update(ComplexStubDriver driver, String userId, StubSupergroup model) throws ConnectorException {
-        driver.setMethodInvoked("supergroup update");
-        driver.setMethodParameter1(userId);
-        driver.setMethodParameter2(model);
-    }
+  @Override
+  public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
+    driver.setMethodInvoked("supergroup delete");
+    driver.setMethodParameter1(id);
+  }
 
-    @Override
-    public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
-        driver.setMethodInvoked("supergroup delete");
-        driver.setMethodParameter1(id);
-    }
+  @Override
+  public Set<StubSupergroup> getAll(
+      ComplexStubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      throws ConnectorException {
+    driver.setMethodInvoked("club getAll");
+    StubSupergroup item1 = new StubSupergroup();
+    item1.setId(UUID.randomUUID().toString());
+    item1.setName("SuperGroup Uno");
 
-    @Override
-    public Set<StubSupergroup> getAll(ComplexStubDriver driver, ResultsFilter filter,
-                                      ResultsPaginator paginator, Integer resultCap) throws ConnectorException {
-        driver.setMethodInvoked("club getAll");
-        StubSupergroup item1 = new StubSupergroup();
-        item1.setId(UUID.randomUUID().toString());
-        item1.setName("SuperGroup Uno");
+    StubSupergroup item2 = new StubSupergroup();
+    item2.setId(UUID.randomUUID().toString());
+    item2.setName("SuperGroup Dos");
+    return new HashSet<>(Arrays.asList(item1, item2));
+  }
 
-        StubSupergroup item2 = new StubSupergroup();
-        item2.setId(UUID.randomUUID().toString());
-        item2.setName("SuperGroup Dos");
-        return new HashSet<>(Arrays.asList(item1, item2));
-    }
+  @Override
+  public StubSupergroup getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
+      throws ConnectorException {
+    driver.setMethodInvoked("group getOne");
+    driver.setMethodParameter1(id);
+    StubSupergroup item = new StubSupergroup();
+    item.setId(UUID.randomUUID().toString());
+    item.setName("A Sueprgroup");
 
-    @Override
-    public StubSupergroup getOne(ComplexStubDriver driver, String id, Map<String,Object> data) throws ConnectorException {
-        driver.setMethodInvoked("group getOne");
-        driver.setMethodParameter1(id);
-        StubSupergroup item = new StubSupergroup();
-        item.setId(UUID.randomUUID().toString());
-        item.setName("A Sueprgroup");
-
-        return item;
-    }
+    return item;
+  }
 }
