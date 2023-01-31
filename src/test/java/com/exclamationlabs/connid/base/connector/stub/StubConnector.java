@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseFullAccessConnector;
-import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
@@ -27,10 +26,9 @@ import org.identityconnectors.framework.spi.ConnectorClass;
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
 public class StubConnector extends BaseFullAccessConnector<StubConfiguration> {
 
-    public StubConnector() {
-        super(StubConfiguration.class);
-        setDriver(new StubDriver());
-        setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
-    }
-
+  public StubConnector() {
+    super(StubConfiguration.class, false);
+    setDriver(new StubDriver());
+    setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
+  }
 }

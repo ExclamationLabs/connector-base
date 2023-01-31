@@ -16,89 +16,93 @@
 
 package com.exclamationlabs.connid.base.connector.util;
 
+import com.exclamationlabs.connid.base.connector.logging.Logger;
+import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
-import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 
-import java.util.Map;
-
 /**
- * Utility to inspect utilized values that are held inside the Connid framework
- * OperationOptions data map.
+ * Utility to inspect utilized values that are held inside the Connid framework OperationOptions
+ * data map.
  */
 public class OperationOptionsDataFinder {
 
-    private static final Log LOG = Log.getLog(OperationOptionsDataFinder.class);
+  public static final String PAGE_SIZE_KEY = "PAGE_SIZE";
+  public static final String RESULTS_OFFSET_KEY = "PAGED_RESULTS_OFFSET";
 
-    public static final String PAGE_SIZE_KEY = "PAGE_SIZE";
-    public static final String RESULTS_OFFSET_KEY = "PAGED_RESULTS_OFFSET";
+  private OperationOptionsDataFinder() {}
 
-    private OperationOptionsDataFinder() {}
+  public static boolean hasPagingOptions(OperationOptions oo) {
+    return hasPagingOptions(oo.getOptions());
+  }
 
-    public static boolean hasPagingOptions(OperationOptions oo) {
-        return hasPagingOptions(oo.getOptions());
+  public static boolean hasPagingOptions(Map<String, Object> operationOptionsData) {
+    return operationOptionsData != null
+        && operationOptionsData.containsKey(PAGE_SIZE_KEY)
+        && operationOptionsData.containsKey(RESULTS_OFFSET_KEY);
+  }
+
+  public static Integer getPageSize(OperationOptions oo) {
+    return getPageSize(oo.getOptions());
+  }
+
+  public static Integer getPageSize(Map<String, Object> operationOptionsData) {
+    Integer pageSize = null;
+    if (operationOptionsData != null && operationOptionsData.containsKey(PAGE_SIZE_KEY)) {
+      try {
+        pageSize = Integer.parseInt(operationOptionsData.get(PAGE_SIZE_KEY).toString());
+      } catch (NumberFormatException nfe) {
+        Logger.warn(
+            OperationOptionsDataFinder.class,
+            String.format(
+                "Invalid page size from OperationOptions: %s",
+                operationOptionsData.get(PAGE_SIZE_KEY).toString()));
+      }
     }
 
-    public static boolean hasPagingOptions(Map<String, Object> operationOptionsData) {
-        return operationOptionsData != null && operationOptionsData.containsKey(PAGE_SIZE_KEY) &&
-                operationOptionsData.containsKey(RESULTS_OFFSET_KEY);
+    return pageSize;
+  }
+
+  public static Integer getPageResultsOffset(OperationOptions oo) {
+    return getPageResultsOffset(oo.getOptions());
+  }
+
+  public static Integer getPageResultsOffset(Map<String, Object> operationOptionsData) {
+    Integer offset = null;
+    if (operationOptionsData != null && operationOptionsData.containsKey(RESULTS_OFFSET_KEY)) {
+      try {
+        offset = Integer.parseInt(operationOptionsData.get(RESULTS_OFFSET_KEY).toString());
+      } catch (NumberFormatException nfe) {
+        Logger.warn(
+            OperationOptionsDataFinder.class,
+            String.format(
+                "Invalid page results offset from OperationOptions: %s",
+                operationOptionsData.get(RESULTS_OFFSET_KEY).toString()));
+      }
     }
 
-    public static Integer getPageSize(OperationOptions oo) {
-        return getPageSize(oo.getOptions());
+    return offset;
+  }
+
+  public static Integer getPageNumber(OperationOptions oo) {
+    return getPageNumber(oo.getOptions());
+  }
+
+  public static Integer getPageNumber(Map<String, Object> operationOptionsData) {
+    Integer offset = getPageResultsOffset(operationOptionsData);
+    Integer pageSize = getPageSize(operationOptionsData);
+
+    int pageNumber = 1;
+
+    if (offset != null && pageSize != null && offset > pageSize) {
+      pageNumber = 1 + (offset / pageSize);
     }
 
-    public static Integer getPageSize(Map<String, Object> operationOptionsData) {
-        Integer pageSize = null;
-        if (operationOptionsData != null && operationOptionsData.containsKey(PAGE_SIZE_KEY)) {
-            try {
-                pageSize = Integer.parseInt(operationOptionsData.get(PAGE_SIZE_KEY).toString());
-            } catch (NumberFormatException nfe) {
-                LOG.warn("Invalid page size from OperationOptions: {0}", operationOptionsData.get(PAGE_SIZE_KEY).toString());
-            }
-        }
+    return pageNumber;
+  }
 
-        return pageSize;
-    }
-
-    public static Integer getPageResultsOffset(OperationOptions oo) {
-        return getPageResultsOffset(oo.getOptions());
-    }
-
-    public static Integer getPageResultsOffset(Map<String, Object> operationOptionsData) {
-        Integer offset = null;
-        if (operationOptionsData != null && operationOptionsData.containsKey(RESULTS_OFFSET_KEY)) {
-            try {
-                offset = Integer.parseInt(operationOptionsData.get(RESULTS_OFFSET_KEY).toString());
-            } catch (NumberFormatException nfe) {
-                LOG.warn("Invalid page results offset from OperationOptions: {0}", operationOptionsData.get(RESULTS_OFFSET_KEY).toString());
-            }
-        }
-
-        return offset;
-    }
-
-    public static Integer getPageNumber(OperationOptions oo) {
-        return getPageNumber(oo.getOptions());
-    }
-
-    public static Integer getPageNumber(Map<String, Object> operationOptionsData) {
-        Integer offset = getPageResultsOffset(operationOptionsData);
-        Integer pageSize = getPageSize(operationOptionsData);
-
-        int pageNumber = 1;
-
-        if (offset != null && pageSize != null && offset > pageSize) {
-            pageNumber = 1 + (offset / pageSize);
-        }
-
-        return pageNumber;
-    }
-
-    public static Boolean getAllowPartialAttributeValues(Map<String, Object> operationOptionsData) {
-        Object value = operationOptionsData.get(OperationOptions.OP_ALLOW_PARTIAL_ATTRIBUTE_VALUES);
-        return (value instanceof Boolean && BooleanUtils.isTrue((Boolean) value));
-    }
-
-    //Object obj = pagingData.get(OperationOptions.OP_ALLOW_PARTIAL_ATTRIBUTE_VALUES);
+  public static Boolean getAllowPartialAttributeValues(Map<String, Object> operationOptionsData) {
+    Object value = operationOptionsData.get(OperationOptions.OP_ALLOW_PARTIAL_ATTRIBUTE_VALUES);
+    return (value instanceof Boolean && BooleanUtils.isTrue((Boolean) value));
+  }
 }

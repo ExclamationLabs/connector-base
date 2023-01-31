@@ -18,9 +18,9 @@ package com.exclamationlabs.connid.base.connector.configuration;
 
 /**
  * Return the name of the owner for this connector configuration, for use in configuration loading.
- * Ideally, the name returned should be all uppercase and underscores, with
- * no other spaces or punctuation.
+ * Ideally, the name returned should be all uppercase and underscores, with no other spaces or
+ * punctuation.
  */
 public interface ConfigurationOwner {
-    String getName();
+  String getName();
 }

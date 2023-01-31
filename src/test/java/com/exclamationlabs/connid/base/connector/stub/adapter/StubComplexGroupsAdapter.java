@@ -16,60 +16,59 @@
 
 package com.exclamationlabs.connid.base.connector.stub.adapter;
 
+import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
+import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
+
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import java.util.HashSet;
+import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubGroupAttribute.*;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
-
 public class StubComplexGroupsAdapter extends BaseAdapter<StubGroup, ComplexStubConfiguration> {
 
+  @Override
+  public ObjectClass getType() {
+    return ObjectClass.GROUP;
+  }
 
-    @Override
-    public ObjectClass getType() {
-        return ObjectClass.GROUP;
-    }
+  @Override
+  public Class<StubGroup> getIdentityModelClass() {
+    return StubGroup.class;
+  }
 
-    @Override
-    public Class<StubGroup> getIdentityModelClass() {
-        return StubGroup.class;
-    }
+  @Override
+  public Set<ConnectorAttribute> getConnectorAttributes() {
+    Set<ConnectorAttribute> result = new HashSet<>();
+    result.add(new ConnectorAttribute(GROUP_ID.name(), STRING, NOT_UPDATEABLE));
+    result.add(new ConnectorAttribute(GROUP_NAME.name(), STRING));
+    return result;
+  }
 
-    @Override
-    public Set<ConnectorAttribute> getConnectorAttributes() {
-        Set<ConnectorAttribute> result = new HashSet<>();
-        result.add(new ConnectorAttribute(GROUP_ID.name(), STRING, NOT_UPDATEABLE));
-        result.add(new ConnectorAttribute(GROUP_NAME.name(), STRING));
-        return result;
-    }
+  @Override
+  protected StubGroup constructModel(
+      Set<Attribute> attributes, Set<Attribute> added, Set<Attribute> removed, boolean isCreate) {
+    StubGroup group = new StubGroup();
+    group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
+    group.setName(
+        AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
+    group.setSupergroupIds(readAssignments(attributes, SUPERGROUP_IDS));
+    return group;
+  }
 
-    @Override
-    protected StubGroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
-                                       Set<Attribute> removed, boolean isCreate) {
-        StubGroup group = new StubGroup();
-        group.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
-        group.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, GROUP_NAME));
-        group.setSupergroupIds(readAssignments(attributes, SUPERGROUP_IDS));
-        return group;
-    }
+  @Override
+  protected Set<Attribute> constructAttributes(StubGroup group) {
+    Set<Attribute> attributes = new HashSet<>();
 
-    @Override
-    protected Set<Attribute> constructAttributes(StubGroup group) {
-        Set<Attribute> attributes = new HashSet<>();
+    attributes.add(AttributeBuilder.build(GROUP_ID.name(), group.getId()));
+    attributes.add(AttributeBuilder.build(GROUP_NAME.name(), group.getName()));
 
-        attributes.add(AttributeBuilder.build(GROUP_ID.name(), group.getId()));
-        attributes.add(AttributeBuilder.build(GROUP_NAME.name(), group.getName()));
-
-        return attributes;
-    }
+    return attributes;
+  }
 }

@@ -16,60 +16,59 @@
 
 package com.exclamationlabs.connid.base.connector.stub.adapter;
 
+import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
+import static com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute.*;
+import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
+
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
+import java.util.HashSet;
+import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
-import static com.exclamationlabs.connid.base.connector.stub.attribute.StubSupergroupAttribute.*;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
-
 public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexStubConfiguration> {
 
+  @Override
+  public ObjectClass getType() {
+    return new ObjectClass("SUPERGROUP");
+  }
 
-    @Override
-    public ObjectClass getType() {
-        return new ObjectClass("SUPERGROUP");
-    }
+  @Override
+  public Class<StubSupergroup> getIdentityModelClass() {
+    return StubSupergroup.class;
+  }
 
-    @Override
-    public Class<StubSupergroup> getIdentityModelClass() {
-        return StubSupergroup.class;
-    }
+  @Override
+  public Set<ConnectorAttribute> getConnectorAttributes() {
+    Set<ConnectorAttribute> result = new HashSet<>();
+    result.add(new ConnectorAttribute(SUPERGROUP_ID.name(), STRING, NOT_UPDATEABLE));
+    result.add(new ConnectorAttribute(SUPERGROUP_NAME.name(), STRING));
+    return result;
+  }
 
-    @Override
-    public Set<ConnectorAttribute> getConnectorAttributes() {
-        Set<ConnectorAttribute> result = new HashSet<>();
-        result.add(new ConnectorAttribute(SUPERGROUP_ID.name(), STRING, NOT_UPDATEABLE));
-        result.add(new ConnectorAttribute(SUPERGROUP_NAME.name(), STRING));
-        return result;
-    }
+  @Override
+  protected StubSupergroup constructModel(
+      Set<Attribute> attributes, Set<Attribute> added, Set<Attribute> removed, boolean isCreate) {
+    StubSupergroup supergroup = new StubSupergroup();
+    supergroup.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
+    supergroup.setName(
+        AdapterValueTypeConverter.getSingleAttributeValue(
+            String.class, attributes, SUPERGROUP_NAME));
+    return supergroup;
+  }
 
-    @Override
-    protected StubSupergroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
-                                            Set<Attribute> removed,
-                                            boolean isCreate) {
-        StubSupergroup supergroup = new StubSupergroup();
-        supergroup.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
-        supergroup.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, SUPERGROUP_NAME));
-        return supergroup;
-    }
+  @Override
+  protected Set<Attribute> constructAttributes(StubSupergroup supergroup) {
+    Set<Attribute> attributes = new HashSet<>();
 
-    @Override
-    protected Set<Attribute> constructAttributes(StubSupergroup supergroup) {
-        Set<Attribute> attributes = new HashSet<>();
+    attributes.add(AttributeBuilder.build(SUPERGROUP_ID.name(), supergroup.getId()));
+    attributes.add(AttributeBuilder.build(SUPERGROUP_NAME.name(), supergroup.getName()));
 
-        attributes.add(AttributeBuilder.build(SUPERGROUP_ID.name(), supergroup.getId()));
-        attributes.add(AttributeBuilder.build(SUPERGROUP_NAME.name(), supergroup.getName()));
-
-        return new HashSet<>(attributes);
-    }
+    return new HashSet<>(attributes);
+  }
 }

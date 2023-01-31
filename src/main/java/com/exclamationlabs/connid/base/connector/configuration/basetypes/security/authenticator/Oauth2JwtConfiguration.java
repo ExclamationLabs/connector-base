@@ -19,10 +19,11 @@ package com.exclamationlabs.connid.base.connector.configuration.basetypes.securi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 
 /**
- * Configuration properties for connectors that authenticate using
- * the OAuth2 "jwt-bearer" grant type.
+ * Configuration properties for connectors that authenticate using the OAuth2 "jwt-bearer" grant
+ * type.
  */
 public interface Oauth2JwtConfiguration extends ConnectorConfiguration, Oauth2Configuration {
-    String getTokenUrl();
-    void setTokenUrl(String input);
+  String getTokenUrl();
+
+  void setTokenUrl(String input);
 }

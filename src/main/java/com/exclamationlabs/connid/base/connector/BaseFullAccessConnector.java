@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
@@ -24,80 +25,98 @@ import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.*;
 
-import java.util.Set;
-
 /**
- * Connector that allows full access (create, read, update and delete) on
- * a destination system.  This class should be subclassed if your primary desire is to have
- * full access on most/all of the data types on the destination system.
+ * Connector that allows full access (create, read, update and delete) on a destination system. This
+ * class should be subclassed if your primary desire is to have full access on most/all of the data
+ * types on the destination system.
  *
- * Note that ConnId interfaces DeleteOp, CreateOp, UpdateOp and SearchOp<String>
- * are implemented.  This means that this connector will be able to
- * receive create, update, delete and get/search requests from Midpoint.
+ * <p>Note that ConnId interfaces DeleteOp, CreateOp, UpdateOp and SearchOp&lt;String&gt; are
+ * implemented. This means that this connector will be able to receive create, update, delete and
+ * get/search requests from Midpoint.
  */
-public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration> extends BaseConnector<T>
+public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
+    extends BaseConnector<T>
     implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<AttributeFilter> {
 
-    public BaseFullAccessConnector(Class<T> configurationTypeIn) {
-        super(configurationTypeIn);
+  public BaseFullAccessConnector(Class<T> configurationTypeIn) {
+    super(configurationTypeIn);
+  }
+
+  public BaseFullAccessConnector(Class<T> configurationTypeIn, boolean commonsLogging) {
+    super(configurationTypeIn, commonsLogging);
+  }
+
+  @Override
+  protected boolean readEnabled() {
+    return true;
+  }
+
+  @Override
+  protected boolean updateEnabled() {
+    return true;
+  }
+
+  @Override
+  protected boolean deleteEnabled() {
+    return true;
+  }
+
+  @Override
+  protected boolean createEnabled() {
+    return true;
+  }
+
+  @Override
+  public Uid create(
+      final ObjectClass objectClass,
+      final Set<Attribute> attributes,
+      final OperationOptions options) {
+    return getAdapter(objectClass).create(attributes);
+  }
+
+  @Override
+  public Set<AttributeDelta> updateDelta(
+      final ObjectClass objectClass,
+      final Uid uid,
+      final Set<AttributeDelta> attributeModifications,
+      final OperationOptions options) {
+    return getAdapter(objectClass).updateDelta(uid, attributeModifications);
+  }
+
+  @Override
+  public void delete(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
+    getAdapter(objectClass).delete(uid);
+  }
+
+  @Override
+  public FilterTranslator<AttributeFilter> createFilterTranslator(
+      ObjectClass objectClass, OperationOptions operationOptions) {
+    return getConnectorFilterTranslator(objectClass);
+  }
+
+  @Override
+  public void executeQuery(
+      final ObjectClass objectClass,
+      final AttributeFilter queryFilter,
+      final ResultsHandler resultsHandler,
+      final OperationOptions operationOptions) {
+    getAdapter(objectClass)
+        .get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
+  }
+
+  @Override
+  public void executeQuery(
+      final ObjectClass objectClass,
+      String itemId,
+      final ResultsHandler resultsHandler,
+      final OperationOptions operationOptions) {
+    if (StringUtils.isEmpty(itemId)) {
+      getAdapter(objectClass).get(null, resultsHandler, operationOptions, isEnhancedFiltering());
+    } else {
+      Attribute attribute = new AttributeBuilder().setName(Uid.NAME).addValue(itemId).build();
+      AttributeFilter queryFilter = new EqualsFilter(attribute);
+      getAdapter(objectClass)
+          .get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
     }
-
-    @Override
-    protected boolean readEnabled() {
-        return true;
-    }
-
-    @Override
-    protected boolean updateEnabled() {
-        return true;
-    }
-
-    @Override
-    protected boolean deleteEnabled() {
-        return true;
-    }
-
-    @Override
-    protected boolean createEnabled() {
-        return true;
-    }
-
-    @Override
-    public Uid create(final ObjectClass objectClass, final Set<Attribute> attributes, final OperationOptions options) {
-        return getAdapter(objectClass).create(attributes);
-    }
-
-    @Override
-    public Set<AttributeDelta> updateDelta(final ObjectClass objectClass, final Uid uid,
-                           final Set<AttributeDelta> attributeModifications,
-                                           final OperationOptions options) {
-        return getAdapter(objectClass).updateDelta(uid, attributeModifications);
-    }
-
-    @Override
-    public void delete(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-        getAdapter(objectClass).delete(uid);
-    }
-
-    @Override
-    public FilterTranslator<AttributeFilter> createFilterTranslator(ObjectClass objectClass, OperationOptions operationOptions) {
-        return getConnectorFilterTranslator(objectClass);
-    }
-
-    @Override
-    public void executeQuery(final ObjectClass objectClass, final AttributeFilter queryFilter, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
-        getAdapter(objectClass).get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
-    }
-
-    @Override
-    public void executeQuery(final ObjectClass objectClass, String itemId, final ResultsHandler resultsHandler, final OperationOptions operationOptions) {
-        if (StringUtils.isEmpty(itemId)) {
-            getAdapter(objectClass).get(null, resultsHandler, operationOptions, isEnhancedFiltering());
-        } else {
-            Attribute attribute = new AttributeBuilder().setName(Uid.NAME).addValue(itemId).build();
-            AttributeFilter queryFilter = new EqualsFilter(attribute);
-            getAdapter(objectClass).get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
-        }
-   }
-
+  }
 }

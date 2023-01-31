@@ -25,58 +25,56 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class StubDriver extends BaseDriver<StubConfiguration> {
 
-    private String methodInvoked;
-    private Object methodParameter1;
-    private Object methodParameter2;
-    private boolean initializeInvoked = false;
+  private String methodInvoked;
+  private Object methodParameter1;
+  private Object methodParameter2;
+  private boolean initializeInvoked = false;
 
-    public StubDriver() {
-        addInvocator(StubUser.class, new StubUserInvocator());
-        addInvocator(StubGroup.class, new StubGroupInvocator());
-    }
+  public StubDriver() {
+    addInvocator(StubUser.class, new StubUserInvocator());
+    addInvocator(StubGroup.class, new StubGroupInvocator());
+  }
 
-    @Override
-    public void initialize(StubConfiguration configuration, Authenticator<StubConfiguration> authenticator) throws ConnectorException {
-        initializeInvoked = true;
-    }
+  @Override
+  public void initialize(
+      StubConfiguration configuration, Authenticator<StubConfiguration> authenticator)
+      throws ConnectorException {
+    initializeInvoked = true;
+  }
 
-    @Override
-    public void test() throws ConnectorException {
-        setMethodInvoked("test");
-    }
+  @Override
+  public void test() throws ConnectorException {
+    setMethodInvoked("test");
+  }
 
-    @Override
-    public void close() {
+  @Override
+  public void close() {}
 
-    }
+  public String getMethodInvoked() {
+    return methodInvoked;
+  }
 
+  void setMethodInvoked(String methodInvoked) {
+    this.methodInvoked = methodInvoked;
+  }
 
-    public String getMethodInvoked() {
-        return methodInvoked;
-    }
+  public Object getMethodParameter1() {
+    return methodParameter1;
+  }
 
-    void setMethodInvoked(String methodInvoked) {
-        this.methodInvoked = methodInvoked;
-    }
+  void setMethodParameter1(Object methodParameter1) {
+    this.methodParameter1 = methodParameter1;
+  }
 
-    public Object getMethodParameter1() {
-        return methodParameter1;
-    }
+  public Object getMethodParameter2() {
+    return methodParameter2;
+  }
 
-    void setMethodParameter1(Object methodParameter1) {
-        this.methodParameter1 = methodParameter1;
-    }
+  void setMethodParameter2(Object methodParameter2) {
+    this.methodParameter2 = methodParameter2;
+  }
 
-    public Object getMethodParameter2() {
-        return methodParameter2;
-    }
-
-    void setMethodParameter2(Object methodParameter2) {
-        this.methodParameter2 = methodParameter2;
-    }
-
-    public boolean isInitializeInvoked() {
-        return initializeInvoked;
-    }
-
+  public boolean isInitializeInvoked() {
+    return initializeInvoked;
+  }
 }

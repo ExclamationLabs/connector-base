@@ -18,19 +18,16 @@ package com.exclamationlabs.connid.base.connector.util;
 
 import org.identityconnectors.common.security.GuardedString;
 
-/**
- * Utility methods to read ConnId GuardedString object into a Java String
- */
+/** Utility methods to read ConnId GuardedString object into a Java String */
 public class GuardedStringUtil {
 
-    public static String read(GuardedString gString) {
-        if (gString == null) {
-            return null;
-        }
-
-        final String[] accessSecret = new String[1];
-        gString.access(clearChars ->
-                accessSecret[0] = new String(clearChars));
-        return accessSecret[0];
+  public static String read(GuardedString gString) {
+    if (gString == null) {
+      return null;
     }
+
+    final String[] accessSecret = new String[1];
+    gString.access(clearChars -> accessSecret[0] = new String(clearChars));
+    return accessSecret[0];
+  }
 }

@@ -20,69 +20,73 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
-import org.identityconnectors.framework.common.exceptions.ConnectorException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 /**
- * Abstract class for a Driver that should be subclassed for all use cases.  This
- * abstract class provides the support for associating the Driver with a map
- * of Invocators, each of which that are used to perform data operations on the data
- * system pertaining to specific object types.
+ * Abstract class for a Driver that should be subclassed for all use cases. This abstract class
+ * provides the support for associating the Driver with a map of Invocators, each of which that are
+ * used to perform data operations on the data system pertaining to specific object types.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BaseDriver<T extends ConnectorConfiguration> implements Driver<T> {
 
-    Map<Class<? extends IdentityModel>, DriverInvocator> invocatorMap;
+  Map<Class<? extends IdentityModel>, DriverInvocator> invocatorMap;
 
-    public BaseDriver() {
-        invocatorMap = new HashMap<>();
+  public BaseDriver() {
+    invocatorMap = new HashMap<>();
+  }
+
+  @Override
+  public DriverInvocator getInvocator(Class<? extends IdentityModel> identityModelClass) {
+    return invocatorMap.get(identityModelClass);
+  }
+
+  @Override
+  public void addInvocator(
+      Class<? extends IdentityModel> identityModelClass, DriverInvocator invocator) {
+    if (!invocatorMap.containsKey(identityModelClass)) {
+      invocatorMap.put(identityModelClass, invocator);
     }
+  }
 
-    @Override
-    public DriverInvocator getInvocator(Class<? extends IdentityModel> identityModelClass) {
-        return invocatorMap.get(identityModelClass);
-    }
+  @Override
+  public String create(Class<? extends IdentityModel> identityModelClass, IdentityModel model)
+      throws ConnectorException {
+    return getInvocator(identityModelClass).create(this, model);
+  }
 
-    @Override
-    public void addInvocator(Class<? extends IdentityModel> identityModelClass, DriverInvocator invocator) {
-        if (!invocatorMap.containsKey(identityModelClass)) {
-            invocatorMap.put(identityModelClass, invocator);
-        }
-    }
+  @Override
+  public void update(
+      Class<? extends IdentityModel> identityModelClass, String id, IdentityModel model)
+      throws ConnectorException {
+    getInvocator(identityModelClass).update(this, id, model);
+  }
 
+  @Override
+  public void delete(Class<? extends IdentityModel> modelClass, String id)
+      throws ConnectorException {
+    getInvocator(modelClass).delete(this, id);
+  }
 
-    @Override
-    public String create(Class<? extends IdentityModel> identityModelClass, IdentityModel model)
-            throws ConnectorException {
-        return getInvocator(identityModelClass).create(this, model);
-    }
+  @Override
+  public IdentityModel getOne(
+      Class<? extends IdentityModel> modelClass,
+      String id,
+      Map<String, Object> operationOptionsData)
+      throws ConnectorException {
+    return getInvocator(modelClass).getOne(this, id, operationOptionsData);
+  }
 
-    @Override
-    public void update(Class<? extends IdentityModel> identityModelClass, String id,
-                       IdentityModel model) throws ConnectorException {
-        getInvocator(identityModelClass).update(this, id, model);
-    }
-
-    @Override
-    public void delete(Class<? extends IdentityModel> modelClass, String id) throws ConnectorException {
-        getInvocator(modelClass).delete(this, id);
-    }
-
-    @Override
-    public IdentityModel getOne(Class<? extends IdentityModel> modelClass, String id,
-                                Map<String,Object> operationOptionsData) throws ConnectorException {
-        return getInvocator(modelClass).getOne(this, id, operationOptionsData);
-    }
-
-    @Override
-    public Set<IdentityModel> getAll(Class<? extends IdentityModel> modelClass,
-                                             ResultsFilter filter,
-                                             ResultsPaginator paginator,
-                                             Integer resultCap) throws ConnectorException {
-        return getInvocator(modelClass).getAll(this, filter, paginator, resultCap);
-    }
-
+  @Override
+  public Set<IdentityModel> getAll(
+      Class<? extends IdentityModel> modelClass,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap)
+      throws ConnectorException {
+    return getInvocator(modelClass).getAll(this, filter, paginator, resultCap);
+  }
 }
