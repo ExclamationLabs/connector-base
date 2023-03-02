@@ -33,7 +33,7 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
 
   @Override
   public ObjectClass getType() {
-    return ObjectClass.ACCOUNT;
+    return new ObjectClass("user");
   }
 
   @Override

@@ -36,7 +36,7 @@ public class StubComplexUsersAdapter extends BaseAdapter<StubUser, ComplexStubCo
 
   @Override
   public ObjectClass getType() {
-    return ObjectClass.ACCOUNT;
+    return new ObjectClass("user");
   }
 
   @Override

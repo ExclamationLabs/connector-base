@@ -35,7 +35,7 @@ public class StubComplexGroupsAdapter extends BaseAdapter<StubGroup, ComplexStub
 
   @Override
   public ObjectClass getType() {
-    return ObjectClass.GROUP;
+    return new ObjectClass("group");
   }
 
   @Override

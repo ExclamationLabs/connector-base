@@ -33,7 +33,7 @@ public class StubGroupsAdapter extends BaseAdapter<StubGroup, StubConfiguration>
 
   @Override
   public ObjectClass getType() {
-    return ObjectClass.GROUP;
+    return new ObjectClass("group");
   }
 
   @Override
