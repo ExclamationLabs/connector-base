@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.AlreadyExistsException;
@@ -30,39 +31,39 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   @Override
   public String create(ComplexStubDriver driver, StubUser model) throws ConnectorException {
     if (StringUtils.equalsIgnoreCase("duplicateId", model.getIdentityNameValue())) {
-      driver.setMethodInvoked("got existing id");
-      driver.setMethodParameter1(model);
+      StubInvocationChecker.setMethodInvoked("got existing id");
+      StubInvocationChecker.setMethodParameter1(model);
       throw new AlreadyExistsException("test");
     }
 
-    driver.setMethodInvoked("user create");
+    StubInvocationChecker.setMethodInvoked("user create");
     if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
-      driver.setMethodInvoked("user create with group and club ids");
+      StubInvocationChecker.setMethodInvoked("user create with group and club ids");
     } else {
       if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
-        driver.setMethodInvoked("user create with group ids");
+        StubInvocationChecker.setMethodInvoked("user create with group ids");
       }
     }
 
-    driver.setMethodParameter1(model);
+    StubInvocationChecker.setMethodParameter1(model);
     return UUID.randomUUID().toString();
   }
 
   @Override
   public void update(ComplexStubDriver driver, String userId, StubUser model)
       throws ConnectorException {
-    driver.setMethodInvoked("user update");
+    StubInvocationChecker.setMethodInvoked("user update");
     if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
-      driver.setMethodInvoked("user update with group ids");
+      StubInvocationChecker.setMethodInvoked("user update with group ids");
     }
-    driver.setMethodParameter1(userId);
-    driver.setMethodParameter2(model);
+    StubInvocationChecker.setMethodParameter1(userId);
+    StubInvocationChecker.setMethodParameter2(model);
   }
 
   @Override
   public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
-    driver.setMethodInvoked("user delete");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("user delete");
+    StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
@@ -90,9 +91,9 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
       results.add(user1);
     }
     if (resultCap != null && resultCap == 7 && results.size() == 7) {
-      driver.setMethodInvoked("user got seven");
+      StubInvocationChecker.setMethodInvoked("user got seven");
     } else {
-      driver.setMethodInvoked("user getAll " + filter);
+      StubInvocationChecker.setMethodInvoked("user getAll " + filter);
     }
 
     return results;
@@ -101,8 +102,8 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   @Override
   public StubUser getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
       throws ConnectorException {
-    driver.setMethodInvoked("user getOne");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("user getOne");
+    StubInvocationChecker.setMethodParameter1(id);
     StubUser user1 = new StubUser();
     user1.setId(UUID.randomUUID().toString());
     if (id.equals("filteredId")) {

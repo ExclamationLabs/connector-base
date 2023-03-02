@@ -42,9 +42,7 @@ public class ConnectorBundleTest {
     List<URL> bundleUrls = new ArrayList<>();
     bundleUrls.add(
         new URL(
-            "file:/Users/mneugebauer/dist/midpoint-4.0.1/var/icf-connectors/connector-base-zoom-0.1-connector.jar"));
-    // bundleUrls.add(new
-    // URL("file:/Users/mneugebauer/dist/midpoint-4.0.1/var/icf-conn-bak/connector-zoom-1.0-SNAPSHOT-connector.jar"));
+            "/somemidpointdir/midpoint-4.0.1/var/icf-connectors/connector-base-zoom-0.1-connector.jar"));
 
     /*
     LocalConnectorInfoManagerImpl connectorInfoManager =

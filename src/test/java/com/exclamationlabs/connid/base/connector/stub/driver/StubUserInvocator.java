@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
@@ -27,40 +28,40 @@ public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> 
 
   @Override
   public String create(StubDriver driver, StubUser model) throws ConnectorException {
-    driver.setMethodInvoked("user create");
+    StubInvocationChecker.setMethodInvoked("user create");
     if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
-      driver.setMethodInvoked("user create with group and club ids");
+      StubInvocationChecker.setMethodInvoked("user create with group and club ids");
     } else {
       if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
-        driver.setMethodInvoked("user create with group ids");
+        StubInvocationChecker.setMethodInvoked("user create with group ids");
       }
     }
 
-    driver.setMethodParameter1(model);
+    StubInvocationChecker.setMethodParameter1(model);
     return UUID.randomUUID().toString();
   }
 
   @Override
   public void update(StubDriver driver, String userId, StubUser model) throws ConnectorException {
-    driver.setMethodInvoked("user update");
+    StubInvocationChecker.setMethodInvoked("user update");
     if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
-      driver.setMethodInvoked("user update with group ids");
+      StubInvocationChecker.setMethodInvoked("user update with group ids");
     }
-    driver.setMethodParameter1(userId);
-    driver.setMethodParameter2(model);
+    StubInvocationChecker.setMethodParameter1(userId);
+    StubInvocationChecker.setMethodParameter2(model);
   }
 
   @Override
   public void delete(StubDriver driver, String id) throws ConnectorException {
-    driver.setMethodInvoked("user delete");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("user delete");
+    StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubUser> getAll(
       StubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
       throws ConnectorException {
-    driver.setMethodInvoked("user getAll " + filter);
+    StubInvocationChecker.setMethodInvoked("user getAll " + filter);
     StubUser user1 = new StubUser();
     user1.setId(UUID.randomUUID().toString());
     user1.setUserName("User Uno");
@@ -74,8 +75,8 @@ public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> 
   @Override
   public StubUser getOne(StubDriver driver, String id, Map<String, Object> data)
       throws ConnectorException {
-    driver.setMethodInvoked("user getOne");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("user getOne");
+    StubInvocationChecker.setMethodParameter1(id);
     StubUser user1 = new StubUser();
     user1.setId(UUID.randomUUID().toString());
     if (id.equals("filteredId")) {

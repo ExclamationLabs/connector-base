@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
@@ -27,34 +28,34 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
 
   @Override
   public String create(StubDriver driver, StubGroup model) throws ConnectorException {
-    driver.setMethodInvoked("group create");
+    StubInvocationChecker.setMethodInvoked("group create");
 
     if (model.getSupergroupIds() != null) {
-      driver.setMethodInvoked("group create with supergroup ids");
+      StubInvocationChecker.setMethodInvoked("group create with supergroup ids");
     }
 
-    driver.setMethodParameter1(model);
+    StubInvocationChecker.setMethodParameter1(model);
     return UUID.randomUUID().toString();
   }
 
   @Override
   public void update(StubDriver driver, String userId, StubGroup model) throws ConnectorException {
-    driver.setMethodInvoked("group update");
-    driver.setMethodParameter1(userId);
-    driver.setMethodParameter2(model);
+    StubInvocationChecker.setMethodInvoked("group update");
+    StubInvocationChecker.setMethodParameter1(userId);
+    StubInvocationChecker.setMethodParameter2(model);
   }
 
   @Override
   public void delete(StubDriver driver, String id) throws ConnectorException {
-    driver.setMethodInvoked("group delete");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("group delete");
+    StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubGroup> getAll(
       StubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
       throws ConnectorException {
-    driver.setMethodInvoked("group getAll");
+    StubInvocationChecker.setMethodInvoked("group getAll");
     StubGroup group1 = new StubGroup();
     group1.setId(UUID.randomUUID().toString());
     group1.setName("Group Uno");
@@ -68,8 +69,8 @@ public class StubGroupInvocator implements DriverInvocator<StubDriver, StubGroup
   @Override
   public StubGroup getOne(StubDriver driver, String id, Map<String, Object> data)
       throws ConnectorException {
-    driver.setMethodInvoked("group getOne");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("group getOne");
+    StubInvocationChecker.setMethodParameter1(id);
     StubGroup group = new StubGroup();
     group.setId(UUID.randomUUID().toString());
     group.setName("A Group");

@@ -30,5 +30,6 @@ public class StubReadOnlyConnector extends BaseReadOnlyConnector<StubConfigurati
     super(StubConfiguration.class);
     setDriver(new StubDriver());
     setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
+    setAuthenticator(configuration -> "stubAuth");
   }
 }

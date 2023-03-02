@@ -26,14 +26,10 @@ import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
 import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
-
-  private String methodInvoked;
-  private Object methodParameter1;
-  private Object methodParameter2;
-  private boolean initializeInvoked = false;
 
   private ComplexStubConfiguration configuration;
 
@@ -49,7 +45,7 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
       ComplexStubConfiguration configurationInput,
       Authenticator<ComplexStubConfiguration> authenticator)
       throws ConnectorException {
-    initializeInvoked = true;
+    StubInvocationChecker.setInitializeInvoked(true);
     configuration = configurationInput;
   }
 
@@ -66,34 +62,6 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
       Class<? extends IdentityModel> identityModelClass, String nameValue)
       throws ConnectorException {
     return getInvocator(identityModelClass).getOneByName(this, nameValue);
-  }
-
-  public String getMethodInvoked() {
-    return methodInvoked;
-  }
-
-  void setMethodInvoked(String methodInvoked) {
-    this.methodInvoked = methodInvoked;
-  }
-
-  public Object getMethodParameter1() {
-    return methodParameter1;
-  }
-
-  void setMethodParameter1(Object methodParameter1) {
-    this.methodParameter1 = methodParameter1;
-  }
-
-  public Object getMethodParameter2() {
-    return methodParameter2;
-  }
-
-  void setMethodParameter2(Object methodParameter2) {
-    this.methodParameter2 = methodParameter2;
-  }
-
-  public boolean isInitializeInvoked() {
-    return initializeInvoked;
   }
 
   public ComplexStubConfiguration getConfiguration() {
