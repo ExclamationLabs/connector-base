@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.driver.DriverInvocator;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.model.StubClub;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
@@ -27,30 +28,30 @@ public class StubClubInvocator implements DriverInvocator<ComplexStubDriver, Stu
 
   @Override
   public String create(ComplexStubDriver driver, StubClub model) throws ConnectorException {
-    driver.setMethodInvoked("club create");
-    driver.setMethodParameter1(model);
+    StubInvocationChecker.setMethodInvoked("club create");
+    StubInvocationChecker.setMethodParameter1(model);
     return UUID.randomUUID().toString();
   }
 
   @Override
   public void update(ComplexStubDriver driver, String userId, StubClub model)
       throws ConnectorException {
-    driver.setMethodInvoked("club update");
-    driver.setMethodParameter1(userId);
-    driver.setMethodParameter2(model);
+    StubInvocationChecker.setMethodInvoked("club update");
+    StubInvocationChecker.setMethodParameter1(userId);
+    StubInvocationChecker.setMethodParameter2(model);
   }
 
   @Override
   public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
-    driver.setMethodInvoked("club delete");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("club delete");
+    StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubClub> getAll(
       ComplexStubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
       throws ConnectorException {
-    driver.setMethodInvoked("club getAll");
+    StubInvocationChecker.setMethodInvoked("club getAll");
     StubClub item1 = new StubClub();
     item1.setId(UUID.randomUUID().toString());
     item1.setName("Club Uno");
@@ -64,8 +65,8 @@ public class StubClubInvocator implements DriverInvocator<ComplexStubDriver, Stu
   @Override
   public StubClub getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
       throws ConnectorException {
-    driver.setMethodInvoked("group getOne");
-    driver.setMethodParameter1(id);
+    StubInvocationChecker.setMethodInvoked("group getOne");
+    StubInvocationChecker.setMethodParameter1(id);
     StubClub item = new StubClub();
     item.setId(UUID.randomUUID().toString());
     item.setName("A Club");

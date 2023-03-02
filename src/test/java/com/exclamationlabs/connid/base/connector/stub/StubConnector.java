@@ -30,5 +30,6 @@ public class StubConnector extends BaseFullAccessConnector<StubConfiguration> {
     super(StubConfiguration.class, false);
     setDriver(new StubDriver());
     setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
+    setAuthenticator(configuration -> "stubAuth");
   }
 }

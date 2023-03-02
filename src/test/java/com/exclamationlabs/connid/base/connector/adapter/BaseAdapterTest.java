@@ -73,7 +73,7 @@ public class BaseAdapterTest {
     user.setUserName("name123");
     ConnectorObjectBuilder builder = adapter.getConnectorObjectBuilder(user);
     ConnectorObject object = builder.build();
-    assertEquals(ObjectClass.ACCOUNT, object.getObjectClass());
+    assertEquals(new ObjectClass("user"), object.getObjectClass());
     assertEquals(
         "user123", AdapterValueTypeConverter.getIdentityIdAttributeValue(object.getAttributes()));
     assertEquals(
