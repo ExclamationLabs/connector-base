@@ -18,43 +18,55 @@ package com.exclamationlabs.connid.base.connector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
-import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.stub.StubReadOnlyConnector;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
-import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
-import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
-import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
-import com.exclamationlabs.connid.base.connector.test.util.ConnectorTestUtils;
+import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
+import com.exclamationlabs.connid.base.connector.test.ApiIntegrationTest;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.api.operations.*;
 import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StubReadOnlyConnectorTest {
+public class StubReadOnlyConnectorTest
+    extends ApiIntegrationTest<StubConfiguration, StubReadOnlyConnector> {
 
-  private BaseReadOnlyConnector<StubConfiguration> connector;
-  private StubDriver driver;
-  private OperationOptions testOperationOptions;
+  @Override
+  protected StubConfiguration getConfiguration() {
+    return new StubConfiguration();
+  }
+
+  @Override
+  protected Class<StubReadOnlyConnector> getConnectorClass() {
+    return StubReadOnlyConnector.class;
+  }
+
+  @Override
+  protected void readConfiguration(StubConfiguration configuration) {}
 
   @BeforeEach
   public void setup() {
-    connector = new StubReadOnlyConnector();
-    StubConfiguration configuration = new StubConfiguration();
-    connector.init(configuration);
-    driver = (StubDriver) connector.getDriver();
-    testOperationOptions = new OperationOptionsBuilder().build();
+    super.setup();
+    StubInvocationChecker.reset();
   }
 
   @Test
   public void testTest() {
-    connector.test();
-    assertEquals("test", driver.getMethodInvoked());
+    getConnectorFacade().test();
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("test", StubInvocationChecker.getMethodInvoked());
   }
 
   @Test
-  public void testPermissions() {
+  public void testSchema() {
+    assertNotNull(getConnectorFacade().schema());
+  }
+
+  @Test
+  public void testConnectorPermissions() {
+    StubReadOnlyConnector connector = new StubReadOnlyConnector();
     assertTrue(connector.readEnabled());
     assertTrue(connector.isReadOnly());
     assertFalse(connector.isWriteOnly());
@@ -65,90 +77,201 @@ public class StubReadOnlyConnectorTest {
   }
 
   @Test
-  public void testUsersGet() {
-    List<String> idValues = new ArrayList<>();
-    List<String> nameValues = new ArrayList<>();
-    ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+  public void testPermissions() {
+    Set<?> operationSet = getConnectorFacade().getSupportedOperations();
+    assertTrue(operationSet.contains(SearchApiOp.class));
+    assertTrue(operationSet.contains(GetApiOp.class));
+    assertTrue(operationSet.contains(SchemaApiOp.class));
+    assertTrue(operationSet.contains(TestApiOp.class));
+    assertFalse(operationSet.contains(DeleteApiOp.class));
+    assertFalse(operationSet.contains(CreateApiOp.class));
+    assertFalse(operationSet.contains(UpdateDeltaApiOp.class));
+  }
 
-    connector.executeQuery(ObjectClass.ACCOUNT, "", resultsHandler, testOperationOptions);
-    assertEquals(
-        new StubDriver()
-            .getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), null)
-            .size(),
-        idValues.size());
-    assertTrue(StringUtils.isNotBlank(idValues.get(0)));
-    assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
-    assertTrue(driver.isInitializeInvoked());
-    assertEquals("user getAll none", driver.getMethodInvoked());
-    assertNull(driver.getMethodParameter1());
-    assertNull(driver.getMethodParameter2());
+  @Test
+  public void testUsersGet() {
+    results = new ArrayList<>();
+    getConnectorFacade()
+        .search(new ObjectClass("user"), null, handler, new OperationOptionsBuilder().build());
+    assertTrue(results.size() > 1);
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
+
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("user getAll none", StubInvocationChecker.getMethodInvoked());
+    assertNull(StubInvocationChecker.getMethodParameter1());
+    assertNull(StubInvocationChecker.getMethodParameter2());
   }
 
   @Test
   public void testUserGet() {
-    List<String> idValues = new ArrayList<>();
-    List<String> nameValues = new ArrayList<>();
-    ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+    Attribute idAttribute = new AttributeBuilder().setName(Uid.NAME).addValue("1234").build();
 
-    connector.executeQuery(ObjectClass.ACCOUNT, "1234", resultsHandler, testOperationOptions);
-    assertEquals(1, idValues.size());
-    assertTrue(StringUtils.isNotBlank(idValues.get(0)));
-    assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
-    assertTrue(driver.isInitializeInvoked());
-    assertEquals("user getOne", driver.getMethodInvoked());
-    assertEquals("1234", driver.getMethodParameter1().toString());
-    assertNull(driver.getMethodParameter2());
+    results = new ArrayList<>();
+    getConnectorFacade()
+        .search(
+            new ObjectClass("user"),
+            new EqualsFilter(idAttribute),
+            handler,
+            new OperationOptionsBuilder().build());
+
+    assertEquals(1, results.size());
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
+
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("user getOne", StubInvocationChecker.getMethodInvoked());
+    assertEquals("1234", StubInvocationChecker.getMethodParameter1().toString());
+    assertNull(StubInvocationChecker.getMethodParameter2());
   }
 
   @Test
   public void testGroupsGet() {
-    List<String> idValues = new ArrayList<>();
-    List<String> nameValues = new ArrayList<>();
-    ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+    results = new ArrayList<>();
+    getConnectorFacade()
+        .search(new ObjectClass("group"), null, handler, new OperationOptionsBuilder().build());
 
-    connector.executeQuery(ObjectClass.GROUP, "", resultsHandler, testOperationOptions);
-    assertEquals(
-        new StubDriver()
-            .getAll(StubGroup.class, new ResultsFilter(), new ResultsPaginator(), null)
-            .size(),
-        idValues.size());
-    assertTrue(StringUtils.isNotBlank(idValues.get(0)));
-    assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
-    assertTrue(driver.isInitializeInvoked());
-    assertEquals("group getAll", driver.getMethodInvoked());
-    assertNull(driver.getMethodParameter1());
-    assertNull(driver.getMethodParameter2());
+    assertTrue(results.size() > 1);
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
+
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("group getAll", StubInvocationChecker.getMethodInvoked());
+    assertNull(StubInvocationChecker.getMethodParameter1());
+    assertNull(StubInvocationChecker.getMethodParameter2());
   }
 
   @Test
   public void testGroupGet() {
-    List<String> idValues = new ArrayList<>();
-    List<String> nameValues = new ArrayList<>();
-    ResultsHandler resultsHandler = ConnectorTestUtils.buildResultsHandler(idValues, nameValues);
+    Attribute idAttribute = new AttributeBuilder().setName(Uid.NAME).addValue("1234").build();
 
-    connector.executeQuery(ObjectClass.GROUP, "1234", resultsHandler, testOperationOptions);
-    assertEquals(1, idValues.size());
-    assertTrue(StringUtils.isNotBlank(idValues.get(0)));
-    assertTrue(StringUtils.isNotBlank(nameValues.get(0)));
-    assertTrue(driver.isInitializeInvoked());
-    assertEquals("group getOne", driver.getMethodInvoked());
-    assertEquals("1234", driver.getMethodParameter1().toString());
-    assertNull(driver.getMethodParameter2());
+    results = new ArrayList<>();
+    getConnectorFacade()
+        .search(
+            new ObjectClass("group"),
+            new EqualsFilter(idAttribute),
+            handler,
+            new OperationOptionsBuilder().build());
+
+    assertEquals(1, results.size());
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
+
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("group getOne", StubInvocationChecker.getMethodInvoked());
+    assertEquals("1234", StubInvocationChecker.getMethodParameter1().toString());
+    assertNull(StubInvocationChecker.getMethodParameter2());
+  }
+
+  @Test
+  public void testCreateUser() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .create(
+                    new ObjectClass("user"),
+                    Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+  }
+
+  @Test
+  public void testCreateGroup() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .create(
+                    new ObjectClass("group"),
+                    Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+  }
+
+  @Test
+  public void testUpdateUser() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .updateDelta(
+                    new ObjectClass("user"),
+                    new Uid("test"),
+                    Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+  }
+
+  @Test
+  public void testUpdateGroup() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .updateDelta(
+                    new ObjectClass("group"),
+                    new Uid("test"),
+                    Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+  }
+
+  @Test
+  public void testDeleteUser() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .delete(
+                    new ObjectClass("user"),
+                    new Uid("test"),
+                    new OperationOptionsBuilder().build()));
+  }
+
+  @Test
+  public void testDeleteGroup() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            getConnectorFacade()
+                .delete(
+                    new ObjectClass("group"),
+                    new Uid("test"),
+                    new OperationOptionsBuilder().build()));
   }
 
   @Test
   public void testConstruction() {
+    StubReadOnlyConnector connector = new StubReadOnlyConnector();
+    connector.init(new StubConfiguration());
     StubConnectorTest.executeTestConstruction(connector, "StubReadOnlyConnector");
   }
 
   @Test
   public void testDummyAuthentication() {
+    StubReadOnlyConnector connector = new StubReadOnlyConnector();
+    connector.setAuthenticator(configuration -> "testing");
     assertEquals(
-        "NA", connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
+        "testing",
+        connector.getAuthenticator().authenticate(connector.getConnectorConfiguration()));
   }
 
   @Test
-  public void testSchema() {
+  public void testSchemaConnector() {
+    StubReadOnlyConnector connector = new StubReadOnlyConnector();
     StubConnectorTest.executeTestSchema(connector, 0);
   }
 }
