@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **3.0.2** - Add custom exclusion strategy GSON support needed for FIS Horizon FIN-9702 (03/02/2023)
 + **3.0.1** - Migrate to GAR, get Jenkins build working (01/31/2023)
 + **3.0** - Migrate to GAR, update dependencies, update to Junit 5, add code formatting, support Commons logging FIN-9902 (01/31/2023)
 + **2.1.1** - Migrate to Google Archive Repository FIN-9902 (11/28/2022)
