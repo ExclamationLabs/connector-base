@@ -49,6 +49,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -124,8 +125,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       ProxyConfiguration proxyConfiguration = (ProxyConfiguration) getConfiguration();
       socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getProxyType());
       if (socksProxy) {
-        socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
         socksProxyClientContext = setupSocksProxyContext(proxyConfiguration);
+        socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
       } else {
         httpProxyRoutePlanner = setupHttpProxyRouteManager(proxyConfiguration);
       }
@@ -246,12 +247,15 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
    */
   protected abstract String getBaseServiceUrl();
 
-  public <T> RestResponseData<T> executeRequest(HttpRequestBase request, Class<T> returnType) {
-    return executeRequest(request, returnType, false, 0);
+  public <T> RestResponseData<T> executeRequest(RestRequest<T> request) {
+    return executeRequest(request, false, 0);
   }
 
   public <T> RestResponseData<T> executeRequest(
-      HttpRequestBase request, Class<T> returnType, boolean isRetry, int retryCount) {
+      RestRequest<T> request, boolean isRetry, int retryCount) {
+    //    RestRequest<Void> rething = new RestRequest.Builder<>(Void.class).build();
+    //    RestRequest<String> erer = new RestRequest.Builder<>(String.class).build();
+    //    RestRequest<IdentityModel> erer2 = new RestRequest.Builder<>(IdentityModel.class).build();
     if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
       throw new ConnectionBrokenException(
           "Connection invalidated or disposed, request cannot "
@@ -262,6 +266,10 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
               + "; configuration: "
               + configuration);
     }
+    HttpRequestBase requestForClient = prepareHttpRequest(request);
+    if (requestForClient instanceof HttpEntityEnclosingRequestBase) {
+      setupJsonRequestBody((HttpEntityEnclosingRequestBase) requestForClient, request);
+    }
 
     HttpClient client = createClient();
     HttpResponse response;
@@ -270,18 +278,23 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
     try {
       Logger.debug(
-          this, String.format("Request details: %s to %s", request.getMethod(), request.getURI()));
+          this,
+          String.format(
+              "Request details: %s to %s",
+              requestForClient.getMethod(), requestForClient.getURI()));
       if (socksProxyClientContext != null) {
-        response = client.execute(request, socksProxyClientContext);
+        response = client.execute(requestForClient, socksProxyClientContext);
       } else {
-        response = client.execute(request);
+        response = client.execute(requestForClient);
       }
 
       Logger.debug(
           this,
           String.format(
               "Received %d response for %s %s",
-              response.getStatusLine().getStatusCode(), request.getMethod(), request.getURI()));
+              response.getStatusLine().getStatusCode(),
+              requestForClient.getMethod(),
+              requestForClient.getURI()));
 
       responseStatusCode = response.getStatusLine().getStatusCode();
       responseHeaders = response.getAllHeaders();
@@ -313,8 +326,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
             String.format(
                 "Driver %s acquired a new access token and will re-attempt original driver request once.",
                 this.getClass().getSimpleName()));
-        prepareHeaders(request);
-        RestResponseData<T> holdResult = executeRequest(request, returnType, true, 1);
+        prepareHeaders(requestForClient);
+        RestResponseData<T> holdResult = executeRequest(request, true, 1);
         performPostNewAccessTokenCustomAction();
         return holdResult;
       }
@@ -333,7 +346,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       if (getIoErrorRetryCount() > 0) {
         if (isRetry) {
           if (retryCount < getIoErrorRetryCount()) {
-            return executeRequest(request, returnType, true, ++retryCount);
+            return executeRequest(request, true, ++retryCount);
           } else {
             throw new ConnectorException(
                 "Unexpected IOException occurred while attempting call: "
@@ -344,7 +357,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
                 e);
           }
         } else {
-          return executeRequest(request, returnType, true, 1);
+          return executeRequest(request, true, 1);
         }
       } else {
         throw new ConnectorException(
@@ -352,136 +365,215 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       }
     }
 
-    T responseData = interpretResponse(response, returnType);
+    T responseData = interpretResponse(response, request);
     return new RestResponseData<>(responseData, responseHeaders, responseStatusCode);
   }
 
-  public <T> RestResponseData<T> executeGetRequest(String restUri, Class<T> expectedResponseType) {
-    return executeGetRequest(restUri, expectedResponseType, null);
+  protected HttpRequestBase prepareHttpRequest(RestRequest<?> input) {
+    final String destinationUrl =
+        StringUtils.isNotBlank(input.getFullUrl())
+            ? input.getFullUrl()
+            : getBaseServiceUrl() + input.getRequestUri();
+    HttpRequestBase requestBase;
+    switch (input.getMethod()) {
+      case POST:
+        requestBase = new HttpPost(destinationUrl);
+        break;
+      case PUT:
+        requestBase = new HttpPut(destinationUrl);
+        break;
+      case PATCH:
+        requestBase = new HttpPatch(destinationUrl);
+        break;
+      case DELETE:
+        if (input.getRequestBody() != null) {
+          requestBase = new HttpDeleteWithBody(destinationUrl);
+        } else {
+          requestBase = new HttpDelete(destinationUrl);
+        }
+        break;
+      default:
+        requestBase = new HttpGet(destinationUrl);
+        break;
+    }
+
+    prepareHeaders(requestBase);
+    if (!input.getAdditionalHeaders().isEmpty()) {
+      input.getAdditionalHeaders().forEach(requestBase::addHeader);
+    }
+
+    return requestBase;
   }
 
+  @Deprecated
+  public <T> RestResponseData<T> executeGetRequest(String restUri, Class<T> expectedResponseType) {
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType).withGet().withRequestUri(restUri).build(),
+        false,
+        0);
+  }
+
+  @Deprecated
   public <T> RestResponseData<T> executePostRequest(
       String restUri, Class<T> expectedResponseType, Object requestBody) {
-    return executePostRequest(restUri, expectedResponseType, requestBody, null);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPost()
+            .withRequestBody(requestBody)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executePutRequest(
       String restUri, Class<T> expectedResponseType, Object requestBody) {
-    return executePutRequest(restUri, expectedResponseType, requestBody, null);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPut()
+            .withRequestBody(requestBody)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executePatchRequest(
       String restUri, Class<T> expectedResponseType, Object requestBody) {
-    return executePatchRequest(restUri, expectedResponseType, requestBody, null);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPatch()
+            .withRequestBody(requestBody)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executeDeleteRequest(
       String restUri, Class<T> expectedResponseType) {
-    return executeDeleteRequest(restUri, expectedResponseType, null);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withDelete()
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executeDeleteRequest(
       String restUri, Class<T> expectedResponseType, Object requestBody) {
-    return executeDeleteRequest(restUri, expectedResponseType, requestBody, null);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withDelete()
+            .withRequestBody(requestBody)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executeGetRequest(
       String restUri, Class<T> expectedResponseType, Map<String, String> additionalHeaders) {
-    HttpGet get = createGetRequest(restUri);
-    setAdditionalHeaders(get, additionalHeaders);
-    return executeRequest(get, expectedResponseType);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withGet()
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executePostRequest(
       String restUri,
       Class<T> expectedResponseType,
       Object requestBody,
       Map<String, String> additionalHeaders) {
-    HttpPost post = createPostRequest(restUri, requestBody);
-    setAdditionalHeaders(post, additionalHeaders);
-    return executeRequest(post, expectedResponseType);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPost()
+            .withRequestBody(requestBody)
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executePutRequest(
       String restUri,
       Class<T> expectedResponseType,
       Object requestBody,
       Map<String, String> additionalHeaders) {
-    HttpPut put = createPutRequest(restUri, requestBody);
-    setAdditionalHeaders(put, additionalHeaders);
-    return executeRequest(put, expectedResponseType);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPut()
+            .withRequestBody(requestBody)
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executePatchRequest(
       String restUri,
       Class<T> expectedResponseType,
       Object requestBody,
       Map<String, String> additionalHeaders) {
-    HttpPatch patch = createPatchRequest(restUri, requestBody);
-    setAdditionalHeaders(patch, additionalHeaders);
-    return executeRequest(patch, expectedResponseType);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withPatch()
+            .withRequestBody(requestBody)
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executeDeleteRequest(
       String restUri, Class<T> expectedResponseType, Map<String, String> additionalHeaders) {
-    HttpDelete delete = createDeleteRequest(restUri);
-    setAdditionalHeaders(delete, additionalHeaders);
-    return executeRequest(delete, expectedResponseType);
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withDelete()
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
+  @Deprecated
   public <T> RestResponseData<T> executeDeleteRequest(
       String restUri,
       Class<T> expectedResponseType,
       Object requestBody,
       Map<String, String> additionalHeaders) {
-    HttpDeleteWithBody delete = createDeleteRequest(restUri, requestBody);
-    setAdditionalHeaders(delete, additionalHeaders);
-    return executeRequest(delete, expectedResponseType);
-  }
-
-  private HttpGet createGetRequest(String restUri) {
-    HttpGet request = new HttpGet(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    return request;
-  }
-
-  private HttpDelete createDeleteRequest(String restUri) {
-    HttpDelete request = new HttpDelete(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    return request;
-  }
-
-  private HttpDeleteWithBody createDeleteRequest(String restUri, Object requestBody) {
-    HttpDeleteWithBody request = new HttpDeleteWithBody(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    setupJsonRequestBody(request, requestBody);
-    return request;
-  }
-
-  private HttpPost createPostRequest(String restUri, Object requestBody) {
-    HttpPost request = new HttpPost(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    setupJsonRequestBody(request, requestBody);
-    return request;
-  }
-
-  private HttpPut createPutRequest(String restUri, Object requestBody) {
-    HttpPut request = new HttpPut(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    setupJsonRequestBody(request, requestBody);
-    return request;
-  }
-
-  private HttpPatch createPatchRequest(String restUri, Object requestBody) {
-    HttpPatch request = new HttpPatch(getBaseServiceUrl() + restUri);
-    prepareHeaders(request);
-    setupJsonRequestBody(request, requestBody);
-    return request;
+    return executeRequest(
+        new RestRequest.Builder<>(expectedResponseType)
+            .withDelete()
+            .withRequestBody(requestBody)
+            .withHeaders(additionalHeaders)
+            .withRequestUri(restUri)
+            .build(),
+        false,
+        0);
   }
 
   private void prepareHeaders(HttpRequestBase request) {
     // Normally, RESTful services only transmit JSON
-    request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+    request.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
     if (usesBearerAuthorization()) {
       request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + configuration.getCurrentToken());
     } else if (usesTokenAuthorization()) {
@@ -490,35 +582,45 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     }
   }
 
-  private void setAdditionalHeaders(HttpRequestBase request, Map<String, String> headers) {
-    if (headers != null) {
-      headers.forEach(request::addHeader);
-    }
-  }
+  protected void setupJsonRequestBody(
+      HttpEntityEnclosingRequestBase request, RestRequest<?> restRequest) {
+    if (restRequest.getRequestBody() != null) {
+      String bodyData;
+      if (restRequest.getRequestBody() instanceof String) {
+        bodyData = restRequest.getRequestBody().toString();
+      } else {
+        Gson gson;
+        if (restRequest.getSerializationExclusionStrategy() != null) {
+          gson =
+              new GsonBuilder()
+                  .addSerializationExclusionStrategy(
+                      restRequest.getSerializationExclusionStrategy())
+                  .create();
+        } else {
+          gson = gsonBuilder.create();
+        }
+        bodyData = gson.toJson(restRequest.getRequestBody());
+        Logger.debug(
+            this,
+            String.format(
+                "JSON formatted request for %s: %s",
+                restRequest.getRequestBody().getClass().getName(), bodyData));
+      }
 
-  protected final void setupJsonRequestBody(
-      HttpEntityEnclosingRequestBase request, Object requestBody) {
-    if (requestBody != null) {
-      Gson gson = gsonBuilder.create();
-      String json = gson.toJson(requestBody);
-      Logger.debug(
-          this,
-          String.format(
-              "JSON formatted request for %s: %s", requestBody.getClass().getName(), json));
       try {
-        request.setEntity(new StringEntity(json));
+        request.setEntity(new StringEntity(bodyData));
       } catch (UnsupportedEncodingException e) {
-        throw new ConnectorException("Request body encoding failed for data: " + json, e);
+        throw new ConnectorException("Request body encoding failed for data: " + bodyData, e);
       }
     }
   }
 
-  private <T> T interpretResponse(HttpResponse response, Class<T> returnType) {
+  protected <T> T interpretResponse(HttpResponse response, RestRequest<T> requestDetail) {
     T result;
     String rawJson;
 
     try {
-      if (returnType == null) {
+      if (requestDetail.getResponseClass() == null) {
         Logger.debug(
             this, "No response expected or needed from this invocation, returning null type");
         return null;
@@ -538,19 +640,32 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
           "IOException while reading raw JSON body from response:" + ioe.getMessage(), ioe);
     }
 
-    Gson gson = gsonBuilder.create();
+    if (requestDetail.getResponseClass() == String.class) {
+      return (T) rawJson;
+    }
+
+    Gson gson;
+    if (requestDetail.getDeserializationExclusionStrategy() != null) {
+      gson =
+          new GsonBuilder()
+              .addDeserializationExclusionStrategy(
+                  requestDetail.getDeserializationExclusionStrategy())
+              .create();
+    } else {
+      gson = gsonBuilder.create();
+    }
     try {
-      result = gson.fromJson(rawJson, returnType);
+      result = gson.fromJson(rawJson, requestDetail.getResponseClass());
       Logger.info(
           this,
           String.format(
               "Successfully populated model type %s from JSON response body",
-              returnType.getName()));
+              requestDetail.getResponseClass().getName()));
     } catch (JsonSyntaxException jse) {
       throw new ConnectorException(
           "JSON syntax error occurred while trying to interpret JSON response "
               + "into type "
-              + returnType.getName(),
+              + requestDetail.getResponseClass().getName(),
           jse);
     }
 
