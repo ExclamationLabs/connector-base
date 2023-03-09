@@ -52,7 +52,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class BaseRestDriverTest extends ConnectorMockRestTest {
 
   private static final String USER_ID = "123";
+  private static final String USER_ID_RAW = "456";
   private static final String USER_NAME = "Bob";
+  private static final String USER_NAME_RAW = "BobRaw";
+  private static final String USER_NAME_RAW2 = "BobRaw2";
+
   private static final String USER_EMAIL = "bob@bob.com";
   private static final String USER_ID2 = "456";
   private static final String USER_NAME2 = "Jack";
@@ -173,6 +177,24 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
   }
 
   @Test
+  public void createUserRawStringInputAndResponse() {
+    prepareMockResponse(USER_ID_RAW);
+    StubUser newUser = new StubUser();
+    newUser.setUserName(USER_NAME_RAW);
+    newUser.setEmail(USER_EMAIL);
+    assertEquals(USER_ID_RAW, driver.create(StubUser.class, newUser));
+  }
+
+  @Test
+  public void createUserVoidInputAndResponse() {
+    prepareMockResponse();
+    StubUser newUser = new StubUser();
+    newUser.setUserName(USER_NAME_RAW2);
+    newUser.setEmail(USER_EMAIL);
+    assertEquals("wasRaw", driver.create(StubUser.class, newUser));
+  }
+
+  @Test
   public void createGroup() {
     prepareMockResponse(SINGLE_GROUP_RESPONSE);
     StubGroup newGroup = new StubGroup();
@@ -282,7 +304,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Override
     protected String getBaseServiceUrl() {
-      return "http://www.somewhere-out-there.com";
+      return "https://www.somewhere-out-there.com";
     }
 
     @Override
@@ -298,23 +320,60 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     @Override
     public String create(BaseRestDriver<StubConfiguration> driver, StubUser userModel)
         throws ConnectorException {
-      StubUser response =
-          driver
-              .executePostRequest("/users", StubUser.class, userModel, moreHeaders)
-              .getResponseObject();
-      return response.getId();
+      if (USER_NAME_RAW.equalsIgnoreCase(userModel.getUserName())) {
+        return driver
+            .executeRequest(
+                new RestRequest.Builder<>(String.class)
+                    .withRequestUri("/users")
+                    .withPost()
+                    .withRequestBody("raw Bob creation request")
+                    .withHeaders(moreHeaders)
+                    .build())
+            .getResponseObject();
+      } else if (USER_NAME_RAW2.equalsIgnoreCase(userModel.getUserName())) {
+        driver.executeRequest(
+            new RestRequest.Builder<>(Void.class)
+                .withRequestUri("/users")
+                .withPost()
+                .withHeaders(moreHeaders)
+                .build());
+        return "wasRaw";
+      } else {
+        StubUser response =
+            driver
+                .executeRequest(
+                    new RestRequest.Builder<>(StubUser.class)
+                        .withRequestUri("/users")
+                        .withPost()
+                        .withRequestBody(userModel)
+                        .withHeaders(moreHeaders)
+                        .build())
+                .getResponseObject();
+        return response.getId();
+      }
     }
 
     @Override
     public void update(BaseRestDriver<StubConfiguration> driver, String userId, StubUser userModel)
         throws ConnectorException {
-      driver.executePatchRequest("/users/" + userId, null, userModel, moreHeaders);
+      driver.executeRequest(
+          new RestRequest.Builder<>(Void.class)
+              .withRequestUri("/users/" + userId)
+              .withPatch()
+              .withRequestBody(userModel)
+              .withHeaders(moreHeaders)
+              .build());
     }
 
     @Override
     public void delete(BaseRestDriver<StubConfiguration> driver, String userId)
         throws ConnectorException {
-      driver.executeDeleteRequest("/users/" + userId, null, moreHeaders);
+      driver.executeRequest(
+          new RestRequest.Builder<>(Void.class)
+              .withRequestUri("/users/" + userId)
+              .withDelete()
+              .withHeaders(moreHeaders)
+              .build());
     }
 
     @Override
@@ -326,7 +385,12 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         throws ConnectorException {
       TestUsersResponse usersResponse =
           driver
-              .executeGetRequest("/users", TestUsersResponse.class, moreHeaders)
+              .executeRequest(
+                  new RestRequest.Builder<>(TestUsersResponse.class)
+                      .withRequestUri("/users")
+                      .withGet()
+                      .withHeaders(moreHeaders)
+                      .build())
               .getResponseObject();
       return new HashSet<>(usersResponse.getPeople());
     }
@@ -338,7 +402,12 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         Map<String, Object> operationOptionsData)
         throws ConnectorException {
       return driver
-          .executeGetRequest("/users/" + userId, StubUser.class, moreHeaders)
+          .executeRequest(
+              new RestRequest.Builder<>(StubUser.class)
+                  .withRequestUri("/users/" + userId)
+                  .withGet()
+                  .withHeaders(moreHeaders)
+                  .build())
           .getResponseObject();
     }
   }
@@ -351,21 +420,39 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         throws ConnectorException {
       StubGroup response =
           driver
-              .executePostRequest("/groups", StubGroup.class, userModel, moreHeaders)
+              .executeRequest(
+                  new RestRequest.Builder<>(StubGroup.class)
+                      .withRequestUri("/groups")
+                      .withPost()
+                      .withHeaders(moreHeaders)
+                      .withRequestBody(userModel)
+                      .build())
               .getResponseObject();
+
       return response.getId();
     }
 
     @Override
     public void update(BaseRestDriver<StubConfiguration> driver, String userId, StubGroup userModel)
         throws ConnectorException {
-      driver.executePatchRequest("/groups/" + userId, null, userModel, moreHeaders);
+      driver.executeRequest(
+          new RestRequest.Builder<>(Void.class)
+              .withRequestUri("/groups/" + userId)
+              .withPatch()
+              .withHeaders(moreHeaders)
+              .withRequestBody(userModel)
+              .build());
     }
 
     @Override
     public void delete(BaseRestDriver<StubConfiguration> driver, String userId)
         throws ConnectorException {
-      driver.executeDeleteRequest("/groups/" + userId, null, moreHeaders);
+      driver.executeRequest(
+          new RestRequest.Builder<>(Void.class)
+              .withRequestUri("/groups/" + userId)
+              .withDelete()
+              .withHeaders(moreHeaders)
+              .build());
     }
 
     @Override
@@ -377,7 +464,12 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         throws ConnectorException {
       TestGroupsResponse groupsResponse =
           driver
-              .executeGetRequest("/groups", TestGroupsResponse.class, moreHeaders)
+              .executeRequest(
+                  new RestRequest.Builder<>(TestGroupsResponse.class)
+                      .withRequestUri("/groups")
+                      .withGet()
+                      .withHeaders(moreHeaders)
+                      .build())
               .getResponseObject();
       return new HashSet<>(groupsResponse.getGroups());
     }
@@ -389,7 +481,12 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
         Map<String, Object> operationOptionsData)
         throws ConnectorException {
       return driver
-          .executeGetRequest("/groups/" + groupId, StubGroup.class, moreHeaders)
+          .executeRequest(
+              new RestRequest.Builder<>(StubGroup.class)
+                  .withRequestUri("/groups/" + groupId)
+                  .withGet()
+                  .withHeaders(moreHeaders)
+                  .build())
           .getResponseObject();
     }
   }
