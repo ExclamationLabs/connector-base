@@ -34,6 +34,7 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.Map;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
@@ -295,6 +296,13 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
       responseStatusCode = response.getStatusLine().getStatusCode();
       responseHeaders = response.getAllHeaders();
+      if (performAdditionalResponseHandling(
+          responseStatusCode,
+          responseHeaders,
+          requestForClient.getMethod(),
+          requestForClient.getURI())) {
+        return new RestResponseData<>(null, responseHeaders, responseStatusCode);
+      }
 
       Logger.info(this, String.format("Response status code is %d", responseStatusCode));
       if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
@@ -364,6 +372,29 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
     T responseData = interpretResponse(response, request);
     return new RestResponseData<>(responseData, responseHeaders, responseStatusCode);
+  }
+
+  /**
+   * Perform custom response handling for specific driver implementations. This method is invoked
+   * before checking for HTTP responses &gt;= 400 and proceeding with any fault processing, retry
+   * logic or not-found handling. It is also performed before any deserialization of HTTP response
+   * body.
+   *
+   * @param responseStatusCode The HTTP response code returned by invocation
+   * @param responseHeaders Array of Headers returned by HTTP response.
+   * @param method The HTTP method invoked (GET, POST, etc.)
+   * @param uri The URL associated with the HTTPClient request
+   * @return Return true if implementation should exit all other post-processing and return null
+   *     response body. Return false if normal post-processing should continue. An exception can
+   *     also be thrown as needed to handle as needed and exit post-processing.
+   * @throws RuntimeException If inspection of response for this driver requires an exception to be
+   *     thrown.
+   */
+  @SuppressWarnings("unused")
+  protected boolean performAdditionalResponseHandling(
+      int responseStatusCode, Header[] responseHeaders, String method, URI uri)
+      throws RuntimeException {
+    return false;
   }
 
   protected HttpRequestBase prepareHttpRequest(RestRequest<?> input) {

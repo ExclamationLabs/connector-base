@@ -16,8 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.driver.rest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.RestConfiguration;
@@ -34,7 +33,9 @@ import com.exclamationlabs.connid.base.connector.test.util.ConnectorMockRestTest
 import com.google.gson.GsonBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -52,6 +53,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class BaseRestDriverTest extends ConnectorMockRestTest {
 
   private static final String USER_ID = "123";
+
+  private static final String USER_ID_CUSTOM_RESPONSE = "999111";
+  private static final String USER_ID_CUSTOM_RESPONSE2 = "999222";
+
   private static final String USER_ID_RAW = "456";
   private static final String USER_NAME = "Bob";
   private static final String USER_NAME_RAW = "BobRaw";
@@ -125,6 +130,22 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
     StubUser user = (StubUser) driver.getOne(StubUser.class, USER_ID, Collections.emptyMap());
     assertEquals(USER_NAME, user.getUserName());
     assertEquals(USER_EMAIL, user.getEmail());
+  }
+
+  @Test
+  public void getOneUserTestCustomResponseHandling() {
+    prepareMockResponse();
+    StubUser user =
+        (StubUser) driver.getOne(StubUser.class, USER_ID_CUSTOM_RESPONSE, Collections.emptyMap());
+    assertNull(user);
+  }
+
+  @Test
+  public void getOneUserTestCustomResponseHandlingThrower() {
+    prepareMockResponse();
+    assertThrows(
+        ConnectorException.class,
+        () -> driver.getOne(StubUser.class, USER_ID_CUSTOM_RESPONSE2, Collections.emptyMap()));
   }
 
   @Test
@@ -312,6 +333,18 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Override
     public void close() {}
+
+    @Override
+    protected boolean performAdditionalResponseHandling(
+        int responseStatusCode, Header[] responseHeaders, String method, URI uri)
+        throws RuntimeException {
+      if (uri.toString().contains(USER_ID_CUSTOM_RESPONSE)) {
+        return true;
+      } else if (uri.toString().contains(USER_ID_CUSTOM_RESPONSE2)) {
+        throw new ConnectorException("get out");
+      }
+      return false;
+    }
   }
 
   static class TestRestUserInvocator
