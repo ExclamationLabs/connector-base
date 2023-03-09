@@ -336,7 +336,7 @@ public class BaseRestDriverTest extends ConnectorMockRestTest {
 
     @Override
     protected boolean performAdditionalResponseHandling(
-        int responseStatusCode, Header[] responseHeaders, String method, URI uri)
+        int responseStatusCode, Header[] responseHeaders, String method, URI uri, int retryCount)
         throws RuntimeException {
       if (uri.toString().contains(USER_ID_CUSTOM_RESPONSE)) {
         return true;
