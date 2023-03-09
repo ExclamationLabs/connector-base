@@ -300,7 +300,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
           responseStatusCode,
           responseHeaders,
           requestForClient.getMethod(),
-          requestForClient.getURI())) {
+          requestForClient.getURI(),
+          retryCount)) {
         return new RestResponseData<>(null, responseHeaders, responseStatusCode);
       }
 
@@ -384,16 +385,18 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
    * @param responseHeaders Array of Headers returned by HTTP response.
    * @param method The HTTP method invoked (GET, POST, etc.)
    * @param uri The URL associated with the HTTPClient request
+   * @param retryCount The retry count (if applicable)
    * @return Return true if implementation should exit all other post-processing and return null
    *     response body. Return false if normal post-processing should continue. An exception can
    *     also be thrown as needed to handle as needed and exit post-processing.
    * @throws RuntimeException If inspection of response for this driver requires an exception to be
    *     thrown.
+   * @throws IOException If IOException needs to be thrown (possibly for retry)
    */
   @SuppressWarnings("unused")
   protected boolean performAdditionalResponseHandling(
-      int responseStatusCode, Header[] responseHeaders, String method, URI uri)
-      throws RuntimeException {
+      int responseStatusCode, Header[] responseHeaders, String method, URI uri, int retryCount)
+      throws RuntimeException, IOException {
     return false;
   }
 
