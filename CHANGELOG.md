@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **3.0.4** - Allow custom BaseRestDrive response handling needed for Paylocity too many requests (03/09/2023)
 + **3.0.3** - Ensure BaseRestDriver supports raw json string support for request - FIN-10378 (03/08/2023)
 + **3.0.2** - Add custom exclusion strategy GSON support needed for FIS Horizon FIN-9702 (03/02/2023)
 + **3.0.1** - Migrate to GAR, get Jenkins build working (01/31/2023)
