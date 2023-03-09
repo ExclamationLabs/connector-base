@@ -253,9 +253,6 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
   public <T> RestResponseData<T> executeRequest(
       RestRequest<T> request, boolean isRetry, int retryCount) {
-    //    RestRequest<Void> rething = new RestRequest.Builder<>(Void.class).build();
-    //    RestRequest<String> erer = new RestRequest.Builder<>(String.class).build();
-    //    RestRequest<IdentityModel> erer2 = new RestRequest.Builder<>(IdentityModel.class).build();
     if (gsonBuilder == null || getFaultProcessor() == null || configuration == null) {
       throw new ConnectionBrokenException(
           "Connection invalidated or disposed, request cannot "
@@ -620,7 +617,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     String rawJson;
 
     try {
-      if (requestDetail.getResponseClass() == null) {
+      if (requestDetail.getResponseClass() == null
+          || requestDetail.getResponseClass() == Void.class) {
         Logger.debug(
             this, "No response expected or needed from this invocation, returning null type");
         return null;
