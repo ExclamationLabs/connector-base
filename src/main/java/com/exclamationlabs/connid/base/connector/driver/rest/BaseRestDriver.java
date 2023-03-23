@@ -603,7 +603,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
   }
 
   private void prepareHeaders(HttpRequestBase request) {
-    // Normally, RESTful services only transmit JSON
+    // Normally, RESTful services only transmit and return JSON
+    request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
     request.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
     if (usesBearerAuthorization()) {
       request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + configuration.getCurrentToken());

@@ -31,7 +31,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 /** This implementation performs the OAuth2 "jwt-bearer" grant type. */
-public class OAuth2TokenJWTAuthenticator implements Authenticator<Oauth2JwtConfiguration> {
+public class OAuth2TokenJWTAuthenticator
+    implements OAuth2Authenticator, Authenticator<Oauth2JwtConfiguration> {
 
   protected static GsonBuilder gsonBuilder;
   protected final JWTRS256Authenticator jwtAuthenticator;
@@ -55,8 +56,9 @@ public class OAuth2TokenJWTAuthenticator implements Authenticator<Oauth2JwtConfi
     try {
       HttpPost request = new HttpPost(configuration.getTokenUrl());
       List<NameValuePair> form = new ArrayList<>();
-      form.add(new BasicNameValuePair("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"));
+      form.add(new BasicNameValuePair("grant_type", getGrantType()));
       form.add(new BasicNameValuePair("assertion", bearerToken));
+      addAdditionalFormFields(form);
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
       request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
       return OAuth2TokenExecution.executeRequest(
@@ -70,5 +72,10 @@ public class OAuth2TokenJWTAuthenticator implements Authenticator<Oauth2JwtConfi
 
   protected HttpClient createClient() {
     return HttpClients.createDefault();
+  }
+
+  @Override
+  public String getGrantType() {
+    return "urn:ietf:params:oauth:grant-type:jwt-bearer";
   }
 }

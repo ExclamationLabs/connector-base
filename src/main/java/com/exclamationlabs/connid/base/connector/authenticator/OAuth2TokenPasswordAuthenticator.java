@@ -31,7 +31,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 /** This implementation performs the OAuth2 "password" grant type. */
 public class OAuth2TokenPasswordAuthenticator
-    implements Authenticator<Oauth2PasswordConfiguration> {
+    implements OAuth2Authenticator, Authenticator<Oauth2PasswordConfiguration> {
 
   protected static GsonBuilder gsonBuilder;
 
@@ -48,9 +48,10 @@ public class OAuth2TokenPasswordAuthenticator
     try {
       HttpPost request = new HttpPost(configuration.getTokenUrl());
       List<NameValuePair> form = new ArrayList<>();
-      form.add(new BasicNameValuePair("grant_type", "password"));
+      form.add(new BasicNameValuePair("grant_type", getGrantType()));
       form.add(new BasicNameValuePair("username", configuration.getOauth2Username()));
       form.add(new BasicNameValuePair("password", configuration.getOauth2Password()));
+      addAdditionalFormFields(form);
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
       request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
       request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + configuration.getEncodedSecret());
@@ -65,5 +66,10 @@ public class OAuth2TokenPasswordAuthenticator
 
   protected HttpClient createClient() {
     return HttpClients.createDefault();
+  }
+
+  @Override
+  public String getGrantType() {
+    return "password";
   }
 }
