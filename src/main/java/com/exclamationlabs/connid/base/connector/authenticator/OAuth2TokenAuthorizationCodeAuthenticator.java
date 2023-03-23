@@ -34,7 +34,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 /** This implementation performs the OAuth2 "authorization_code" grant type. */
 public class OAuth2TokenAuthorizationCodeAuthenticator
-    implements Authenticator<Oauth2AuthorizationCodeConfiguration> {
+    implements OAuth2Authenticator, Authenticator<Oauth2AuthorizationCodeConfiguration> {
 
   protected static GsonBuilder gsonBuilder;
 
@@ -51,7 +51,7 @@ public class OAuth2TokenAuthorizationCodeAuthenticator
     try {
       HttpPost request = new HttpPost(configuration.getTokenUrl());
       List<NameValuePair> form = new ArrayList<>();
-      form.add(new BasicNameValuePair("grant_type", "authorization_code"));
+      form.add(new BasicNameValuePair("grant_type", getGrantType()));
       form.add(new BasicNameValuePair("code", configuration.getAuthorizationCode()));
       if (StringUtils.isNotBlank(configuration.getClientId())) {
         form.add(new BasicNameValuePair("client_id", configuration.getClientId()));
@@ -62,6 +62,8 @@ public class OAuth2TokenAuthorizationCodeAuthenticator
       if (StringUtils.isNotBlank(configuration.getRedirectUri())) {
         form.add(new BasicNameValuePair("redirect_uri", configuration.getRedirectUri()));
       }
+      addAdditionalFormFields(form);
+
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
       request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
       return OAuth2TokenExecution.executeRequest(
@@ -75,5 +77,10 @@ public class OAuth2TokenAuthorizationCodeAuthenticator
 
   protected HttpClient createClient() {
     return HttpClients.createDefault();
+  }
+
+  @Override
+  public String getGrantType() {
+    return "authorization_code";
   }
 }
