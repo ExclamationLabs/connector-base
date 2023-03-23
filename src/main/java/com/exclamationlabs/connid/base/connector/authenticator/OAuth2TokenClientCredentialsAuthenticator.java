@@ -36,7 +36,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 /** This implementation performs the OAuth2 "client_credentials" grant type. */
 public class OAuth2TokenClientCredentialsAuthenticator
-    implements Authenticator<Oauth2ClientCredentialsConfiguration> {
+    implements OAuth2Authenticator, Authenticator<Oauth2ClientCredentialsConfiguration> {
   protected static GsonBuilder gsonBuilder;
 
   static {
@@ -52,7 +52,8 @@ public class OAuth2TokenClientCredentialsAuthenticator
       HttpPost request = new HttpPost(configuration.getTokenUrl());
 
       List<NameValuePair> params = new ArrayList<>();
-      params.add(new BasicNameValuePair("grant_type", "client_credentials"));
+      params.add(new BasicNameValuePair("grant_type", getGrantType()));
+      addAdditionalFormFields(params);
 
       // Scope is optional for OAuth2 client credentials
       if (StringUtils.isNotBlank(configuration.getScope())) {
@@ -81,6 +82,11 @@ public class OAuth2TokenClientCredentialsAuthenticator
       throw new ConnectorSecurityException(
           "Unexpected error occurred during OAuth2 call: " + e.getMessage(), e);
     }
+  }
+
+  @Override
+  public String getGrantType() {
+    return "client_credentials";
   }
 
   public HttpClient getHttpClient() {
