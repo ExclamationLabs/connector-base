@@ -34,7 +34,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 /** This implementation performs the OAuth2 "refresh_token" grant type. */
 public class OAuth2TokenRefreshTokenAuthenticator
-    implements Authenticator<Oauth2RefreshTokenConfiguration> {
+    implements OAuth2Authenticator, Authenticator<Oauth2RefreshTokenConfiguration> {
   protected static GsonBuilder gsonBuilder;
 
   static {
@@ -50,7 +50,7 @@ public class OAuth2TokenRefreshTokenAuthenticator
     try {
       HttpPost request = new HttpPost(configuration.getTokenUrl());
       List<NameValuePair> form = new ArrayList<>();
-      form.add(new BasicNameValuePair("grant_type", "refresh_token"));
+      form.add(new BasicNameValuePair("grant_type", getGrantType()));
       form.add(new BasicNameValuePair("refresh_token", configuration.getRefreshToken()));
 
       if (StringUtils.isNotBlank(configuration.getClientId())) {
@@ -59,6 +59,7 @@ public class OAuth2TokenRefreshTokenAuthenticator
       if (StringUtils.isNotBlank(configuration.getClientSecret())) {
         form.add(new BasicNameValuePair("client_secret", configuration.getClientSecret()));
       }
+      addAdditionalFormFields(form);
 
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
       request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
@@ -73,5 +74,10 @@ public class OAuth2TokenRefreshTokenAuthenticator
 
   protected HttpClient createClient() {
     return HttpClients.createDefault();
+  }
+
+  @Override
+  public String getGrantType() {
+    return "refresh_token";
   }
 }
