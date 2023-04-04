@@ -16,6 +16,9 @@
 
 package com.exclamationlabs.connid.base.connector.results;
 
+import com.exclamationlabs.connid.base.connector.filter.FilterType;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
+
 /**
  * ResultsFilter is used to store, if applicable, the attribute name and value that the user wishes
  * to filter data on. The driver/invocator getAll method may or may not support results filtering
@@ -29,18 +32,62 @@ public class ResultsFilter {
   private String attribute;
   private String value;
 
+  private FilterType filterType;
+
   public ResultsFilter() {
     setAttribute(null);
     setValue(null);
+    setFilterType(null);
   }
 
   public ResultsFilter(String filterAttribute, String filterValue) {
     setAttribute(filterAttribute);
     setValue(filterValue);
+    setFilterType(FilterType.ContainsFilter);
+  }
+
+  public ResultsFilter(String filterAttribute, String filterValue, FilterType filterType) {
+    setAttribute(filterAttribute);
+    setValue(filterValue);
+    setFilterType(filterType);
+  }
+
+  public ResultsFilter(
+      String filterAttribute, String filterValue, Class<? extends AttributeFilter> filterType) {
+    setAttribute(filterAttribute);
+    setValue(filterValue);
+    FilterType type;
+    switch (filterType.getSimpleName()) {
+      case "EqualsFilter":
+        type = FilterType.EqualsFilter;
+        break;
+      case "EndsWithFilter":
+        type = FilterType.EndsWithFilter;
+        break;
+      case "StartsWithFilter":
+        type = FilterType.StartsWithFilter;
+        break;
+      case "GreaterThanFilter":
+        type = FilterType.GreaterThanFilter;
+        break;
+      case "GreaterThanOrEqualFilter":
+        type = FilterType.GreaterThanOrEqualFilter;
+        break;
+      case "LessThanFilter":
+        type = FilterType.LessThanFilter;
+        break;
+      case "LessThanOrEqualFilter":
+        type = FilterType.LessThanOrEqualFilter;
+        break;
+      default:
+        type = FilterType.ContainsFilter;
+        break;
+    }
+    setFilterType(type);
   }
 
   public boolean hasFilter() {
-    return getAttribute() != null && getValue() != null;
+    return getAttribute() != null && getValue() != null && getFilterType() != null;
   }
 
   public String getAttribute() {
@@ -59,8 +106,18 @@ public class ResultsFilter {
     this.value = value;
   }
 
+  public FilterType getFilterType() {
+    return filterType;
+  }
+
+  public void setFilterType(FilterType filterType) {
+    this.filterType = filterType;
+  }
+
   @Override
   public String toString() {
-    return hasFilter() ? attribute + ":" + value : "none";
+    return hasFilter()
+        ? String.format("%s:%s (%s)", getAttribute(), getValue(), getFilterType())
+        : "none";
   }
 }

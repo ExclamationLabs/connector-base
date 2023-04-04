@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
@@ -36,7 +37,7 @@ import org.identityconnectors.framework.spi.operations.*;
  */
 public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
     extends BaseConnector<T>
-    implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<AttributeFilter> {
+    implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<AttributeFilter>, GetApiOp {
 
   public BaseFullAccessConnector(Class<T> configurationTypeIn) {
     super(configurationTypeIn);
@@ -92,6 +93,12 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
   public FilterTranslator<AttributeFilter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
     return getConnectorFilterTranslator(objectClass);
+  }
+
+  @Override
+  public ConnectorObject getObject(
+      ObjectClass objectClass, Uid uid, OperationOptions operationOptions) {
+    return getAdapter(objectClass).getObject(uid, operationOptions);
   }
 
   @Override

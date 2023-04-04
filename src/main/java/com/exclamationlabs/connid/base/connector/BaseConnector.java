@@ -215,7 +215,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       throw new ConnectorException(
           "Unsupported object class for filter translator: " + objectClass);
     } else {
-      return new DefaultFilterTranslator(getFilterAttributes());
+      return new DefaultFilterTranslator(getFilterAttributes(), checkFilterAttributeNames());
     }
   }
 
@@ -233,6 +233,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
   public void setFilterAttributes(Set<String> filterAttributes) {
     this.filterAttributes = filterAttributes;
+  }
+
+  public boolean checkFilterAttributeNames() {
+    return true;
   }
 
   protected void setConnectorSchemaBuilder(ConnectorSchemaBuilder<T> input) {
