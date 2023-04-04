@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **3.1.1** - Enhance filtering support FIN-10486 (04/04/2023)
 + **3.0.5** - Enhance OAuth2 authenticators for customization (Zoom) FIN-10017 (03/22/2023)
 + **3.0.4** - Allow custom BaseRestDrive response handling needed for Paylocity too many requests (03/09/2023)
 + **3.0.3** - Ensure BaseRestDriver supports raw json string support for request - FIN-10378 (03/08/2023)
