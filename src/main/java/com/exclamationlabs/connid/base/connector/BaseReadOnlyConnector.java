@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
@@ -33,7 +34,7 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
  * therefore this connector cannot take in create/update/delete requests from Midpoint.
  */
 public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
-    extends BaseConnector<T> implements SearchOp<AttributeFilter> {
+    extends BaseConnector<T> implements SearchOp<AttributeFilter>, GetApiOp {
 
   public BaseReadOnlyConnector(Class<T> configurationTypeIn) {
     super(configurationTypeIn);
@@ -47,6 +48,12 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
   public FilterTranslator<AttributeFilter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
     return getConnectorFilterTranslator(objectClass);
+  }
+
+  @Override
+  public ConnectorObject getObject(
+      ObjectClass objectClass, Uid uid, OperationOptions operationOptions) {
+    return getAdapter(objectClass).getObject(uid, operationOptions);
   }
 
   @Override

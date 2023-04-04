@@ -29,11 +29,15 @@ import org.identityconnectors.framework.common.objects.filter.*;
  * A filter translator can be used in Midpoint to filter by a field on a resource in the Midpoint
  * UI. This implementation is very clumsy, however, and has not been leveraged often up to this
  * point, so we have defined a simple default behavior Midpoint can use.
+ *
+ * <p>At this time, filtering for And/Or conditions or ContainsAllValue support is not included.
  */
 public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeFilter> {
 
   private static final Set<String> standardAttributeNames;
   private final Set<String> acceptableAttributeNames;
+
+  private boolean checkNames = true;
 
   static {
     standardAttributeNames = new HashSet<>(Arrays.asList(Uid.NAME, "Id", Name.NAME, "Name"));
@@ -45,6 +49,11 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeF
 
   public DefaultFilterTranslator(Set<String> attributes) {
     acceptableAttributeNames = attributes;
+  }
+
+  public DefaultFilterTranslator(Set<String> attributes, boolean checkAttributeName) {
+    acceptableAttributeNames = attributes;
+    checkNames = checkAttributeName;
   }
 
   @Override
@@ -77,12 +86,68 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeF
     return filter;
   }
 
+  @Override
+  protected AttributeFilter createStartsWithExpression(StartsWithFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
+  @Override
+  protected AttributeFilter createEndsWithExpression(EndsWithFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
+  @Override
+  protected AttributeFilter createGreaterThanExpression(GreaterThanFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
+  @Override
+  protected AttributeFilter createGreaterThanOrEqualExpression(
+      GreaterThanOrEqualFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
+  @Override
+  protected AttributeFilter createLessThanExpression(LessThanFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
+  @Override
+  protected AttributeFilter createLessThanOrEqualExpression(
+      LessThanOrEqualFilter filter, boolean not) {
+    if (filter == null || not) {
+      return null;
+    }
+    validateAttributeName(filter);
+    return filter;
+  }
+
   protected void validateAttributeName(AttributeFilter filter) {
     if (standardAttributeNames.contains(filter.getName())) {
       return;
     }
 
-    if (!acceptableAttributeNames.contains(filter.getName())) {
+    if (checkNames && (!acceptableAttributeNames.contains(filter.getName()))) {
       throw new InvalidAttributeValueException(
           "Unsupported filter attribute with name " + filter.getName());
     }
