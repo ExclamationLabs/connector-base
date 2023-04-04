@@ -326,6 +326,24 @@ public class StubConnectorTest extends ApiIntegrationTest<StubConfiguration, Stu
   }
 
   @Test
+  public void testUserGetObject() {
+    ConnectorObject response =
+        getConnectorFacade()
+            .getObject(
+                new ObjectClass("user"), new Uid("1234"), new OperationOptionsBuilder().build());
+    assertNotNull(response);
+    assertTrue(
+        StringUtils.isNotBlank(response.getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+    assertTrue(
+        StringUtils.isNotBlank(
+            response.getAttributeByName(Name.NAME).getValue().get(0).toString()));
+    assertTrue(StubInvocationChecker.isInitializeInvoked());
+    assertEquals("user getOne", StubInvocationChecker.getMethodInvoked());
+    assertEquals("1234", StubInvocationChecker.getMethodParameter1().toString());
+    assertNull(StubInvocationChecker.getMethodParameter2());
+  }
+
+  @Test
   public void testUserGet() {
     results = new ArrayList<>();
     Attribute idAttribute = new AttributeBuilder().setName(Uid.NAME).addValue("1234").build();
