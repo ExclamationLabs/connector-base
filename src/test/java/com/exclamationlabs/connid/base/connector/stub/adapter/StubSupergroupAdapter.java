@@ -55,8 +55,8 @@ public class StubSupergroupAdapter extends BaseAdapter<StubSupergroup, ComplexSt
 
     @Override
     protected StubSupergroup constructModel(Set<Attribute> attributes, Set<Attribute> added,
-                                      Set<Attribute> removed,
-                                      boolean isCreate) {
+                                            Set<Attribute> removed,
+                                            boolean isCreate) {
         StubSupergroup supergroup = new StubSupergroup();
         supergroup.setId(AdapterValueTypeConverter.getIdentityIdAttributeValue(attributes));
         supergroup.setName(AdapterValueTypeConverter.getSingleAttributeValue(String.class, attributes, SUPERGROUP_NAME));

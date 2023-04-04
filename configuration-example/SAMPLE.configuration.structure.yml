@@ -1,0 +1,42 @@
+--- # REQUIRED: Per convention, all .yml files per convention begin with `---`
+name: 'myconn' # REQUIRED: String containing the name of your connector, preferably with no whitespace
+configuration-class: # REQUIRED: section of data describing the output configuration class to be generated
+  name: 'TestMeConfiguration' # REQUIRED: Valid Java name for the class to be generated
+  package: 'com.exclamationlabs.connid.base.testme.configuration' # REQUIRED: Valid Java package for the class to be generated (this package doesn't need to exist, but it needs to be valid)
+rest: true # OPTIONAL: true/false - Provides `ioErrorRetries` (int) configuration item for fault-tolerant RESTful connectors that need to attempt a certain amount of HTTP retries if a network/timeout issue occurs.
+service: true # OPTIONAL: true/false - Provides `serviceUrl` configuration item specifying the HTTP endpoint URL (perhaps not the whole URL, but the initial portion of the URL including http:// or https://)
+results: true # OPTIONAL: true/false - Provides `deepGet`, `deepImport`, `importBatchSize`, `pagination` configuration items to help with level of detail retrieved from API results and pagination
+security: # OPTIONAL: (no value) Section of configuration groups relating to security, connectivity and the authentication strategy the connector is utilizing
+  httpBasicAuth: true # OPTIONAL: true/false - Provides `username`, `password` configuration items for HTTP Basic Authentication
+  proxy: true # OPTIONAL: true/false - Provides `host`, `port`, `type` (http/socks5) configuration items for Network Proxy type
+  pem: true # OPTIONAL: true/false - Provides `pemFile` configuration item needed for PEM private key loading
+  pfx: true # OPTIONAL: true/false - Provides `pfxFile` and `pfxPassword` configuration items needed for PEM private key loading
+  authenticator: # OPTIONAL: (no value) Section of configuration groups relation to authentication strategy specifically
+    directAccessToken: true # OPTIONAL: true/false - Provides `token` configuration item for a direct access token providing direct authentication to the connector API
+    jwtHs256: true # OPTIONAL: true/false - Provides `issuer`, `secret`, `expirationPeriod` configuration items needed for the HS256 authentication strategy (HMAC with SHA-256)
+    jwtRs256: true # OPTIONAL: true/false - Provides `issuer`, `subject`, `expirationPeriod`, `audience`, `useIssuedAt` configuration items needed for the RS256 authentication strategy (RSASSA-PKCS1-v1_5 with SHA-256)
+    oauth2AuthorizationCode: true # OPTIONAL: true/false - Provides `tokenUrl`, `authorizationCode`, `clientId`, `clientSecret`, `redirectUri` configuration items needed for OAuth2 authentication with "authorization_code" grant type.
+    oauth2ClientCredentials: true # OPTIONAL: true/false - Provides `tokenUrl`, `clientId`, `clientSecret`, `scope` configuration items needed for OAuth2 authentication with "client_credentials" grant type.
+    oauth2Jwt: true # OPTIONAL: true/false - Provides `tokenUrl` configuration item needed for OAuth2 authentication with "jwt-bearer" grant type.
+    oauth2Password: true # OPTIONAL: true/false - Provides `tokenUrl`, `encodedSecret`, `oauth2Username`, `oauth2Password` configuration items needed for OAuth2 authentication with "password" grant type.
+    oauth2RefreshToken: true # OPTIONAL: true/false - Provides `tokenUrl`, `refreshToken`, `clientId`, `clientSecret` configuration items needed for OAuth2 authentication with "refresh_token" grant type.
+custom: # OPTIONAL: (no value) Section of configuration groups.  Required if you need any custom item(s) OR custom help text for configuration of your connector.
+  items: # OPTIONAL: (no value) Section of configuration groups.  Required if you need any custom item(s) for configuration of your connector.
+    optional: # OPTIONAL: (no value) Section of configuration groups.  Required if you need any custom item(s) for configuration of your connector that are optional (not required)
+      example1: # OPTIONAL: Name for a custom optional configuration item, in this case named `example1`
+        type: string # REQUIRED for custom configuration item - must be one of `int`, `boolean`, `long`, `float`, `string`, `guarded_string`, `string_array`
+        default: 'hello' # OPTIONAL for custom configuration item - the default value of this item if the user doesn't provide it
+        confidential: false #OPTIONAL: for custom configuration item - specify `true` or `false` if this item is considered confidential for security purposes.  Default is `false` if not specified.
+        display: 'Example #1' #OPTIONAL: for custom configuration item - display text for this configuration item
+        help: 'Help for Example 1.' #OPTIONAL: for custom configuration item - help text for this configuration item
+    required: # OPTIONAL: (no value) Section of configuration groups.  Required if you need any custom item(s) for configuration of your connector that are required (must be supplied by user)
+      example2: # OPTIONAL: Name for a custom optional configuration item, in this case named `example1`
+        type: string # REQUIRED for custom configuration item - must be one of `int`, `boolean`, `long`, `float`, `string`, `guarded_string`, `string_array`
+        default: 'hello' # OPTIONAL for custom configuration item - the default value of this item that user will see and use if they don't overwrite it.
+        confidential: false #OPTIONAL: for custom configuration item - specify `true` or `false` if this item is considered confidential for security purposes.  Default is `false` if not specified.
+        display: 'Example #2' #OPTIONAL: for custom configuration item - display text for this configuration item
+        help: 'Help for Example 2.' #OPTIONAL: for custom configuration item - help text for this configuration item
+  helpText: # OPTIONAL: (no value) Section of custom display/help text to use for non-custom configuration items
+    serviceUrl: # REQUIRED: the name of the non-custom configuration item (in this case, `serviceUrl`) that you wish to setup display/help text for
+      display: 'My Service URL' # OPTIONAL: custom display text for the configuration item
+      help: 'My Service Help' # OPTIONAL: custom display text for the configuration item
