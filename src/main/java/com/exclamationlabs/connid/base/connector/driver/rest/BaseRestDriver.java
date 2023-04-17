@@ -61,6 +61,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectionBrokenException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.exceptions.ConnectorIOException;
 
 /**
  * Abstract class for drivers that need to make calls to RESTful web services to manage user and
@@ -348,7 +349,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       throw new ConnectorException(
           "Unexpected ClientProtocolException occurred while attempting call: " + e.getMessage(),
           e);
-    } catch (IOException e) {
+    } catch (IOException | ConnectorIOException e) {
       if (getIoErrorRetryCount() > 0) {
         if (isRetry) {
           if (retryCount < getIoErrorRetryCount()) {
