@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **3.1.3** - Fix sad path execution in BaseRestDriver class (04/21/2023)
 + **3.1.2** - Allow process method to pass ConnectorIOExceptions into BaseRestDriver class (04/17/2023)
 + **3.1.1** - Enhance filtering support FIN-10486 (04/04/2023)
 + **3.0.5** - Enhance OAuth2 authenticators for customization (Zoom) FIN-10017 (03/22/2023)
