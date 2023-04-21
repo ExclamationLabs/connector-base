@@ -659,11 +659,16 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
             this, "No response expected or needed from this invocation, returning null type");
         return null;
       }
-      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_NOT_FOUND) {
+      if (response.getStatusLine().getStatusCode() < HttpStatus.SC_BAD_REQUEST) {
         rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
         Logger.debug(this, String.format("Received raw JSON: %s", rawJson));
       } else {
-        Logger.debug(this, "Received HTTP Not Found for call, returning empty response type");
+        Logger.debug(
+            this,
+            String.format(
+                "Received HTTP error status %d for response that was not handled"
+                    + " by fault processor.  Will not attempt to interpret/process body response.",
+                response.getStatusLine().getStatusCode()));
         return null;
       }
     } catch (ParseException pe) {
