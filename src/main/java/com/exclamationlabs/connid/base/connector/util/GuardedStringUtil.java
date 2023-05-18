@@ -18,8 +18,10 @@ package com.exclamationlabs.connid.base.connector.util;
 
 import org.identityconnectors.common.security.GuardedString;
 
-/** Utility methods to read ConnId GuardedString object into a Java String */
+/** Utility method to read ConnId GuardedString object into a Java String */
 public class GuardedStringUtil {
+
+  private GuardedStringUtil() {}
 
   public static String read(GuardedString gString) {
     if (gString == null) {

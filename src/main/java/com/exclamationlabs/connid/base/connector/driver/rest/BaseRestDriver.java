@@ -333,7 +333,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
             String.format(
                 "Driver %s acquired a new access token and will re-attempt original driver request once.",
                 this.getClass().getSimpleName()));
-        prepareHeaders(requestForClient);
+        prepareHeaders(requestForClient, request);
         RestResponseData<T> holdResult = executeRequest(request, true, 1);
         performPostNewAccessTokenCustomAction();
         return holdResult;
@@ -372,8 +372,13 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       }
     }
 
-    T responseData = interpretResponse(response, request);
-    return new RestResponseData<>(responseData, responseHeaders, responseStatusCode);
+    if (responseStatusCode == HttpStatus.SC_NO_CONTENT) {
+      Logger.debug(this, "HTTP 204 received, do not attempt to read content and return null");
+      return new RestResponseData<>(null, responseHeaders, responseStatusCode);
+    } else {
+      T responseData = interpretResponse(response, request);
+      return new RestResponseData<>(responseData, responseHeaders, responseStatusCode);
+    }
   }
 
   /**
@@ -429,7 +434,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         break;
     }
 
-    prepareHeaders(requestBase);
+    prepareHeaders(requestBase, input);
     if (!input.getAdditionalHeaders().isEmpty()) {
       input.getAdditionalHeaders().forEach(requestBase::addHeader);
     }
@@ -603,10 +608,10 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         0);
   }
 
-  private void prepareHeaders(HttpRequestBase request) {
+  private void prepareHeaders(HttpRequestBase request, RestRequest<?> restRequest) {
     // Normally, RESTful services only transmit and return JSON
     request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
-    request.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
+    request.setHeader(HttpHeaders.CONTENT_TYPE, restRequest.getContentTypeHeader());
     if (usesBearerAuthorization()) {
       request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + configuration.getCurrentToken());
     } else if (usesTokenAuthorization()) {

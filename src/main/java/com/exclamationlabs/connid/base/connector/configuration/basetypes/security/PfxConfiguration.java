@@ -31,4 +31,8 @@ public interface PfxConfiguration extends ConnectorConfiguration {
   GuardedString getPfxPassword();
 
   void setPfxPassword(GuardedString input);
+
+  GuardedString getKeyPassword();
+
+  void setKeyPassword(GuardedString input);
 }
