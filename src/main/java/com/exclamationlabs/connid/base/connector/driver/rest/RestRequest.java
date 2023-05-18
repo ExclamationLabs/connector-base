@@ -22,6 +22,7 @@ import com.google.gson.ExclusionStrategy;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.http.client.HttpClient;
+import org.apache.http.entity.ContentType;
 
 /**
  * Describes all specific request information needed to perform a RESTful web service request in the
@@ -34,6 +35,8 @@ import org.apache.http.client.HttpClient;
  *     other serializable Java POJO Class that JSON will marshal to via GSON.
  */
 public class RestRequest<T> {
+
+  private static final String JSON_PATCH_JSON_CONTENT_TYPE = "application/json-patch+json";
 
   private final Class<T> responseClass;
   private final RestRequestMethod method;
@@ -53,6 +56,8 @@ public class RestRequest<T> {
 
   private final Object requestBody;
 
+  private final String contentTypeHeader;
+
   /**
    * This constructor, with a Builder configured as needed, must be used perform a RESTful request.
    *
@@ -69,6 +74,7 @@ public class RestRequest<T> {
     ioErrorRetries = builder.ioErrorRetries;
     fullUrl = builder.fullUrl;
     requestBody = builder.requestBody;
+    contentTypeHeader = builder.contentTypeHeader;
   }
 
   public Object getRequestBody() {
@@ -93,6 +99,10 @@ public class RestRequest<T> {
 
   public Map<String, String> getAdditionalHeaders() {
     return additionalHeaders;
+  }
+
+  public String getContentTypeHeader() {
+    return contentTypeHeader;
   }
 
   public ExclusionStrategy getSerializationExclusionStrategy() {
@@ -130,6 +140,8 @@ public class RestRequest<T> {
     private String fullUrl = null;
 
     private Object requestBody = null;
+
+    private String contentTypeHeader = ContentType.APPLICATION_JSON.getMimeType();
 
     /**
      * This constructor, with a class designating the response type you wish to receive, must be
@@ -191,6 +203,17 @@ public class RestRequest<T> {
     }
 
     /**
+     * Specifies that HTTP PATCH method, using JSON patch style, should be used.
+     *
+     * @return The updated Builder instance
+     */
+    public Builder<T> withJsonPatch() {
+      this.method = PATCH;
+      this.contentTypeHeader = JSON_PATCH_JSON_CONTENT_TYPE;
+      return this;
+    }
+
+    /**
      * Specifies that HTTP GET method should be used.
      *
      * @return The updated Builder instance
@@ -231,6 +254,11 @@ public class RestRequest<T> {
      */
     public Builder<T> withHeaders(Map<String, String> headers) {
       this.additionalHeaders = headers;
+      return this;
+    }
+
+    public Builder<T> withContentTypeHeader(String headerValue) {
+      this.contentTypeHeader = headerValue;
       return this;
     }
 

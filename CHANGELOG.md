@@ -9,6 +9,8 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **3.1.5** - Change OAuth2 execution and Patch support for Provision OP support FIN-10606 (05/18/2023)
++ **3.1.4** - Add ADP PFX key password support FIN-10111 (04/26/2023)
 + **3.1.3** - Fix sad path execution in BaseRestDriver class (04/21/2023)
 + **3.1.2** - Allow process method to pass ConnectorIOExceptions into BaseRestDriver class (04/17/2023)
 + **3.1.1** - Enhance filtering support FIN-10486 (04/04/2023)
