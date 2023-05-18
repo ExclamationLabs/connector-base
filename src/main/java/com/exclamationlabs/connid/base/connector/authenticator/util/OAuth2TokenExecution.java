@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator.util;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.model.OAuth2AccessTokenContainer;
+import com.exclamationlabs.connid.base.connector.authenticator.model.StandardOAuth2AccessTokenContainer;
 import com.exclamationlabs.connid.base.connector.configuration.TrustStoreConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2Configuration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
@@ -27,8 +28,8 @@ import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
@@ -41,8 +42,27 @@ public class OAuth2TokenExecution {
       Oauth2Configuration configuration,
       HttpClient client,
       HttpPost request,
-      UrlEncodedFormEntity entity,
+      StringEntity entity,
       GsonBuilder gsonBuilder)
+      throws IOException {
+    return executeRequest(
+        authenticator,
+        configuration,
+        client,
+        request,
+        entity,
+        gsonBuilder,
+        StandardOAuth2AccessTokenContainer.class);
+  }
+
+  public static String executeRequest(
+      Authenticator<?> authenticator,
+      Oauth2Configuration configuration,
+      HttpClient client,
+      HttpPost request,
+      StringEntity entity,
+      GsonBuilder gsonBuilder,
+      Class<? extends OAuth2AccessTokenContainer> tokenResponseClass)
       throws IOException {
     request.setEntity(entity);
     authenticator.getAdditionalAuthenticationHeaders(configuration).forEach(request::setHeader);
@@ -62,7 +82,7 @@ public class OAuth2TokenExecution {
     }
 
     OAuth2AccessTokenContainer authResponse =
-        gsonBuilder.create().fromJson(rawJson, OAuth2AccessTokenContainer.class);
+        gsonBuilder.create().fromJson(rawJson, tokenResponseClass);
 
     if (authResponse != null && authResponse.getAccessToken() != null) {
       configuration.setOauth2Information(authResponse.toMap());

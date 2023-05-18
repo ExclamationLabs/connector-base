@@ -107,9 +107,9 @@ public final class ConnectorAttribute {
         + ") ["
         + dataType
         + "] {"
-        + flags.toString()
+        + (flags != null ? flags.toString() : "")
         + "}: "
-        + value.toString();
+        + (value != null ? value.toString() : "");
   }
 
   @Override
