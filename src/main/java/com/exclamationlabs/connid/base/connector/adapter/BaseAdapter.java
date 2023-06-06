@@ -56,7 +56,9 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
   protected Set<String> multiValueAttributeNames;
 
-  public BaseAdapter() {
+  public BaseAdapter() {}
+
+  public void init() {
     multiValueAttributeNames = new HashSet<>();
     Set<ConnectorAttribute> attributes = getConnectorAttributes();
     for (ConnectorAttribute attribute : attributes) {
