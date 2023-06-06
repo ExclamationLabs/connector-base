@@ -372,6 +372,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     for (BaseAdapter<?, T> adapter : adapterMap.values()) {
       adapter.setDriver(getDriver());
       adapter.setConfiguration(configuration);
+      adapter.init();
       Logger.info(
           this,
           String.format(
