@@ -32,12 +32,12 @@ import org.identityconnectors.framework.common.objects.filter.*;
  *
  * <p>At this time, filtering for And/Or conditions or ContainsAllValue support is not included.
  */
-public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeFilter> {
+public class DefaultFilterTranslator extends AbstractFilterTranslator<Filter> {
 
   private static final Set<String> standardAttributeNames;
-  private final Set<String> acceptableAttributeNames;
+  @Deprecated private final Set<String> acceptableAttributeNames;
 
-  private boolean checkNames = true;
+  @Deprecated private boolean checkNames = true;
 
   static {
     standardAttributeNames = new HashSet<>(Arrays.asList(Uid.NAME, "Id", Name.NAME, "Name"));
@@ -47,10 +47,12 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeF
     acceptableAttributeNames = Collections.emptySet();
   }
 
+  @Deprecated
   public DefaultFilterTranslator(Set<String> attributes) {
     acceptableAttributeNames = attributes;
   }
 
+  @Deprecated
   public DefaultFilterTranslator(Set<String> attributes, boolean checkAttributeName) {
     acceptableAttributeNames = attributes;
     checkNames = checkAttributeName;

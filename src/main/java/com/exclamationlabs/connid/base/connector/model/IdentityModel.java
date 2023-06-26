@@ -51,6 +51,10 @@ public interface IdentityModel {
    */
   String getIdentityNameValue();
 
+  default String getValueBySearchableAttributeName(String attributeName) {
+    return null;
+  }
+
   /**
    * Utility method to help IdentityModel implementations produce a default toString()
    * representation of the object. This implementation simply returns the id and name value of the

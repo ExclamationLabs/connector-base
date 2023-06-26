@@ -17,7 +17,8 @@
 package com.exclamationlabs.connid.base.connector.results;
 
 import com.exclamationlabs.connid.base.connector.filter.FilterType;
-import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
+import java.util.Map;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 
 /**
  * ResultsFilter is used to store, if applicable, the attribute name and value that the user wishes
@@ -31,6 +32,8 @@ public class ResultsFilter {
 
   private String attribute;
   private String value;
+
+  private Map<String, String> andFilterDataMap;
 
   private FilterType filterType;
 
@@ -53,7 +56,7 @@ public class ResultsFilter {
   }
 
   public ResultsFilter(
-      String filterAttribute, String filterValue, Class<? extends AttributeFilter> filterType) {
+      String filterAttribute, String filterValue, Class<? extends Filter> filterType) {
     setAttribute(filterAttribute);
     setValue(filterValue);
     FilterType type;
@@ -61,29 +64,39 @@ public class ResultsFilter {
       case "EqualsFilter":
         type = FilterType.EqualsFilter;
         break;
-      case "EndsWithFilter":
-        type = FilterType.EndsWithFilter;
+      case "AndFilter":
+        type = FilterType.AndFilter;
         break;
-      case "StartsWithFilter":
-        type = FilterType.StartsWithFilter;
-        break;
-      case "GreaterThanFilter":
-        type = FilterType.GreaterThanFilter;
-        break;
-      case "GreaterThanOrEqualFilter":
-        type = FilterType.GreaterThanOrEqualFilter;
-        break;
-      case "LessThanFilter":
-        type = FilterType.LessThanFilter;
-        break;
-      case "LessThanOrEqualFilter":
-        type = FilterType.LessThanOrEqualFilter;
-        break;
+        //      case "EndsWithFilter":
+        //        type = FilterType.EndsWithFilter;
+        //        break;
+        //      case "StartsWithFilter":
+        //        type = FilterType.StartsWithFilter;
+        //        break;
+        //      case "GreaterThanFilter":
+        //        type = FilterType.GreaterThanFilter;
+        //        break;
+        //      case "GreaterThanOrEqualFilter":
+        //        type = FilterType.GreaterThanOrEqualFilter;
+        //        break;
+        //      case "LessThanFilter":
+        //        type = FilterType.LessThanFilter;
+        //        break;
+        //      case "LessThanOrEqualFilter":
+        //        type = FilterType.LessThanOrEqualFilter;
+        //        break;
       default:
         type = FilterType.ContainsFilter;
         break;
     }
     setFilterType(type);
+  }
+
+  public ResultsFilter(Map<String, String> andFilterDataMap) {
+    this.andFilterDataMap = andFilterDataMap;
+    setValue(null);
+    setAttribute(null);
+    setFilterType(FilterType.AndFilter);
   }
 
   public boolean hasFilter() {

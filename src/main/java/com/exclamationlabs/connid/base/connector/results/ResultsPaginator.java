@@ -24,6 +24,8 @@ import org.apache.commons.lang3.BooleanUtils;
  */
 public class ResultsPaginator {
 
+  public static final Integer DEFAULT_PAGE_OFFSET = 0;
+
   private Integer totalResults;
   private Integer pageSize;
   private Integer currentOffset;
@@ -39,6 +41,11 @@ public class ResultsPaginator {
 
   public ResultsPaginator() {
     setPageSize(null);
+  }
+
+  public ResultsPaginator(Integer pageSize) {
+    setPageSize(pageSize);
+    setCurrentOffset(DEFAULT_PAGE_OFFSET);
   }
 
   public ResultsPaginator(Integer pageSizeIn, Integer offsetIn) {
@@ -135,6 +142,10 @@ public class ResultsPaginator {
 
   public Object getToken() {
     return token;
+  }
+
+  public String getTokenAsString() {
+    return token == null ? null : token.toString();
   }
 
   public void setToken(Object token) {
