@@ -33,7 +33,7 @@ import javax.validation.constraints.NotBlank;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
-import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.PoolableConnector;
@@ -69,8 +69,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
   protected Map<ObjectClass, BaseAdapter<?, T>> adapterMap;
 
-  protected boolean enhancedFiltering;
-  protected Set<String> filterAttributes;
+  @Deprecated protected boolean enhancedFiltering;
+  @Deprecated protected Set<String> filterAttributes;
 
   protected final Class<T> configurationType;
 
@@ -208,33 +208,41 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return getClass().getSimpleName();
   }
 
-  protected FilterTranslator<AttributeFilter> getConnectorFilterTranslator(
-      ObjectClass objectClass) {
+  protected FilterTranslator<Filter> getConnectorFilterTranslator(ObjectClass objectClass) {
     BaseAdapter<?, T> matchedAdapter = adapterMap.get(objectClass);
     if (matchedAdapter == null) {
       throw new ConnectorException(
           "Unsupported object class for filter translator: " + objectClass);
     } else {
-      return new DefaultFilterTranslator(getFilterAttributes(), checkFilterAttributeNames());
+      if (matchedAdapter instanceof EnhancedPaginationAndFiltering) {
+        return new DefaultFilterTranslator(Collections.emptySet(), false);
+      } else {
+        return new DefaultFilterTranslator(getFilterAttributes(), checkFilterAttributeNames());
+      }
     }
   }
 
+  @Deprecated
   public boolean isEnhancedFiltering() {
     return enhancedFiltering;
   }
 
+  @Deprecated
   public void setEnhancedFiltering(boolean enhancedFiltering) {
     this.enhancedFiltering = enhancedFiltering;
   }
 
+  @Deprecated
   public Set<String> getFilterAttributes() {
     return filterAttributes;
   }
 
+  @Deprecated
   public void setFilterAttributes(Set<String> filterAttributes) {
     this.filterAttributes = filterAttributes;
   }
 
+  @Deprecated
   public boolean checkFilterAttributeNames() {
     return true;
   }

@@ -19,9 +19,11 @@ package com.exclamationlabs.connid.base.connector;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.api.operations.GetApiOp;
+import org.identityconnectors.framework.api.operations.SearchApiOp;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.SearchOp;
 
@@ -34,7 +36,7 @@ import org.identityconnectors.framework.spi.operations.SearchOp;
  * therefore this connector cannot take in create/update/delete requests from Midpoint.
  */
 public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
-    extends BaseConnector<T> implements SearchOp<AttributeFilter>, GetApiOp {
+    extends BaseConnector<T> implements SearchOp<Filter>, SearchApiOp, GetApiOp {
 
   public BaseReadOnlyConnector(Class<T> configurationTypeIn) {
     super(configurationTypeIn);
@@ -45,7 +47,7 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
   }
 
   @Override
-  public FilterTranslator<AttributeFilter> createFilterTranslator(
+  public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
     return getConnectorFilterTranslator(objectClass);
   }
@@ -59,7 +61,7 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
   @Override
   public void executeQuery(
       final ObjectClass objectClass,
-      final AttributeFilter queryFilter,
+      final Filter queryFilter,
       final ResultsHandler resultsHandler,
       final OperationOptions operationOptions) {
     getAdapter(objectClass)
@@ -80,6 +82,15 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
       getAdapter(objectClass)
           .get(queryFilter, resultsHandler, operationOptions, isEnhancedFiltering());
     }
+  }
+
+  @Override
+  public SearchResult search(
+      final ObjectClass objectClass,
+      final Filter filter,
+      final ResultsHandler handler,
+      final OperationOptions options) {
+    return getAdapter(objectClass).get(filter, handler, options, isEnhancedFiltering());
   }
 
   @Override

@@ -24,12 +24,17 @@ public enum FilterType {
   // String filter types
   EqualsFilter, // Midpoint filter clause 'equal'
   ContainsFilter, // Midpoint filter clause 'substring'
-  EndsWithFilter,
-  StartsWithFilter,
+
+  AndFilter // Midpoint And filter
+
+  // Unsupported filter types, for reference purposes:
+
+  // EndsWithFilter,
+  // StartsWithFilter,
 
   // Comparable numeric filter types
-  GreaterThanFilter, // Midpoint filter clause 'greater'
-  GreaterThanOrEqualFilter, // Midpoint filter clause 'greaterOrEqual'
-  LessThanFilter, // Midpoint filter clause 'less'
-  LessThanOrEqualFilter // Midpoint filter clause 'lessOrEqual'
+  // GreaterThanFilter, // Midpoint filter clause 'greater'
+  // GreaterThanOrEqualFilter, // Midpoint filter clause 'greaterOrEqual'
+  // LessThanFilter, // Midpoint filter clause 'less'
+  // LessThanOrEqualFilter // Midpoint filter clause 'lessOrEqual'
 }
