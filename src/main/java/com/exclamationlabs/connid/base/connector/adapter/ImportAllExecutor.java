@@ -74,7 +74,11 @@ public class ImportAllExecutor {
           currentOffset += pageSize;
         }
 
-        executor.processResultsPage(pageOfIdentityResults, resultsHandler);
+        executor.processResultsPage(
+            executor.getAdapter(),
+            executor.getEnhancedAdapter(),
+            pageOfIdentityResults,
+            resultsHandler);
       } // end while
 
     } else {
@@ -109,7 +113,11 @@ public class ImportAllExecutor {
           currentOffset += pageSize;
         }
 
-        executor.processResultsPage(pageOfIdentityResults, resultsHandler);
+        executor.processResultsPage(
+            executor.getAdapter(),
+            executor.getEnhancedAdapter(),
+            pageOfIdentityResults,
+            resultsHandler);
       } // end while
     }
     return true;
