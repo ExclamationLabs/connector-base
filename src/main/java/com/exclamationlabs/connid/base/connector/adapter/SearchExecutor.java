@@ -30,7 +30,7 @@ import org.identityconnectors.framework.common.objects.filter.*;
 /** */
 public class SearchExecutor {
 
-  private static final int ABSOLUTE_RESULTS_MAX = 999999; // TODO: don't we need this?!
+  static final int ABSOLUTE_RESULTS_MAX = 999999; // TODO: don't we need this?!
   public static final int DEFAULT_FILTER_PAGE_SIZE = 20;
 
   private final BaseAdapter<?, ?> adapter;
@@ -84,6 +84,7 @@ public class SearchExecutor {
       }
     }
 
+    // ImportAll execution
     if (filter == null && (!validPagingValuesSupplied)) {
       if (ImportAllExecutor.execute(this, resultsHandler)) {
         return new SearchResult(); // Search Results not relevant for importAll
@@ -102,11 +103,12 @@ public class SearchExecutor {
 
     // TODO: support AndFilter
     // Complexity Limitations:
-    // All Filters inside AndFilter must be contain's
-    // All filter attributes involved in AND's must be natively supported by API ... OR
-    // All filter attributes involved in AND's must be part of getContainsFilterAttributes() or
-    // getEqualsFilterAttributes()
-    throw new InvalidAttributeValueException("AndFilter not yet supported");
+    // All restrictions on AndFilter implemented in FilterValidator
+    // All filter attributes involved in AND's must be natively supported by API
+    // (in getContainsFilterAttributes() or getEqualsFilterAttributes()) ... OR
+    // All filter attributes involved in AND's must be part of getSearchResultsAttributesPresent()
+    // ... API Filters and Base-implemented filters cannot execute in tandem
+    return AndFilterExecutor.execute(this, (AndFilter) filter, resultsHandler, options);
   }
 
   static SearchResult executeAPIFilter(
