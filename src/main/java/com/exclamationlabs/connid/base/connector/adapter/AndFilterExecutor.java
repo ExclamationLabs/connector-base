@@ -42,7 +42,7 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
  * <p>NOTE: At current time, ConnId AbstractFilterTranslator createAndExpression only supports two
  * filters, no more.
  */
-public class AndFilterExecutor {
+class AndFilterExecutor {
 
   private AndFilterExecutor() {}
 
@@ -184,11 +184,6 @@ public class AndFilterExecutor {
             .limit(resultsPaginator.getPageSize())
             .forEachOrdered(filteredResults::add);
       } else {
-        String whatIsIt =
-            allResults.stream()
-                .findFirst()
-                .get()
-                .getValueBySearchableAttributeName(currentFilter.getName());
         allResults.stream()
             .filter(
                 identity ->

@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.connector.stub.model;
 
-import static com.exclamationlabs.connid.base.connector.stub.attribute.EnhancedPFUserAttribute.*;
-
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.stub.attribute.EnhancedPFUserAttribute;
 import org.apache.commons.lang3.StringUtils;

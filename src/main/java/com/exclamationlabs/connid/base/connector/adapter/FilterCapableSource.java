@@ -18,13 +18,30 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import java.util.Set;
 
+/**
+ * Since Base Connector 4.0, this interface should be implemented by BaseAdapter implementations
+ * when Source API is capable of some filtering capabilities.
+ */
 public interface FilterCapableSource {
 
+  /**
+   * A set of the Attributes that the Source API/invocator can filter upon with Equals matching.
+   * NOTE: UID matching is supported by all Invocators via getOne, and the ability to NAME match is
+   * dictated by getOneByName() methods, so neither of those attributes (or their Native name
+   * equivalents) should be included in the Set.
+   *
+   * @return Set describing which Attributes Equals matches that the Source API/invocator can
+   *     handle.
+   */
   Set<String> getEqualsFilterAttributes();
 
+  /**
+   * A set of the Attributes that the Source API/invocator can filter upon with Contains matching.
+   * NOTE: This should include __UID__ and __NAME__ (and their Native name equivalents) if the
+   * Source API/invocator supports Contains searches of partial strings of those unique identifiers.
+   *
+   * @return Set describing which Attributes Contains matches that the Source API/invocator can
+   *     handle.
+   */
   Set<String> getContainsFilterAttributes();
-
-  boolean getIdContainsFilterSupported();
-
-  boolean getNameContainsFilterSupported();
 }

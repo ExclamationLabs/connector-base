@@ -27,10 +27,14 @@ import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueE
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.*;
 
-/** */
+/**
+ * For Base Connector 4.0 and higher, SearchExecutor coordinates and executes getAll (search)
+ * requests, possibly with search filter and pagination input provided. It is invoked solely by
+ * BaseAdapter.
+ */
 public class SearchExecutor {
 
-  static final int ABSOLUTE_RESULTS_MAX = 999999; // TODO: don't we need this?!
+  static final int ABSOLUTE_RESULTS_MAX = 999999;
   public static final int DEFAULT_FILTER_PAGE_SIZE = 20;
 
   private final BaseAdapter<?, ?> adapter;
@@ -41,6 +45,17 @@ public class SearchExecutor {
     this.enhancedAdapter = (EnhancedPaginationAndFiltering) adapterIn;
   }
 
+  /**
+   * Execute a search result, using both the Source API and internal routines (Java streams) based
+   * on data available from invoking a basic getAll request.
+   *
+   * @param filter Filter provided for search criteria (EqualsFilter, ContainsFilter, AndFilter)
+   * @param resultsHandler The ResultHandler that will receive result object/attribute data.
+   * @param options OperationOptions object giving inbound pagination info.
+   * @return SearchResult object containing limited known information about the search result.
+   * @throws InvalidAttributeValueException If requested filter information provided was invalid or
+   *     search could not be performed due to performance limitations.
+   */
   public SearchResult execute(
       Filter filter, ResultsHandler resultsHandler, OperationOptions options)
       throws InvalidAttributeValueException {
@@ -74,7 +89,6 @@ public class SearchExecutor {
     // Set
     // - Perform getOne on each in that Set UNLESS getSearchResultsContainAllAttributes is true
     // - pass to results handler
-    // For both (A) and (B), HAPPY OUTCOME 3: getAll for desired single page is invoked
     boolean validPagingValuesSupplied =
         OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions());
     if (filter == null && validPagingValuesSupplied) {
@@ -99,6 +113,10 @@ public class SearchExecutor {
     // ContainsFilter handling for non UID/Name Attribute
     if (filter instanceof ContainsFilter) {
       return ContainsFilterExecutor.execute(this, (ContainsFilter) filter, resultsHandler, options);
+    }
+
+    if (filter == null) {
+      throw new InvalidAttributeValueException("Unexpected null filter value encountered.");
     }
 
     // TODO: support AndFilter
@@ -226,6 +244,7 @@ public class SearchExecutor {
       Set<IdentityModel> results,
       ResultsHandler resultsHandler) {
     if (!enhancedAdapter.getSearchResultsContainsAllAttributes()) {
+      // IdentityModels do not contain all attributes, need to call getOne for each.
       Set<IdentityModel> pageOfDetailedIdentities = new LinkedHashSet<>();
       for (IdentityModel identity : results) {
         IdentityModel identityWithDetails =
@@ -243,6 +262,14 @@ public class SearchExecutor {
     }
   }
 
+  /**
+   * ConnId/Midpoint uses a 1-based index for offset. Java streams and most other API's use a
+   * 0-based index for offset. This utility method makes that correction. Offsets CANNOT be
+   * negative.
+   *
+   * @param input Inbound offset value that is 1-based
+   * @return 0-based offset value.
+   */
   static int correctConnIdOffset(Integer input) {
     if (input == null || input <= 0) {
       return 0;

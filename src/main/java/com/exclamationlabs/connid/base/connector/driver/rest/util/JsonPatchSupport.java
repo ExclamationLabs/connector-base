@@ -46,7 +46,7 @@ public class JsonPatchSupport {
           && (!method.getName().equalsIgnoreCase("getValueBySearchableAttributeName"))
           && (!method.getName().equalsIgnoreCase("getIdentityIdValue"))
           && (!method.getName().equalsIgnoreCase("getIdentityNameValue"))) {
-        Object value = method.invoke(model, null);
+        Object value = method.invoke(model);
         if (value != null) {
           String fieldName =
               "/" + StringUtils.uncapitalize(StringUtils.substringAfter(method.getName(), "get"));

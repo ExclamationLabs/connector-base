@@ -30,7 +30,8 @@ import org.identityconnectors.framework.common.objects.filter.*;
  * UI. This implementation is very clumsy, however, and has not been leveraged often up to this
  * point, so we have defined a simple default behavior Midpoint can use.
  *
- * <p>At this time, filtering for And/Or conditions or ContainsAllValue support is not included.
+ * <p>At this time, filtering for Or conditions or ContainsAllValue support is not included.
+ * Filtering using And is fairly limited.
  */
 public class DefaultFilterTranslator extends AbstractFilterTranslator<Filter> {
 

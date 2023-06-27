@@ -14,18 +14,18 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.enhanced;
+package com.exclamationlabs.connid.base.connector.enhanced.apipaging;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.exclamationlabs.connid.base.connector.adapter.FilterCapableSource;
 import com.exclamationlabs.connid.base.connector.stub.EnhancedPFConnector;
 import com.exclamationlabs.connid.base.connector.stub.adapter.EnhancedPFUserAdapter;
 import com.exclamationlabs.connid.base.connector.stub.attribute.EnhancedPFUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.EnhancedPFConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.EnhancedPFDriver;
 import com.exclamationlabs.connid.base.connector.test.ApiIntegrationTest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -35,20 +35,20 @@ import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EnhancedAndApiCapabilityTest
+public class EnhancedAndManualCapabilityTest
     extends ApiIntegrationTest<
-        EnhancedPFConfiguration, EnhancedAndApiCapabilityTest.TestConnector> {
+        EnhancedPFConfiguration, EnhancedAndManualCapabilityTest.TestConnector> {
 
   public static class TestConnector extends EnhancedPFConnector {
 
     public TestConnector() {
       super();
       setAdapters(new TestAdapter());
-      setDriver(new EnhancedPFDriver(false, false, false));
+      setDriver(new EnhancedPFDriver(false, false, true));
     }
   }
 
-  public static class TestAdapter extends EnhancedPFUserAdapter implements FilterCapableSource {
+  public static class TestAdapter extends EnhancedPFUserAdapter {
     @Override
     public boolean getSearchResultsContainsAllAttributes() {
       return false;
@@ -60,19 +60,11 @@ public class EnhancedAndApiCapabilityTest
     }
 
     @Override
-    public Set<String> getEqualsFilterAttributes() {
-      Set<String> attributes = new HashSet<>();
-      Arrays.stream(EnhancedPFUserAttribute.values()).forEach(item -> attributes.add(item.name()));
-      attributes.remove(EnhancedPFUserAttribute.DEPARTMENT.name());
-      return attributes;
-    }
-
-    @Override
-    public Set<String> getContainsFilterAttributes() {
-      Set<String> attributes = new HashSet<>();
-      Arrays.stream(EnhancedPFUserAttribute.values()).forEach(item -> attributes.add(item.name()));
-      attributes.remove(EnhancedPFUserAttribute.DEPARTMENT.name());
-      return attributes;
+    public Set<String> getSearchResultsAttributesPresent() {
+      return Set.of(
+          EnhancedPFUserAttribute.USER_ID.name(), EnhancedPFUserAttribute.EMAIL.name(),
+          EnhancedPFUserAttribute.LOCATION.name(), EnhancedPFUserAttribute.JOB_TITLE.name(),
+          EnhancedPFUserAttribute.FIRST_NAME.name(), EnhancedPFUserAttribute.LAST_NAME.name());
     }
   }
 
@@ -82,8 +74,8 @@ public class EnhancedAndApiCapabilityTest
   }
 
   @Override
-  protected Class<EnhancedAndApiCapabilityTest.TestConnector> getConnectorClass() {
-    return EnhancedAndApiCapabilityTest.TestConnector.class;
+  protected Class<TestConnector> getConnectorClass() {
+    return TestConnector.class;
   }
 
   @Override

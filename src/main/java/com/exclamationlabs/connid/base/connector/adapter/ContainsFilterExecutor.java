@@ -28,7 +28,11 @@ import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueE
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 
-public class ContainsFilterExecutor {
+/**
+ * Executor used by SearchExecutor to perform Contains string searches on attribute values of
+ * Identities.
+ */
+class ContainsFilterExecutor {
 
   private ContainsFilterExecutor() {}
 
