@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.enhanced;
+package com.exclamationlabs.connid.base.connector.enhanced.apipaging;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +25,10 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.EnhancedPFUserAt
 import com.exclamationlabs.connid.base.connector.stub.configuration.EnhancedPFConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.EnhancedPFDriver;
 import com.exclamationlabs.connid.base.connector.test.ApiIntegrationTest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -44,7 +47,7 @@ public class EnhancedAndApiCapabilityTest
     public TestConnector() {
       super();
       setAdapters(new TestAdapter());
-      setDriver(new EnhancedPFDriver(false, false, false));
+      setDriver(new EnhancedPFDriver(false, false, true));
     }
   }
 
@@ -82,8 +85,8 @@ public class EnhancedAndApiCapabilityTest
   }
 
   @Override
-  protected Class<EnhancedAndApiCapabilityTest.TestConnector> getConnectorClass() {
-    return EnhancedAndApiCapabilityTest.TestConnector.class;
+  protected Class<TestConnector> getConnectorClass() {
+    return TestConnector.class;
   }
 
   @Override

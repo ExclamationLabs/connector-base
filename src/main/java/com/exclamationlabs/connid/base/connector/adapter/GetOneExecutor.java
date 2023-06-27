@@ -32,7 +32,10 @@ import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
-public class GetOneExecutor {
+/**
+ * Executor used by SearchExecutor to retrieve a single Identity model matching unique UID or NAME.
+ */
+class GetOneExecutor {
 
   private GetOneExecutor() {}
 

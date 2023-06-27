@@ -51,6 +51,15 @@ public interface IdentityModel {
    */
   String getIdentityNameValue();
 
+  /**
+   * Since Base Connector 4.0, this method MUST be implemented when BaseAdapter
+   * EnhancedPaginationAndFiltering interface is present. See test model EnhancedPFUser for an
+   * example implementation. The purpose of this method is return a String value of Identity model
+   * data based on the input attribute name.
+   *
+   * @param attributeName Attribute name for desired Identity model data to be obtained.
+   * @return Corresponding model value or null if attributeName is not matched/recognized.
+   */
   default String getValueBySearchableAttributeName(String attributeName) {
     return null;
   }

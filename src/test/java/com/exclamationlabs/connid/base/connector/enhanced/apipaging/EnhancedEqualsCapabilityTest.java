@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.enhanced;
+package com.exclamationlabs.connid.base.connector.enhanced.apipaging;
 
 import static com.exclamationlabs.connid.base.connector.adapter.SearchExecutor.DEFAULT_FILTER_PAGE_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +45,7 @@ public class EnhancedEqualsCapabilityTest
     public TestConnector() {
       super();
       setAdapters(new TestAdapter());
-      setDriver(new EnhancedPFDriver(false, true, false));
+      setDriver(new EnhancedPFDriver(false, true, true));
     }
   }
 
@@ -80,8 +80,8 @@ public class EnhancedEqualsCapabilityTest
   }
 
   @Override
-  protected Class<EnhancedEqualsCapabilityTest.TestConnector> getConnectorClass() {
-    return EnhancedEqualsCapabilityTest.TestConnector.class;
+  protected Class<TestConnector> getConnectorClass() {
+    return TestConnector.class;
   }
 
   @Override

@@ -24,6 +24,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 
+/**
+ * Executor used by SearchExecutor to Import all Identity records for a given Object Class from a
+ * source API. This may require many requests and take a long time to complete. Results are passed
+ * to ResultHandler in batches based upon importBatchSize configuration value.
+ */
 public class ImportAllExecutor {
 
   private ImportAllExecutor() {}
@@ -74,7 +79,7 @@ public class ImportAllExecutor {
           currentOffset += pageSize;
         }
 
-        executor.processResultsPage(
+        SearchExecutor.processResultsPage(
             executor.getAdapter(),
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,
@@ -113,7 +118,7 @@ public class ImportAllExecutor {
           currentOffset += pageSize;
         }
 
-        executor.processResultsPage(
+        SearchExecutor.processResultsPage(
             executor.getAdapter(),
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,

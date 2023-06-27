@@ -48,6 +48,11 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
  *
  * <p>Adapter subclasses should specify the generic as a specific identity object type, which
  * implements IdentityModel.
+ *
+ * <p>For versions 4.0 and higher, BaseAdapter subclasses should implement
+ * EnhancedPaginationAndFiltering (and possibly PaginationCapableSource and FilterCapableSource) so
+ * that the base framework understands the source API's filtering and pagination capabilities and
+ * limitations.
  */
 public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorConfiguration> {
 
@@ -224,7 +229,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
    *     supported in the future for paging or other purposes.
    * @param hasEnhancedFiltering Set to true if enhanced filtering is supported and to be performed
    *     if applicable.
-   * @return
+   * @return SearchResult for known information pertaining to the SearchResult
    */
   public SearchResult get(
       Filter queryFilter,

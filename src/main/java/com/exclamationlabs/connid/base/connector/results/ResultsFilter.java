@@ -24,7 +24,8 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 /**
  * ResultsFilter is used to store, if applicable, the attribute name and value that the user wishes
  * to filter data on. The driver/invocator getAll method may or may not support results filtering
- * (this is determined by getEnhancedFiltering() and getFilterAttributes() in the Connector).
+ * (this was determined by getEnhancedFiltering() and getFilterAttributes() in the Connector, now
+ * deprecated).
  *
  * <p>Note: If deemed useful, this object could possibly be enhanced in the future to support
  * multiple filter attribute/value pairs, instead of a single one.

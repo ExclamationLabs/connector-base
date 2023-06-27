@@ -16,11 +16,25 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+/**
+ * Since Base Connector 4.0, this interface should be implemented by all BaseAdapters whose
+ * respective source API can perform pagination in a way that is compatible with ConnId/Midpoint
+ * pagination implementation.
+ */
 public interface PaginationCapableSource {
 
+  /**
+   * Return true to indicate that source API has a known results per page maximum that it enforces.
+   * Return false if no maximum is known or there is no tangible limit.
+   *
+   * @return True/false as described.
+   */
   boolean hasSearchResultsMaximum();
 
+  /**
+   * Return the maximum results per page that the source API enforces.
+   *
+   * @return Maximum results per page (Integer above 1) or 0 or null if there is no known maximum.
+   */
   Integer getSearchResultsMaximum();
-
-  Integer getDefaultPageSize();
 }

@@ -21,6 +21,9 @@ import org.apache.commons.lang3.BooleanUtils;
 /**
  * ResultsPaginator is used to store, if applicable, the current pagination state of data being
  * returned by a driver/invocator through getAll.
+ *
+ * <p>Pagination Token is experimental and may not work or be used based on Midpoint and Source API
+ * limitations.
  */
 public class ResultsPaginator {
 
@@ -155,13 +158,12 @@ public class ResultsPaginator {
   @Override
   public String toString() {
     return hasPagination()
-        ? ("[size:"
-            + getPageSize()
-            + ",offset:"
-            + getCurrentOffset()
-            + ",done="
-            + (BooleanUtils.isTrue(getNoMoreResults()) ? "true" : "false")
-            + "]")
+        ? String.format(
+            "[size: %s, offset: %s, token: %s, done: %s]",
+            getPageSize(),
+            getCurrentOffset(),
+            getTokenAsString(),
+            (BooleanUtils.isTrue(getNoMoreResults()) ? "true" : "false"))
         : "none";
   }
 }

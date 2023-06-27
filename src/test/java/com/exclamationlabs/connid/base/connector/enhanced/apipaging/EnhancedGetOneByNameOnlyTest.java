@@ -14,19 +14,18 @@
     limitations under the License.
 */
 
-package com.exclamationlabs.connid.base.connector.enhanced;
+package com.exclamationlabs.connid.base.connector.enhanced.apipaging;
 
 import static com.exclamationlabs.connid.base.connector.adapter.SearchExecutor.DEFAULT_FILTER_PAGE_SIZE;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.exclamationlabs.connid.base.connector.adapter.FilterCapableSource;
 import com.exclamationlabs.connid.base.connector.stub.EnhancedPFConnector;
 import com.exclamationlabs.connid.base.connector.stub.adapter.EnhancedPFUserAdapter;
 import com.exclamationlabs.connid.base.connector.stub.attribute.EnhancedPFUserAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.EnhancedPFConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.EnhancedPFDriver;
 import com.exclamationlabs.connid.base.connector.test.ApiIntegrationTest;
-import java.util.*;
+import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
@@ -36,41 +35,23 @@ import org.identityconnectors.framework.common.objects.filter.StartsWithFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EnhancedEqualsCapabilityTest
+public class EnhancedGetOneByNameOnlyTest
     extends ApiIntegrationTest<
-        EnhancedPFConfiguration, EnhancedEqualsCapabilityTest.TestConnector> {
+        EnhancedPFConfiguration, EnhancedGetOneByNameOnlyTest.TestConnector> {
 
   public static class TestConnector extends EnhancedPFConnector {
 
     public TestConnector() {
       super();
       setAdapters(new TestAdapter());
-      setDriver(new EnhancedPFDriver(false, true, false));
+      setDriver(new EnhancedPFDriver(false, false, true));
     }
   }
 
-  public static class TestAdapter extends EnhancedPFUserAdapter implements FilterCapableSource {
+  public static class TestAdapter extends EnhancedPFUserAdapter {
     @Override
-    public boolean getSearchResultsContainsAllAttributes() {
-      return false;
-    }
-
-    @Override
-    public boolean getSearchResultsContainsNameAttribute() {
+    public boolean getOneByName() {
       return true;
-    }
-
-    @Override
-    public Set<String> getEqualsFilterAttributes() {
-      Set<String> attributes = new HashSet<>();
-      Arrays.stream(EnhancedPFUserAttribute.values()).forEach(item -> attributes.add(item.name()));
-      attributes.remove(EnhancedPFUserAttribute.DEPARTMENT.name());
-      return attributes;
-    }
-
-    @Override
-    public Set<String> getContainsFilterAttributes() {
-      return Collections.emptySet();
     }
   }
 
@@ -80,8 +61,8 @@ public class EnhancedEqualsCapabilityTest
   }
 
   @Override
-  protected Class<EnhancedEqualsCapabilityTest.TestConnector> getConnectorClass() {
-    return EnhancedEqualsCapabilityTest.TestConnector.class;
+  protected Class<TestConnector> getConnectorClass() {
+    return TestConnector.class;
   }
 
   @Override
@@ -104,8 +85,15 @@ public class EnhancedEqualsCapabilityTest
     assertTrue(
         StringUtils.isNotBlank(
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -125,8 +113,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.isNotBlank(
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
 
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -146,8 +140,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.isNotBlank(
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
 
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -221,8 +221,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.equalsIgnoreCase(
             "rhenderson@test.com",
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -244,8 +250,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.equalsIgnoreCase(
             "tcobb@test.com",
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -267,8 +279,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.equalsIgnoreCase(
             "rjackson@test.com",
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -291,8 +309,14 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.equalsIgnoreCase(
             "rhenderson@test.com",
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
@@ -315,74 +339,27 @@ public class EnhancedEqualsCapabilityTest
         StringUtils.equalsIgnoreCase(
             "rhenderson@test.com",
             results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertTrue(
+        StringUtils.isNotBlank(
+            results
+                .get(0)
+                .getAttributeByName(EnhancedPFUserAttribute.DETAIL.name())
+                .getValue()
+                .get(0)
+                .toString()));
   }
 
   @Test
-  public void testUserContainsFilterNamePartialMatch() {
+  public void testUserContainsFilterNamePartialNoMatch() {
     results = new ArrayList<>();
-    Attribute attribute = new AttributeBuilder().setName(Name.NAME).addValue("ripken").build();
+    Attribute attribute = new AttributeBuilder().setName(Name.NAME).addValue("rhenderson").build();
     getConnectorFacade()
         .search(
             new ObjectClass("pfUser"),
             new ContainsFilter(attribute),
             handler,
             new OperationOptionsBuilder().build());
-    assertEquals(2, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1002", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "cripkenjr@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
-  }
-
-  @Test
-  public void testUserContainsFilterNamePartialMatch2() {
-    results = new ArrayList<>();
-    Attribute attribute = new AttributeBuilder().setName(Name.NAME).addValue("test").build();
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new ContainsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().build());
-    assertEquals(DEFAULT_FILTER_PAGE_SIZE, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1001", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "tcobb@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
-  }
-
-  @Test
-  public void testUserContainsFilterNamePartialMatch3() {
-    results = new ArrayList<>();
-    Attribute attribute = new AttributeBuilder().setName(Name.NAME).addValue("test").build();
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new ContainsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().setPageSize(10).setPagedResultsOffset(11).build());
-    assertEquals(10, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1011", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "rjackson@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertEquals(0, results.size());
   }
 
   @Test
@@ -394,26 +371,19 @@ public class EnhancedEqualsCapabilityTest
             .addValue("New York")
             .build();
 
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new EqualsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().build());
-    assertEquals(4, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1006", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "mmantle@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertThrows(
+        InvalidAttributeValueException.class,
+        () ->
+            getConnectorFacade()
+                .search(
+                    new ObjectClass("pfUser"),
+                    new EqualsFilter(attribute),
+                    handler,
+                    new OperationOptionsBuilder().build()));
   }
 
   @Test
-  public void testUserLocationEqualsFilterNamePage() {
+  public void testUserLocationContainsFilterName() {
     results = new ArrayList<>();
     Attribute attribute =
         new AttributeBuilder()
@@ -421,76 +391,15 @@ public class EnhancedEqualsCapabilityTest
             .addValue("New York")
             .build();
 
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new EqualsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().setPagedResultsOffset(3).setPageSize(2).build());
-    assertEquals(2, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1018", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "bruth@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
-  }
-
-  @Test
-  public void testUserJobTitleContainsFilterName() {
-    results = new ArrayList<>();
-    Attribute attribute =
-        new AttributeBuilder()
-            .setName(EnhancedPFUserAttribute.JOB_TITLE.name())
-            .addValue("Outfielder")
-            .build();
-
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new ContainsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().build());
-    assertEquals(4, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1001", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "tcobb@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
-  }
-
-  @Test
-  public void testUserJobTitleContainsFilterNamePage2() {
-    results = new ArrayList<>();
-    Attribute attribute =
-        new AttributeBuilder()
-            .setName(EnhancedPFUserAttribute.JOB_TITLE.name())
-            .addValue("Outfielder")
-            .build();
-
-    getConnectorFacade()
-        .search(
-            new ObjectClass("pfUser"),
-            new ContainsFilter(attribute),
-            handler,
-            new OperationOptionsBuilder().setPageSize(2).setPagedResultsOffset(3).build());
-    assertEquals(2, results.size());
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "1014", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-    assertTrue(
-        StringUtils.equalsIgnoreCase(
-            "tgwynn@test.com",
-            results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString()));
-    assertNotNull(
-        results.get(0).getAttributeByName(EnhancedPFUserAttribute.DETAIL.name()).getValue().get(0));
+    assertThrows(
+        InvalidAttributeValueException.class,
+        () ->
+            getConnectorFacade()
+                .search(
+                    new ObjectClass("pfUser"),
+                    new ContainsFilter(attribute),
+                    handler,
+                    new OperationOptionsBuilder().build()));
   }
 
   @Test
@@ -509,46 +418,6 @@ public class EnhancedEqualsCapabilityTest
                 .search(
                     new ObjectClass("pfUser"),
                     new StartsWithFilter(attribute),
-                    handler,
-                    new OperationOptionsBuilder().build()));
-  }
-
-  @Test
-  public void testBadFilterEqualsAttributeUnsupported() {
-    results = new ArrayList<>();
-    Attribute attribute =
-        new AttributeBuilder()
-            .setName(EnhancedPFUserAttribute.DEPARTMENT.name())
-            .addValue("Test")
-            .build();
-
-    assertThrows(
-        InvalidAttributeValueException.class,
-        () ->
-            getConnectorFacade()
-                .search(
-                    new ObjectClass("pfUser"),
-                    new EqualsFilter(attribute),
-                    handler,
-                    new OperationOptionsBuilder().build()));
-  }
-
-  @Test
-  public void testBadFilterContainsAttributeUnsupported() {
-    results = new ArrayList<>();
-    Attribute attribute =
-        new AttributeBuilder()
-            .setName(EnhancedPFUserAttribute.DEPARTMENT.name())
-            .addValue("Test")
-            .build();
-
-    assertThrows(
-        InvalidAttributeValueException.class,
-        () ->
-            getConnectorFacade()
-                .search(
-                    new ObjectClass("pfUser"),
-                    new ContainsFilter(attribute),
                     handler,
                     new OperationOptionsBuilder().build()));
   }

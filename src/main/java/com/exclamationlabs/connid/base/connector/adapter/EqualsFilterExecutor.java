@@ -30,6 +30,10 @@ import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 
+/**
+ * Executor used by SearchExecutor to perform Equals string searches on attribute values of
+ * Identities (not including UID and NAME matching capabilities).
+ */
 public class EqualsFilterExecutor {
 
   private EqualsFilterExecutor() {}
