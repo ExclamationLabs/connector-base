@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.results;
 
 import com.exclamationlabs.connid.base.connector.filter.FilterType;
+import java.util.Collections;
 import java.util.Map;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
@@ -35,30 +36,40 @@ public class ResultsFilter {
 
   private Map<String, String> andFilterDataMap;
 
+  private FilterType andFilterType;
+
   private FilterType filterType;
 
   public ResultsFilter() {
     setAttribute(null);
     setValue(null);
     setFilterType(null);
+    setAndFilterType(null);
+    setAndFilterDataMap(Collections.emptyMap());
   }
 
   public ResultsFilter(String filterAttribute, String filterValue) {
     setAttribute(filterAttribute);
     setValue(filterValue);
     setFilterType(FilterType.ContainsFilter);
+    setAndFilterType(null);
+    setAndFilterDataMap(Collections.emptyMap());
   }
 
   public ResultsFilter(String filterAttribute, String filterValue, FilterType filterType) {
     setAttribute(filterAttribute);
     setValue(filterValue);
     setFilterType(filterType);
+    setAndFilterType(null);
+    setAndFilterDataMap(Collections.emptyMap());
   }
 
   public ResultsFilter(
       String filterAttribute, String filterValue, Class<? extends Filter> filterType) {
     setAttribute(filterAttribute);
     setValue(filterValue);
+    setAndFilterType(null);
+    setAndFilterDataMap(Collections.emptyMap());
     FilterType type;
     switch (filterType.getSimpleName()) {
       case "EqualsFilter":
@@ -67,24 +78,6 @@ public class ResultsFilter {
       case "AndFilter":
         type = FilterType.AndFilter;
         break;
-        //      case "EndsWithFilter":
-        //        type = FilterType.EndsWithFilter;
-        //        break;
-        //      case "StartsWithFilter":
-        //        type = FilterType.StartsWithFilter;
-        //        break;
-        //      case "GreaterThanFilter":
-        //        type = FilterType.GreaterThanFilter;
-        //        break;
-        //      case "GreaterThanOrEqualFilter":
-        //        type = FilterType.GreaterThanOrEqualFilter;
-        //        break;
-        //      case "LessThanFilter":
-        //        type = FilterType.LessThanFilter;
-        //        break;
-        //      case "LessThanOrEqualFilter":
-        //        type = FilterType.LessThanOrEqualFilter;
-        //        break;
       default:
         type = FilterType.ContainsFilter;
         break;
@@ -92,15 +85,17 @@ public class ResultsFilter {
     setFilterType(type);
   }
 
-  public ResultsFilter(Map<String, String> andFilterDataMap) {
+  public ResultsFilter(Map<String, String> andFilterDataMap, FilterType andFilterType) {
     this.andFilterDataMap = andFilterDataMap;
     setValue(null);
     setAttribute(null);
     setFilterType(FilterType.AndFilter);
+    setAndFilterType(andFilterType);
   }
 
   public boolean hasFilter() {
-    return getAttribute() != null && getValue() != null && getFilterType() != null;
+    return (getAttribute() != null && getValue() != null && getFilterType() != null)
+        || ((!getAndFilterDataMap().isEmpty()) && getAndFilterType() != null);
   }
 
   public String getAttribute() {
@@ -125,6 +120,22 @@ public class ResultsFilter {
 
   public void setFilterType(FilterType filterType) {
     this.filterType = filterType;
+  }
+
+  public Map<String, String> getAndFilterDataMap() {
+    return andFilterDataMap;
+  }
+
+  public void setAndFilterDataMap(Map<String, String> andFilterDataMap) {
+    this.andFilterDataMap = andFilterDataMap;
+  }
+
+  public FilterType getAndFilterType() {
+    return andFilterType;
+  }
+
+  public void setAndFilterType(FilterType andFilterType) {
+    this.andFilterType = andFilterType;
   }
 
   @Override

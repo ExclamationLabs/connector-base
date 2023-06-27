@@ -363,6 +363,8 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
                         filter.getValue()))
             .forEachOrdered(filteredResults::add);
         result = filteredResults;
+      } else if (filter.getFilterType().equals(FilterType.AndFilter)) {
+        result = performAndFiltering(result, filter);
       }
     }
 
@@ -401,5 +403,31 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
     } else {
       return null;
     }
+  }
+
+  private Set<EnhancedPFUser> performAndFiltering(
+      Set<EnhancedPFUser> result, ResultsFilter filter) {
+    for (Map.Entry<String, String> entry : filter.getAndFilterDataMap().entrySet()) {
+      Set<EnhancedPFUser> filteredResults = new LinkedHashSet<>();
+      if (filter.getAndFilterType() == FilterType.EqualsFilter) {
+        result.stream()
+            .filter(
+                identity ->
+                    StringUtils.equalsIgnoreCase(
+                        identity.getValueBySearchableAttributeName(entry.getKey()),
+                        entry.getValue()))
+            .forEachOrdered(filteredResults::add);
+      } else {
+        result.stream()
+            .filter(
+                identity ->
+                    StringUtils.containsIgnoreCase(
+                        identity.getValueBySearchableAttributeName(entry.getKey()),
+                        entry.getValue()))
+            .forEachOrdered(filteredResults::add);
+      }
+      result = filteredResults;
+    }
+    return result;
   }
 }

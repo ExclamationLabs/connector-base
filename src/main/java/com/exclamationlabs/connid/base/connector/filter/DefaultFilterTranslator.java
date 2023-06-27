@@ -58,6 +58,18 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<Filter> {
     checkNames = checkAttributeName;
   }
 
+  /**
+   * Supported since Base Connector 4.0.
+   *
+   * @param leftFilter The left expression. Will never be null.
+   * @param rightFilter The right expression. Will never be null.
+   * @return the AndFilter filter containing both conditions.
+   */
+  @Override
+  protected AndFilter createAndExpression(Filter leftFilter, Filter rightFilter) {
+    return new AndFilter(leftFilter, rightFilter);
+  }
+
   @Override
   // Not normally invoked by Midpoint
   protected AttributeFilter createEqualsExpression(EqualsFilter filter, boolean not) {

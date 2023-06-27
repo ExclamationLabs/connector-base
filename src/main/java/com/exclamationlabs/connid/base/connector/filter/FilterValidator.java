@@ -17,13 +17,25 @@
 package com.exclamationlabs.connid.base.connector.filter;
 
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
-import org.identityconnectors.framework.common.objects.filter.AndFilter;
-import org.identityconnectors.framework.common.objects.filter.ContainsFilter;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
-import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.common.objects.filter.*;
 
+/**
+ * Validate incoming filters for Base Connector 4.0+ versions with the following restrictions: -
+ * Only AndFilter, EqualsFilter and ContainsFilter are supported - ContainsFilter and EqualsFilter
+ * must have a non-blank attribute name - ContainsFilter and EqualsFilter must have a non-blank
+ * attribute value - AndFilter must have 2 or more filters within it - AndFilter cannot contain
+ * another AndFilter - AndFilter cannot contain a mix of EqualsFilters and ContainsFilters -
+ * AndFilter cannot have the same attribute more than once If any of these checks fail, an
+ * InvalidAttributeValueException is thrown
+ *
+ * <p>NOTE: The filter may still be invalid and InvalidAttributeValueException thrown if the filters
+ * supplied have attributes that cannot be searched upon by the source API or base framework. But
+ * this check is not handled here.
+ */
 public class FilterValidator {
 
   private FilterValidator() {}
@@ -63,16 +75,54 @@ public class FilterValidator {
     }
 
     if (filter instanceof AndFilter) {
-      AndFilter andFilter = (AndFilter) filter;
-      if (andFilter.getFilters().isEmpty()) {
+      validateAndFilter((AndFilter) filter, adapter);
+    }
+  }
+
+  private static void validateAndFilter(AndFilter andFilter, BaseAdapter<?, ?> adapter) {
+    if (andFilter.getFilters().isEmpty()) {
+      throw new InvalidAttributeValueException(
+          String.format(
+              "Invalid request - Adapter %s received an AndFilter with no filters inside.",
+              adapter.getClass().getSimpleName()));
+    }
+    int equalsCounter = 0;
+    int containsCounter = 0;
+    Set<String> attributeNames = new HashSet<>();
+    for (Filter innerFilter : andFilter.getFilters()) {
+      if (innerFilter instanceof EqualsFilter) {
+        equalsCounter++;
+
+      } else if (innerFilter instanceof ContainsFilter) {
+        containsCounter++;
+      } else {
         throw new InvalidAttributeValueException(
             String.format(
-                "Invalid request - Adapter %s received an AndFilter with no filters inside.",
+                "Invalid Request: Adapter %s received nested AndFilters",
                 adapter.getClass().getSimpleName()));
       }
-      for (Filter innerFilter : andFilter.getFilters()) {
-        validate(innerFilter, adapter);
+      if (equalsCounter > 0 && containsCounter > 0) {
+        throw new InvalidAttributeValueException(
+            String.format(
+                "Invalid Request: Adapter %s received mixed Equals/Contains filters within AndFilter",
+                adapter.getClass().getSimpleName()));
       }
+      validate(innerFilter, adapter);
+      AttributeFilter attributeFilter = (AttributeFilter) innerFilter;
+      if (attributeNames.contains(attributeFilter.getName())) {
+        throw new InvalidAttributeValueException(
+            String.format(
+                "Invalid Request: Adapter %s received AndFilter with attribute %s supplied more than once.",
+                adapter.getClass().getSimpleName(), attributeFilter.getName()));
+      } else {
+        attributeNames.add(attributeFilter.getName());
+      }
+    } // end for filters within AndFilter
+    if (equalsCounter == 1 || containsCounter == 1) {
+      throw new InvalidAttributeValueException(
+          String.format(
+              "Invalid Request: Adapter %s received AndFilter with just 1 filter within it.",
+              adapter.getClass().getSimpleName()));
     }
   }
 }
