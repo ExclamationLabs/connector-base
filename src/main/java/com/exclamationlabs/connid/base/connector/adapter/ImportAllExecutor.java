@@ -62,8 +62,9 @@ public class ImportAllExecutor {
         pageSize = paginationCheck.getSearchResultsMaximum();
       }
       boolean importComplete = false;
-      ResultsPaginator currentPaginator = new ResultsPaginator(pageSize, currentOffset);
+
       while (!importComplete) {
+        ResultsPaginator currentPaginator = new ResultsPaginator(pageSize, currentOffset);
         Set<IdentityModel> pageOfIdentityResults =
             executor
                 .getAdapter()
