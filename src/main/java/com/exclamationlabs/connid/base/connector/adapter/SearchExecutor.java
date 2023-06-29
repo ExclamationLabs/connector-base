@@ -270,7 +270,7 @@ public class SearchExecutor {
    * @param input Inbound offset value that is 1-based
    * @return 0-based offset value.
    */
-  static int correctConnIdOffset(Integer input) {
+  public static int correctConnIdOffset(Integer input) {
     if (input == null || input <= 0) {
       return 0;
     } else {
