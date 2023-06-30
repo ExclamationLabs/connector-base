@@ -68,7 +68,7 @@ public class SearchExecutor {
     if (filter != null) {
       FilterValidator.validate(filter, adapter);
 
-      if (GetOneExecutor.byUID(this, filter, resultsHandler, options)) {
+      if (GetOneExecutor.byUID(this, filter, resultsHandler)) {
         return new SearchResult(); // Results information not meaningful for single item response
       }
 
@@ -136,6 +136,8 @@ public class SearchExecutor {
       ResultsHandler resultsHandler,
       OperationOptions options,
       FilterType filterType) {
+    Map<String, Object> prefetchData =
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
     ResultsPaginator resultsPaginator =
         OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
             ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
@@ -152,16 +154,19 @@ public class SearchExecutor {
                         attributeFilter.getAttribute()),
                     filterType),
                 resultsPaginator,
-                null);
+                null,
+                prefetchData);
     matchingResults =
         performManualPaginationIfNeeded(enhancedAdapter, matchingResults, resultsPaginator);
-    processResultsPage(adapter, enhancedAdapter, matchingResults, resultsHandler);
+    processResultsPage(adapter, enhancedAdapter, matchingResults, resultsHandler, prefetchData);
     return new SearchResult(
         resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
   }
 
   protected SearchResult executePaginationOnly(
       ResultsHandler resultsHandler, OperationOptions options) {
+    Map<String, Object> prefetchData =
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
     if (adapter instanceof PaginationCapableSource) {
       ResultsPaginator resultsPaginator =
           new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset());
@@ -170,12 +175,16 @@ public class SearchExecutor {
       Set<IdentityModel> pageOfIdentityResults =
           adapter
               .getDriver()
-              .getAll(adapter.getIdentityModelClass(), new ResultsFilter(), resultsPaginator, null);
-      if (adapter instanceof FilterCapableSource) {
-        processResultsPage(adapter, enhancedAdapter, pageOfIdentityResults, resultsHandler);
-        return new SearchResult(
-            resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
-      }
+              .getAll(
+                  adapter.getIdentityModelClass(),
+                  new ResultsFilter(),
+                  resultsPaginator,
+                  null,
+                  prefetchData);
+      processResultsPage(
+          adapter, enhancedAdapter, pageOfIdentityResults, resultsHandler, prefetchData);
+      return new SearchResult(
+          resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
     } else {
       // API cannot handle pagination; need to get all results and splice the applicable page of
       // results here
@@ -188,10 +197,12 @@ public class SearchExecutor {
                   adapter.getIdentityModelClass(),
                   new ResultsFilter(),
                   new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset()),
-                  null);
+                  null,
+                  prefetchData);
 
       if (allIdentityResults.size() <= paginationData.getPageSize()) {
-        processResultsPage(adapter, enhancedAdapter, allIdentityResults, resultsHandler);
+        processResultsPage(
+            adapter, enhancedAdapter, allIdentityResults, resultsHandler, prefetchData);
         return new SearchResult(null, -1, true);
       } else {
         if (paginationData.getCurrentOffset() >= allIdentityResults.size()) {
@@ -204,12 +215,11 @@ public class SearchExecutor {
               .skip(correctConnIdOffset(paginationData.getCurrentOffset()))
               .limit(paginationData.getPageSize())
               .forEachOrdered(pageOfResults::add);
-          processResultsPage(adapter, enhancedAdapter, pageOfResults, resultsHandler);
+          processResultsPage(adapter, enhancedAdapter, pageOfResults, resultsHandler, prefetchData);
           return new SearchResult(null, -1, false);
         }
       }
     }
-    return null;
   }
 
   static ResultsPaginator getMaximumPageSizePaginator(BaseAdapter<?, ?> currentAdapter) {
@@ -242,7 +252,8 @@ public class SearchExecutor {
       BaseAdapter<?, ?> adapter,
       EnhancedPaginationAndFiltering enhancedAdapter,
       Set<IdentityModel> results,
-      ResultsHandler resultsHandler) {
+      ResultsHandler resultsHandler,
+      Map<String, Object> prefetchDataMap) {
     if (!enhancedAdapter.getSearchResultsContainsAllAttributes()) {
       // IdentityModels do not contain all attributes, need to call getOne for each.
       Set<IdentityModel> pageOfDetailedIdentities = new LinkedHashSet<>();
@@ -253,7 +264,7 @@ public class SearchExecutor {
                 .getOne(
                     adapter.getIdentityModelClass(),
                     identity.getIdentityIdValue(),
-                    Collections.emptyMap());
+                    prefetchDataMap);
         pageOfDetailedIdentities.add(identityWithDetails);
       }
       adapter.passSetToResultsHandler(resultsHandler, pageOfDetailedIdentities, false);

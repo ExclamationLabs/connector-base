@@ -338,9 +338,16 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
 
   @Override
   public Set<EnhancedPFUser> getAll(
-      EnhancedPFDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      EnhancedPFDriver driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
       throws ConnectorException {
     reset();
+    if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
+      throw new IllegalArgumentException("Prefetch data map propagation not working");
+    }
     Set<EnhancedPFUser> result = testUserSet;
     if (filter.hasFilter()) {
       if (filter.getFilterType().equals(FilterType.ContainsFilter) || driver.isContainsOnly()) {
@@ -381,16 +388,25 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
   }
 
   @Override
-  public EnhancedPFUser getOne(EnhancedPFDriver driver, String id, Map<String, Object> data)
+  public EnhancedPFUser getOne(
+      EnhancedPFDriver driver, String id, Map<String, Object> prefetchDataMap)
       throws ConnectorException {
+    if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
+      throw new IllegalArgumentException("Prefetch data map propagation not working");
+    }
     EnhancedPFUser result = testUserMap.get(id);
     result.setDetail(UUID.randomUUID().toString());
     return result;
   }
 
   @Override
-  public EnhancedPFUser getOneByName(EnhancedPFDriver driver, String objectName)
+  public EnhancedPFUser getOneByName(
+      EnhancedPFDriver driver, String objectName, Map<String, Object> prefetchDataMap)
       throws ConnectorException {
+    if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
+      throw new IllegalArgumentException("Prefetch data map propagation not working");
+    }
+
     EnhancedPFUser match =
         testUserSet.stream()
             .filter(
@@ -399,10 +415,15 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
             .findFirst()
             .orElse(null);
     if (match != null) {
-      return getOne(driver, match.getUserId(), null);
+      return getOne(driver, match.getUserId(), prefetchDataMap);
     } else {
       return null;
     }
+  }
+
+  @Override
+  public Map<String, Object> getPrefetch(EnhancedPFDriver driver) {
+    return Map.of("ying", "yang", "lorem", "ipsum");
   }
 
   private Set<EnhancedPFUser> performAndFiltering(
