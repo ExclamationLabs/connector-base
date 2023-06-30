@@ -21,6 +21,7 @@ import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 
@@ -52,6 +53,11 @@ public class ImportAllExecutor {
   // - continue until all groups have been processed.
   // For both Scenario 1 and 2, HAPPY OUTCOME 4: getAll perform full import is invoked
   protected static boolean execute(SearchExecutor executor, ResultsHandler resultsHandler) {
+    Map<String, Object> prefetchData =
+        executor
+            .getAdapter()
+            .getDriver()
+            .getPrefetch(executor.getAdapter().getIdentityModelClass());
     if (executor.getAdapter() instanceof PaginationCapableSource) {
       PaginationCapableSource paginationCheck = (PaginationCapableSource) executor.getAdapter();
       int currentOffset = 0;
@@ -73,7 +79,8 @@ public class ImportAllExecutor {
                     executor.getAdapter().getIdentityModelClass(),
                     new ResultsFilter(),
                     currentPaginator,
-                    null);
+                    null,
+                    prefetchData);
         if (currentPaginator.getNoMoreResults() || pageOfIdentityResults.size() < pageSize) {
           importComplete = true;
         } else {
@@ -84,7 +91,8 @@ public class ImportAllExecutor {
             executor.getAdapter(),
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,
-            resultsHandler);
+            resultsHandler,
+            prefetchData);
       } // end while
 
     } else {
@@ -101,7 +109,8 @@ public class ImportAllExecutor {
                   executor.getAdapter().getIdentityModelClass(),
                   new ResultsFilter(),
                   new ResultsPaginator(),
-                  null);
+                  null,
+                  prefetchData);
       while (!importComplete) {
         if (fullIdentityResults.size() < pageSize
             || (currentOffset + pageSize) >= fullIdentityResults.size()) {
@@ -123,7 +132,8 @@ public class ImportAllExecutor {
             executor.getAdapter(),
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,
-            resultsHandler);
+            resultsHandler,
+            prefetchData);
       } // end while
     }
     return true;

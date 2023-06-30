@@ -129,6 +129,11 @@ class AndFilterExecutor {
         OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
             ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
             : new ResultsPaginator(SearchExecutor.DEFAULT_FILTER_PAGE_SIZE, 0);
+    Map<String, Object> prefetchData =
+        executor
+            .getAdapter()
+            .getDriver()
+            .getPrefetch(executor.getAdapter().getIdentityModelClass());
     Set<IdentityModel> filteredResults =
         executor
             .getAdapter()
@@ -137,9 +142,14 @@ class AndFilterExecutor {
                 executor.getAdapter().getIdentityModelClass(),
                 resultsFilter,
                 resultsPaginator,
-                null);
+                null,
+                prefetchData);
     SearchExecutor.processResultsPage(
-        executor.getAdapter(), executor.getEnhancedAdapter(), filteredResults, resultsHandler);
+        executor.getAdapter(),
+        executor.getEnhancedAdapter(),
+        filteredResults,
+        resultsHandler,
+        prefetchData);
     return new SearchResult(null, -1, false);
   }
 
@@ -157,6 +167,11 @@ class AndFilterExecutor {
         OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
             ? resultsPaginator.getCurrentOffset()
             : 0;
+    Map<String, Object> prefetchData =
+        executor
+            .getAdapter()
+            .getDriver()
+            .getPrefetch(executor.getAdapter().getIdentityModelClass());
     Set<IdentityModel> allResults =
         executor
             .getAdapter()
@@ -165,7 +180,8 @@ class AndFilterExecutor {
                 executor.getAdapter().getIdentityModelClass(),
                 new ResultsFilter(),
                 SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                null);
+                null,
+                prefetchData);
 
     List<Set<IdentityModel>> filteredResultList = new ArrayList<>();
     for (Filter current : andFilter.getFilters()) {
@@ -203,7 +219,8 @@ class AndFilterExecutor {
         executor.getAdapter(),
         executor.getEnhancedAdapter(),
         exclusiveFilteredResults,
-        resultsHandler);
+        resultsHandler,
+        prefetchData);
     return new SearchResult(null, -1, false);
   }
 

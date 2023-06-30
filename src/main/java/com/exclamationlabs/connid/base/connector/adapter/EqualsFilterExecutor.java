@@ -22,6 +22,7 @@ import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.util.OperationOptionsDataFinder;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
@@ -61,6 +62,11 @@ public class EqualsFilterExecutor {
               FilterType.EqualsFilter);
         } else if (filterCapable.getContainsFilterAttributes().contains(equalsFilter.getName())) {
           // Fallback option - must search using Contains filter since it is only manner available
+          Map<String, Object> prefetchData =
+              executor
+                  .getAdapter()
+                  .getDriver()
+                  .getPrefetch(executor.getAdapter().getIdentityModelClass());
           ResultsPaginator resultsPaginator =
               OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
                   ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
@@ -78,12 +84,14 @@ public class EqualsFilterExecutor {
                               equalsFilter.getAttribute()),
                           FilterType.ContainsFilter),
                       resultsPaginator,
-                      null);
+                      null,
+                      prefetchData);
           SearchExecutor.processResultsPage(
               executor.getAdapter(),
               executor.getEnhancedAdapter(),
               matchingResults,
-              resultsHandler);
+              resultsHandler,
+              prefetchData);
           return new SearchResult(
               resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
         } else {
@@ -124,6 +132,11 @@ public class EqualsFilterExecutor {
           OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
               ? resultsPaginator.getCurrentOffset()
               : 0;
+      Map<String, Object> prefetchData =
+          executor
+              .getAdapter()
+              .getDriver()
+              .getPrefetch(executor.getAdapter().getIdentityModelClass());
       Set<IdentityModel> allResults =
           executor
               .getAdapter()
@@ -132,7 +145,8 @@ public class EqualsFilterExecutor {
                   executor.getAdapter().getIdentityModelClass(),
                   new ResultsFilter(),
                   SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                  null);
+                  null,
+                  prefetchData);
       final String filterValue =
           AdapterValueTypeConverter.readSingleAttributeValueAsString(equalsFilter.getAttribute());
       Set<IdentityModel> filteredResults = new LinkedHashSet<>();
@@ -146,7 +160,11 @@ public class EqualsFilterExecutor {
           .limit(resultsPaginator.getPageSize())
           .forEachOrdered(filteredResults::add);
       SearchExecutor.processResultsPage(
-          executor.getAdapter(), executor.getEnhancedAdapter(), filteredResults, resultsHandler);
+          executor.getAdapter(),
+          executor.getEnhancedAdapter(),
+          filteredResults,
+          resultsHandler,
+          prefetchData);
       return new SearchResult(null, -1, false);
     }
   }

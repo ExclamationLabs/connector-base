@@ -73,14 +73,13 @@ public abstract class BaseDriver<T extends ConnectorConfiguration> implements Dr
 
   @Override
   public IdentityModel getOne(
-      Class<? extends IdentityModel> modelClass,
-      String id,
-      Map<String, Object> operationOptionsData)
+      Class<? extends IdentityModel> modelClass, String id, Map<String, Object> prefetchDataMap)
       throws ConnectorException {
-    return getInvocator(modelClass).getOne(this, id, operationOptionsData);
+    return getInvocator(modelClass).getOne(this, id, prefetchDataMap);
   }
 
   @Override
+  @Deprecated
   public Set<IdentityModel> getAll(
       Class<? extends IdentityModel> modelClass,
       ResultsFilter filter,
@@ -88,5 +87,21 @@ public abstract class BaseDriver<T extends ConnectorConfiguration> implements Dr
       Integer resultCap)
       throws ConnectorException {
     return getInvocator(modelClass).getAll(this, filter, paginator, resultCap);
+  }
+
+  @Override
+  public Set<IdentityModel> getAll(
+      Class<? extends IdentityModel> modelClass,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
+    return getInvocator(modelClass).getAll(this, filter, paginator, resultCap, prefetchDataMap);
+  }
+
+  public Map<String, Object> getPrefetch(Class<? extends IdentityModel> modelClass)
+      throws ConnectorException {
+    return getInvocator(modelClass).getPrefetch(this);
   }
 }

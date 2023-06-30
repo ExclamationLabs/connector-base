@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.connector.driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -68,6 +69,13 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    */
   void delete(D driver, String userId) throws ConnectorException;
 
+  @Deprecated
+  default Set<T> getAll(
+      D driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      throws ConnectorException {
+    throw new UnsupportedOperationException("getAll without prefetch not implemented");
+  }
+
   /**
    * Get all existing objects of this invocator's particular type on the destination system, using
    * supplied filter attribute and value. Unless overriden, default behavior is to presume filtering
@@ -81,12 +89,21 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     are processed for the connector.
    * @param resultCap The maximum number of results that should be returned by getAll. This can be
    *     null but if present will override the pagination pageSize.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return A list of all IdentityModel objects of this Invocator's particular type. Can be null or
    *     an empty list if the destination system currently has no records.
    * @throws ConnectorException If get request failed, was invalid or was not permitted.
    */
-  Set<T> getAll(D driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
-      throws ConnectorException;
+  default Set<T> getAll(
+      D driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
+    throw new UnsupportedOperationException("getAll with prefetch not implemented");
+  }
 
   /**
    * Get a single object of this invocator's particular type on the destination system that matches
@@ -96,14 +113,34 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     destination system.
    * @param objectId String holding the identifier for the object being sought on the destination
    *     system.
-   * @param operationOptionsData data map possibly containing current paging information
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return An IdentityModel object of this Invocator's particular type that corresponds to the
    *     given identifier. Can return null if no record matching the id was found on the destination
    *     system.
    * @throws ConnectorException If get request failed, was invalid or was not permitted.
    */
-  T getOne(D driver, String objectId, Map<String, Object> operationOptionsData)
+  T getOne(D driver, String objectId, Map<String, Object> prefetchDataMap)
       throws ConnectorException;
+
+  /**
+   * Gives the ability for an Invocator to provide custom prefetched data prior to the execution of
+   * any getAll/getOne/getOneByName call. For requests where a string of get requests is required
+   * (particularly the getAll), the prefetch will only be performed once and carried forward.
+   *
+   * @param driver Driver belonging to this Invocator and providing interaction with the applicable
+   *     destination system.
+   * @return Map of prefetched data that is understood by Invocators of that Identity Model.
+   *     Defaults to an empty Map if no custom data is applicable to Invocator implementation.
+   */
+  default Map<String, Object> getPrefetch(D driver) {
+    return Collections.emptyMap();
+  }
+
+  @Deprecated
+  default T getOneByName(D driver, String objectName) throws ConnectorException {
+    throw new UnsupportedOperationException("DriverInvocator does not support getOneByName");
+  }
 
   /**
    * Get a single object of this invocator's particular type on the destination system that matches
@@ -116,12 +153,15 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     destination system.
    * @param objectName String holding the identifier for the object being sought on the destination
    *     system.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return An IdentityModel object of this Invocator's particular type that corresponds to the
    *     given name value. Can return null if no record matching the name was found on the
    *     destination system.
    * @throws ConnectorException If get request failed, was invalid or was not permitted.
    */
-  default T getOneByName(D driver, String objectName) throws ConnectorException {
+  default T getOneByName(D driver, String objectName, Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     throw new UnsupportedOperationException("DriverInvocator does not support getOneByName");
   }
 }

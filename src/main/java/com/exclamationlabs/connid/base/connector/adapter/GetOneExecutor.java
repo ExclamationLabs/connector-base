@@ -19,12 +19,12 @@ package com.exclamationlabs.connid.base.connector.adapter;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
@@ -45,10 +45,7 @@ class GetOneExecutor {
   // handler)
   // SAD ERROR OUTCOME: UID value supplied is blank/empty
   protected static boolean byUID(
-      SearchExecutor executor,
-      Filter filter,
-      ResultsHandler resultsHandler,
-      OperationOptions options)
+      SearchExecutor executor, Filter filter, ResultsHandler resultsHandler)
       throws InvalidAttributeValueException {
     boolean executeGetOne = false;
     if (filter instanceof AttributeFilter) {
@@ -67,7 +64,12 @@ class GetOneExecutor {
                 .getAdapter()
                 .getDriver()
                 .getOne(
-                    executor.getAdapter().getIdentityModelClass(), uidValue, options.getOptions());
+                    executor.getAdapter().getIdentityModelClass(),
+                    uidValue,
+                    executor
+                        .getAdapter()
+                        .getDriver()
+                        .getPrefetch(executor.getAdapter().getIdentityModelClass()));
         executeGetOne = true;
         if (singleItem != null) {
           executor
@@ -122,13 +124,19 @@ class GetOneExecutor {
           executeGetOneByName = true;
         }
 
+        Map<String, Object> prefetchData =
+            executor
+                .getAdapter()
+                .getDriver()
+                .getPrefetch(executor.getAdapter().getIdentityModelClass());
         if (executeGetOneByName) {
           if (callGetOneByNameAPI) {
             IdentityModel singleItem =
                 executor
                     .getAdapter()
                     .getDriver()
-                    .getOneByName(executor.getAdapter().getIdentityModelClass(), filterValue);
+                    .getOneByName(
+                        executor.getAdapter().getIdentityModelClass(), filterValue, prefetchData);
             if (singleItem != null) {
               executor
                   .getAdapter()
@@ -145,7 +153,8 @@ class GetOneExecutor {
                         executor.getAdapter().getIdentityModelClass(),
                         new ResultsFilter(),
                         SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                        null);
+                        null,
+                        prefetchData);
             Optional<IdentityModel> match =
                 pageOfIdentityResults.stream()
                     .filter(
@@ -163,7 +172,7 @@ class GetOneExecutor {
                         .getOne(
                             executor.getAdapter().getIdentityModelClass(),
                             match.get().getIdentityIdValue(),
-                            null);
+                            prefetchData);
               } else {
                 fetchedIdentity = match.get();
               }
