@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.0.3** - Fix AndFilter paging bug FIN-10678 (06/30/2023)
 + **4.0.2** - Fix ResultsPagination setup FIN-10678 (06/30/2023)
 + **4.0.1** - Enhanced pagination and filtering support FIN-10678 (06/30/2023)
 + **3.1.6** - Fix adapter init to setup driver, needed for ADP FIN-10111 (06/06/2023)

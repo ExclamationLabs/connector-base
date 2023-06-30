@@ -159,14 +159,6 @@ class AndFilterExecutor {
       AndFilter andFilter,
       ResultsHandler resultsHandler,
       OperationOptions options) {
-    ResultsPaginator resultsPaginator =
-        OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
-            ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
-            : new ResultsPaginator(SearchExecutor.ABSOLUTE_RESULTS_MAX, 0);
-    int offset =
-        OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
-            ? resultsPaginator.getCurrentOffset()
-            : 0;
     Map<String, Object> prefetchData =
         executor
             .getAdapter()
@@ -196,8 +188,6 @@ class AndFilterExecutor {
                     StringUtils.equalsIgnoreCase(
                         filterValue,
                         identity.getValueBySearchableAttributeName(currentFilter.getName())))
-            .skip(SearchExecutor.correctConnIdOffset(offset))
-            .limit(resultsPaginator.getPageSize())
             .forEachOrdered(filteredResults::add);
       } else {
         allResults.stream()
@@ -206,8 +196,6 @@ class AndFilterExecutor {
                     StringUtils.containsIgnoreCase(
                         identity.getValueBySearchableAttributeName(currentFilter.getName()),
                         filterValue))
-            .skip(SearchExecutor.correctConnIdOffset(offset))
-            .limit(resultsPaginator.getPageSize())
             .forEachOrdered(filteredResults::add);
       }
       filteredResultList.add(filteredResults);
@@ -215,10 +203,23 @@ class AndFilterExecutor {
 
     Set<IdentityModel> exclusiveFilteredResults = performAndLogic(filteredResultList);
 
+    ResultsPaginator combinedResultsPaginator =
+        OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
+            ? new ResultsPaginator(
+                options.getPageSize(),
+                SearchExecutor.correctConnIdOffset(options.getPagedResultsOffset()))
+            : new ResultsPaginator(SearchExecutor.DEFAULT_FILTER_PAGE_SIZE, 0);
+
+    Set<IdentityModel> exclusiveFilteredResultsPage = new LinkedHashSet<>();
+    exclusiveFilteredResults.stream()
+        .skip(combinedResultsPaginator.getCurrentOffset())
+        .limit(combinedResultsPaginator.getPageSize())
+        .forEachOrdered(exclusiveFilteredResultsPage::add);
+
     SearchExecutor.processResultsPage(
         executor.getAdapter(),
         executor.getEnhancedAdapter(),
-        exclusiveFilteredResults,
+        exclusiveFilteredResultsPage,
         resultsHandler,
         prefetchData);
     return new SearchResult(null, -1, false);
