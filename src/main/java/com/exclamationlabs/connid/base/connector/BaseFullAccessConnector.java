@@ -23,6 +23,7 @@ import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterTranslator;
 import org.identityconnectors.framework.spi.operations.*;
 
@@ -37,7 +38,7 @@ import org.identityconnectors.framework.spi.operations.*;
  */
 public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
     extends BaseConnector<T>
-    implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<AttributeFilter>, GetApiOp {
+    implements DeleteOp, CreateOp, UpdateDeltaOp, SearchOp<Filter>, GetApiOp {
 
   public BaseFullAccessConnector(Class<T> configurationTypeIn) {
     super(configurationTypeIn);
@@ -90,7 +91,7 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
   }
 
   @Override
-  public FilterTranslator<AttributeFilter> createFilterTranslator(
+  public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
     return getConnectorFilterTranslator(objectClass);
   }
@@ -104,7 +105,7 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
   @Override
   public void executeQuery(
       final ObjectClass objectClass,
-      final AttributeFilter queryFilter,
+      final Filter queryFilter,
       final ResultsHandler resultsHandler,
       final OperationOptions operationOptions) {
     getAdapter(objectClass)

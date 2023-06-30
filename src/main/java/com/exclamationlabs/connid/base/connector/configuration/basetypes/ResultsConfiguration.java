@@ -24,19 +24,25 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  */
 public interface ResultsConfiguration extends ConnectorConfiguration {
 
+  @Deprecated
   Boolean getDeepGet();
 
+  @Deprecated
   void setDeepGet(Boolean input);
 
+  @Deprecated
   Boolean getDeepImport();
 
+  @Deprecated
   void setDeepImport(Boolean input);
 
   Integer getImportBatchSize();
 
   void setImportBatchSize(Integer input);
 
+  @Deprecated
   Boolean getPagination();
 
+  @Deprecated
   void setPagination(Boolean input);
 }

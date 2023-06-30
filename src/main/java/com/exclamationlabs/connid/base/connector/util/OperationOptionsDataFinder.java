@@ -42,6 +42,19 @@ public class OperationOptionsDataFinder {
         && operationOptionsData.containsKey(RESULTS_OFFSET_KEY);
   }
 
+  public static boolean hasValidPagingOptions(Map<String, Object> operationOptionsData) {
+    boolean valid = false;
+    if (hasPagingOptions(operationOptionsData)) {
+      Integer pageSize = getPageSize(operationOptionsData);
+      if (pageSize != null && pageSize > 1) {
+        if (getPageResultsOffset(operationOptionsData) != null) {
+          valid = true;
+        }
+      }
+    }
+    return valid;
+  }
+
   public static Integer getPageSize(OperationOptions oo) {
     return getPageSize(oo.getOptions());
   }

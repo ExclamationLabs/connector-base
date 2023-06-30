@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.BooleanUtils;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.SearchOp;
@@ -59,8 +58,7 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
     }
 
     T configuration = connector.getConnectorConfiguration();
-    if (configuration instanceof ResultsConfiguration
-        && BooleanUtils.isTrue(((ResultsConfiguration) configuration).getPagination())) {
+    if (configuration instanceof ResultsConfiguration) {
       schemaBuilder.defineOperationOption(
           OperationOptionInfoBuilder.buildPageSize(), SyncOp.class, SearchOp.class);
       schemaBuilder.defineOperationOption(

@@ -30,14 +30,15 @@ import org.identityconnectors.framework.common.objects.filter.*;
  * UI. This implementation is very clumsy, however, and has not been leveraged often up to this
  * point, so we have defined a simple default behavior Midpoint can use.
  *
- * <p>At this time, filtering for And/Or conditions or ContainsAllValue support is not included.
+ * <p>At this time, filtering for Or conditions or ContainsAllValue support is not included.
+ * Filtering using And is fairly limited.
  */
-public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeFilter> {
+public class DefaultFilterTranslator extends AbstractFilterTranslator<Filter> {
 
   private static final Set<String> standardAttributeNames;
-  private final Set<String> acceptableAttributeNames;
+  @Deprecated private final Set<String> acceptableAttributeNames;
 
-  private boolean checkNames = true;
+  @Deprecated private boolean checkNames = true;
 
   static {
     standardAttributeNames = new HashSet<>(Arrays.asList(Uid.NAME, "Id", Name.NAME, "Name"));
@@ -47,13 +48,27 @@ public class DefaultFilterTranslator extends AbstractFilterTranslator<AttributeF
     acceptableAttributeNames = Collections.emptySet();
   }
 
+  @Deprecated
   public DefaultFilterTranslator(Set<String> attributes) {
     acceptableAttributeNames = attributes;
   }
 
+  @Deprecated
   public DefaultFilterTranslator(Set<String> attributes, boolean checkAttributeName) {
     acceptableAttributeNames = attributes;
     checkNames = checkAttributeName;
+  }
+
+  /**
+   * Supported since Base Connector 4.0.
+   *
+   * @param leftFilter The left expression. Will never be null.
+   * @param rightFilter The right expression. Will never be null.
+   * @return the AndFilter filter containing both conditions.
+   */
+  @Override
+  protected AndFilter createAndExpression(Filter leftFilter, Filter rightFilter) {
+    return new AndFilter(leftFilter, rightFilter);
   }
 
   @Override
