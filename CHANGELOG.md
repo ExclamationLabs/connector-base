@@ -9,7 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
-+ **4.0.x** - Baked-in pagination and filtering support FIN-10678 (06/30/2023)
++ **4.0.1** - Enhanced pagination and filtering support FIN-10678 (06/30/2023)
 + **3.1.6** - Fix adapter init to setup driver, needed for ADP FIN-10111 (06/06/2023)
 + **3.1.5** - Change OAuth2 execution and Patch support for Provision OP support FIN-10606 (05/18/2023)
 + **3.1.4** - Add ADP PFX key password support FIN-10111 (04/26/2023)
