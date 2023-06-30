@@ -44,11 +44,14 @@ public class ResultsPaginator {
 
   public ResultsPaginator() {
     setPageSize(null);
+    setCurrentOffset(null);
+    setCurrentPageNumber(null);
   }
 
   public ResultsPaginator(Integer pageSize) {
     setPageSize(pageSize);
     setCurrentOffset(DEFAULT_PAGE_OFFSET);
+    setCurrentPageNumber(1);
   }
 
   public ResultsPaginator(Integer pageSizeIn, Integer offsetIn) {
