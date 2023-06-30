@@ -129,6 +129,14 @@ public interface Driver<T extends ConnectorConfiguration> {
   void delete(Class<? extends IdentityModel> identityModelClass, String objectId)
       throws ConnectorException;
 
+  @Deprecated
+  Set<IdentityModel> getAll(
+      Class<? extends IdentityModel> identityModelClass,
+      ResultsFilter resultsFilter,
+      ResultsPaginator pagination,
+      Integer resultCap)
+      throws ConnectorException;
+
   /**
    * Process a request to get all objects of a particular type from the destination system.
    *
@@ -140,6 +148,8 @@ public interface Driver<T extends ConnectorConfiguration> {
    *     results are processed for the connector.
    * @param resultCap The maximum number of results that should be returned by getAll. This can be
    *     null but if present will override the pagination pageSize.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return A set of IdentityModel instances representing all the objects of a particular type. Or
    *     null or an empty set if no objects for this type were found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
@@ -149,7 +159,8 @@ public interface Driver<T extends ConnectorConfiguration> {
       Class<? extends IdentityModel> identityModelClass,
       ResultsFilter resultsFilter,
       ResultsPaginator pagination,
-      Integer resultCap)
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
       throws ConnectorException;
 
   /**
@@ -159,7 +170,8 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
    *     the get request.
    * @param idValue String containing the id for the record to be retrieved.
-   * @param operationOptionsData data map possibly containing current paging information
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return An IdentityModel instance representing the object for the given id. Or null if a record
    *     was not found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
@@ -168,8 +180,26 @@ public interface Driver<T extends ConnectorConfiguration> {
   IdentityModel getOne(
       Class<? extends IdentityModel> identityModelClass,
       String idValue,
-      Map<String, Object> operationOptionsData)
+      Map<String, Object> prefetchDataMap)
       throws ConnectorException;
+
+  /**
+   * Gives the ability for an Invocator to provide custom prefetched data prior to the execution of
+   * any getAll/getOne/getOneByName call. For requests where a string of get requests is required
+   * (particularly the getAll), the prefetch will only be performed once and carried forward.
+   *
+   * @param identityModelClass Class of IdentityModel applicable to the potential prefetch behavior.
+   * @return Map of prefetched data that is understood by Invocators of that Identity Model.
+   *     Defaults to an empty Map if no custom data is applicable to Invocator implementation.
+   */
+  Map<String, Object> getPrefetch(Class<? extends IdentityModel> identityModelClass);
+
+  @Deprecated
+  default IdentityModel getOneByName(
+      Class<? extends IdentityModel> identityModelClass, String nameValue)
+      throws ConnectorException {
+    throw new UnsupportedOperationException("Driver does not support getOneByName");
+  }
 
   /**
    * Process a request to get a single object of a particular type from the destination system,
@@ -181,13 +211,17 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
    *     the get request.
    * @param nameValue String containing the id for the record to be retrieved.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
+   *     understood by the invocator.
    * @return An IdentityModel instance representing the object for the given id. Or null if a record
    *     was not found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
    *     matching record for the given name is not considered an exception condition.
    */
   default IdentityModel getOneByName(
-      Class<? extends IdentityModel> identityModelClass, String nameValue)
+      Class<? extends IdentityModel> identityModelClass,
+      String nameValue,
+      Map<String, Object> prefetchDataMap)
       throws ConnectorException {
     throw new UnsupportedOperationException("Driver does not support getOneByName");
   }

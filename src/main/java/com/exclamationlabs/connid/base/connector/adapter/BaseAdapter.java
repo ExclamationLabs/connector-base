@@ -38,6 +38,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 
 /**
  * Base attribute class describing composition of an Adapter. Since the Adapter is the glue between
@@ -47,6 +48,11 @@ import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
  *
  * <p>Adapter subclasses should specify the generic as a specific identity object type, which
  * implements IdentityModel.
+ *
+ * <p>For versions 4.0 and higher, BaseAdapter subclasses should implement
+ * EnhancedPaginationAndFiltering (and possibly PaginationCapableSource and FilterCapableSource) so
+ * that the base framework understands the source API's filtering and pagination capabilities and
+ * limitations.
  */
 public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorConfiguration> {
 
@@ -55,6 +61,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
   protected U configuration;
 
   protected Set<String> multiValueAttributeNames;
+
+  SearchExecutor searchExecutor;
 
   public BaseAdapter() {}
 
@@ -221,13 +229,43 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
    *     supported in the future for paging or other purposes.
    * @param hasEnhancedFiltering Set to true if enhanced filtering is supported and to be performed
    *     if applicable.
+   * @return SearchResult for known information pertaining to the SearchResult
    */
-  public void get(
-      AttributeFilter queryFilter,
+  public SearchResult get(
+      Filter queryFilter,
       ResultsHandler resultsHandler,
       OperationOptions options,
       boolean hasEnhancedFiltering) {
 
+    if (this instanceof EnhancedPaginationAndFiltering) {
+      if (searchExecutor == null) {
+        searchExecutor = new SearchExecutor(this);
+      }
+      return searchExecutor.execute(queryFilter, resultsHandler, options);
+    } else {
+      legacyGetHandling(queryFilter, resultsHandler, options, hasEnhancedFiltering);
+      return new SearchResult();
+    }
+  }
+
+  /**
+   * Service a request from IAM to get one, some, or all items of a data type from the destination
+   * system.
+   *
+   * @param filter Query filter item to help identify which item(s) need to be retrieved.
+   * @param resultsHandler ConnId ResultsHandler object used to send result data back to IAM system.
+   * @param options OperationOptions object received by connector. Not currently used but may be
+   *     supported in the future for paging or other purposes.
+   * @param hasEnhancedFiltering Set to true if enhanced filtering is supported and to be performed
+   *     if applicable.
+   */
+  @Deprecated
+  protected void legacyGetHandling(
+      Filter filter,
+      ResultsHandler resultsHandler,
+      OperationOptions options,
+      boolean hasEnhancedFiltering) {
+    AttributeFilter queryFilter = (AttributeFilter) filter;
     if (queryFilter == null || queryFilter.getAttribute() == null) {
       Logger.info(
           this,
