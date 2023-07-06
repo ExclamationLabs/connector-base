@@ -391,7 +391,7 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
   public EnhancedPFUser getOne(
       EnhancedPFDriver driver, String id, Map<String, Object> prefetchDataMap)
       throws ConnectorException {
-    if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
+    if (prefetchDataMap == null || prefetchDataMap.size() < 2 || prefetchDataMap.size() > 3) {
       throw new IllegalArgumentException("Prefetch data map propagation not working");
     }
     EnhancedPFUser result = testUserMap.get(id);
@@ -423,7 +423,7 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
 
   @Override
   public Map<String, Object> getPrefetch(EnhancedPFDriver driver) {
-    return Map.of("ying", "yang", "lorem", "ipsum");
+    return new HashMap<>(Map.of("ying", "yang", "lorem", "ipsum"));
   }
 
   private Set<EnhancedPFUser> performAndFiltering(
