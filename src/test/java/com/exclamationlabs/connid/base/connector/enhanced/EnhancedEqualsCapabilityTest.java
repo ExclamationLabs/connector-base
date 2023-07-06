@@ -72,6 +72,11 @@ public class EnhancedEqualsCapabilityTest
     public Set<String> getContainsFilterAttributes() {
       return Collections.emptySet();
     }
+
+    @Override
+    public Integer getSubsequentRequestThreadCount() {
+      return 5;
+    }
   }
 
   @Override
