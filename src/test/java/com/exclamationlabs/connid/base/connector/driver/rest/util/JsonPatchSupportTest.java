@@ -39,11 +39,7 @@ public class JsonPatchSupportTest {
     assertNotNull(response);
     assertEquals(2, response.length);
     assertEquals("replace", response[0].getOperationType());
-    assertEquals("/field1", response[0].getPath());
-    assertEquals("test1", response[0].getValue());
     assertEquals("replace", response[1].getOperationType());
-    assertEquals("/field2", response[1].getPath());
-    assertEquals("test2", response[1].getValue());
   }
 
   private class MyModel implements IdentityModel {

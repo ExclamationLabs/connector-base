@@ -19,7 +19,7 @@ package com.exclamationlabs.connid.base.connector.driver;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -134,7 +134,7 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     Defaults to an empty Map if no custom data is applicable to Invocator implementation.
    */
   default Map<String, Object> getPrefetch(D driver) {
-    return Collections.emptyMap();
+    return new LinkedHashMap<>();
   }
 
   @Deprecated
