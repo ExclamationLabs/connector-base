@@ -58,4 +58,18 @@ public interface EnhancedPaginationAndFiltering {
    * @return all applicable attribute names.
    */
   Set<String> getSearchResultsAttributesPresent();
+
+  /**
+   * Specify the number of threads used when subsequent API requests are made to retrieve full
+   * identity details while returning a set of identities. The default implementation is 1 (no
+   * multithreading).
+   *
+   * @return The maximum number of executable threads to spawn at a given time. Anything less than 2
+   *     will result in normal execution and multithreading of requests. The number of threads
+   *     started will not exceed the number of identities in the set in context (usually
+   *     corresponding to page size)
+   */
+  default Integer getSubsequentRequestThreadCount() {
+    return 1;
+  }
 }

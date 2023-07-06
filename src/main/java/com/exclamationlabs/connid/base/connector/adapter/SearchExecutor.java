@@ -18,11 +18,14 @@ package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.filter.FilterType;
 import com.exclamationlabs.connid.base.connector.filter.FilterValidator;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.connector.util.OperationOptionsDataFinder;
 import java.util.*;
+import java.util.concurrent.*;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.*;
@@ -34,8 +37,8 @@ import org.identityconnectors.framework.common.objects.filter.*;
  */
 public class SearchExecutor {
 
-  static final int ABSOLUTE_RESULTS_MAX = 999999;
   public static final int DEFAULT_FILTER_PAGE_SIZE = 20;
+  public static final String PARTIAL_IDENTITY_KEY = "PARTIAL_IDENTITY";
 
   private final BaseAdapter<?, ?> adapter;
   private final EnhancedPaginationAndFiltering enhancedAdapter;
@@ -257,15 +260,27 @@ public class SearchExecutor {
     if (!enhancedAdapter.getSearchResultsContainsAllAttributes()) {
       // IdentityModels do not contain all attributes, need to call getOne for each.
       Set<IdentityModel> pageOfDetailedIdentities = new LinkedHashSet<>();
-      for (IdentityModel identity : results) {
-        IdentityModel identityWithDetails =
-            adapter
-                .getDriver()
-                .getOne(
-                    adapter.getIdentityModelClass(),
-                    identity.getIdentityIdValue(),
-                    prefetchDataMap);
-        pageOfDetailedIdentities.add(identityWithDetails);
+
+      if (enhancedAdapter.getSubsequentRequestThreadCount() != null
+          && enhancedAdapter.getSubsequentRequestThreadCount() > 1) {
+        // Invoke multiple execution threads to help resolve getOne requests for identities in the
+        // set
+        pageOfDetailedIdentities =
+            invokeParallelGetOneRequests(adapter, enhancedAdapter, results, prefetchDataMap);
+      } else {
+        for (IdentityModel identity : results) {
+          // Place the partial identity object in the data map in case driver/invocator
+          // is in need of it
+          prefetchDataMap.put(PARTIAL_IDENTITY_KEY, identity);
+          IdentityModel identityWithDetails =
+              adapter
+                  .getDriver()
+                  .getOne(
+                      adapter.getIdentityModelClass(),
+                      identity.getIdentityIdValue(),
+                      prefetchDataMap);
+          pageOfDetailedIdentities.add(identityWithDetails);
+        }
       }
       adapter.passSetToResultsHandler(resultsHandler, pageOfDetailedIdentities, false);
     } else {
@@ -295,5 +310,81 @@ public class SearchExecutor {
 
   EnhancedPaginationAndFiltering getEnhancedAdapter() {
     return enhancedAdapter;
+  }
+
+  private static Set<IdentityModel> invokeParallelGetOneRequests(
+      BaseAdapter<?, ?> adapter,
+      EnhancedPaginationAndFiltering enhancedAdapter,
+      Set<IdentityModel> identitySet,
+      Map<String, Object> prefetchDataMap) {
+    Set<IdentityModel> resultSet = new LinkedHashSet<>();
+    Integer maxConcurrent = enhancedAdapter.getSubsequentRequestThreadCount();
+    int ctr = 0;
+    int employeeCount = identitySet.size();
+    Iterator<IdentityModel> iterator = identitySet.iterator();
+    while (ctr < employeeCount) {
+      int currentThrottle = Math.min((employeeCount - ctr), maxConcurrent);
+      List<Future<IdentityModel>> getOneExecutions = new ArrayList<>();
+      for (int xx = ctr; xx < (ctr + currentThrottle); xx++) {
+        IdentityModel currentIdentity = iterator.next();
+        prefetchDataMap.put(PARTIAL_IDENTITY_KEY, currentIdentity);
+        getOneExecutions.add(getOneExecution(adapter, currentIdentity, prefetchDataMap));
+      }
+      for (Future<IdentityModel> oneExecution : getOneExecutions) {
+        try {
+          IdentityModel responseIdentityModel = oneExecution.get();
+          resultSet.add(responseIdentityModel);
+          Logger.trace(
+              SearchExecutor.class,
+              String.format("%s at %d", responseIdentityModel, System.currentTimeMillis()));
+        } catch (InterruptedException | ExecutionException ee) {
+          throw new ConnectorException("Error occurred while executing getOne thread", ee);
+        } catch (CancellationException cancelled) {
+          throw new ConnectorException("Error occurred while executing Completable", cancelled);
+        }
+      }
+      ctr += currentThrottle;
+    }
+
+    return resultSet;
+  }
+
+  private static CompletableFuture<IdentityModel> getOneExecution(
+      BaseAdapter<?, ?> adapter, IdentityModel identity, Map<String, Object> prefetchDataMap) {
+    CompletableFuture<IdentityModel> completableFuture = new CompletableFuture<>();
+    Executors.newCachedThreadPool()
+        .submit(() -> getRetryableGetOne(adapter, identity, completableFuture, prefetchDataMap));
+    return completableFuture;
+  }
+
+  private static void getRetryableGetOne(
+      BaseAdapter<?, ?> adapter,
+      IdentityModel identity,
+      CompletableFuture<IdentityModel> completableFuture,
+      Map<String, Object> prefetchDataMap) {
+    boolean success = false;
+    IdentityModel resultIdentity = null;
+    try {
+      resultIdentity =
+          adapter
+              .getDriver()
+              .getOne(
+                  adapter.getIdentityModelClass(), identity.getIdentityIdValue(), prefetchDataMap);
+      success = true;
+    } finally {
+      if (success && (resultIdentity != null)) {
+        String completionMessage =
+            String.format(
+                "Successfully retrieved identity details for id %s",
+                resultIdentity.getIdentityIdValue());
+        Logger.trace(SearchExecutor.class, completionMessage);
+        completableFuture.complete(resultIdentity);
+      } else {
+        Logger.warn(
+            SearchExecutor.class,
+            String.format("Cancelling work for identity id %s", identity.getIdentityIdValue()));
+        completableFuture.cancel(true);
+      }
+    }
   }
 }
