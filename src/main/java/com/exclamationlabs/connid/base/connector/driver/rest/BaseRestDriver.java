@@ -76,8 +76,6 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
 
   protected HttpClientContext socksProxyClientContext;
 
-  protected HttpClient restClient = null;
-
   @Override
   public void initialize(U config, Authenticator<U> auth) throws ConnectorException {
     TrustStoreConfiguration.clearJdkProperties();
@@ -108,14 +106,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
    * @return A constructed HttpClient set up as needed per configuration values.
    */
   protected HttpClient createClient() {
-    if (restClient != null) {
-      Logger.debug(
-          this,
-          String.format(
-              "Reusing prior restClient %s for driver %s",
-              restClient.getClass().getName(), this.getClass().getSimpleName()));
-      return restClient;
-    }
+    HttpClient restClient;
 
     boolean usesHttpBasicAuth = getConfiguration() instanceof HttpBasicAuthConfiguration;
     boolean usesProxy = getConfiguration() instanceof ProxyConfiguration;
@@ -128,7 +119,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       socksProxy = StringUtils.equalsIgnoreCase("socks", proxyConfiguration.getProxyType());
       if (socksProxy) {
         socksProxyClientContext = setupSocksProxyContext(proxyConfiguration);
-        socksProxyConnectionManager = setupSocksProxyConnectionManager(proxyConfiguration);
+        socksProxyConnectionManager = setupSocksProxyConnectionManager();
       } else {
         httpProxyRoutePlanner = setupHttpProxyRouteManager(proxyConfiguration);
       }
@@ -173,7 +164,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     Logger.debug(
         this,
         String.format(
-            "Calculated new restClient %s for driver %s",
+            "Setup new restClient %s for driver %s",
             restClient.getClass().getName(), this.getClass().getSimpleName()));
     return restClient;
   }
@@ -183,8 +174,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     return new DefaultProxyRoutePlanner(proxyHost);
   }
 
-  protected PoolingHttpClientConnectionManager setupSocksProxyConnectionManager(
-      ProxyConfiguration configuration) {
+  protected PoolingHttpClientConnectionManager setupSocksProxyConnectionManager() {
     Registry<ConnectionSocketFactory> reg =
         RegistryBuilder.<ConnectionSocketFactory>create()
             .register("http", PlainConnectionSocketFactory.INSTANCE)
