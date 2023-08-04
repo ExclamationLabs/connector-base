@@ -122,7 +122,6 @@ public class SearchExecutor {
       throw new InvalidAttributeValueException("Unexpected null filter value encountered.");
     }
 
-    // TODO: support AndFilter
     // Complexity Limitations:
     // All restrictions on AndFilter implemented in FilterValidator
     // All filter attributes involved in AND's must be natively supported by API
