@@ -59,7 +59,7 @@ public class ResultsPaginator {
     setCurrentOffset(offsetIn);
 
     int pageNumber = 1;
-    if (getCurrentOffset() > getPageSize()) {
+    if (getCurrentOffset() >= getPageSize()) {
       pageNumber = 1 + (getCurrentOffset() / getPageSize());
     }
     setCurrentPageNumber(pageNumber);
