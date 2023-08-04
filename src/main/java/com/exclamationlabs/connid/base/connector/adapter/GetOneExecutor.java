@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import java.util.Collections;
@@ -144,19 +145,31 @@ class GetOneExecutor {
                       resultsHandler, Collections.singleton(singleItem), false);
             }
           } else {
-            // Find single name using API max results
-            Set<IdentityModel> pageOfIdentityResults =
-                executor
-                    .getAdapter()
-                    .getDriver()
-                    .getAll(
-                        executor.getAdapter().getIdentityModelClass(),
-                        new ResultsFilter(),
-                        SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                        null,
-                        prefetchData);
+            // Find single name using API max results or full import
+            Set<IdentityModel> allIdentityResults;
+            if (executor.getEnhancedAdapter().getFilteringRequiresFullImport()) {
+              // Perform paginated full import in order to find single name value
+              int importBatchSize =
+                  ((ResultsConfiguration) executor.getAdapter().getConfiguration())
+                      .getImportBatchSize();
+              allIdentityResults =
+                  ImportAllExecutor.executeMultiPageImportProcess(
+                      executor, importBatchSize, prefetchData, null);
+            } else {
+
+              allIdentityResults =
+                  executor
+                      .getAdapter()
+                      .getDriver()
+                      .getAll(
+                          executor.getAdapter().getIdentityModelClass(),
+                          new ResultsFilter(),
+                          SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
+                          null,
+                          prefetchData);
+            }
             Optional<IdentityModel> match =
-                pageOfIdentityResults.stream()
+                allIdentityResults.stream()
                     .filter(
                         identity ->
                             StringUtils.equalsIgnoreCase(

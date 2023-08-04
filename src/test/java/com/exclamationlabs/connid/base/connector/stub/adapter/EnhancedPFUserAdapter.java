@@ -102,4 +102,9 @@ public class EnhancedPFUserAdapter extends BaseAdapter<EnhancedPFUser, EnhancedP
   public Set<String> getSearchResultsAttributesPresent() {
     return Collections.emptySet();
   }
+
+  @Override
+  public boolean getFilteringRequiresFullImport() {
+    return false;
+  }
 }

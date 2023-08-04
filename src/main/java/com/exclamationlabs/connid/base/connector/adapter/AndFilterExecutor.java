@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.FilterType;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
@@ -164,16 +165,27 @@ class AndFilterExecutor {
             .getAdapter()
             .getDriver()
             .getPrefetch(executor.getAdapter().getIdentityModelClass());
-    Set<IdentityModel> allResults =
-        executor
-            .getAdapter()
-            .getDriver()
-            .getAll(
-                executor.getAdapter().getIdentityModelClass(),
-                new ResultsFilter(),
-                SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                null,
-                prefetchData);
+
+    Set<IdentityModel> allResults;
+    if (executor.getEnhancedAdapter().getFilteringRequiresFullImport()) {
+      // Perform paginated full import in order to perform And filter
+      int importBatchSize =
+          ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
+      allResults =
+          ImportAllExecutor.executeMultiPageImportProcess(
+              executor, importBatchSize, prefetchData, null);
+    } else {
+      allResults =
+          executor
+              .getAdapter()
+              .getDriver()
+              .getAll(
+                  executor.getAdapter().getIdentityModelClass(),
+                  new ResultsFilter(),
+                  SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
+                  null,
+                  prefetchData);
+    }
 
     List<Set<IdentityModel>> filteredResultList = new ArrayList<>();
     for (Filter current : andFilter.getFilters()) {

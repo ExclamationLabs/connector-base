@@ -17,12 +17,13 @@
 package com.exclamationlabs.connid.base.connector.adapter;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.*;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 /**
@@ -60,40 +61,13 @@ public class ImportAllExecutor {
             .getPrefetch(executor.getAdapter().getIdentityModelClass());
     if (executor.getAdapter() instanceof PaginationCapableSource) {
       PaginationCapableSource paginationCheck = (PaginationCapableSource) executor.getAdapter();
-      int currentOffset = 0;
       int pageSize =
           ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
       if (paginationCheck.hasSearchResultsMaximum()
           && paginationCheck.getSearchResultsMaximum() < pageSize) {
         pageSize = paginationCheck.getSearchResultsMaximum();
       }
-      boolean importComplete = false;
-
-      while (!importComplete) {
-        ResultsPaginator currentPaginator = new ResultsPaginator(pageSize, currentOffset);
-        Set<IdentityModel> pageOfIdentityResults =
-            executor
-                .getAdapter()
-                .getDriver()
-                .getAll(
-                    executor.getAdapter().getIdentityModelClass(),
-                    new ResultsFilter(),
-                    currentPaginator,
-                    null,
-                    prefetchData);
-        if (currentPaginator.getNoMoreResults() || pageOfIdentityResults.size() < pageSize) {
-          importComplete = true;
-        } else {
-          currentOffset += pageSize;
-        }
-
-        SearchExecutor.processResultsPage(
-            executor.getAdapter(),
-            executor.getEnhancedAdapter(),
-            pageOfIdentityResults,
-            resultsHandler,
-            prefetchData);
-      } // end while
+      executeMultiPageImportProcess(executor, pageSize, prefetchData, resultsHandler);
 
     } else {
       // API has no pagination capability, manually paginate here
@@ -137,5 +111,131 @@ public class ImportAllExecutor {
       } // end while
     }
     return true;
+  }
+
+  protected static Set<IdentityModel> executeMultiPageImportProcess(
+      SearchExecutor executor,
+      int pageSize,
+      Map<String, Object> prefetchData,
+      ResultsHandler resultsHandler) {
+    int throttle = executor.getEnhancedAdapter().getImportUsingPaginationThreadCount();
+    if (throttle < 2) {
+      return executeMultiPageImportProcessNoMultiThread(
+          executor, pageSize, prefetchData, resultsHandler);
+    }
+    boolean importComplete = false;
+    int currentOffset = 0;
+    Set<IdentityModel> fullCollectedResults = new LinkedHashSet<>();
+    while (!importComplete) {
+      List<Future<Set<IdentityModel>>> pageImportExecutions = new ArrayList<>();
+      for (int xx = 0; xx < throttle; xx++) {
+        pageImportExecutions.add(
+            importSinglePageExecution(
+                executor, new ResultsPaginator(pageSize, currentOffset), prefetchData));
+        currentOffset += pageSize;
+      }
+      for (Future<Set<IdentityModel>> oneExecution : pageImportExecutions) {
+        try {
+          Set<IdentityModel> pageOfIdentityResults = oneExecution.get();
+          if (resultsHandler != null) {
+            SearchExecutor.processResultsPage(
+                executor.getAdapter(),
+                executor.getEnhancedAdapter(),
+                pageOfIdentityResults,
+                resultsHandler,
+                prefetchData);
+          } else {
+            fullCollectedResults.addAll(pageOfIdentityResults);
+          }
+          // Once we see the API return number of results smaller than the page size or 0, we know
+          // that import is complete
+          if (pageOfIdentityResults.size() < pageSize) {
+            importComplete = true;
+          }
+
+          Logger.trace(
+              ImportAllExecutor.class,
+              String.format(
+                  "Imported %d identities at %d",
+                  pageOfIdentityResults.size(), System.currentTimeMillis()));
+        } catch (InterruptedException | ExecutionException ee) {
+          throw new ConnectorException("Error occurred while executing importAll page thread", ee);
+        } catch (CancellationException cancelled) {
+          throw new ConnectorException(
+              "Error occurred while executing Completable importAll page thread", cancelled);
+        }
+      }
+    }
+    return fullCollectedResults;
+  }
+
+  private static CompletableFuture<Set<IdentityModel>> importSinglePageExecution(
+      SearchExecutor executor,
+      ResultsPaginator resultsPaginator,
+      Map<String, Object> prefetchData) {
+    CompletableFuture<Set<IdentityModel>> completableFuture = new CompletableFuture<>();
+    Executors.newCachedThreadPool()
+        .submit(
+            () -> importSinglePage(executor, resultsPaginator, prefetchData, completableFuture));
+    return completableFuture;
+  }
+
+  private static void importSinglePage(
+      SearchExecutor executor,
+      ResultsPaginator paginator,
+      Map<String, Object> prefetchData,
+      CompletableFuture<Set<IdentityModel>> completableFuture) {
+    Set<IdentityModel> resultPage =
+        executor
+            .getAdapter()
+            .getDriver()
+            .getAll(
+                executor.getAdapter().getIdentityModelClass(),
+                new ResultsFilter(),
+                paginator,
+                null,
+                prefetchData);
+    completableFuture.complete(resultPage);
+  }
+
+  protected static Set<IdentityModel> executeMultiPageImportProcessNoMultiThread(
+      SearchExecutor executor,
+      int pageSize,
+      Map<String, Object> prefetchData,
+      ResultsHandler resultsHandler) {
+    int currentOffset = 0;
+    boolean importComplete = false;
+    Set<IdentityModel> collectedResults = new LinkedHashSet<>();
+
+    while (!importComplete) {
+      ResultsPaginator currentPaginator = new ResultsPaginator(pageSize, currentOffset);
+      Set<IdentityModel> pageOfIdentityResults =
+          executor
+              .getAdapter()
+              .getDriver()
+              .getAll(
+                  executor.getAdapter().getIdentityModelClass(),
+                  new ResultsFilter(),
+                  currentPaginator,
+                  null,
+                  prefetchData);
+      if (currentPaginator.getNoMoreResults() || pageOfIdentityResults.size() < pageSize) {
+        importComplete = true;
+      } else {
+        currentOffset += pageSize;
+      }
+
+      if (resultsHandler != null) {
+        SearchExecutor.processResultsPage(
+            executor.getAdapter(),
+            executor.getEnhancedAdapter(),
+            pageOfIdentityResults,
+            resultsHandler,
+            prefetchData);
+      } else {
+        collectedResults.addAll(pageOfIdentityResults);
+      }
+    } // end while
+    return collectedResults;
   }
 }
