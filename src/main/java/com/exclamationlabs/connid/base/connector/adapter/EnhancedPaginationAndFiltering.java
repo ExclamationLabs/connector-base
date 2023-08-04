@@ -60,6 +60,16 @@ public interface EnhancedPaginationAndFiltering {
   Set<String> getSearchResultsAttributesPresent();
 
   /**
+   * If true, for any filter that is received (other than Equals UID), a full import of identities
+   * is required to obtain the data. Note that for performance reasons this should probably only be
+   * used for adapters that have getSearchResultsContainsAllAttributes() = true, so subsequent
+   * getOne's do not need to be invoked.
+   *
+   * @return true if all filtering requires a full import to proceed
+   */
+  boolean getFilteringRequiresFullImport();
+
+  /**
    * Specify the number of threads used when subsequent API requests are made to retrieve full
    * identity details while returning a set of identities. The default implementation is 1 (no
    * multithreading).
@@ -70,6 +80,17 @@ public interface EnhancedPaginationAndFiltering {
    *     corresponding to page size)
    */
   default Integer getSubsequentRequestThreadCount() {
+    return 1;
+  }
+
+  /**
+   * For cases where a full import runs and the API supports pagination, this thread count controls
+   * the number of threads that will be used to retrieve pages of information. Note that this should
+   * only be set for Adapters that implement PaginationCapableSource.
+   *
+   * @return The maximum number of executable threads to spawn at a given time for full import
+   */
+  default Integer getImportUsingPaginationThreadCount() {
     return 1;
   }
 }

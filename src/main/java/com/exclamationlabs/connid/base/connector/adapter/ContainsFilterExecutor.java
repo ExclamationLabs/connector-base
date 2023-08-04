@@ -16,6 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.adapter;
 
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.FilterType;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
@@ -153,7 +154,7 @@ class ContainsFilterExecutor {
               FilterType.ContainsFilter);
         }
       }
-      // No direct API filter, get all results up to API max and return matches
+      // No direct API filter, get all results and return matches
       Map<String, Object> prefetchData =
           executor
               .getAdapter()
@@ -163,16 +164,27 @@ class ContainsFilterExecutor {
           OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
               ? resultsPaginator.getCurrentOffset()
               : 0;
-      Set<IdentityModel> allResults =
-          executor
-              .getAdapter()
-              .getDriver()
-              .getAll(
-                  executor.getAdapter().getIdentityModelClass(),
-                  new ResultsFilter(),
-                  SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
-                  null,
-                  prefetchData);
+      Set<IdentityModel> allResults;
+      if (executor.getEnhancedAdapter().getFilteringRequiresFullImport()) {
+        // Perform paginated full import in order to perform contains filter
+        int importBatchSize =
+            ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
+        allResults =
+            ImportAllExecutor.executeMultiPageImportProcess(
+                executor, importBatchSize, prefetchData, null);
+      } else {
+        // get all results up to API max and return matches
+        allResults =
+            executor
+                .getAdapter()
+                .getDriver()
+                .getAll(
+                    executor.getAdapter().getIdentityModelClass(),
+                    new ResultsFilter(),
+                    SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
+                    null,
+                    prefetchData);
+      }
       final String filterValue =
           AdapterValueTypeConverter.readSingleAttributeValueAsString(containsFilter.getAttribute());
       Set<IdentityModel> filteredResults = new LinkedHashSet<>();
