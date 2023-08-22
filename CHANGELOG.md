@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.1** - Don't Output guarded strings to log FIN-790 (08/22/2023)
 + **4.1.0** - Support ImportAll-Filtering and Threading of paginated getAll requests (Workday) FIN-790 FIN-10678 (08/03/2023)
 + **4.0.5** - Do not reuse HttpClient for performance/stability in Midpoint FIN-10678 (07/25/2023)
 + **4.0.4** - Fix preFetch logistical issues FIN-10678 (07/06/2023)
