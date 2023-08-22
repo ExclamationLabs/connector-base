@@ -43,7 +43,7 @@ public class ConfigurationWriterTest {
             + "custom.thing2=5555566666\n"
             + "custom.thing3=true\n"
             + "rest.ioErrorRetries=15\n"
-            + "custom.guardedValue=testMe\n"
+            + "custom.guardedValue=(redacted)\n"
             + "custom.arrayValue=[Uno, Dos, Tres]\n";
     String output = ConfigurationWriter.writeToString(configuration);
     assertEquals(expectedOutput, output);
