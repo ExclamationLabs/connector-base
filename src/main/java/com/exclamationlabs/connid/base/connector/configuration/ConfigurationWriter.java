@@ -17,7 +17,6 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
 import com.exclamationlabs.connid.base.connector.logging.Logger;
-import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import org.identityconnectors.common.security.GuardedString;
@@ -52,8 +51,7 @@ public class ConfigurationWriter {
             dataValue = "";
           } else {
             if (GuardedString.class == field.getType()) {
-              GuardedString hiddenString = (GuardedString) field.get(configuration);
-              dataValue = GuardedStringUtil.read(hiddenString);
+              dataValue = "(redacted)";
             } else if (String[].class == field.getType()) {
               dataValue = Arrays.toString((String[]) fieldValue);
             } else {
