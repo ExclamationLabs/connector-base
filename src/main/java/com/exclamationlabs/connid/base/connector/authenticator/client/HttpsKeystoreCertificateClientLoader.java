@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.security.*;
 import javax.net.ssl.*;
@@ -41,6 +42,7 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
 
     try {
       SSLContext sslContext = SSLContext.getInstance("TLS");
+      // SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 
       KeyManagerFactory keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -83,14 +85,32 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
   private static TrustManager setupTrustManager() {
     return new X509TrustManager() {
       @Override
-      public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {}
+      public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+        checkCertificateChain(chain, authType);
+      }
 
       @Override
-      public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1) {}
+      public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+        checkCertificateChain(chain, authType);
+      }
 
       @Override
       public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+        Logger.debug(this.getClass(), "Need to perform some kind of issuers check");
         return null;
+      }
+
+      private void checkCertificateChain(
+          java.security.cert.X509Certificate[] chain, String authType) {
+        Logger.debug(this.getClass(), "Auth type is " + authType);
+        try {
+          if (chain == null || chain.length == 0) {
+            throw new IllegalArgumentException("Received empty/null certificate chain");
+          }
+          chain[0].checkValidity();
+        } catch (Exception e) {
+          throw new RuntimeException("Certificate not valid or trusted.", e);
+        }
       }
     };
   }
