@@ -17,9 +17,9 @@
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
-import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import javax.net.ssl.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -84,30 +84,31 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
 
   private static TrustManager setupTrustManager() {
     return new X509TrustManager() {
+      private X509Certificate[] acceptedChain = null;
+
       @Override
-      public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+      public void checkClientTrusted(X509Certificate[] chain, String authType) {
         checkCertificateChain(chain, authType);
       }
 
       @Override
-      public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+      public void checkServerTrusted(X509Certificate[] chain, String authType) {
         checkCertificateChain(chain, authType);
       }
 
       @Override
-      public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-        Logger.debug(this.getClass(), "Need to perform some kind of issuers check");
-        return null;
+      public X509Certificate[] getAcceptedIssuers() {
+        return acceptedChain;
       }
 
       private void checkCertificateChain(
           java.security.cert.X509Certificate[] chain, String authType) {
-        Logger.debug(this.getClass(), "Auth type is " + authType);
         try {
           if (chain == null || chain.length == 0) {
             throw new IllegalArgumentException("Received empty/null certificate chain");
           }
           chain[0].checkValidity();
+          acceptedChain = chain;
         } catch (Exception e) {
           throw new RuntimeException("Certificate not valid or trusted.", e);
         }
