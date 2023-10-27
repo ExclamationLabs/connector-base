@@ -41,8 +41,7 @@ public class HttpsKeystoreCertificateClientLoader implements SecureClientLoader<
     TrustManager trustManager = setupTrustManager();
 
     try {
-      SSLContext sslContext = SSLContext.getInstance("TLS");
-      // SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+      SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 
       KeyManagerFactory keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
