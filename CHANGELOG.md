@@ -9,7 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
-+ **4.1.2.1** - FIN-11091 - security vulnerability - release candidate (10/26/2023)
++ **4.1.3** - FIN-11091 - Add security to Keystore client loader (10/27/2023)
 + **4.1.2** - Address Snyk Vulnerabilities (09/22/2023)
 + **4.1.1** - Don't Output guarded strings to log FIN-790 (08/22/2023)
 + **4.1.0** - Support ImportAll-Filtering and Threading of paginated getAll requests (Workday) FIN-790 FIN-10678 (08/03/2023)
