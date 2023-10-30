@@ -28,7 +28,10 @@ dependencies {
     api 'net.tirasa.connid:connector-test-common:1.5.0.0'
     api 'com.auth0:java-jwt:3.19.4'
 
-    api 'org.springframework.boot:spring-boot-starter-validation:2.7.16'
+    api ("org.springframework.boot:spring-boot-starter-validation:2.7.16") {
+        exclude group: "org.yaml", module: "snakeyaml"
+
+    }
     api 'org.yaml:snakeyaml:2.0'
     ////// End - Vital dependencies for Base Connector
 
