@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.4.1** - FIN-11103 - Private Key and PEM support for ADP (11/01/2023)
 + **4.1.4** - FIN-11092 - Remove snakeyml dependency ref (10/30/2023)
 + **4.1.3** - FIN-11091 - Add security to Keystore client loader (10/27/2023)
 + **4.1.2** - Address Snyk Vulnerabilities (09/22/2023)
