@@ -24,15 +24,19 @@ import org.identityconnectors.common.security.GuardedString;
  * order to connect for authentication.
  */
 public interface PemPrivateKeyConfiguration extends ConnectorConfiguration {
-  String getPemFile();
+  GuardedString getPemFile();
 
-  void setPemFile(String input);
+  void setPemFile(GuardedString input);
 
-  String getPrivateKeyFile();
+  GuardedString getPrivateKeyFile();
 
-  void setPrivateKeyFile(String input);
+  void setPrivateKeyFile(GuardedString input);
 
   GuardedString getKeyPassword();
 
   void setKeyPassword(GuardedString input);
+
+  GuardedString getKeyStorePassword();
+
+  void setKeyStorePassword(GuardedString input);
 }
