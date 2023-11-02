@@ -16,15 +16,14 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
-import com.exclamationlabs.connid.base.connector.authenticator.util.FileLoaderUtil;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PemPrivateKeyConfiguration;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.util.Base64;
+import java.util.UUID;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMParser;
@@ -32,26 +31,26 @@ import org.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 /** Implementation to load a KeyStore from a PEM file and a private key. */
 public class PEMAndPrivateKeyStoreLoader implements KeyStoreLoader<PemPrivateKeyConfiguration> {
 
-  private static final String IN_MEMORY_KEY_PASSWORD = "inMemory";
-
   @Override
   public KeyStore load(PemPrivateKeyConfiguration configuration) throws ConnectorSecurityException {
     try {
-      String pemFile =
-          FileLoaderUtil.getFileLocation(
-              configuration.getName(), "pemFile", configuration.getPemFile());
-      Certificate clientCertificate = loadCertificate(Files.newInputStream(Paths.get(pemFile)));
+      byte[] pemFile =
+          Base64.getDecoder().decode(GuardedStringUtil.read(configuration.getPemFile()));
+      Certificate clientCertificate = loadCertificate(new ByteArrayInputStream(pemFile));
 
-      String privateKeyFile =
-          FileLoaderUtil.getFileLocation(
-              configuration.getName(), "privateKeyFile", configuration.getPrivateKeyFile());
+      byte[] privateKeyFile =
+          Base64.getDecoder().decode(GuardedStringUtil.read(configuration.getPrivateKeyFile()));
       PrivateKey privateKey =
-          readPKCS8PrivateKey(Files.newInputStream(Paths.get(privateKeyFile)), configuration);
+          readPKCS8PrivateKey(new ByteArrayInputStream(privateKeyFile), configuration);
+
+      String keyStorePassword = UUID.randomUUID().toString();
+      configuration.setKeyStorePassword(new GuardedString(keyStorePassword.toCharArray()));
 
       KeyStore keyStore = KeyStore.getInstance("JKS");
       keyStore.load(null, null);
@@ -59,7 +58,7 @@ public class PEMAndPrivateKeyStoreLoader implements KeyStoreLoader<PemPrivateKey
       keyStore.setKeyEntry(
           "client-key",
           privateKey,
-          IN_MEMORY_KEY_PASSWORD.toCharArray(),
+          keyStorePassword.toCharArray(),
           new Certificate[] {clientCertificate});
       return keyStore;
     } catch (GeneralSecurityException | IOException e) {
