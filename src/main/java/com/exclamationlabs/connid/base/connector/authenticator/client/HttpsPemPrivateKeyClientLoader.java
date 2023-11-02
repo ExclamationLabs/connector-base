@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PemPrivateKeyConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.security.*;
 import javax.net.ssl.*;
 import org.apache.http.client.HttpClient;
@@ -31,18 +32,17 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 public class HttpsPemPrivateKeyClientLoader
     implements SecureClientLoader<PemPrivateKeyConfiguration> {
 
-  private static final String TEMPORARY_KEY_PASSWORD = "inMemory";
-
   @Override
   public HttpClient load(PemPrivateKeyConfiguration configuration, KeyStore keyStore)
       throws ConnectorSecurityException {
 
     try {
-
       SSLContext sslContext;
       sslContext =
           SSLContexts.custom()
-              .loadKeyMaterial(keyStore, TEMPORARY_KEY_PASSWORD.toCharArray())
+              .loadKeyMaterial(
+                  keyStore,
+                  GuardedStringUtil.read(configuration.getKeyStorePassword()).toCharArray())
               .build();
 
       return HttpClients.custom().setSSLContext(sslContext).build();
