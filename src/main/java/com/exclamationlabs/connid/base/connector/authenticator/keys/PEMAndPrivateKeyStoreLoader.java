@@ -87,14 +87,23 @@ public class PEMAndPrivateKeyStoreLoader implements KeyStoreLoader<PemPrivateKey
 
     PEMParser pemParser = new PEMParser(new InputStreamReader(contents));
     JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-    Object thingy = pemParser.readObject();
-    PrivateKeyInfo infoObj =
-        ((PEMEncryptedKeyPair) thingy)
-            .decryptKeyPair(
-                new BcPEMDecryptorProvider(
-                    GuardedStringUtil.read(configuration.getKeyPassword()).toCharArray()))
-            .getPrivateKeyInfo();
+    Object pemKeyData = pemParser.readObject();
+    if (pemKeyData instanceof PEMEncryptedKeyPair) {
+      PrivateKeyInfo infoObj =
+          ((PEMEncryptedKeyPair) pemKeyData)
+              .decryptKeyPair(
+                  new BcPEMDecryptorProvider(
+                      GuardedStringUtil.read(configuration.getKeyPassword()).toCharArray()))
+              .getPrivateKeyInfo();
 
-    return converter.getPrivateKey(infoObj);
+      return converter.getPrivateKey(infoObj);
+    } else if (pemKeyData instanceof PrivateKeyInfo) {
+      return converter.getPrivateKey((PrivateKeyInfo) pemKeyData);
+    } else {
+      throw new RuntimeException(
+          "Unsupported object type "
+              + pemKeyData.getClass().getSimpleName()
+              + " encountered in parsed PEM file");
+    }
   }
 }
