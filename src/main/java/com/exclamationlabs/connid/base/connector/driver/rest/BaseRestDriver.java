@@ -32,9 +32,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
@@ -50,8 +50,8 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -636,8 +636,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       }
 
       try {
-        request.setEntity(new StringEntity(bodyData));
-      } catch (UnsupportedEncodingException e) {
+        request.setEntity(new ByteArrayEntity(bodyData.getBytes(StandardCharsets.UTF_8)));
+      } catch (Exception e) {
         throw new ConnectorException("Request body encoding failed for data: " + bodyData, e);
       }
     }

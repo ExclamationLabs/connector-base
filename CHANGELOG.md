@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.8** - Fix Charset on outbound to specify UTF-8 charset
 + **4.1.7** - FIN-11103 - Support multiple PEM content types (11/06/2023)
 + **4.1.6** - FIN-11103 - Private Key and PEM changed to guarded string (11/02/2023)
 + **4.1.5** - FIN-11103 - Private Key and PEM support for ADP (11/01/2023)
