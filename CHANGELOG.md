@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.9** - FIN-11004 - Adjust BaseRestDriver to allow override needed for FIS Horizon re-auth (11/29/2023)
 + **4.1.8** - Fix Charset on outbound to specify UTF-8 charset
 + **4.1.7** - FIN-11103 - Support multiple PEM content types (11/06/2023)
 + **4.1.6** - FIN-11103 - Private Key and PEM changed to guarded string (11/02/2023)
