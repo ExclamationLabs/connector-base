@@ -598,7 +598,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         0);
   }
 
-  private void prepareHeaders(HttpRequestBase request, RestRequest<?> restRequest) {
+  protected void prepareHeaders(HttpRequestBase request, RestRequest<?> restRequest) {
     // Normally, RESTful services only transmit and return JSON
     request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
     request.setHeader(HttpHeaders.CONTENT_TYPE, restRequest.getContentTypeHeader());
