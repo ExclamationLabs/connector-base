@@ -60,7 +60,7 @@ dependencies {
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
-    archiveClassifier = 'source'
+    archiveClassifier = 'sources'
 }
 
 task javadocJar(type: Jar) {
