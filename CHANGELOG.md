@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.11** - NDSU-1 - Fix name of source jar file (01/19/2024)
 + **4.1.10** - FIN-11162 - Resolve Logback DOS vulnerability (12/11/2023)
 + **4.1.9** - FIN-11004 - Adjust BaseRestDriver to allow override needed for FIS Horizon re-auth (11/29/2023)
 + **4.1.8** - Fix Charset on outbound to specify UTF-8 charset
