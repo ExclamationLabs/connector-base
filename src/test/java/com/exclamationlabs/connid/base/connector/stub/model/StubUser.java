@@ -19,7 +19,6 @@ package com.exclamationlabs.connid.base.connector.stub.model;
 import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -45,7 +44,6 @@ public class StubUser implements IdentityModel {
   private Integer userTestInteger;
   private Long userTestLong;
   private Map<?, ?> userTestMap;
-  private ZonedDateTime userTestZonedDateTime;
 
   @Override
   public String getIdentityIdValue() {
@@ -183,14 +181,6 @@ public class StubUser implements IdentityModel {
 
   public void setUserTestMap(Map<?, ?> userTestMap) {
     this.userTestMap = userTestMap;
-  }
-
-  public ZonedDateTime getUserTestZonedDateTime() {
-    return userTestZonedDateTime;
-  }
-
-  public void setUserTestZonedDateTime(ZonedDateTime userTestZonedDateTime) {
-    this.userTestZonedDateTime = userTestZonedDateTime;
   }
 
   public Set<String> getClubIds() {

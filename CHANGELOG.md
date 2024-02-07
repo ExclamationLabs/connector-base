@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.1.13** - FIN-11284 - Adopt Gradle lockfile and include preparatory steps for JDK 17 in future (02/07/2024)
 + **4.1.12** - FIN-11284 - Update Spring to 2.7.18 (02/06/2024)
 + **4.1.11** - NDSU-1 - Fix name of source jar file (01/19/2024)
 + **4.1.10** - FIN-11162 - Resolve Logback DOS vulnerability (12/11/2023)
