@@ -29,11 +29,11 @@ public class AdapterValueTypeConverterTest {
   private static final String BOOL_VALUE_STR = "true";
   private static final Boolean BOOL_VALUE = true;
   private static final String BYTE_VALUE_STR = "5";
-  private static final Byte BYTE_VALUE = new Byte(BYTE_VALUE_STR);
+  private static final Byte BYTE_VALUE = Byte.valueOf(BYTE_VALUE_STR);
   private static final String DOUBLE_VALUE_STR = "23456789.1234";
-  private static final Double DOUBLE_VALUE = new Double(DOUBLE_VALUE_STR);
+  private static final Double DOUBLE_VALUE = Double.valueOf(DOUBLE_VALUE_STR);
   private static final String LONG_VALUE_STR = "90123456";
-  private static final Long LONG_VALUE = new Long(LONG_VALUE_STR);
+  private static final Long LONG_VALUE = Long.valueOf(LONG_VALUE_STR);
   private static final String CHAR_VALUE_STR = "F";
   private static final Character CHAR_VALUE = 'F';
   private Set<Attribute> attributeSet;

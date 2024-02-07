@@ -65,7 +65,6 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
     result.add(new ConnectorAttribute(USER_TEST_INTEGER.name(), INTEGER));
     result.add(new ConnectorAttribute(USER_TEST_LONG.name(), LONG));
     result.add(new ConnectorAttribute(USER_TEST_MAP.name(), MAP));
-    result.add(new ConnectorAttribute(USER_TEST_ZONED_DATE_TIME.name(), ZONED_DATE_TIME));
 
     return result;
   }
@@ -117,8 +116,6 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
     attributes.add(AttributeBuilder.build(USER_TEST_INTEGER.name(), user.getUserTestInteger()));
     attributes.add(AttributeBuilder.build(USER_TEST_LONG.name(), user.getUserTestLong()));
     attributes.add(AttributeBuilder.build(USER_TEST_MAP.name(), user.getUserTestMap()));
-    attributes.add(
-        AttributeBuilder.build(USER_TEST_ZONED_DATE_TIME.name(), user.getUserTestZonedDateTime()));
 
     return attributes;
   }

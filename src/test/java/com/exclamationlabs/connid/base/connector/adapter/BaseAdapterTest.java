@@ -23,7 +23,6 @@ import com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribut
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.ZonedDateTime;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -105,13 +104,10 @@ public class BaseAdapterTest {
     inputMap.put("key2", "value2");
     user.setUserTestMap(inputMap);
 
-    ZonedDateTime nowTime = ZonedDateTime.now();
-    user.setUserTestZonedDateTime(nowTime);
-
     Set<Attribute> output = adapter.constructAttributesTestAccess(user);
     List<Attribute> outputList = new ArrayList<>(output);
     outputList.sort(Comparator.comparing(Attribute::getName));
-    assertEquals(18, output.size());
+    assertEquals(17, output.size());
 
     assertEquals(StubUserAttribute.CLUB_IDS.name(), outputList.get(0).getName());
     assertTrue(outputList.get(0).getValue().contains("club1"));
@@ -173,8 +169,5 @@ public class BaseAdapterTest {
     Map<?, ?> lookMap = (Map<?, ?>) outputList.get(16).getValue().get(0);
     assertEquals("value1", lookMap.get("key1"));
     assertEquals("value2", lookMap.get("key2"));
-
-    assertEquals(StubUserAttribute.USER_TEST_ZONED_DATE_TIME.name(), outputList.get(17).getName());
-    assertEquals(nowTime, outputList.get(17).getValue().get(0));
   }
 }

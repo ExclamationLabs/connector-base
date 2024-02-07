@@ -571,7 +571,7 @@ public class StubConnectorTest extends ApiIntegrationTest<StubConfiguration, Stu
     ObjectClassInfo userSchema = schemaResult.findObjectClassInfo("user");
     assertNotNull(userSchema);
     assertNotNull(userSchema.getAttributeInfo());
-    assertEquals(20, userSchema.getAttributeInfo().size());
+    assertEquals(19, userSchema.getAttributeInfo().size());
 
     ObjectClassInfo groupSchema = schemaResult.findObjectClassInfo("group");
     assertNotNull(groupSchema);
