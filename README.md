@@ -14,14 +14,18 @@ Please see the [Change Log page](CHANGELOG.md)
 
 ## Gradle and Build Process
 
-Connector-base is a Gradle project based on Java 1.8.  The gradle wrapper is also included with this
- project.  To test and build the project, simply use
+#### VERSION NOTES:
+- The Base Connector is currently on Java 11 but will be transitioning soon to Java 17.
 
-`./gradlew build`
+Connector-base is a Gradle project based on Java 11.  It also leverages the `googleJavaFormat` plugin for code formatting.
+The gradle wrapper is also included with this project.  To test and build the project, use
+
+`./gradlew googleJavaFormat build`
+
 
 If you need to fully clean the prior build first, then run -
 
-`./gradlew clean build`
+`./gradlew googleJavaFormat clean build`
 
 The build command will produce a small JAR, connector-base-{version}.jar.  
 This jar contains the Base Connector
@@ -78,6 +82,15 @@ config_plugin_version=2.1
 - The `base_connector_version` should specify the version of the base connector you are leveraging
 - The `config_plugin_version` should specify the version of the configuration plugin you are leveraging
 
+### Dependency Updates
+NOTE: If **ANY** dependencies are added or removed or any versions are changed in `build.gradle` or `gradle.properties`, 
+you should also run this command to update the Gradle lockfile (`gradle.lockfile`) and then check in/push the
+Gradle lockfile with your changes.  The lowdown on Gradle dependency locking using lockfile is [documented here](https://docs.gradle.org/current/userguide/dependency_locking.html)
+
+```
+./gradlew dependencies --write-locks
+```
+---
 
 ## Developer Guide
 
@@ -87,7 +100,7 @@ Also see:
 
 The Base Connector consists of many interfaces and abstract base classes and is focused
 on providing reusability as well as customization opportunities.   We use the term 'destination system' to describe any
- kind of a backend system or storage location that can hold IAM information.
+ backend system or storage location that can hold IAM information.
  
 Below is a summary of the key
 class types in the Base Connector framework and some notes regarding 
