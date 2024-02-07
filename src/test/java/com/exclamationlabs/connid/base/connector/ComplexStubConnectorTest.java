@@ -34,7 +34,6 @@ import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker
 import com.exclamationlabs.connid.base.connector.test.ApiIntegrationTest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.ZonedDateTime;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -282,11 +281,6 @@ public class ComplexStubConnectorTest
         new AttributeBuilder()
             .setName(StubUserAttribute.USER_TEST_MAP.name())
             .addValue(Collections.singletonMap("testkey", "testvalue"))
-            .build());
-    attributes.add(
-        new AttributeBuilder()
-            .setName(StubUserAttribute.USER_TEST_ZONED_DATE_TIME.name())
-            .addValue(ZonedDateTime.now())
             .build());
 
     Uid newId =

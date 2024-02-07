@@ -14,12 +14,16 @@ repositories {
 
 googleJavaFormat {}
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = '1.11'
+targetCompatibility = '1.11'
 group = 'com.exclamationlabs.connid'
 
 def build_version = System.getenv('BUILD_NUMBER') == null ? System.currentTimeMillis() : System.getenv('BUILD_NUMBER')
 project.version="${software_version}-${build_version}"
+
+dependencyLocking {
+    lockAllConfigurations()
+}
 
 dependencies {
 
