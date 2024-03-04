@@ -339,7 +339,8 @@ public class SearchExecutor {
         } catch (InterruptedException | ExecutionException ee) {
           throw new ConnectorException("Error occurred while executing getOne thread", ee);
         } catch (CancellationException cancelled) {
-          throw new ConnectorException("Error occurred while executing Completable", cancelled);
+          Logger.warn(
+              SearchExecutor.class, "Cancellation exception occurred while executing completable");
         }
       }
       ctr += currentThrottle;

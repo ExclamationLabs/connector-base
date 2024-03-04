@@ -161,8 +161,9 @@ public class ImportAllExecutor {
         } catch (InterruptedException | ExecutionException ee) {
           throw new ConnectorException("Error occurred while executing importAll page thread", ee);
         } catch (CancellationException cancelled) {
-          throw new ConnectorException(
-              "Error occurred while executing Completable importAll page thread", cancelled);
+          Logger.warn(
+              ImportAllExecutor.class,
+              "Cancellation exception occurred while executing completable");
         }
       }
     }
