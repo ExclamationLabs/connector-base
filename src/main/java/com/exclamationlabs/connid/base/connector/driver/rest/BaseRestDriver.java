@@ -28,6 +28,7 @@ import com.exclamationlabs.connid.base.connector.driver.exception.DriverTokenExp
 import com.exclamationlabs.connid.base.connector.driver.rest.util.CustomConnectionSocketFactory;
 import com.exclamationlabs.connid.base.connector.driver.rest.util.HttpDeleteWithBody;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -195,7 +196,8 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
     CredentialsProvider basicAuthProvider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials =
         new UsernamePasswordCredentials(
-            configuration.getBasicUsername(), configuration.getBasicPassword());
+            configuration.getBasicUsername(),
+            GuardedStringUtil.read(configuration.getBasicPassword()));
     basicAuthProvider.setCredentials(AuthScope.ANY, credentials);
     return basicAuthProvider;
   }

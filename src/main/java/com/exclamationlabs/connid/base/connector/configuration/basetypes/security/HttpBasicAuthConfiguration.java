@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that require HTTP Basic Authentication at their
@@ -27,7 +28,7 @@ public interface HttpBasicAuthConfiguration extends ConnectorConfiguration {
 
   void setBasicUsername(String input);
 
-  String getBasicPassword();
+  GuardedString getBasicPassword();
 
-  void setBasicPassword(String input);
+  void setBasicPassword(GuardedString input);
 }
