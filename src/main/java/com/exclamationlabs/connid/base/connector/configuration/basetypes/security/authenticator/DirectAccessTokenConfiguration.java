@@ -17,10 +17,11 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /** Configuration properties for connectors that require a fixed token for authentication. */
 public interface DirectAccessTokenConfiguration extends ConnectorConfiguration {
-  String getToken();
+  GuardedString getToken();
 
-  void setToken(String input);
+  void setToken(GuardedString input);
 }

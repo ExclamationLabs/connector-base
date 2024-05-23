@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
 public class DirectAccessTokenAuthenticator
@@ -25,6 +26,6 @@ public class DirectAccessTokenAuthenticator
   @Override
   public String authenticate(DirectAccessTokenConfiguration configuration)
       throws ConnectorSecurityException {
-    return configuration.getToken();
+    return GuardedStringUtil.read(configuration.getToken());
   }
 }

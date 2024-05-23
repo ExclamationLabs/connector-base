@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that need to provide a JKS file as part of their
@@ -27,9 +28,9 @@ public interface JksConfiguration extends ConnectorConfiguration {
 
   void setJksFile(String input);
 
-  String getJksPassword();
+  GuardedString getJksPassword();
 
-  void setJksPassword(String input);
+  void setJksPassword(GuardedString input);
 
   String getJksAlias();
 

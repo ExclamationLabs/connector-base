@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration for connectors that require using the HS256 strategy for authentication. JWS: HS256
@@ -27,9 +28,9 @@ public interface JwtHs256Configuration extends ConnectorConfiguration {
 
   void setIssuer(String input);
 
-  String getSecret();
+  GuardedString getSecret();
 
-  void setSecret(String input);
+  void setSecret(GuardedString input);
 
   Long getExpirationPeriod();
 

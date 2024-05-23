@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2PasswordConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.*;
@@ -50,7 +51,9 @@ public class OAuth2TokenPasswordAuthenticator
       List<NameValuePair> form = new ArrayList<>();
       form.add(new BasicNameValuePair("grant_type", getGrantType()));
       form.add(new BasicNameValuePair("username", configuration.getOauth2Username()));
-      form.add(new BasicNameValuePair("password", configuration.getOauth2Password()));
+      form.add(
+          new BasicNameValuePair(
+              "password", GuardedStringUtil.read(configuration.getOauth2Password())));
       addAdditionalFormFields(form);
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
       request.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");

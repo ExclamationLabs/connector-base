@@ -23,6 +23,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.JWTHS256Authentic
 import com.exclamationlabs.connid.base.connector.configuration.*;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtHs256Configuration;
 import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
+import org.identityconnectors.common.security.GuardedString;
 import org.junit.jupiter.api.Test;
 
 public class JWTHS256AuthenticatorTest extends IntegrationTest {
@@ -53,7 +54,7 @@ public class JWTHS256AuthenticatorTest extends IntegrationTest {
     private String issuer;
 
     @ConfigurationInfo(path = "security.authenticator.jwtHs256.secret")
-    private String secret;
+    private GuardedString secret;
 
     @ConfigurationInfo(path = "security.authenticator.jwtHs256.expirationPeriod")
     private Long expirationPeriod;
@@ -69,12 +70,12 @@ public class JWTHS256AuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getSecret() {
+    public GuardedString getSecret() {
       return secret;
     }
 
     @Override
-    public void setSecret(String input) {
+    public void setSecret(GuardedString input) {
       secret = input;
     }
 
