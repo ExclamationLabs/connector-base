@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that authenticate using the OAuth2 "password" grant type.
@@ -26,15 +27,15 @@ public interface Oauth2PasswordConfiguration extends ConnectorConfiguration, Oau
 
   void setTokenUrl(String input);
 
-  String getEncodedSecret();
+  GuardedString getEncodedSecret();
 
-  void setEncodedSecret(String input);
+  void setEncodedSecret(GuardedString input);
 
   String getOauth2Username();
 
   void setOauth2Username(String input);
 
-  String getOauth2Password();
+  GuardedString getOauth2Password();
 
-  void setOauth2Password(String input);
+  void setOauth2Password(GuardedString input);
 }

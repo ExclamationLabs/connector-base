@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.exclamationlabs.connid.base.connector.configuration.ConfigurationInfo;
 import com.exclamationlabs.connid.base.connector.configuration.DefaultConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.DirectAccessTokenConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.junit.jupiter.api.Test;
 
@@ -47,15 +48,15 @@ public class DirectAccessTokenAuthenticatorTest {
       implements DirectAccessTokenConfiguration {
 
     @ConfigurationInfo(path = "security.authenticator.directAccessToken.token")
-    private String token;
+    private GuardedString token;
 
     @Override
-    public String getToken() {
+    public GuardedString getToken() {
       return token;
     }
 
     @Override
-    public void setToken(String input) {
+    public void setToken(GuardedString input) {
       token = input;
     }
   }

@@ -33,6 +33,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.identityconnectors.common.security.GuardedString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -78,13 +79,13 @@ public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
     private String tokenUrl;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2Password.encodedSecret")
-    private String encodedSecret;
+    private GuardedString encodedSecret;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Username")
     private String username;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Password")
-    private String password;
+    private GuardedString password;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2Password.oauth2Information")
     private Map<String, String> oauth2Information;
@@ -104,12 +105,12 @@ public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getEncodedSecret() {
+    public GuardedString getEncodedSecret() {
       return encodedSecret;
     }
 
     @Override
-    public void setEncodedSecret(String input) {
+    public void setEncodedSecret(GuardedString input) {
       encodedSecret = input;
     }
 
@@ -124,12 +125,12 @@ public class OAuth2TokenPasswordAuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getOauth2Password() {
+    public GuardedString getOauth2Password() {
       return password;
     }
 
     @Override
-    public void setOauth2Password(String input) {
+    public void setOauth2Password(GuardedString input) {
       password = input;
     }
 

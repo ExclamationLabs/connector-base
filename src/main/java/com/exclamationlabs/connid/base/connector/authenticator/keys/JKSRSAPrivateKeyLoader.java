@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator.keys;
 
 import com.exclamationlabs.connid.base.connector.authenticator.util.FileLoaderUtil;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.JksConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.*;
@@ -34,7 +35,8 @@ public class JKSRSAPrivateKeyLoader implements RSAPrivateKeyLoader<JksConfigurat
     RSAPrivateKey privateKey;
     try {
       keystore = KeyStore.getInstance("JKS");
-      char[] keystorePassword = configuration.getJksPassword().toCharArray();
+      char[] keystorePassword =
+          GuardedStringUtil.read(configuration.getJksPassword()).toCharArray();
       String jksFile =
           FileLoaderUtil.getFileLocation(
               configuration.getName(), "jksFile", configuration.getJksFile());
