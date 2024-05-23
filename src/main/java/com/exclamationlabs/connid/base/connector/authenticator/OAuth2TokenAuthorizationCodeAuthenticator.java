@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2AuthorizationCodeConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.*;
@@ -52,12 +53,15 @@ public class OAuth2TokenAuthorizationCodeAuthenticator
       HttpPost request = new HttpPost(configuration.getTokenUrl());
       List<NameValuePair> form = new ArrayList<>();
       form.add(new BasicNameValuePair("grant_type", getGrantType()));
-      form.add(new BasicNameValuePair("code", configuration.getAuthorizationCode()));
+      form.add(
+          new BasicNameValuePair(
+              "code", GuardedStringUtil.read(configuration.getAuthorizationCode())));
       if (StringUtils.isNotBlank(configuration.getClientId())) {
         form.add(new BasicNameValuePair("client_id", configuration.getClientId()));
       }
-      if (StringUtils.isNotBlank(configuration.getClientSecret())) {
-        form.add(new BasicNameValuePair("client_secret", configuration.getClientSecret()));
+      String secretValue = GuardedStringUtil.read(configuration.getClientSecret());
+      if (StringUtils.isNotBlank(secretValue)) {
+        form.add(new BasicNameValuePair("client_secret", secretValue));
       }
       if (StringUtils.isNotBlank(configuration.getRedirectUri())) {
         form.add(new BasicNameValuePair("redirect_uri", configuration.getRedirectUri()));

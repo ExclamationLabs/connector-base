@@ -18,6 +18,7 @@ package com.exclamationlabs.connid.base.connector.authenticator;
 
 import com.exclamationlabs.connid.base.connector.authenticator.util.OAuth2TokenExecution;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2RefreshTokenConfiguration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.*;
@@ -56,8 +57,10 @@ public class OAuth2TokenRefreshTokenAuthenticator
       if (StringUtils.isNotBlank(configuration.getClientId())) {
         form.add(new BasicNameValuePair("client_id", configuration.getClientId()));
       }
-      if (StringUtils.isNotBlank(configuration.getClientSecret())) {
-        form.add(new BasicNameValuePair("client_secret", configuration.getClientSecret()));
+
+      String passwordValue = GuardedStringUtil.read(configuration.getClientSecret());
+      if (StringUtils.isNotBlank(passwordValue)) {
+        form.add(new BasicNameValuePair("client_secret", passwordValue));
       }
       addAdditionalFormFields(form);
 

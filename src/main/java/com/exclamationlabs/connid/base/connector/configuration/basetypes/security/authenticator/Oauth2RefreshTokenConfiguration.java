@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that authenticate using the OAuth2 "refresh_token" grant
@@ -36,7 +37,7 @@ public interface Oauth2RefreshTokenConfiguration
 
   void setClientId(String input);
 
-  String getClientSecret();
+  GuardedString getClientSecret();
 
-  void setClientSecret(String input);
+  void setClientSecret(GuardedString input);
 }

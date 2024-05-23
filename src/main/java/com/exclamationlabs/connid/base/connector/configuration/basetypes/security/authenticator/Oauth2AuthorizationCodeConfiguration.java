@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that authenticate using the OAuth2 "authorization_code"
@@ -28,17 +29,17 @@ public interface Oauth2AuthorizationCodeConfiguration
 
   void setTokenUrl(String input);
 
-  String getAuthorizationCode();
+  GuardedString getAuthorizationCode();
 
-  void setAuthorizationCode(String input);
+  void setAuthorizationCode(GuardedString input);
 
   String getClientId();
 
   void setClientId(String input);
 
-  String getClientSecret();
+  GuardedString getClientSecret();
 
-  void setClientSecret(String input);
+  void setClientSecret(GuardedString input);
 
   String getRedirectUri();
 

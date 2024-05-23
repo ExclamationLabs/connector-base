@@ -36,6 +36,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.identityconnectors.common.security.GuardedString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -89,7 +90,7 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest extends IntegrationTest {
     private String clientId;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2RefreshToken.clientSecret")
-    private String clientSecret;
+    private GuardedString clientSecret;
 
     @ConfigurationInfo(path = "security.authenticator.oauth2AuthorizationCode.oauth2Information")
     private Map<String, String> oauth2Information;
@@ -129,12 +130,12 @@ public class OAuth2TokenRefreshTokenAuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getClientSecret() {
+    public GuardedString getClientSecret() {
       return clientSecret;
     }
 
     @Override
-    public void setClientSecret(String input) {
+    public void setClientSecret(GuardedString input) {
       clientSecret = input;
     }
 

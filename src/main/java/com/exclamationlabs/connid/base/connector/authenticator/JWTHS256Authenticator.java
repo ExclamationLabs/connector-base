@@ -20,6 +20,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtHs256Configuration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
@@ -35,7 +36,7 @@ public class JWTHS256Authenticator implements Authenticator<JwtHs256Configuratio
     try {
       long expirationLength = configuration.getExpirationPeriod();
       Date expirationDate = new Date(System.currentTimeMillis() + expirationLength);
-      Algorithm algorithm = Algorithm.HMAC256(configuration.getSecret());
+      Algorithm algorithm = Algorithm.HMAC256(GuardedStringUtil.read(configuration.getSecret()));
       Map<String, Object> headerClaims = new HashMap<>();
       headerClaims.put("alg", "HS256");
       headerClaims.put("typ", "JWT");

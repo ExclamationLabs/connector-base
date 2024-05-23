@@ -30,6 +30,7 @@ import com.exclamationlabs.connid.base.connector.test.IntegrationTest;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Map;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,7 +93,7 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
     private String file;
 
     @ConfigurationInfo(path = "security.jks.jksPassword")
-    private String password;
+    private GuardedString password;
 
     @ConfigurationInfo(path = "security.jks.jksAlias")
     private String alias;
@@ -136,12 +137,12 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getJksPassword() {
+    public GuardedString getJksPassword() {
       return password;
     }
 
     @Override
-    public void setJksPassword(String input) {
+    public void setJksPassword(GuardedString input) {
       password = input;
     }
 
