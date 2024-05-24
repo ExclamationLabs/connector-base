@@ -22,6 +22,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
@@ -44,6 +45,10 @@ public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Con
 
   protected abstract RSAPrivateKey getPrivateKey();
 
+  protected RSAPublicKey getPublicKey() {
+    return null;
+  }
+
   protected Map<String, String> getExtraClaimData() {
     return Collections.emptyMap();
   }
@@ -58,7 +63,7 @@ public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Con
       headerClaims.put("alg", "RS256");
       headerClaims.put("typ", "JWT");
 
-      Algorithm algorithm = Algorithm.RSA256(null, getPrivateKey());
+      Algorithm algorithm = Algorithm.RSA256(getPublicKey(), getPrivateKey());
 
       JWTCreator.Builder builder =
           JWT.create()
