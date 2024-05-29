@@ -99,10 +99,10 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
     private String alias;
 
     @ConfigurationInfo(path = "security.authenticator.jwtRs256.issuer")
-    private String issuer;
+    private GuardedString issuer;
 
     @ConfigurationInfo(path = "security.authenticator.jwtRs256.subject")
-    private String subject;
+    private GuardedString subject;
 
     @ConfigurationInfo(path = "security.authenticator.jwtRs256.expirationPeriod")
     private Long expirationPeriod;
@@ -157,22 +157,22 @@ public class OAuth2TokenJWTRS256JKSAuthenticatorTest extends IntegrationTest {
     }
 
     @Override
-    public String getIssuer() {
+    public GuardedString getIssuer() {
       return issuer;
     }
 
     @Override
-    public void setIssuer(String input) {
+    public void setIssuer(GuardedString input) {
       issuer = input;
     }
 
     @Override
-    public String getSubject() {
+    public GuardedString getSubject() {
       return subject;
     }
 
     @Override
-    public void setSubject(String input) {
+    public void setSubject(GuardedString input) {
       subject = input;
     }
 
