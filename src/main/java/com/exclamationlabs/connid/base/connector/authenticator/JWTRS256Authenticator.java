@@ -21,6 +21,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
+import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.*;
@@ -68,11 +69,11 @@ public abstract class JWTRS256Authenticator implements Authenticator<JwtRs256Con
       JWTCreator.Builder builder =
           JWT.create()
               .withHeader(headerClaims)
-              .withIssuer(configuration.getIssuer())
+              .withIssuer(GuardedStringUtil.read(configuration.getIssuer()))
               .withExpiresAt(expirationDate);
 
-      if (StringUtils.isNotBlank(configuration.getSubject())) {
-        builder = builder.withSubject(configuration.getSubject());
+      if (StringUtils.isNotBlank(GuardedStringUtil.read(configuration.getSubject()))) {
+        builder = builder.withSubject(GuardedStringUtil.read(configuration.getSubject()));
       }
       if (StringUtils.isNotBlank(configuration.getAudience())) {
         builder = builder.withAudience(configuration.getAudience());
