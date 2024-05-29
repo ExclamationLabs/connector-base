@@ -21,6 +21,7 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.Service
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.JwtRs256Configuration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator.Oauth2JwtConfiguration;
 import java.util.Map;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.spi.ConfigurationClass;
 
 @ConfigurationClass(skipUnsupported = true)
@@ -101,20 +102,20 @@ public class ComplexStubConfiguration extends StubConfiguration
   public void setDuplicateErrorReturnsId(Boolean input) {}
 
   @Override
-  public String getIssuer() {
+  public GuardedString getIssuer() {
     return null;
   }
 
   @Override
-  public void setIssuer(String input) {}
+  public void setIssuer(GuardedString input) {}
 
   @Override
-  public String getSubject() {
+  public GuardedString getSubject() {
     return null;
   }
 
   @Override
-  public void setSubject(String input) {}
+  public void setSubject(GuardedString input) {}
 
   @Override
   public Long getExpirationPeriod() {

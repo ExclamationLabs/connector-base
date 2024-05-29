@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.configuration.basetypes.security.authenticator;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import org.identityconnectors.common.security.GuardedString;
 
 /**
  * Configuration properties for connectors that use the JWT authentication using the RS256 strategy.
@@ -24,13 +25,13 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
  * <p>JWS: RS256 Algorithm: RSA256 Description: RSASSA-PKCS1-v1_5 with SHA-256
  */
 public interface JwtRs256Configuration extends ConnectorConfiguration {
-  String getIssuer();
+  GuardedString getIssuer();
 
-  void setIssuer(String input);
+  void setIssuer(GuardedString input);
 
-  String getSubject();
+  GuardedString getSubject();
 
-  void setSubject(String input);
+  void setSubject(GuardedString input);
 
   Long getExpirationPeriod();
 
