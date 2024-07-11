@@ -46,7 +46,7 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
 
     // PEM Private key support
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.76'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78'
 
     implementation 'ch.qos.logback:logback-classic:1.2.13'
     implementation 'ch.qos.logback:logback-core:1.2.13'
