@@ -115,8 +115,15 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
     return false;
   }
 
+  /**
+   * Method to manually invoke the connector and assure that we can successfully obtain a small
+   * number of records from the destination API, without any authentication or general integration
+   * errors occurring.
+   *
+   * @param objectClass - The object class for quick lookup search.
+   * @return true if the look-up is successful, false if look-up fails.
+   */
   public boolean quickTest(final ObjectClass objectClass) {
-
     try {
       getAdapter(objectClass)
           .get(
