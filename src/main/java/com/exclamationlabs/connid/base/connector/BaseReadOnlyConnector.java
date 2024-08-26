@@ -17,9 +17,11 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.api.operations.SearchApiOp;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
@@ -111,5 +113,21 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
   @Override
   protected boolean createEnabled() {
     return false;
+  }
+
+  public boolean quickTest(final ObjectClass objectClass) {
+
+    try {
+      getAdapter(objectClass)
+          .get(
+              null,
+              (ConnectorObject connectorObject) -> true,
+              new OperationOptionsBuilder().setPageSize(3).setPagedResultsOffset(1).build(),
+              true);
+      return true;
+    } catch (ConnectorException ce) {
+      Logger.warn(this, "Quick test for connector failed", ce);
+      return false;
+    }
   }
 }
