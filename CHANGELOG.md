@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.2.4** - FIN-12383 - Add new test method to Base Connector (08/26/2024)
 + **4.2.3** - FIN-11826 - Upgraded BouncyCastle Package(s) to Resolve Vulnerabilities (07/11/2024)
 + **4.2.2** - FIN-11820 - Secure RSA256 fields (for Docusign) (05/29/2024)
 + **4.2.1** - FIN-11820 - Add JWTRS256Authenticator Public RSA Key support (for Docusign) (05/24/2024)
