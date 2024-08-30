@@ -103,6 +103,10 @@ publishing {
     repositories {
         maven {
             url "artifactregistry://us-east1-maven.pkg.dev/provision-general-operations/provision-public/"
+            credentials {
+                username = "${System.getenv('ARTIFACT_REGISTRY_USER')}"
+                password = "${System.getenv('ARTIFACT_REGISTRY_KEY')}"
+            }
         }
     }
 }
