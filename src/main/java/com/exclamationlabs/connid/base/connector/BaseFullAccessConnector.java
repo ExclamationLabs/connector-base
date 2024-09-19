@@ -136,9 +136,9 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
    * errors occurring.
    *
    * @param objectClass - The object class for quick lookup search.
-   * @return true if the look-up is successful, false if look-up fails.
+   * @return null if the look-up is successful, if look-up fails return the error message.
    */
-  public boolean quickTest(final ObjectClass objectClass) {
+  public String quickTest(final ObjectClass objectClass) {
     try {
       getAdapter(objectClass)
           .get(
@@ -146,10 +146,10 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
               (ConnectorObject connectorObject) -> true,
               new OperationOptionsBuilder().setPageSize(3).setPagedResultsOffset(1).build(),
               true);
-      return true;
+      return null;
     } catch (ConnectorException ce) {
       Logger.warn(this, "Quick test for connector failed", ce);
-      return false;
+      return ce.getMessage();
     }
   }
 }
