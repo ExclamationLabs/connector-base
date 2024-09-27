@@ -299,6 +299,11 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       }
 
       Logger.info(this, String.format("Response status code is %d", responseStatusCode));
+      if (responseStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+        throw new ConnectionBrokenException(
+            "Unexpected server error occurred while attempting request, received status code: "
+                + responseStatusCode);
+      }
       if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
         Logger.info(
             this, String.format("request execution failed; status code is %d", responseStatusCode));
@@ -347,7 +352,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
           if (retryCount < getIoErrorRetryCount()) {
             return executeRequest(request, true, ++retryCount);
           } else {
-            throw new ConnectorException(
+            throw new ConnectionBrokenException(
                 "Unexpected IOException occurred while attempting call: "
                     + e.getMessage()
                     + ".  "
@@ -359,7 +364,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
           return executeRequest(request, true, 1);
         }
       } else {
-        throw new ConnectorException(
+        throw new ConnectionBrokenException(
             "Unexpected IOException occurred while attempting call: " + e.getMessage(), e);
       }
     }
