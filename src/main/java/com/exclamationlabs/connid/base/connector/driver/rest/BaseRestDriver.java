@@ -299,11 +299,6 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
       }
 
       Logger.info(this, String.format("Response status code is %d", responseStatusCode));
-      if (responseStatusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-        throw new ConnectionBrokenException(
-            "Unexpected server error occurred while attempting request, received status code: "
-                + responseStatusCode);
-      }
       if (responseStatusCode >= HttpStatus.SC_BAD_REQUEST) {
         Logger.info(
             this, String.format("request execution failed; status code is %d", responseStatusCode));

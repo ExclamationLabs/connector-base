@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.2.8** - Revert ConnectionBrokenException thrown for 500+ - delegate to FaultProcessor handling case-by-case (10/01/2024)
 + **4.2.7** - Throw ConnectionBrokenException upon server error (09/26/2024)
 + **4.2.6** - FIN-12383 - Change return type of quickTest method (09/19/2024)
 + **4.2.5** - FIN-12386 - Update org.apache.commons.lang3 to version 3.13 (09/17/2024)
