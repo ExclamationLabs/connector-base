@@ -16,10 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.attribute;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 /**
@@ -37,6 +34,18 @@ public final class ConnectorAttribute {
   private final Set<AttributeInfo.Flags> flags;
 
   private Object value;
+
+  /**
+   * Provides JSON meta information about the connector attribute. In particular, this is used to
+   * store data constraint information for cases where data constraints (allowed characters, data
+   * length) need to be enforced. The actual enforcement is not handled by the base framework, and
+   * is instead handled by connector and onboarding implementations. Using the
+   * com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo structure is
+   * advised, but not enforced by the base framework. More Info: - Supplying this meta JSON is
+   * optional, and this value can be null. - The JSON supplied will be placed into the "subtype" for
+   * the ConnId AttributeInfo stored for this attribute (belonging to the schema/object class).
+   */
+  private String metaInfoJson;
 
   public ConnectorAttribute(
       String attributeName,
@@ -60,7 +69,15 @@ public final class ConnectorAttribute {
       String attributeName,
       ConnectorAttributeDataType attributeDataType,
       AttributeInfo.Flags... attributeFlags) {
-    this(attributeName, attributeName, attributeDataType, attributeFlags);
+    this(attributeName, attributeName, attributeDataType, null, attributeFlags);
+  }
+
+  public ConnectorAttribute(
+      String attributeName,
+      ConnectorAttributeDataType attributeDataType,
+      String metaInfoJson,
+      AttributeInfo.Flags... attributeFlags) {
+    this(attributeName, attributeName, attributeDataType, metaInfoJson, attributeFlags);
   }
 
   public ConnectorAttribute(
@@ -68,9 +85,19 @@ public final class ConnectorAttribute {
       String nativeNameInput,
       ConnectorAttributeDataType attributeDataType,
       AttributeInfo.Flags... attributeFlags) {
+    this(attributeName, nativeNameInput, attributeDataType, null, attributeFlags);
+  }
+
+  public ConnectorAttribute(
+      String attributeName,
+      String nativeNameInput,
+      ConnectorAttributeDataType attributeDataType,
+      String metaInfoJsonInput,
+      AttributeInfo.Flags... attributeFlags) {
     name = attributeName;
     nativeName = nativeNameInput;
     dataType = attributeDataType;
+    metaInfoJson = metaInfoJsonInput;
     flags = new HashSet<>();
     flags.addAll(Arrays.asList(attributeFlags));
   }
@@ -99,17 +126,20 @@ public final class ConnectorAttribute {
     return nativeName;
   }
 
+  public String getMetaInfoJson() {
+    return metaInfoJson;
+  }
+
   @Override
   public String toString() {
-    return name
-        + "("
-        + nativeName
-        + ") ["
-        + dataType
-        + "] {"
-        + (flags != null ? flags.toString() : "")
-        + "}: "
-        + (value != null ? value.toString() : "");
+    return String.format(
+        "%s(%s) [%s] `%s` {%s}: %s",
+        name,
+        nativeName,
+        dataType,
+        metaInfoJson,
+        flags != null ? flags.toString() : "",
+        value != null ? value.toString() : "");
   }
 
   @Override

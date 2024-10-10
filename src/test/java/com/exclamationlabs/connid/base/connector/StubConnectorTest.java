@@ -67,7 +67,27 @@ public class StubConnectorTest extends ApiIntegrationTest<StubConfiguration, Stu
 
   @Test
   public void testSchema() {
-    assertNotNull(getConnectorFacade().schema());
+    var schema = getConnectorFacade().schema();
+    assertNotNull(schema);
+    var infos = schema.getObjectClassInfo();
+    assertNotNull(infos);
+    var userInfoLookup =
+        infos.stream().filter(it -> StringUtils.equalsIgnoreCase("user", it.getType())).findFirst();
+    assertTrue(userInfoLookup.isPresent());
+    var userInfo = userInfoLookup.get();
+    assertNotNull(userInfo.getAttributeInfo());
+    var constrainedLookup =
+        userInfo.getAttributeInfo().stream()
+            .filter(
+                it ->
+                    StringUtils.equalsIgnoreCase(
+                        StubUserAttribute.USER_TEST_MAX_CONSTRAINT.name(), it.getName()))
+            .findFirst();
+    assertTrue(constrainedLookup.isPresent());
+    assertTrue(
+        StringUtils.equalsIgnoreCase(
+            "{\"constraints\":[{\"outbound\":true,\"inbound\":false,\"rule\":\"MAX_LENGTH\",\"ruleData\":\"12\"}]}",
+            constrainedLookup.get().getSubtype()));
   }
 
   @Test
@@ -571,7 +591,7 @@ public class StubConnectorTest extends ApiIntegrationTest<StubConfiguration, Stu
     ObjectClassInfo userSchema = schemaResult.findObjectClassInfo("user");
     assertNotNull(userSchema);
     assertNotNull(userSchema.getAttributeInfo());
-    assertEquals(19, userSchema.getAttributeInfo().size());
+    assertEquals(20, userSchema.getAttributeInfo().size());
 
     ObjectClassInfo groupSchema = schemaResult.findObjectClassInfo("group");
     assertNotNull(groupSchema);

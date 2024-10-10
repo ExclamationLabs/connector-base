@@ -18,14 +18,18 @@ package com.exclamationlabs.connid.base.connector.stub.adapter;
 
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.*;
 import static com.exclamationlabs.connid.base.connector.stub.attribute.StubUserAttribute.*;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.MULTIVALUED;
-import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.NOT_UPDATEABLE;
+import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.*;
 
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraint;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraintRule;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.*;
 import org.identityconnectors.framework.common.objects.*;
 
@@ -65,6 +69,10 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
     result.add(new ConnectorAttribute(USER_TEST_INTEGER.name(), INTEGER));
     result.add(new ConnectorAttribute(USER_TEST_LONG.name(), LONG));
     result.add(new ConnectorAttribute(USER_TEST_MAP.name(), MAP));
+
+    result.add(
+        new ConnectorAttribute(
+            USER_TEST_MAX_CONSTRAINT.name(), STRING, getMetaJson(), NOT_CREATABLE, NOT_UPDATEABLE));
 
     return result;
   }
@@ -122,5 +130,18 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
 
   public Set<Attribute> constructAttributesTestAccess(StubUser user) {
     return constructAttributes(user);
+  }
+
+  private String getMetaJson() {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    AttributeConstraint constraint = new AttributeConstraint();
+    constraint.setOutbound(true);
+    constraint.setRule(AttributeConstraintRule.MAX_LENGTH);
+    constraint.setRuleData("12");
+    AttributeMetaInfo metaInfo = new AttributeMetaInfo();
+    metaInfo.setConstraints(Collections.singletonList(constraint));
+
+    Gson gson = gsonBuilder.create();
+    return gson.toJson(metaInfo);
   }
 }
