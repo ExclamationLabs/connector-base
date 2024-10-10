@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.SearchOp;
@@ -111,6 +112,8 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
     return new AttributeInfoBuilder(current.getName())
         .setNativeName(current.getNativeName())
         .setType(current.getDataType().getClassType())
+        .setSubtype(
+            StringUtils.isNotBlank(current.getMetaInfoJson()) ? current.getMetaInfoJson() : null)
         .setFlags(current.getFlags())
         .build();
   }
