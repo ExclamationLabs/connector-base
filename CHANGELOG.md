@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **4.2.10** - FIN-12476 - Upgrade Spring Expression Package - Fix Vulnerabilities (10/10/2024)
 + **4.2.9** - FIN-12352 - Support attribute meta information for constraints (10/10/2024)
 + **4.2.8** - Revert ConnectionBrokenException thrown for 500+ - delegate to FaultProcessor handling case-by-case (10/01/2024)
 + **4.2.7** - Throw ConnectionBrokenException upon server error (09/26/2024)

@@ -51,6 +51,13 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.13'
     implementation 'ch.qos.logback:logback-core:1.2.13'
 
+    // Pass vulnerability scans and make sure 5.3.39 is evicted
+    implementation('org.springframework:spring-expression') {
+        version {
+            strictly '5.3.39'
+        }
+    }
+
     // SOAP support
     // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'
 
