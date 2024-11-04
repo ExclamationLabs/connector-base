@@ -24,7 +24,7 @@ import com.exclamationlabs.connid.base.connector.configuration.basetypes.securit
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
-import org.apache.commons.codec.Charsets;
+import java.nio.charset.StandardCharsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -73,7 +73,7 @@ public class OAuth2TokenExecution {
         String.format(
             "OAuth2 Received %d response for %s %s",
             statusCode, request.getMethod(), request.getURI()));
-    String rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
+    String rawJson = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8.name());
     Logger.debug(
         OAuth2TokenExecution.class, String.format("OAuth2 Received raw JSON: %s", rawJson));
     if (statusCode >= HttpStatus.SC_BAD_REQUEST) {

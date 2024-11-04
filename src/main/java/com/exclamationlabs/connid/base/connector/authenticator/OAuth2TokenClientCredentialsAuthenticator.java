@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
@@ -67,7 +66,7 @@ public class OAuth2TokenClientCredentialsAuthenticator
               + ":"
               + GuardedStringUtil.read(configuration.getClientSecret());
 
-      byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+      byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.ISO_8859_1));
       String authHeader = "Basic " + new String(encodedAuth);
       request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
       return OAuth2TokenExecution.executeRequest(

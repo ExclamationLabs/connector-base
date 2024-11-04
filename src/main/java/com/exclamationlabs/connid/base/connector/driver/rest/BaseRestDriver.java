@@ -37,7 +37,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
@@ -657,7 +656,7 @@ public abstract class BaseRestDriver<U extends ConnectorConfiguration> extends B
         return null;
       }
       if (response.getStatusLine().getStatusCode() < HttpStatus.SC_BAD_REQUEST) {
-        rawJson = EntityUtils.toString(response.getEntity(), Charsets.UTF_8.name());
+        rawJson = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8.name());
         Logger.debug(this, String.format("Received raw JSON: %s", rawJson));
       } else {
         Logger.debug(

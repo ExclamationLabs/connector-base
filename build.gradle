@@ -53,7 +53,6 @@ dependencies {
     httpApi 'com.google.code.gson:gson:2.10.1'
     httpApi 'org.apache.httpcomponents:httpclient:4.5.14'
 
-    implementation 'commons-codec:commons-codec:1.15'
 
     // PEM Private key support
     cryptographyApi 'org.bouncycastle:bcpkix-jdk18on:1.78'
