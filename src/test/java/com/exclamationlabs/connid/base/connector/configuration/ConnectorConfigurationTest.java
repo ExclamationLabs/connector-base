@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.exclamationlabs.connid.base.connector.stub.StubConnector;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 import org.junit.jupiter.api.Test;
