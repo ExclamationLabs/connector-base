@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.google.cloud.artifactregistry.gradle-plugin' version '2.2.0'
-    id 'com.github.sherter.google-java-format' version '0.9'
+    id "com.diffplug.spotless" version "6.25.0"
 }
 
 repositories {
@@ -12,7 +12,17 @@ repositories {
     }
 }
 
-googleJavaFormat {}
+java {
+    registerFeature('jwt') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('cryptography') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('http') {
+        usingSourceSet(sourceSets.main)
+    }
+}
 
 sourceCompatibility = '1.11'
 targetCompatibility = '1.11'
@@ -28,35 +38,26 @@ dependencyLocking {
 dependencies {
 
     ////// Begin - Vital dependencies for Base Connector
-    api 'org.apache.commons:commons-lang3:3.13.0'
-    api 'net.tirasa.connid:connector-test-common:1.5.0.0'
-    api 'com.auth0:java-jwt:3.19.4'
+    api 'org.apache.commons:commons-lang3:3.15.0'
+    api 'net.tirasa.connid:connector-test-common:1.5.2.0'
+    jwtApi 'com.auth0:java-jwt:3.19.4'
 
-    api ("org.springframework.boot:spring-boot-starter-validation:${spring_boot_version}") {
-        exclude group: "org.yaml", module: "snakeyaml"
+    // Instead of bringing spring we will just implement the necessary dependencies
+    api 'jakarta.validation:jakarta.validation-api:3.1.0'
+    api 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    api 'org.glassfish:jakarta.el:4.0.2'
 
-    }
-    api 'org.yaml:snakeyaml:2.0'
     ////// End - Vital dependencies for Base Connector
 
     // HTTP/RESTful support
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    httpApi 'com.google.code.gson:gson:2.10.1'
+    httpApi 'org.apache.httpcomponents:httpclient:4.5.14'
 
     implementation 'commons-codec:commons-codec:1.15'
 
     // PEM Private key support
-    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78'
-
-    implementation 'ch.qos.logback:logback-classic:1.2.13'
-    implementation 'ch.qos.logback:logback-core:1.2.13'
-
-    // Pass vulnerability scans and make sure 5.3.39 is evicted
-    implementation('org.springframework:spring-expression') {
-        version {
-            strictly '5.3.39'
-        }
-    }
+    cryptographyApi 'org.bouncycastle:bcpkix-jdk18on:1.78'
+    compileOnly 'org.bouncycastle:bcpkix-jdk18on:1.78'
 
     // SOAP support
     // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'
@@ -115,6 +116,12 @@ publishing {
                 password = "${System.getenv('ARTIFACT_REGISTRY_KEY')}"
             }
         }
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat('1.17.0')
     }
 }
 

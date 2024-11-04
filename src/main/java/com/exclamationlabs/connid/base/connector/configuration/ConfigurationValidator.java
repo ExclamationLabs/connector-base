@@ -1,8 +1,8 @@
 package com.exclamationlabs.connid.base.connector.configuration;
 
 import com.exclamationlabs.connid.base.connector.logging.Logger;
+import jakarta.validation.*;
 import java.util.Set;
-import javax.validation.*;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 
 public class ConfigurationValidator {
