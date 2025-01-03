@@ -9,6 +9,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
++ **5.1.0** Add CacheMap implementation for temporary expiry storage of common source data (01/03/2025)
 + **5.0.0** - FIN-12507 - Remove Spring and added feature dependencies (11/04/2024)
 + **4.2.10** - FIN-12476 - Upgrade Spring Expression Package - Fix Vulnerabilities (10/10/2024)
 + **4.2.9** - FIN-12352 - Support attribute meta information for constraints (10/10/2024)
