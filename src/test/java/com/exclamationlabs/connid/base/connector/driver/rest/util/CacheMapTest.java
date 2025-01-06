@@ -2,6 +2,7 @@ package com.exclamationlabs.connid.base.connector.driver.rest.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.cache.expiry.Duration;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,12 @@ public class CacheMapTest {
             (key) -> {
               cacheMissCount++;
               return "Value for " + key;
-            });
+            },
+            (v) ->
+                Map.of(
+                        "key1", "Value for key1",
+                        "key2", "Value for key2")
+                    .entrySet());
   }
 
   @Test
@@ -92,5 +98,35 @@ public class CacheMapTest {
     String value2 = cache.getValue("key1");
     assertEquals("Value for key1", value2);
     assertEquals(2, cacheMissCount);
+  }
+
+  @Test
+  public void testFetchAll() throws InterruptedException {
+    cacheMissCount = 0;
+    // First call - cache miss
+    cache.fetchAll();
+    String value1_get1 = cache.getValue("key1");
+    String value2_get1 = cache.getValue("key2");
+    assertEquals("Value for key1", value1_get1);
+    assertEquals("Value for key2", value2_get1);
+    // Expect no cache misses
+    assertEquals(0, cacheMissCount);
+
+    // Wait longer than the cache duration (1 second + small buffer)
+    long testDuration = TEST_DURATION.getAdjustedTime(100);
+    Thread.sleep(testDuration);
+
+    // After expiration - should be another cache miss
+    String value1_get2 = cache.getValue("key1");
+    assertEquals("Value for key1", value1_get2);
+    // Expect 1 cache miss
+    assertEquals(1, cacheMissCount);
+
+    // Fetch all again
+    cache.fetchAll();
+    String value2_get3 = cache.getValue("key2");
+    assertEquals("Value for key2", value2_get3);
+    // Expect no additional cache misses
+    assertEquals(1, cacheMissCount);
   }
 }
