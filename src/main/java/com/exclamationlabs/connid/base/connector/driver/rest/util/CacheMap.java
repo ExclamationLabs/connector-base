@@ -11,20 +11,51 @@ import javax.cache.expiry.Duration;
  * an expiry duration, forcing the cache to refresh using the fetch from source lambda expression.
  */
 public class CacheMap<T> {
-  private final Cache<String, T> cache;
-  private final Function<String, T> fetchFromSource;
+  private final Cache<String, Object> cache;
+  private final String cacheAllKey;
+  private Function<String, T> fetchOneFromSource;
+  private Function<Void, Iterable<java.util.Map.Entry<String, T>>> fetchAllFromSource;
 
   public CacheMap(
-      String cacheName, Class<T> clazz, Duration duration, Function<String, T> fetchFromSource) {
-    this.fetchFromSource = fetchFromSource;
+      String cacheName, Class<T> clazz, Duration duration, Function<String, T> fetchOneFromSource) {
+    this.fetchOneFromSource = fetchOneFromSource;
+    this.fetchAllFromSource = null;
+    this.cacheAllKey = "FETCH_ALL_AND_CACHE";
     this.cache =
         Caffeine.newBuilder()
             .expireAfterWrite(duration.getDurationAmount(), duration.getTimeUnit())
             .build();
   }
 
+  public CacheMap(
+      String cacheName,
+      Class<T> clazz,
+      Duration duration,
+      Function<String, T> fetchOneFromSource,
+      Function<Void, Iterable<java.util.Map.Entry<String, T>>> fetchAllFromSource) {
+    this(cacheName, clazz, duration, fetchOneFromSource);
+    this.fetchAllFromSource = fetchAllFromSource;
+  }
+
+  @SuppressWarnings("unchecked")
   public T getValue(String key) {
-    return cache.get(key, fetchFromSource::apply);
+    return (T) cache.get(key, fetchOneFromSource::apply);
+  }
+
+  /**
+   * Fetches all values from the source and caches them. Sets a timestamp fetchAll indicator in the
+   * cache to indicate that the fetch was performed. If fetchAll has already been performed, it will
+   * not be performed again until the fetchAll indicator has expired.
+   */
+  public void fetchAll() {
+    if (cache.getIfPresent(cacheAllKey) == null) {
+      fetchAllFromSource.apply(null).forEach(entry -> cache.put(entry.getKey(), entry.getValue()));
+      cache.put(cacheAllKey, System.currentTimeMillis());
+    }
+  }
+
+  public boolean hasFetchAllBeenPerformed() {
+    return cache.getIfPresent(cacheAllKey) != null;
   }
 
   public void clearCache() {
