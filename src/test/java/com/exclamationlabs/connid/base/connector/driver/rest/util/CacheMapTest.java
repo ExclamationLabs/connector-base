@@ -23,6 +23,9 @@ public class CacheMapTest {
             TEST_DURATION,
             (key) -> {
               cacheMissCount++;
+              if (key.equals("nonexistent")) {
+                return null;
+              }
               return "Value for " + key;
             },
             (v) ->
@@ -128,5 +131,28 @@ public class CacheMapTest {
     assertEquals("Value for key2", value2_get3);
     // Expect no additional cache misses
     assertEquals(1, cacheMissCount);
+  }
+
+  @Test
+  public void testGetValue_NonExistentKey() throws InterruptedException {
+    cacheMissCount = 0;
+    // First call for non-existent key - cache miss
+    String value1 = cache.getValue("nonexistent");
+    assertNull(value1);
+    assertEquals(1, cacheMissCount);
+
+    // Second immediate call - should use cached null value
+    String value2 = cache.getValue("nonexistent");
+    assertNull(value2);
+    assertEquals(1, cacheMissCount);
+
+    // Wait longer than cache duration
+    long testDuration = TEST_DURATION.getAdjustedTime(100);
+    Thread.sleep(testDuration);
+
+    // After expiration - should try fetching again
+    String value3 = cache.getValue("nonexistent");
+    assertNull(value3);
+    assertEquals(2, cacheMissCount);
   }
 }

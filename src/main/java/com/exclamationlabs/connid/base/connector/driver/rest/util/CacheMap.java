@@ -13,12 +13,32 @@ import javax.cache.expiry.Duration;
 public class CacheMap<T> {
   private final Cache<String, Object> cache;
   private final String cacheAllKey;
-  private Function<String, T> fetchOneFromSource;
+  private Function<String, Object> fetchOneFromSource;
   private Function<Void, Iterable<java.util.Map.Entry<String, T>>> fetchAllFromSource;
+
+  private class NonExistentValue {
+    private final String key;
+
+    NonExistentValue(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public String toString() {
+      return "No value for key: " + key;
+    }
+  }
 
   public CacheMap(
       String cacheName, Class<T> clazz, Duration duration, Function<String, T> fetchOneFromSource) {
-    this.fetchOneFromSource = fetchOneFromSource;
+    this.fetchOneFromSource =
+        (key) -> {
+          Object o = fetchOneFromSource.apply(key);
+          if (o == null) {
+            return new NonExistentValue(key);
+          }
+          return o;
+        };
     this.fetchAllFromSource = null;
     this.cacheAllKey = "FETCH_ALL_AND_CACHE";
     this.cache =
@@ -37,9 +57,24 @@ public class CacheMap<T> {
     this.fetchAllFromSource = fetchAllFromSource;
   }
 
+  /**
+   * Get the value from the cache for a given key. If the key is not found in the cache, the
+   * fetchOneFromSource lambda expression is used to fetch the value from the source. If the value
+   * is not found, a NonExistentValue is returned. The NonExistentValue is a special value that is
+   * used to indicate that the value is not found in the source. This state is tracked in the cache
+   * so that subsequent requests for the key from the cache will not attempt to fetch the value from
+   * the source again, at least until the cache expires.
+   *
+   * @param key
+   * @return T the value from the cache or null if the value is not found in the source
+   */
   @SuppressWarnings("unchecked")
   public T getValue(String key) {
-    return (T) cache.get(key, fetchOneFromSource::apply);
+    Object o = cache.get(key, fetchOneFromSource::apply);
+    if (o != null && o instanceof CacheMap.NonExistentValue) {
+      return null;
+    }
+    return (T) o;
   }
 
   /**
