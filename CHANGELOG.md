@@ -11,6 +11,7 @@ taken care of by a common API.
 
 # Change Log
 
++ **5.1.2** - FIN-12507 - Add non existent value caching to CacheMap implementation (01/08/2025)
 + **5.1.1** Add fetchAll to CacheMap implementation (01/06/2025)
 + **5.1.0** Add CacheMap implementation for temporary expiry storage of common source data (01/03/2025)
 + **5.0.0** - FIN-12507 - Remove Spring and added feature dependencies (11/04/2024)
