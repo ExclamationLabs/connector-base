@@ -191,6 +191,15 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     driver.test();
   }
 
+  public void fullConnectionTest() {
+    Logger.debug(
+        this,
+        String.format(
+            "Connector Configuration for connector %s: %s",
+            this.getClass().getSimpleName(), configuration.write()));
+    driver.fullConnectionTest();
+  }
+
   @Override
   public void dispose() {
     driver.close();
