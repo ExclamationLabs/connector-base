@@ -70,6 +70,30 @@ public interface Driver<T extends ConnectorConfiguration> {
   void test() throws ConnectorException;
 
   /**
+   * Performs a full connection test to the source system. This is a more comprehensive test than
+   * the test() method and may include more expensive operations. This method is intended to be used
+   * to verify the driver is fully functional and can connect to the source system utilizing the
+   * user connection information provided in the configuration.
+   *
+   * <p>In order to provide an accurate and hollistic connection test, the driver may need to make
+   * additional calls to the source system to ensure appropriate access and permissions to the
+   * various required resource endpoints These calls may include:
+   *
+   * <p>- Retrieving a list of users - Retrieving a list of groups - Retrieving a list of roles -
+   * Retrieving a list of permissions
+   *
+   * <p>NOTE: This method is not utilized by MidPoint, instead is provided to Provision systems to
+   * perform any necessary connection testing that may go beyond the basic test() method (since the
+   * test method is intentionally kept inexpensive due to frequency of invocation).
+   *
+   * @throws ConnectorException if connector test failed in some way
+   */
+  default void fullConnectionTest() throws ConnectorException {
+    throw new UnsupportedOperationException("Driver does not support fullConnectionTest");
+  }
+  ;
+
+  /**
    * Close any resources associated with this driver so that the object is unusable going forward.
    */
   void close();
