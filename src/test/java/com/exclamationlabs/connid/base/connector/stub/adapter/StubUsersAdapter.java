@@ -23,9 +23,6 @@ import static org.identityconnectors.framework.common.objects.AttributeInfo.Flag
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
-import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraint;
-import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraintRule;
-import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import com.google.gson.Gson;
@@ -72,7 +69,7 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
 
     result.add(
         new ConnectorAttribute(
-            USER_TEST_MAX_CONSTRAINT.name(), STRING, getMetaJson(), NOT_CREATABLE, NOT_UPDATEABLE));
+            USER_TEST_MAX_CONSTRAINT.name(), STRING, NOT_CREATABLE, NOT_UPDATEABLE));
 
     return result;
   }
@@ -130,18 +127,5 @@ public class StubUsersAdapter extends BaseAdapter<StubUser, StubConfiguration> {
 
   public Set<Attribute> constructAttributesTestAccess(StubUser user) {
     return constructAttributes(user);
-  }
-
-  private String getMetaJson() {
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    AttributeConstraint constraint = new AttributeConstraint();
-    constraint.setOutbound(true);
-    constraint.setRule(AttributeConstraintRule.MAX_LENGTH);
-    constraint.setRuleData("12");
-    AttributeMetaInfo metaInfo = new AttributeMetaInfo();
-    metaInfo.setConstraints(Collections.singletonList(constraint));
-
-    Gson gson = gsonBuilder.create();
-    return gson.toJson(metaInfo);
   }
 }

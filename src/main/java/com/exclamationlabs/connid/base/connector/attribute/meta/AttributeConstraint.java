@@ -1,27 +1,19 @@
 package com.exclamationlabs.connid.base.connector.attribute.meta;
 
 public class AttributeConstraint {
-  private Boolean outbound = Boolean.FALSE;
-  private Boolean inbound = Boolean.FALSE;
+
+  private AttributeConstraintDirection direction;
 
   private AttributeConstraintRule rule;
 
   private String ruleData;
 
-  public Boolean getOutbound() {
-    return outbound;
+  public AttributeConstraintDirection getDirection() {
+    return direction;
   }
 
-  public void setOutbound(Boolean outbound) {
-    this.outbound = outbound;
-  }
-
-  public Boolean getInbound() {
-    return inbound;
-  }
-
-  public void setInbound(Boolean inbound) {
-    this.inbound = inbound;
+  public void setDirection(AttributeConstraintDirection direction) {
+    this.direction = direction;
   }
 
   public AttributeConstraintRule getRule() {
