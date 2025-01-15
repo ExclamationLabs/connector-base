@@ -112,8 +112,6 @@ public class DefaultConnectorSchemaBuilder<T extends ConnectorConfiguration>
     return new AttributeInfoBuilder(current.getName())
         .setNativeName(current.getNativeName())
         .setType(current.getDataType().getClassType())
-        .setSubtype(
-            StringUtils.isNotBlank(current.getMetaInfoJson()) ? current.getMetaInfoJson() : null)
         .setFlags(current.getFlags())
         .build();
   }
