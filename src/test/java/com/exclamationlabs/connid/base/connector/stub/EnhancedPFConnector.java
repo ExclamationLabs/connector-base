@@ -17,9 +17,11 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseReadOnlyConnector;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.stub.adapter.EnhancedPFUserAdapter;
 import com.exclamationlabs.connid.base.connector.stub.configuration.EnhancedPFConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.EnhancedPFDriver;
+import java.util.Map;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
 @ConnectorClass(displayNameKey = "test.display", configurationClass = EnhancedPFConfiguration.class)
@@ -30,5 +32,10 @@ public class EnhancedPFConnector extends BaseReadOnlyConnector<EnhancedPFConfigu
     setDriver(new EnhancedPFDriver());
     setAdapters(new EnhancedPFUserAdapter());
     setAuthenticator(configuration -> "dummyAuth");
+  }
+
+  @Override
+  public Map<String, AttributeMetaInfo> getSchemaAttributeInfo() {
+    return Map.of();
   }
 }

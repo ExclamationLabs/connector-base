@@ -25,8 +25,6 @@ import com.exclamationlabs.connid.base.connector.adapter.BaseAdapter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.*;
 import org.identityconnectors.framework.common.objects.*;
 

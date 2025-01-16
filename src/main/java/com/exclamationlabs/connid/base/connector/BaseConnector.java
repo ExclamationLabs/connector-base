@@ -17,8 +17,6 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.adapter.*;
-import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraint;
-import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraintRule;
 import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
@@ -45,52 +43,37 @@ import org.identityconnectors.framework.spi.PoolableConnector;
 import org.identityconnectors.framework.spi.operations.*;
 
 /**
- * Abstract base class for defining Identity Access Management connectors. In
- * order to with MidPoint
+ * Abstract base class for defining Identity Access Management connectors. In order to with MidPoint
  * or ConnId system, this class MUST be annotated with
- * org.identityconnectors.framework.spi.ConnectorClass, supplying a
- * displayNameKey and
+ * org.identityconnectors.framework.spi.ConnectorClass, supplying a displayNameKey and
  * configurationClass. Example:
  *
- * <p>
- * {@literal @}ConnectorClass(displayNameKey = "test.display",
- * configurationClass =
+ * <p>{@literal @}ConnectorClass(displayNameKey = "test.display", configurationClass =
  * StubConfiguration.class)
  *
- * <p>
- * In most cases, you should subclass one of these abstract classes instead of
- * this one, based on
- * your connector's need: BaseFullAccessConnector - full
- * create/read/update/delete access to the
- * destination system BaseReadOnlyConnector - read-only access to the
- * destination system
+ * <p>In most cases, you should subclass one of these abstract classes instead of this one, based on
+ * your connector's need: BaseFullAccessConnector - full create/read/update/delete access to the
+ * destination system BaseReadOnlyConnector - read-only access to the destination system
  * BaseWriteOnlyConnector - write-only access to the destination system
  *
- * <p>
- * The constructor for your concrete class should also call these setters...
- * MANDATORY:
+ * <p>The constructor for your concrete class should also call these setters... MANDATORY:
  * setDriver(); setAdapters();
  *
- * <p>
- * OPTIONAL: setAuthenticator(); setConnectorSchemaBuilder();
- * setEnhancedFiltering();
+ * <p>OPTIONAL: setAuthenticator(); setConnectorSchemaBuilder(); setEnhancedFiltering();
  * setFilterAttributes();
  */
 public abstract class BaseConnector<T extends ConnectorConfiguration>
     implements PoolableConnector, SchemaOp, TestOp {
 
-  @NotBlank
-  protected Driver<T> driver;
+  @NotBlank protected Driver<T> driver;
   protected ConnectorSchemaBuilder<T> schemaBuilder;
   protected Authenticator<T> authenticator;
   protected T configuration;
 
   protected Map<ObjectClass, BaseAdapter<?, T>> adapterMap;
 
-  @Deprecated
-  protected boolean enhancedFiltering;
-  @Deprecated
-  protected Set<String> filterAttributes;
+  @Deprecated protected boolean enhancedFiltering;
+  @Deprecated protected Set<String> filterAttributes;
 
   protected final Class<T> configurationType;
 
@@ -113,25 +96,21 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   }
 
   /**
-   * Concrete Connector classes need to call this method to set the driver for
-   * their connector
+   * Concrete Connector classes need to call this method to set the driver for their connector
    * implementation.
    *
-   * @param input Concrete Driver class used to communicate with the destination
-   *              system.
+   * @param input Concrete Driver class used to communicate with the destination system.
    */
   protected void setDriver(Driver<T> input) {
     driver = input;
   }
 
   /**
-   * Concrete Connector classes need to call this method to set the adapter(s) to
-   * map attribute data
+   * Concrete Connector classes need to call this method to set the adapter(s) to map attribute data
    * from Midpoint to IdentityModel object types.
    *
-   * @param adapters Any number of concrete BaseAdapter classes, each pertaining
-   *                 to a distinct
-   *                 IdentityModel type.
+   * @param adapters Any number of concrete BaseAdapter classes, each pertaining to a distinct
+   *     IdentityModel type.
    */
   @SafeVarargs
   protected final void setAdapters(BaseAdapter<?, T>... adapters) {
@@ -141,38 +120,30 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   }
 
   /**
-   * Identifies whether or not this connector is able to read items on the
-   * destination system.
+   * Identifies whether or not this connector is able to read items on the destination system.
    *
-   * @return true if read on the destination system is allowed, false if it is
-   *         prohibited.
+   * @return true if read on the destination system is allowed, false if it is prohibited.
    */
   protected abstract boolean readEnabled();
 
   /**
-   * Identifies whether or not this connector is able to update items on the
-   * destination system.
+   * Identifies whether or not this connector is able to update items on the destination system.
    *
-   * @return true if update on the destination system is allowed, false if it is
-   *         prohibited.
+   * @return true if update on the destination system is allowed, false if it is prohibited.
    */
   protected abstract boolean updateEnabled();
 
   /**
-   * Identifies whether or not this connector is able to delete items on the
-   * destination system.
+   * Identifies whether or not this connector is able to delete items on the destination system.
    *
-   * @return true if delete on the destination system is allowed, false if it is
-   *         prohibited.
+   * @return true if delete on the destination system is allowed, false if it is prohibited.
    */
   protected abstract boolean deleteEnabled();
 
   /**
-   * Identifies whether or not this connector is able to create items on the
-   * destination system.
+   * Identifies whether or not this connector is able to create items on the destination system.
    *
-   * @return true if create on the destination system is allowed, false if it is
-   *         prohibited.
+   * @return true if create on the destination system is allowed, false if it is prohibited.
    */
   protected abstract boolean createEnabled();
 
@@ -196,11 +167,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   /**
    * MidPoint calls this method to initialize a connector on startup.
    *
-   * @param configuration Configuration concrete class (Midpoint determines this
-   *                      by looking at
-   *                      configurationClass of {@literal @}ConnectorClass
-   *                      annotation on your concrete connector
-   *                      class)
+   * @param configuration Configuration concrete class (Midpoint determines this by looking at
+   *     configurationClass of {@literal @}ConnectorClass annotation on your concrete connector
+   *     class)
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -343,12 +312,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   }
 
   /**
-   * This initialization method performs checks to ensure the concrete connector
-   * implementation is
-   * structured properly and has what it needs to successfully integrate with
-   * Midpoint. If something
-   * is not setup properly, the RuntimeException ConfigurationException is thrown
-   * from this method
+   * This initialization method performs checks to ensure the concrete connector implementation is
+   * structured properly and has what it needs to successfully integrate with Midpoint. If something
+   * is not setup properly, the RuntimeException ConfigurationException is thrown from this method
    * to indicate the problem.
    *
    * @param inputConfiguration Configuration object for this connector.
@@ -454,12 +420,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final OperationOptions operationOptions);
 
   /**
-   * Abstract method to get meta information for schema attributes. This method
-   * should be implemented in
-   * the concrete connector class to provide meta information in JSON format.
-   * 
+   * Abstract method to get meta information for schema attributes. This method should be
+   * implemented in the concrete connector class to provide meta information in JSON format.
+   *
    * @return Map of schema attribute names to attribute meta information
    */
   public abstract Map<String, AttributeMetaInfo> getSchemaAttributeInfo();
-
 }
