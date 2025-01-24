@@ -11,6 +11,7 @@ taken care of by a common API.
 
 # Change Log
 
++ **4.2.12** - FIN-12352 - Modify how schema meta info is created (01/15/2025)
 + **4.2.11** - FIN-12722 - Add CacheMap implementation and fullConnectionTest method to BaseConnector (01/10/2025)
 + **4.2.10** - FIN-12476 - Upgrade Spring Expression Package - Fix Vulnerabilities (10/10/2024)
 + **4.2.9** - FIN-12352 - Support attribute meta information for constraints (10/10/2024)
