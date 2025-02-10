@@ -17,10 +17,12 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseReadOnlyConnector;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubGroupsAdapter;
 import com.exclamationlabs.connid.base.connector.stub.adapter.StubUsersAdapter;
 import com.exclamationlabs.connid.base.connector.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.StubDriver;
+import java.util.Map;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
 @ConnectorClass(displayNameKey = "test.display", configurationClass = StubConfiguration.class)
@@ -31,5 +33,10 @@ public class StubReadOnlyConnector extends BaseReadOnlyConnector<StubConfigurati
     setDriver(new StubDriver());
     setAdapters(new StubUsersAdapter(), new StubGroupsAdapter());
     setAuthenticator(configuration -> "stubAuth");
+  }
+
+  @Override
+  public Map<String, AttributeMetaInfo> getSchemaAttributeInfo() {
+    return Map.of();
   }
 }

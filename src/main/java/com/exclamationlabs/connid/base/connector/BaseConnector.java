@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector;
 
 import com.exclamationlabs.connid.base.connector.adapter.*;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.DefaultAuthenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
@@ -26,6 +27,8 @@ import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.schema.ConnectorSchemaBuilder;
 import com.exclamationlabs.connid.base.connector.schema.DefaultConnectorSchemaBuilder;
 import jakarta.validation.constraints.NotBlank;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +76,13 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   @Deprecated protected Set<String> filterAttributes;
 
   protected final Class<T> configurationType;
+
+  protected static Gson gson;
+
+  static {
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gson = gsonBuilder.create();
+  }
 
   public BaseConnector(Class<T> configurationTypeIn) {
     this(configurationTypeIn, false);
@@ -189,6 +199,15 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
             "Connector Configuration for connector %s: %s",
             this.getClass().getSimpleName(), configuration.write()));
     driver.test();
+  }
+
+  public void fullConnectionTest() {
+    Logger.debug(
+        this,
+        String.format(
+            "Connector Configuration for connector %s: %s",
+            this.getClass().getSimpleName(), configuration.write()));
+    driver.fullConnectionTest();
   }
 
   @Override
@@ -399,4 +418,12 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       String itemId,
       final ResultsHandler resultsHandler,
       final OperationOptions operationOptions);
+
+  /**
+   * Abstract method to get meta information for schema attributes. This method should be
+   * implemented in the concrete connector class to provide meta information in JSON format.
+   *
+   * @return Map of schema attribute names to attribute meta information
+   */
+  public abstract Map<String, AttributeMetaInfo> getSchemaAttributeInfo();
 }

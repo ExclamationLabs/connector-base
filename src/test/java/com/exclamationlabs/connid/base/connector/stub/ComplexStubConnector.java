@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.connector.stub;
 
 import com.exclamationlabs.connid.base.connector.BaseFullAccessConnector;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.JWTRS256Authenticator;
 import com.exclamationlabs.connid.base.connector.authenticator.OAuth2TokenJWTAuthenticator;
@@ -26,6 +27,7 @@ import com.exclamationlabs.connid.base.connector.stub.adapter.*;
 import com.exclamationlabs.connid.base.connector.stub.configuration.ComplexStubConfiguration;
 import com.exclamationlabs.connid.base.connector.stub.driver.ComplexStubDriver;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.Map;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 import org.identityconnectors.framework.spi.ConnectorClass;
 
@@ -72,5 +74,10 @@ public class ComplexStubConnector extends BaseFullAccessConnector<ComplexStubCon
         new StubComplexGroupsAdapter(),
         new StubClubAdapter(),
         new StubSupergroupAdapter());
+  }
+
+  @Override
+  public Map<String, AttributeMetaInfo> getSchemaAttributeInfo() {
+    return Map.of();
   }
 }
