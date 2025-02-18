@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -54,7 +55,20 @@ public class AttributeCreator {
       String[] notCreateableAttributes,
       String prefix,
       Class clazz) {
+    createAttributes(result, ignoreAttributes, notUpdateableAttributes, notCreateableAttributes, prefix, clazz, false);
+  }
+  private static void createAttributes(
+      Set<ConnectorAttribute> result,
+      String[] ignoreAttributes,
+      String[] notUpdateableAttributes,
+      String[] notCreateableAttributes,
+      String prefix,
+      Class clazz, boolean print) {
+    List<String> attributeNames = new ArrayList<>();
     if (result != null) {
+      if (print) {
+        System.out.println("**** getConnectorAttributes");
+      }
       if (notUpdateableAttributes == null) notUpdateableAttributes = new String[0];
       if (notCreateableAttributes == null) notCreateableAttributes = new String[0];
       if (ignoreAttributes == null) ignoreAttributes = new String[0];
@@ -77,9 +91,16 @@ public class AttributeCreator {
               flags.add(NOT_UPDATEABLE);
             }
             var type = getDataType(field);
+            attributeNames.add(attributeName);
             if (flags.isEmpty()) {
+              if(print){
+              System.out.println("result.add(new ConnectorAttribute("+attributeName+".name(), "+type.name()+");");
+              }
               result.add(new ConnectorAttribute(attributeName, type));
             } else {
+              if(print){
+                System.out.println("result.add(new ConnectorAttribute("+attributeName+".name(), "+type.name()+", "+ flags.toString().replace("[","").replace("]","")  +");");
+              }
               var flagsArray = new Flags[flags.size()];
               flags.toArray(flagsArray);
               result.add(new ConnectorAttribute(attributeName, type, flagsArray));
@@ -87,6 +108,9 @@ public class AttributeCreator {
           }
         }
       }
+    }
+    if (print) {
+      System.out.println("\r\n");
     }
   }
 
@@ -129,6 +153,13 @@ public class AttributeCreator {
    */
   public static void constructAttributes(
       Set<Attribute> attributes, String[] ignoreAttributes, String prefix, Object o) {
+    constructAttributes(attributes, ignoreAttributes, prefix, o, false);
+  }
+  private static void constructAttributes(
+      Set<Attribute> attributes, String[] ignoreAttributes, String prefix, Object o, boolean print) {
+    if(print){
+      System.out.println("**** constructAttributes");
+    }
     if (ignoreAttributes == null) ignoreAttributes = new String[0];
     if (prefix == null) prefix = "";
     if (attributes != null && o != null) {
@@ -144,6 +175,9 @@ public class AttributeCreator {
             Object val = null;
 
             try {
+              if(print){
+                System.out.println("attributes.add(AttributeBuilder.build("+attributeName+".name(), o."+fieldNameToGetter(field.getName())+"()));");
+              }
               var getter = o.getClass().getMethod(fieldNameToGetter(field.getName()));
               if (getter != null) {
                 val = getter.invoke(o);
@@ -159,6 +193,9 @@ public class AttributeCreator {
           }
         }
       }
+    }
+    if(print){
+      System.out.println("\r\n");
     }
   }
 
@@ -177,6 +214,13 @@ public class AttributeCreator {
    */
   public static void constructModel(
       Set<Attribute> attributes, String[] ignoreAttributes, String prefix, Object o) {
+    constructModel(attributes, ignoreAttributes, prefix, o, false);
+  }
+  private static void constructModel(
+      Set<Attribute> attributes, String[] ignoreAttributes, String prefix, Object o,boolean print) {
+    if(print){
+      System.out.println("**** Construct Model");
+    }
     if (ignoreAttributes == null) ignoreAttributes = new String[0];
     if (prefix == null) prefix = "";
     if (o != null && attributes != null) {
@@ -191,7 +235,11 @@ public class AttributeCreator {
           try {
             var setter = findMethod(setterString, o);
             var paramType = setter.getParameterTypes()[0];
-            Object val = attributeName.getValue().get(0);
+            Object val =null;
+            if(attributeName.getValue()!=null)val=attributeName.getValue().get(0);
+            if(print){
+              System.out.println(" o."+setterString+"(AdapterValueTypeConverter.getSingleAttributeValue("+paramType.getSimpleName()+".class, attributes, "+attributeName.getName()+"));");
+            }
             if (val != null && setter != null) {
               if (paramType == String.class) {
                 setter.invoke(o, val.toString());
@@ -223,6 +271,9 @@ public class AttributeCreator {
           }
         }
       }
+    }
+    if(print){
+      System.out.println("\r\n");
     }
   }
 
@@ -266,12 +317,43 @@ public class AttributeCreator {
    * @param clazz - The class in which to use to create attributes.
    */
   public static void printAttributes(String[] ignoreAttributes, String prefix, Class clazz) {
+    System.out.println("****Attribute Enum");
     var list = listAttributes(ignoreAttributes, prefix, clazz);
     for (var s : list) {
-      System.out.println(s);
+      System.out.println(s+ ",");
     }
+    System.out.println("\r\n");
   }
 
+  /**
+   * The method generates code for adapter to System.out
+   *
+   * @param ignoreAttributes - An array of Strings that are Attribute Names that you would not like
+   *    *     to be output. If you use a prefix for child objects, you must include the prefix in the
+   *    *     ignore list example PREFIX_FIELD_NAME.
+   * @param notUpdateableAttributes - An array of Strings that are Attribute Names that you would
+   *     like to be NotUpdateable. If you use a prefix for child objects, you must include the
+   *     prefix in the ignore list example PREFIX_FIELD_NAME.
+   * @param notCreateableAttributes - An array of Strings that are Attribute Names that you would to
+   *     be NotCreatable. If you use a prefix for child objects, you must include the prefix in the
+   *     ignore list example PREFIX_FIELD_NAME.
+   * @param prefix - String of the prefix. If you are going to process child objects, you should use
+   *     a prefix to prevent duplication.
+   * @param o Object which to use to code generate.
+   */
+  public static void codeGenerate(  String[] ignoreAttributes,
+    String[] notUpdateableAttributes,
+    String[] notCreateableAttributes,
+    String prefix,
+   Object o){
+    printAttributes(ignoreAttributes, prefix, o.getClass());
+    Set<ConnectorAttribute> result = new HashSet<ConnectorAttribute>();
+    createAttributes(result,ignoreAttributes,notUpdateableAttributes,notCreateableAttributes,prefix,o.getClass(),true);
+    Set<Attribute> attributes = new HashSet<>();
+    constructAttributes(attributes,ignoreAttributes,prefix,o,true );
+    constructModel(attributes,ignoreAttributes,prefix,o,true );
+
+}
   private static Method findMethod(String name, Object o) {
     var clazz = o.getClass();
     Method[] methods = clazz.getDeclaredMethods();
