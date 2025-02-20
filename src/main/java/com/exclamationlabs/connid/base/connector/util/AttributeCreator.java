@@ -14,8 +14,6 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,35 +73,43 @@ public class AttributeCreator {
       if (prefix == null) prefix = "";
       if (result != null) {
         for (var field : clazz.getDeclaredFields()) {
-          String attributeName =
-              (prefix.isEmpty())
-                  ? fieldNameToAttribute(field.getName())
-                  : prefix.toUpperCase() + "_" + fieldNameToAttribute(field.getName());
-          if (!Arrays.stream(ignoreAttributes)
-              .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
-            ArrayList<Flags> flags = new ArrayList<>();
-            if (Arrays.stream(notCreateableAttributes)
-                .anyMatch(notCreatableAttribute -> notCreatableAttribute.equals(attributeName))) {
-              flags.add(NOT_CREATABLE);
-            }
-            if (Arrays.stream(notUpdateableAttributes)
-                .anyMatch(notUpdateableAttribute -> notUpdateableAttribute.equals(attributeName))) {
-              flags.add(NOT_UPDATEABLE);
-            }
-            var type = getDataType(field);
-            attributeNames.add(attributeName);
-            if (flags.isEmpty()) {
-              if(print){
-              System.out.println("result.add(new ConnectorAttribute("+attributeName+".name(), "+type.name()+");");
+          if(isValidType(field)) {
+            String attributeName =
+                (prefix.isEmpty())
+                    ? fieldNameToAttribute(field.getName())
+                    : prefix.toUpperCase() + "_" + fieldNameToAttribute(field.getName());
+            if (!Arrays.stream(ignoreAttributes)
+                .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
+              ArrayList<Flags> flags = new ArrayList<>();
+              if (Arrays.stream(notCreateableAttributes)
+                  .anyMatch(notCreatableAttribute -> notCreatableAttribute.equals(attributeName))) {
+                flags.add(NOT_CREATABLE);
               }
-              result.add(new ConnectorAttribute(attributeName, type));
-            } else {
-              if(print){
-                System.out.println("result.add(new ConnectorAttribute("+attributeName+".name(), "+type.name()+", "+ flags.toString().replace("[","").replace("]","")  +");");
+              if (Arrays.stream(notUpdateableAttributes)
+                  .anyMatch(
+                      notUpdateableAttribute -> notUpdateableAttribute.equals(attributeName))) {
+                flags.add(NOT_UPDATEABLE);
               }
-              var flagsArray = new Flags[flags.size()];
-              flags.toArray(flagsArray);
-              result.add(new ConnectorAttribute(attributeName, type, flagsArray));
+              var type = getDataType(field);
+              attributeNames.add(attributeName);
+              if (flags.isEmpty()) {
+                if (print) {
+                  System.out.println(
+                      "result.add(new ConnectorAttribute(" + attributeName + ".name(), "
+                          + type.name() + ");");
+                }
+                result.add(new ConnectorAttribute(attributeName, type));
+              } else {
+                if (print) {
+                  System.out.println(
+                      "result.add(new ConnectorAttribute(" + attributeName + ".name(), "
+                          + type.name() + ", " + flags.toString().replace("[", "").replace("]", "")
+                          + ");");
+                }
+                var flagsArray = new Flags[flags.size()];
+                flags.toArray(flagsArray);
+                result.add(new ConnectorAttribute(attributeName, type, flagsArray));
+              }
             }
           }
         }
@@ -113,7 +119,16 @@ public class AttributeCreator {
       System.out.println("\r\n");
     }
   }
-
+  private static boolean isValidType(Field field) {
+    if(field.getType() == String.class
+        || field.getType() == Boolean.class
+        || field.getType()== Integer.class
+        || field.getType() == Long.class
+        || field.getType() == Double.class
+        || field.getType() == Float.class
+        || field.getType() == ZonedDateTime.class) {return true;}
+    else{ return false; }
+  }
   private static ConnectorAttributeDataType getDataType(Field field) {
     if (field.getType() == Integer.class) {
       return INTEGER;
@@ -166,30 +181,28 @@ public class AttributeCreator {
       if (o != null && attributes != null) {
         Class clazz = o.getClass();
         for (var field : clazz.getDeclaredFields()) {
-          String attributeName =
-              (prefix.isEmpty())
-                  ? fieldNameToAttribute(field.getName())
-                  : prefix + "_" + fieldNameToAttribute(field.getName());
-          if (!Arrays.stream(ignoreAttributes)
-              .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
-            Object val = null;
+          if(isValidType(field)) {
+            String attributeName =
+                (prefix.isEmpty())
+                    ? fieldNameToAttribute(field.getName())
+                    : prefix + "_" + fieldNameToAttribute(field.getName());
+            if (!Arrays.stream(ignoreAttributes)
+                .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
+              Object val = null;
 
-            try {
-              if(print){
-                System.out.println("attributes.add(AttributeBuilder.build("+attributeName+".name(), o."+fieldNameToGetter(field.getName())+"()));");
+              try {
+                if(print){
+                  System.out.println("attributes.add(AttributeBuilder.build("+attributeName+".name(), o."+fieldNameToGetter(field.getName())+"()));");
+                }
+                field.setAccessible(true);
+                val = field.get(o);
+              } catch (Exception e) {
+                Logger.error(o.getClass(), "Error constructing attribute value", e);
               }
-              var getter = o.getClass().getMethod(fieldNameToGetter(field.getName()));
-              if (getter != null) {
-                val = getter.invoke(o);
+              if(val != null) {
+                attributes.add(AttributeBuilder.build(attributeName, val));
               }
-            } catch (InvocationTargetException e) {
-              Logger.error(o.getClass(), "Error constructing attribute value", e);
-            } catch (NoSuchMethodException e) {
-              Logger.error(o.getClass(), "Error constructing attribute value", e);
-            } catch (IllegalAccessException e) {
-              Logger.error(o.getClass(), "Error constructing attribute value", e);
             }
-            attributes.add(AttributeBuilder.build(attributeName, val));
           }
         }
       }
@@ -231,38 +244,45 @@ public class AttributeCreator {
               (prefix.isEmpty()
                   ? attributeName.getName()
                   : attributeName.getName().replace(prefix + "_", ""));
+          String fieldString = attributeNameToFieldName(cleanedAttributeName, prefix);
           String setterString = attributeNameToSetter(cleanedAttributeName, prefix);
           try {
-            var setter = findMethod(setterString, o);
-            var paramType = setter.getParameterTypes()[0];
-            Object val =null;
-            if(attributeName.getValue()!=null)val=attributeName.getValue().get(0);
-            if(print){
-              System.out.println(" o."+setterString+"(AdapterValueTypeConverter.getSingleAttributeValue("+paramType.getSimpleName()+".class, attributes, "+attributeName.getName()+"));");
-            }
-            if (val != null && setter != null) {
-              if (paramType == String.class) {
-                setter.invoke(o, val.toString());
-              } else if (paramType == Integer.class) {
-                setter.invoke(o, Integer.parseInt(val.toString()));
-              } else if (paramType == Long.class) {
-                setter.invoke(o, Long.parseLong(val.toString()));
-              } else if (paramType == Boolean.class) {
-                setter.invoke(o, Boolean.parseBoolean(val.toString()));
-              } else if (paramType == Float.class) {
-                setter.invoke(o, Float.parseFloat(val.toString()));
-              } else if (paramType == Double.class) {
-                setter.invoke(o, Double.parseDouble(val.toString()));
-              } else if (paramType == ZonedDateTime.class) {
-                if (val instanceof ZonedDateTime) {
-                  setter.invoke(o, (ZonedDateTime) val);
-                } else {
-                  Logger.info(o.getClass(), "Data type is Date but value is not Date");
-                }
-              } else {
-                Logger.info(o.getClass(), "Data type not supported " + attributeName);
+            var field = o.getClass().getDeclaredField(fieldString);
+            if (field != null && isValidType(field)) {
+              field.setAccessible(true);
+              var paramType = field.getType();
+              Object val = null;
+              if (attributeName.getValue() != null)
+                val = attributeName.getValue().get(0);
+              if (print) {
+                System.out.println(
+                    " o." + setterString + "(AdapterValueTypeConverter.getSingleAttributeValue("
+                        + paramType.getSimpleName() + ".class, attributes, " + attributeName.getName()
+                        + "));");
               }
-              if (setter == null) {
+              if (val != null ) {
+                if (paramType == String.class) {
+                  field.set(o, val.toString());
+                } else if (paramType == Integer.class) {
+                  field.set(o, Integer.parseInt(val.toString()));
+                } else if (paramType == Long.class) {
+                  field.set(o, Long.parseLong(val.toString()));
+                } else if (paramType == Boolean.class) {
+                  field.set(o, Boolean.parseBoolean(val.toString()));
+                } else if (paramType == Float.class) {
+                  field.set(o, Float.parseFloat(val.toString()));
+                } else if (paramType == Double.class) {
+                  field.set(o, Double.parseDouble(val.toString()));
+                } else if (paramType == ZonedDateTime.class) {
+                  if (val instanceof ZonedDateTime) {
+                    field.set(o, (ZonedDateTime) val);
+                  } else {
+                    Logger.info(o.getClass(), "Data type is Date but value is not Date");
+                  }
+                } else {
+                  Logger.info(o.getClass(), "Data type not supported " + attributeName);
+                }
+              }else{
                 Logger.info(o.getClass(), "Cannot find setter method " + setterString);
               }
             }
@@ -293,13 +313,15 @@ public class AttributeCreator {
     if (ignoreAttributes == null) ignoreAttributes = new String[0];
     if (prefix == null) prefix = "";
     for (var field : clazz.getDeclaredFields()) {
-      String attributeName =
-          (prefix.isEmpty())
-              ? fieldNameToAttribute(field.getName())
-              : prefix + "_" + fieldNameToAttribute(field.getName());
-      if (!Arrays.stream(ignoreAttributes)
-          .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
-        out.add(attributeName);
+      if(isValidType(field)) {
+        String attributeName =
+            (prefix.isEmpty())
+                ? fieldNameToAttribute(field.getName())
+                : prefix + "_" + fieldNameToAttribute(field.getName());
+        if (!Arrays.stream(ignoreAttributes)
+            .anyMatch(ignoreAttribute -> ignoreAttribute.equals(attributeName))) {
+          out.add(attributeName);
+        }
       }
     }
     return out;
@@ -342,10 +364,10 @@ public class AttributeCreator {
    * @param o Object which to use to code generate.
    */
   public static void codeGenerate(  String[] ignoreAttributes,
-    String[] notUpdateableAttributes,
-    String[] notCreateableAttributes,
-    String prefix,
-   Object o){
+      String[] notUpdateableAttributes,
+      String[] notCreateableAttributes,
+      String prefix,
+      Object o){
     printAttributes(ignoreAttributes, prefix, o.getClass());
     Set<ConnectorAttribute> result = new HashSet<ConnectorAttribute>();
     createAttributes(result,ignoreAttributes,notUpdateableAttributes,notCreateableAttributes,prefix,o.getClass(),true);
@@ -353,16 +375,6 @@ public class AttributeCreator {
     constructAttributes(attributes,ignoreAttributes,prefix,o,true );
     constructModel(attributes,ignoreAttributes,prefix,o,true );
 
-}
-  private static Method findMethod(String name, Object o) {
-    var clazz = o.getClass();
-    Method[] methods = clazz.getDeclaredMethods();
-    for (var method : methods) {
-      if (method.getName().equals(name)) {
-        return method;
-      }
-    }
-    return null;
   }
 
   private static String fieldNameToAttribute(String fieldName) {
@@ -376,14 +388,13 @@ public class AttributeCreator {
     }
     return sb.toString().toUpperCase();
   }
-
-  private static String attributeNameToSetter(String attributeName, String prefix) {
+  private static String attributeNameToFieldName(String attributeName, String prefix) {
     if (attributeName == null) return null;
     if (prefix != null) {
       attributeName.replace("_" + prefix, "");
     }
     StringBuilder sb = new StringBuilder();
-    sb.append(Character.toUpperCase(attributeName.charAt(0)));
+    sb.append(Character.toLowerCase(attributeName.charAt(0)));
     boolean isUnderscore = false;
     for (int i = 1; i < attributeName.length(); i++) {
       if (attributeName.charAt(i) == '_') {
@@ -396,7 +407,12 @@ public class AttributeCreator {
         isUnderscore = false;
       }
     }
-    return "set" + sb.toString();
+    return  sb.toString();
+  }
+
+  private static String attributeNameToSetter(String attributeName, String prefix) {
+    String field = attributeNameToFieldName(attributeName, prefix);
+    return "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
   }
 
   private static String fieldNameToGetter(String fieldName) {

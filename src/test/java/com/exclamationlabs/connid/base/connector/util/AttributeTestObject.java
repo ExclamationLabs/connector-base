@@ -11,7 +11,15 @@ public class AttributeTestObject {
   private Boolean booleanValue;
   private ZonedDateTime dateValue;
   private String ignoreValue;
+  private Object objectValue = new Object();
 
+  public Object getObjectValue() {
+    return objectValue;
+  }
+
+  public void setObjectValue(Object objectValue) {
+    this.objectValue = objectValue;
+  }
   public String getStringValue() {
     return stringValue;
   }

@@ -61,5 +61,6 @@ public class AttributeCreatorTest {
     assertEquals(true, o.getFloatValue() == 1.1F);
     assertEquals(true, o.getDateValue().equals(now));
     assertEquals(true, o.getBooleanValue() == true);
+    assertEquals(true, o.getIgnoreValue() == null);
   }
 }
