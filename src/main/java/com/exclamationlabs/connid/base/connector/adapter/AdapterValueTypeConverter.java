@@ -47,21 +47,33 @@ public class AdapterValueTypeConverter {
   }
 
   private AdapterValueTypeConverter() {}
-
+  public static <T> T getSingleAttributeValueNoEnum(
+      Class<T> returnType, Set<Attribute> attributes, String stringValue) {
+    if (stringValue == null) {
+      return null;
+    }
+    return getAttributeValue(returnType, attributes, stringValue, true);
+  }
   public static <T> T getSingleAttributeValue(
       Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
     if (enumValue == null) {
       return null;
     }
-    return getAttributeValue(returnType, attributes, enumValue.toString(), true);
+    return getSingleAttributeValueNoEnum(returnType,attributes,enumValue.toString());
   }
-
+  public static <T> T getMultipleAttributeValueNoEnum(
+      Class<T> returnType, Set<Attribute> attributes, String stringValue) {
+    if (stringValue == null) {
+      return null;
+    }
+    return getAttributeValue(returnType, attributes, stringValue, false);
+  }
   public static <T> T getMultipleAttributeValue(
       Class<T> returnType, Set<Attribute> attributes, Enum<?> enumValue) {
     if (enumValue == null) {
       return null;
     }
-    return getAttributeValue(returnType, attributes, enumValue.toString(), false);
+    return getMultipleAttributeValueNoEnum(returnType,attributes,enumValue.toString());
   }
 
   public static String getIdentityIdAttributeValue(Set<Attribute> attributes) {
