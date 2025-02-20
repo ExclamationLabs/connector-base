@@ -199,9 +199,7 @@ public class AttributeCreator {
               } catch (Exception e) {
                 Logger.error(o.getClass(), "Error constructing attribute value", e);
               }
-              if(val != null) {
-                attributes.add(AttributeBuilder.build(attributeName, val));
-              }
+              attributes.add(AttributeBuilder.build(attributeName, val));
             }
           }
         }
@@ -282,12 +280,10 @@ public class AttributeCreator {
                 } else {
                   Logger.info(o.getClass(), "Data type not supported " + attributeName);
                 }
-              }else{
-                Logger.info(o.getClass(), "Cannot find setter method " + setterString);
               }
             }
           } catch (Exception e) {
-            Logger.error(o.getClass(), "Cannot invoke setter method " + setterString, e);
+            Logger.error(o.getClass(), "Cannot construct model :"+ attributeName+ ", Field " + fieldString, e);
           }
         }
       }
