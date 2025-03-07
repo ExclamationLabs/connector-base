@@ -5,27 +5,28 @@ import static org.identityconnectors.framework.common.objects.AttributeInfo.Flag
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.AttributeUtils;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.junit.jupiter.api.Test;
 
-public class AttributeCreatorTest {
+public class AttributeUtilsTest {
   @Test
   public void testCreateAttribute() {
 
     System.out.println("Testing List Attributes");
     String[] ignore = {"OBJECT_IGNORE_VALUE"};
-    AttributeCreator.printAttributes(ignore, "OBJECT", AttributeTestObject.class);
-    var list = AttributeCreator.listAttributes(ignore, "OBJECT", AttributeTestObject.class);
+    AttributeUtils.printAttributes(ignore, "OBJECT", AttributeTestObject.class);
+    var list = AttributeUtils.listAttributes(ignore, "OBJECT", AttributeTestObject.class);
     assertEquals(7, list.size());
     System.out.println("Testing Create Attribute");
     Set<ConnectorAttribute> result = new HashSet<>();
     String[] notUpdateable = {"OBJECT_STRING_VALUE"};
     String[] notCreateable = {"OBJECT_INTEGER_VALUE"};
-    AttributeCreator.codeGenerate(ignore,notUpdateable,notCreateable,"OBJECT",new AttributeTestObject());
-    AttributeCreator.createAttributes(
+    AttributeUtils.codeGenerate(ignore,notUpdateable,notCreateable,"OBJECT",new AttributeTestObject());
+    AttributeUtils.createAttributes(
         result, ignore, notUpdateable, notCreateable, "OBJECT", AttributeTestObject.class);
     var stringval =
         result.stream().filter(a -> a.getName().equals("OBJECT_STRING_VALUE")).findFirst();
@@ -45,14 +46,14 @@ public class AttributeCreatorTest {
     o.setStringValue("Test");
     o.setDoubleValue(0.001);
     o.setFloatValue(1.1F);
-    AttributeCreator.constructAttributes(attributes, ignore, "OBJECT", o);
+    AttributeUtils.constructAttributes(attributes, ignore, "OBJECT", o);
     int countNotNull = 0;
     for (Attribute a : attributes) {
       if (a.getValue() != null) countNotNull++;
     }
     assertEquals(true, countNotNull == 7);
     o = new AttributeTestObject();
-    AttributeCreator.constructModel(attributes, ignore, "OBJECT", o);
+    AttributeUtils.constructModel(attributes, ignore, "OBJECT", o);
     assertEquals(true, o.getIgnoreValue() == null);
     assertEquals(true, o.getStringValue().equals("Test"));
     assertEquals(true, o.getIntegerValue() == 1);
