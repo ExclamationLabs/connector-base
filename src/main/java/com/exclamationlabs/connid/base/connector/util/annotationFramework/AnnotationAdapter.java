@@ -11,9 +11,10 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class AnnotationAdapter<T extends AnnotatedIdentityModel, U extends ConnectorConfiguration>
-    extends BaseAdapter<T, U>  {
+    extends BaseAdapter<T, U> {
   protected Class<T> clazz;
   protected AdapterSettings settings;
+
   public AnnotationAdapter(Class<T> AnnotatedIdentityModelClass) {
     this.clazz = AnnotatedIdentityModelClass;
     settings = AttributeUtils.getAdapterSettingsAnnotation(clazz);
@@ -38,9 +39,9 @@ public class AnnotationAdapter<T extends AnnotatedIdentityModel, U extends Conne
     AttributeUtils.createAttributesFromAnnotations(clazz, result);
     T o = AttributeUtils.instantiateClass(clazz);
     o.modifyConnectorAttributes(result, this.getDriver());
-    if(settings.logAttributes()){
-      Logger.info(this,"Logging getConnectorAttributes");
-      AttributeUtils.logAttributes(this,result);
+    if (settings.logAttributes()) {
+      Logger.info(this, "Logging getConnectorAttributes");
+      AttributeUtils.logAttributes(this, result);
     }
     return result;
   }
@@ -51,9 +52,9 @@ public class AnnotationAdapter<T extends AnnotatedIdentityModel, U extends Conne
     model.beforeConstructAttributes(model, attributes, this.getDriver());
     AttributeUtils.constructAttributesFromAnnotations(model, attributes);
     model.afterConstructAttributes(model, attributes, this.getDriver());
-    if(settings.logAttributes()){
-      Logger.info(this,"Logging constructAttributes");
-      AttributeUtils.logAttributeValues(this,attributes);
+    if (settings.logAttributes()) {
+      Logger.info(this, "Logging constructAttributes");
+      AttributeUtils.logAttributeValues(this, attributes);
     }
     return attributes;
   }
@@ -81,9 +82,9 @@ public class AnnotationAdapter<T extends AnnotatedIdentityModel, U extends Conne
         isCreate,
         o,
         this.getDriver());
-    if(settings.logAttributes()){
-      Logger.info(this,"Logging constructModel");
-      Logger.info(this,o.toString());
+    if (settings.logAttributes()) {
+      Logger.info(this, "Logging constructModel");
+      Logger.info(this, o.toString());
     }
     return null;
   }

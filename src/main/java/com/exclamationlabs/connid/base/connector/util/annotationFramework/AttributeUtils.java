@@ -24,7 +24,6 @@ import com.exclamationlabs.connid.base.connector.util.annotationFramework.annota
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSearchResult;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributedGuarded;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -81,8 +80,8 @@ public class AttributeUtils {
   /**
    * This is used in Annotation Adapter to output the Attributes;
    *
-   * @param clazz
-   * @return
+   * @param clazz class of Identity Model
+   * @param result Set of connector attributes to put output.
    */
   public static void createAttributesFromAnnotations(Class clazz, Set<ConnectorAttribute> result) {
 
@@ -108,7 +107,7 @@ public class AttributeUtils {
               type = ((AttributeMultiValue) annotations).dataType();
             }
           } else {
-            type = getDataType(field,hasAnnotation(field, AttributedGuarded.class));
+            type = getDataType(field, hasAnnotation(field, AttributedGuarded.class));
           }
           if (flags.isEmpty()) {
             result.add(new ConnectorAttribute(attributeName, type));
@@ -158,7 +157,7 @@ public class AttributeUtils {
                       notUpdateableAttribute -> notUpdateableAttribute.equals(attributeName))) {
                 flags.add(NOT_UPDATEABLE);
               }
-              var type = getDataType(field,hasAnnotation(field, AttributedGuarded.class));
+              var type = getDataType(field, hasAnnotation(field, AttributedGuarded.class));
               attributeNames.add(attributeName);
               if (flags.isEmpty()) {
                 if (print) {
@@ -209,7 +208,7 @@ public class AttributeUtils {
     }
   }
 
-  private static ConnectorAttributeDataType getDataType(Field field,boolean isGuarded) {
+  private static ConnectorAttributeDataType getDataType(Field field, boolean isGuarded) {
     if (field.getType() == Integer.class) {
       return INTEGER;
     }
@@ -228,7 +227,9 @@ public class AttributeUtils {
     if (field.getType() == ZonedDateTime.class) {
       return ZONED_DATE_TIME;
     }
-    if (field.getType() == String.class && isGuarded) { return GUARDED_STRING; }
+    if (field.getType() == String.class && isGuarded) {
+      return GUARDED_STRING;
+    }
     return STRING;
   }
 
@@ -266,6 +267,7 @@ public class AttributeUtils {
     }
     return attributes;
   }
+
   /**
    * This is a convenience method to construct Attributes according to Object o. It should be used
    * in the adapter constructAttributes method of the adpapter.This method will not recurse through
@@ -399,6 +401,7 @@ public class AttributeUtils {
       }
     }
   }
+
   /**
    * This is a convenience method to populate the Object with the values in the Set of Attributes.
    * To be used in the constructModel method of the Adapter.
@@ -825,6 +828,7 @@ public class AttributeUtils {
 
     return result;
   }
+
   public static String getAnnotatedValue(Object o, Class clazz) {
     if (o == null) return null;
     for (var field : o.getClass().getDeclaredFields()) {
@@ -847,6 +851,7 @@ public class AttributeUtils {
     }
     return null;
   }
+
   /**
    * This is used for testing and troubleshooting to see what Attributes this helper will create.
    * Prints attribute names to System.out.
@@ -866,25 +871,35 @@ public class AttributeUtils {
     }
     System.out.println("\r\n");
   }
+
   public static <T> T instantiateClass(Class<T> clazz) {
     try {
       T o = clazz.getDeclaredConstructor().newInstance();
       return o;
     } catch (Exception e) {
       Logger.error(new Object(), "Cannot instantiate constructor for " + clazz.getName());
-      throw new ConnectorException("Cannot Instantiate Class " + clazz,e);
+      throw new ConnectorException("Cannot Instantiate Class " + clazz, e);
     }
-    }
-    public static void logAttributes(Object o, Set<ConnectorAttribute> attributes) {
-    if(attributes == null || attributes.isEmpty()) return;
+  }
+
+  public static void logAttributes(Object o, Set<ConnectorAttribute> attributes) {
+    if (attributes == null || attributes.isEmpty()) return;
     for (ConnectorAttribute attribute : attributes) {
-      Logger.info(o,"Attribute: " + attribute.getName() + ", Type: " + attribute.getDataType() + ", Flags: " + attribute.getFlags());
+      Logger.info(
+          o,
+          "Attribute: "
+              + attribute.getName()
+              + ", Type: "
+              + attribute.getDataType()
+              + ", Flags: "
+              + attribute.getFlags());
     }
-    }
-    public static void logAttributeValues(Object o, Set<Attribute> attributes) {
-    if(attributes == null || attributes.isEmpty()) return;
+  }
+
+  public static void logAttributeValues(Object o, Set<Attribute> attributes) {
+    if (attributes == null || attributes.isEmpty()) return;
     for (Attribute attribute : attributes) {
-      Logger.info(o,"Attribute: " + attribute.getName() + ", Value: " + attribute.getValue());
+      Logger.info(o, "Attribute: " + attribute.getName() + ", Value: " + attribute.getValue());
     }
-    }
+  }
 }
