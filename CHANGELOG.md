@@ -10,7 +10,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
-
++ **5.1.4** - Added Annotation-based adapter framework (03/10/2025).
 + **5.1.3** - FIN-12722 - Add fullConnectionTest method to BaseConnector (01/10/2025)
 + **5.1.2** - FIN-12722 - Add non existent value caching to CacheMap implementation (01/08/2025)
 + **5.1.1** - FIN-12722 - Add fetchAll to CacheMap implementation (01/06/2025)
