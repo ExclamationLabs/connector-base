@@ -4,10 +4,9 @@ import com.exclamationlabs.connid.base.connector.adapter.EnhancedPaginationAndFi
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import java.util.Set;
 
-
-public class AnnotationAdapterWithPaging<T extends AnnotatedIdentityModel, U extends ConnectorConfiguration>
+public class AnnotationAdapterWithPaging<
+        T extends AnnotatedIdentityModel, U extends ConnectorConfiguration>
     extends AnnotationAdapter<T, U> implements EnhancedPaginationAndFiltering {
-
 
   public AnnotationAdapterWithPaging(Class<T> AnnotatedIdentityModelClass) {
     super(AnnotatedIdentityModelClass);

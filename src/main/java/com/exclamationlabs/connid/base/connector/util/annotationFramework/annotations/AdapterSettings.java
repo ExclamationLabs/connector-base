@@ -17,5 +17,6 @@ public @interface AdapterSettings {
   public boolean getOneByName() default true;
 
   public boolean filteringRequiresFullImport() default true;
+
   public boolean logAttributes() default false;
 }

@@ -25,7 +25,8 @@ public class AttributeUtilsTest {
     Set<ConnectorAttribute> result = new HashSet<>();
     String[] notUpdateable = {"OBJECT_STRING_VALUE"};
     String[] notCreateable = {"OBJECT_INTEGER_VALUE"};
-    AttributeUtils.codeGenerate(ignore,notUpdateable,notCreateable,"OBJECT",new AttributeTestObject());
+    AttributeUtils.codeGenerate(
+        ignore, notUpdateable, notCreateable, "OBJECT", new AttributeTestObject());
     AttributeUtils.createAttributes(
         result, ignore, notUpdateable, notCreateable, "OBJECT", AttributeTestObject.class);
     var stringval =

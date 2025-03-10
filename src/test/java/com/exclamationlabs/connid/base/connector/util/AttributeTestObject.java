@@ -20,6 +20,7 @@ public class AttributeTestObject {
   public void setObjectValue(Object objectValue) {
     this.objectValue = objectValue;
   }
+
   public String getStringValue() {
     return stringValue;
   }
