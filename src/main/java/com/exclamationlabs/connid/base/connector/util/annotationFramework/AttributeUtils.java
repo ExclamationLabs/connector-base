@@ -3,6 +3,7 @@ package com.exclamationlabs.connid.base.connector.util.annotationFramework;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.BOOLEAN;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.DOUBLE;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.FLOAT;
+import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.GUARDED_STRING;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.INTEGER;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.LONG;
 import static com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType.STRING;
@@ -21,6 +22,7 @@ import com.exclamationlabs.connid.base.connector.util.annotationFramework.annota
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotCreateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotUpdateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSearchResult;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributedGuarded;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -106,7 +108,7 @@ public class AttributeUtils {
               type = ((AttributeMultiValue) annotations).dataType();
             }
           } else {
-            type = getDataType(field);
+            type = getDataType(field,hasAnnotation(field, AttributedGuarded.class));
           }
           if (flags.isEmpty()) {
             result.add(new ConnectorAttribute(attributeName, type));
@@ -156,7 +158,7 @@ public class AttributeUtils {
                       notUpdateableAttribute -> notUpdateableAttribute.equals(attributeName))) {
                 flags.add(NOT_UPDATEABLE);
               }
-              var type = getDataType(field);
+              var type = getDataType(field,hasAnnotation(field, AttributedGuarded.class));
               attributeNames.add(attributeName);
               if (flags.isEmpty()) {
                 if (print) {
@@ -207,7 +209,7 @@ public class AttributeUtils {
     }
   }
 
-  private static ConnectorAttributeDataType getDataType(Field field) {
+  private static ConnectorAttributeDataType getDataType(Field field,boolean isGuarded) {
     if (field.getType() == Integer.class) {
       return INTEGER;
     }
@@ -226,6 +228,7 @@ public class AttributeUtils {
     if (field.getType() == ZonedDateTime.class) {
       return ZONED_DATE_TIME;
     }
+    if (field.getType() == String.class && isGuarded) { return GUARDED_STRING; }
     return STRING;
   }
 
