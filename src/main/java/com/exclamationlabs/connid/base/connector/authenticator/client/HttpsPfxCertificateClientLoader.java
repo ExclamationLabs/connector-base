@@ -112,12 +112,12 @@ public class HttpsPfxCertificateClientLoader implements SecureClientLoader<PfxCo
 
       @Override
       public void checkClientTrusted(X509Certificate[] chain, String authType) {
-        checkCertificateChain(chain, authType);
+        checkCertificateChain(chain);
       }
 
       @Override
       public void checkServerTrusted(X509Certificate[] chain, String authType) {
-        checkCertificateChain(chain, authType);
+        checkCertificateChain(chain);
       }
 
       @Override
@@ -125,8 +125,7 @@ public class HttpsPfxCertificateClientLoader implements SecureClientLoader<PfxCo
         return acceptedChain;
       }
 
-      private void checkCertificateChain(
-          java.security.cert.X509Certificate[] chain, String authType) {
+      private void checkCertificateChain(java.security.cert.X509Certificate[] chain) {
         try {
           if (chain == null || chain.length == 0) {
             throw new IllegalArgumentException("Received empty/null certificate chain");
