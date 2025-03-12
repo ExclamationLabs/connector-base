@@ -20,17 +20,17 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import org.identityconnectors.common.security.GuardedString;
 
 /**
- * Configuration properties for connectors that need to provide a PFX file as part of their
- * credentials for authentication.
+ * Configuration properties for connectors that need to provide a Keystore (generic) file as part of
+ * their credentials for authentication.
  */
-public interface PfxConfiguration extends ConnectorConfiguration {
-  String getPfxFile();
+public interface KeyStoreConfiguration extends ConnectorConfiguration {
+  String getKeystoreFile();
 
-  void setPfxFile(String input);
+  void setKeystoreFile(String input);
 
-  GuardedString getPfxPassword();
+  GuardedString getKeystorePassword();
 
-  void setPfxPassword(GuardedString input);
+  void setKeystorePassword(GuardedString input);
 
   GuardedString getKeyPassword();
 
