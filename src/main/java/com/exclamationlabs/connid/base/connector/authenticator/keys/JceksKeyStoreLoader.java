@@ -35,28 +35,27 @@ public class JceksKeyStoreLoader<T> implements KeyStoreLoader<KeyStoreConfigurat
     final String KEYSTORE_PASSWORD = GuardedStringUtil.read(configuration.getKeystorePassword());
     final String KEYSTORE_PATH =
         FileLoaderUtil.getFileLocation(
-            configuration.getName(), "pfxFile", configuration.getKeystoreFile());
-    InputStream pfxInputStream;
+            configuration.getName(), "keystoreFile", configuration.getKeystoreFile());
+    InputStream keystoreInputStream;
     try {
       if (StringUtils.startsWith(KEYSTORE_PATH, "resource:")) {
         final String RESOURCE_NAME = StringUtils.substringAfter(KEYSTORE_PATH, "resource:");
-        pfxInputStream = getClass().getClassLoader().getResourceAsStream(RESOURCE_NAME);
-        if (pfxInputStream == null) {
+        keystoreInputStream = getClass().getClassLoader().getResourceAsStream(RESOURCE_NAME);
+        if (keystoreInputStream == null) {
           throw new ConnectorSecurityException("JCEKS File resource not found: " + RESOURCE_NAME);
         }
       } else {
-        pfxInputStream = new FileInputStream(KEYSTORE_PATH);
+        keystoreInputStream = new FileInputStream(KEYSTORE_PATH);
       }
       KeyStore keystore = KeyStore.getInstance("JCEKS");
-      keystore.load(pfxInputStream, KEYSTORE_PASSWORD.toCharArray());
+      keystore.load(keystoreInputStream, KEYSTORE_PASSWORD.toCharArray());
       return keystore;
     } catch (FileNotFoundException fnfe) {
-      throw new ConnectorSecurityException(
-          "PFX file not found for keystore: " + KEYSTORE_PATH, fnfe);
+      throw new ConnectorSecurityException("Keystore file not found: " + KEYSTORE_PATH, fnfe);
     } catch (KeyStoreException kse) {
-      throw new ConnectorSecurityException("Unexpected error initializing JCEKS instance", kse);
+      throw new ConnectorSecurityException("Unexpected error initializing Keystore instance", kse);
     } catch (CertificateException | NoSuchAlgorithmException | IOException ee) {
-      throw new ConnectorSecurityException("Error while loading JCEKS keystore", ee);
+      throw new ConnectorSecurityException("Error while loading Keystore", ee);
     }
   }
 }
