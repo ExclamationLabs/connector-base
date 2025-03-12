@@ -16,7 +16,7 @@
 
 package com.exclamationlabs.connid.base.connector.authenticator.client;
 
-import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.KeyStoreConfiguration;
+import com.exclamationlabs.connid.base.connector.configuration.basetypes.security.PfxConfiguration;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import java.io.IOException;
 import java.security.*;
@@ -34,12 +34,11 @@ import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
 
-/** Workhorse to create a secure HttpClient using a supplied KeyStore. */
-public class HttpsKeystoreCertificateClientLoader
-    implements SecureClientLoader<KeyStoreConfiguration> {
+/** Workhorse to create a secure HttpClient using a supplied PFX file. */
+public class HttpsPfxCertificateClientLoader implements SecureClientLoader<PfxConfiguration> {
 
   @Override
-  public HttpClient load(KeyStoreConfiguration configuration, KeyStore keyStore)
+  public HttpClient load(PfxConfiguration configuration, KeyStore keyStore)
       throws ConnectorSecurityException {
     TrustManager trustManager = setupTrustManager();
 
@@ -52,7 +51,7 @@ public class HttpsKeystoreCertificateClientLoader
       GuardedString keyPassword =
           configuration.getKeyPassword() != null
               ? configuration.getKeyPassword()
-              : configuration.getKeystorePassword();
+              : configuration.getPfxPassword();
 
       // Use original keystore if no alias specified
       KeyStore storeToUse = keyStore;
