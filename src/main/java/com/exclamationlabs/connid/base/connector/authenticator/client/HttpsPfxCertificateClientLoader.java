@@ -43,7 +43,7 @@ public class HttpsPfxCertificateClientLoader implements SecureClientLoader<PfxCo
     TrustManager trustManager = setupTrustManager();
 
     try {
-      SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+      SSLContext sslContext = SSLContext.getInstance(configuration.getTlsVersion());
 
       KeyManagerFactory keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
