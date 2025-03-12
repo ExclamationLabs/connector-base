@@ -39,4 +39,8 @@ public interface PfxConfiguration extends ConnectorConfiguration {
   String getKeyAlias();
 
   void setKeyAlias(String keyAlias);
+
+  String getTlsVersion();
+
+  void setTlsVersion(String tlsVersion);
 }
