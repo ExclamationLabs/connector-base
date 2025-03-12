@@ -22,8 +22,9 @@ sourceCompatibility = '1.11'
 targetCompatibility = '1.11'
 group = 'com.exclamationlabs.connid'
 
+def rc_version = System.getenv('RELEASE_CANDIDATE') == null || System.getenv('RELEASE_CANDIDATE') == "" ? "" : "-rc.${System.getenv('RELEASE_CANDIDATE')}"
 def build_version = System.getenv('BUILD_NUMBER') == null ? System.currentTimeMillis() : System.getenv('BUILD_NUMBER')
-project.version="${software_version}-${build_version}"
+project.version="${software_version}${rc_version}+${build_version}"
 
 dependencyLocking {
     lockAllConfigurations()
