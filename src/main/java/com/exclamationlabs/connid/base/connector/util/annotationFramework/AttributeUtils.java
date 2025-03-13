@@ -15,12 +15,17 @@ import static org.identityconnectors.framework.common.objects.AttributeInfo.Flag
 import com.exclamationlabs.connid.base.connector.adapter.AdapterValueTypeConverter;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraint;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraintDirection;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstraintRule;
+import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AdapterSettings;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeIgnore;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeMultiValue;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotCreateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotUpdateable;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSchemaMetaInfo;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSearchResult;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributedGuarded;
 import java.lang.annotation.Annotation;
@@ -30,8 +35,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -901,5 +909,32 @@ public class AttributeUtils {
     for (Attribute attribute : attributes) {
       Logger.info(o, "Attribute: " + attribute.getName() + ", Value: " + attribute.getValue());
     }
+  }
+  public static Map<String, AttributeMetaInfo> getSchemaAttributeInfo(Class<?> clazz) {
+    Map<String, AttributeMetaInfo> schemaMetaJson = new HashMap<>();
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)) {
+        String attributeName = fieldNameToAttribute(field.getName());
+        if (!hasAnnotation(field, AttributeIgnore.class)) {
+          if (hasAnnotation(field, AttributeSchemaMetaInfo.class)) {
+            int maxLength = ((AttributeSchemaMetaInfo) Objects.requireNonNull(
+                getAnnotation(field, AttributeSchemaMetaInfo.class))).maxLength();
+            if (maxLength < 255) {
+              schemaMetaJson.put(attributeName, addMaxLengthConstraint(maxLength));
+            }
+          }
+        }
+      }
+    }
+    return schemaMetaJson;
+  }
+  public static AttributeMetaInfo addMaxLengthConstraint(int maxLength) {
+    AttributeConstraint constraint = new AttributeConstraint();
+    constraint.setDirection(AttributeConstraintDirection.OUTBOUND);
+    constraint.setRule(AttributeConstraintRule.MAX_LENGTH);
+    constraint.setRuleData(String.valueOf(maxLength));
+    AttributeMetaInfo metaInfo = new AttributeMetaInfo();
+    metaInfo.setConstraints(Collections.singletonList(constraint));
+    return metaInfo;
   }
 }
