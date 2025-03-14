@@ -719,9 +719,9 @@ public class AttributeUtils {
               List.class, attributes, attributeName);
       if (values != null) {
         List<String> newValues = new ArrayList<>(values);
-        findAndSetField(o, addFieldName, newValues);
+        findAndSetField(o, listField, newValues);
       } else {
-        findAndSetField(o, addFieldName, Collections.emptyList());
+        findAndSetField(o, listField, Collections.emptyList());
       }
     } else {
       List<String> roles =
