@@ -17,8 +17,10 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttribute;
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AdapterSettings;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeIdentityValue;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeIgnore;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeMultiValue;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNameValue;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotCreateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotUpdateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSearchResult;
@@ -894,7 +896,26 @@ public class AttributeUtils {
               + attribute.getFlags());
     }
   }
-
+public static String getAttributeNameForIdentityField(Class<?> clazz) {
+  for (var field : clazz.getDeclaredFields()) {
+    if (isValidType(field)
+       && hasAnnotation(field, AttributeIdentityValue.class)) {
+      String attributeName = fieldNameToAttribute(field.getName());
+      return attributeName;
+      }
+  }
+    return null;
+}
+  public static String getAttributeNameForNameField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)
+          && hasAnnotation(field, AttributeNameValue.class)) {
+        String attributeName = fieldNameToAttribute(field.getName());
+        return attributeName;
+      }
+    }
+    return null;
+  }
   public static void logAttributeValues(Object o, Set<Attribute> attributes) {
     if (attributes == null || attributes.isEmpty()) return;
     for (Attribute attribute : attributes) {
