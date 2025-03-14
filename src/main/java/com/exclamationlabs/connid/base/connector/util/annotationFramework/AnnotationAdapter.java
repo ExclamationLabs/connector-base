@@ -86,6 +86,6 @@ public class AnnotationAdapter<T extends AnnotatedIdentityModel, U extends Conne
       Logger.info(this, "Logging constructModel");
       Logger.info(this, o.toString());
     }
-    return null;
+    return o;
   }
 }
