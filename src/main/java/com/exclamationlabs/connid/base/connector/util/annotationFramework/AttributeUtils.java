@@ -21,8 +21,10 @@ import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeConstra
 import com.exclamationlabs.connid.base.connector.attribute.meta.AttributeMetaInfo;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AdapterSettings;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeIdentityValue;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeIgnore;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeMultiValue;
+import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNameValue;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotCreateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeNotUpdateable;
 import com.exclamationlabs.connid.base.connector.util.annotationFramework.annotations.AttributeSchemaMetaInfo;
@@ -927,6 +929,26 @@ public class AttributeUtils {
       }
     }
     return schemaMetaJson;
+  }
+  public static String getAttributeNameForIdentityField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)
+          && hasAnnotation(field, AttributeIdentityValue.class)) {
+        String attributeName = fieldNameToAttribute(field.getName());
+        return attributeName;
+      }
+    }
+    return null;
+  }
+  public static String getAttributeNameForNameField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)
+          && hasAnnotation(field, AttributeNameValue.class)) {
+        String attributeName = fieldNameToAttribute(field.getName());
+        return attributeName;
+      }
+    }
+    return null;
   }
   public static AttributeMetaInfo addMaxLengthConstraint(int maxLength) {
     AttributeConstraint constraint = new AttributeConstraint();
