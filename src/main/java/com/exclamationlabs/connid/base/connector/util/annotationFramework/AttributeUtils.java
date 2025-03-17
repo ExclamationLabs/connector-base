@@ -353,8 +353,12 @@ public class AttributeUtils {
       Set<Attribute> removedMultiValueAttributes,
       boolean isCreate,
       AnnotatedIdentityModel o) {
-    if (o != null && attributes != null) {
-      for (var attributeName : attributes) {
+    Set<Attribute> combinedAttributes = new HashSet<>();
+    if(addedMultiValueAttributes!=null)combinedAttributes.addAll(addedMultiValueAttributes);
+    if(removedMultiValueAttributes!=null)combinedAttributes.addAll(removedMultiValueAttributes);
+    if(attributes!=null)combinedAttributes.addAll(attributes);
+    if (o != null && combinedAttributes != null) {
+      for (var attributeName : combinedAttributes) {
         String cleanedAttributeName = attributeName.getName();
         String fieldString = attributeNameToFieldName(cleanedAttributeName, "");
         try {
@@ -393,7 +397,7 @@ public class AttributeUtils {
                     field,
                     attributeName.getName(),
                     o,
-                    attributes,
+                    combinedAttributes,
                     addedMultiValueAttributes,
                     removedMultiValueAttributes,
                     isCreate);
