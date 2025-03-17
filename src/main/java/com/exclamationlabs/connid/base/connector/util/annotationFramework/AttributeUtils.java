@@ -715,8 +715,8 @@ public class AttributeUtils {
       Set<Attribute> multiValueRemove,
       boolean creation) {
     String listField = field.getName();
-    String addFieldName = listField + "toAdd";
-    String removeFieldName = listField + "toRemove";
+    String addFieldName = listField + "ToAdd";
+    String removeFieldName = listField + "ToRemove";
     if (creation) {
       List<String> values =
           AdapterValueTypeConverter.getMultipleAttributeValueNoEnum(
