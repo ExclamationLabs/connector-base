@@ -397,7 +397,7 @@ public class AttributeUtils {
                     field,
                     attributeName.getName(),
                     o,
-                    combinedAttributes,
+                    attributes,
                     addedMultiValueAttributes,
                     removedMultiValueAttributes,
                     isCreate);
@@ -739,6 +739,11 @@ public class AttributeUtils {
               List.class, multiValueRemove, attributeName);
       if (roles != null) {
         findAndSetField(o, removeFieldName, roles);
+      }
+      roles = AdapterValueTypeConverter.getMultipleAttributeValueNoEnum(
+          List.class, attributes, attributeName);
+      if(roles != null) {
+        findAndSetField(o, listField, roles);
       }
     }
   }
