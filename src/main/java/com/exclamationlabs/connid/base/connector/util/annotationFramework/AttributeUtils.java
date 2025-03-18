@@ -86,19 +86,21 @@ public class AttributeUtils {
         clazz,
         false);
   }
-
+  public static void createAttributesFromAnnotations(Class clazz, Set<ConnectorAttribute> result) {
+    createAttributesFromAnnotations("", clazz, result);
+  }
   /**
    * This is used in Annotation Adapter to output the Attributes;
    *
    * @param clazz class of Identity Model
    * @param result Set of connector attributes to put output.
    */
-  public static void createAttributesFromAnnotations(Class clazz, Set<ConnectorAttribute> result) {
+  public static void createAttributesFromAnnotations(String prefix,Class clazz, Set<ConnectorAttribute> result) {
 
     for (var field : clazz.getDeclaredFields()) {
       if (isValidType(field)
           || (field.getType() == List.class && hasAnnotation(field, AttributeMultiValue.class))) {
-        String attributeName = fieldNameToAttribute(field.getName());
+        String attributeName = prefix+fieldNameToAttribute(field.getName());
         if (!hasAnnotation(field, AttributeIgnore.class)) {
           ArrayList<Flags> flags = new ArrayList<>();
           if (hasAnnotation(field, AttributeNotCreateable.class)) {
@@ -242,7 +244,10 @@ public class AttributeUtils {
     }
     return STRING;
   }
-
+  public static Set<Attribute> constructAttributesFromAnnotations(
+      Object o, Set<Attribute> attributes) {
+    return constructAttributesFromAnnotations("", o, attributes);
+  }
   /**
    * Used in AnnotationAdpater to construct Attributes from Object
    *
@@ -250,13 +255,13 @@ public class AttributeUtils {
    * @return
    */
   public static Set<Attribute> constructAttributesFromAnnotations(
-      Object o, Set<Attribute> attributes) {
+      String prefix, Object o, Set<Attribute> attributes) {
     if (o != null && attributes != null) {
       Class clazz = o.getClass();
       for (var field : clazz.getDeclaredFields()) {
         if (isValidType(field)
             || (field.getType() == List.class && hasAnnotation(field, AttributeMultiValue.class))) {
-          String attributeName = fieldNameToAttribute(field.getName());
+          String attributeName = prefix+fieldNameToAttribute(field.getName());
           if (!hasAnnotation(field, AttributeIgnore.class)) {
             Object val = null;
             try {
@@ -346,8 +351,16 @@ public class AttributeUtils {
       System.out.println("\r\n");
     }
   }
-
   public static void constructModelFromAnnotations(
+      Set<Attribute> attributes,
+      Set<Attribute> addedMultiValueAttributes,
+      Set<Attribute> removedMultiValueAttributes,
+      boolean isCreate,
+      AnnotatedIdentityModel o){
+    constructModelFromAnnotations("",attributes,addedMultiValueAttributes,removedMultiValueAttributes,isCreate,o);
+  }
+  public static void constructModelFromAnnotations(
+      String prefix,
       Set<Attribute> attributes,
       Set<Attribute> addedMultiValueAttributes,
       Set<Attribute> removedMultiValueAttributes,
@@ -360,7 +373,7 @@ public class AttributeUtils {
     if (o != null && combinedAttributes != null) {
       for (var attributeName : combinedAttributes) {
         String cleanedAttributeName = attributeName.getName();
-        String fieldString = attributeNameToFieldName(cleanedAttributeName, "");
+        String fieldString = attributeNameToFieldName(cleanedAttributeName,prefix);
         try {
           var field = o.getClass().getDeclaredField(fieldString);
           if (field != null
