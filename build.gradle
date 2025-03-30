@@ -41,12 +41,14 @@ dependencies {
     ////// Begin - Vital dependencies for Base Connector
     api 'org.apache.commons:commons-lang3:3.15.0'
     api 'net.tirasa.connid:connector-test-common:1.5.2.0'
+    api 'io.github.classgraph:classgraph:4.8.179'
     jwtApi 'com.auth0:java-jwt:3.19.4'
 
     // Instead of bringing spring we will just implement the necessary dependencies
     api 'jakarta.validation:jakarta.validation-api:3.1.0'
     api 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     api 'org.glassfish:jakarta.el:4.0.2'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
     ////// End - Vital dependencies for Base Connector
 
@@ -61,6 +63,13 @@ dependencies {
 
     // SOAP support
     // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'
+
+    // Lombok Related
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
 
     testImplementation "com.exclamationlabs.connid:connector-base-test-support:${test_connector_version}-+"
     testImplementation 'net.tirasa.connid:connector-framework-internal:1.5.0.0'
