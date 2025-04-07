@@ -10,7 +10,7 @@ and minimize the interactions with the ConnId framework and have much of that
 taken care of by a common API.
 
 # Change Log
-
++ **4.3.0** -  All Invocator methods pass through Operations Options and Results Handler (04/07/2025).
 + **4.2.14** - Added Keystore Certificate loading (03/11/2025).
 + **4.2.13** - Added Annotation-based adpator (03/10/2025).
 + **4.2.12** - FIN-12352 - Modify how schema meta info is created (01/15/2025)

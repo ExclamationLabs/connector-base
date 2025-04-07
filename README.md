@@ -292,3 +292,6 @@ it can be built in Gradle to be utilized in MidPoint.  This project leverages a 
 
 ## Stats
 ![Statistics of this Repo by Repobeats](https://repobeats.axiom.co/api/embed/b83c75e67c47fe0f0222c60f9aead02471fd53e0.svg "Repobeats analytics image")
+
+## Notes
+This version of the Base Framework passes all of the OperationOptions and ResultsHandlers through to the invocator methods. If you want to use this version with an existing connector, you will have to add OperationOptions to create, update and delete methods and ResultsHander and OperationOptions to all Get Methods.
