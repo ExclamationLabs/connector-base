@@ -18,11 +18,17 @@ package com.exclamationlabs.connid.base.edition.neo;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.annotation.connector.ReadOnly;
 import com.exclamationlabs.connid.base.edition.neo.internal.BaseConnectorTypeFactory;
-import com.exclamationlabs.connid.base.edition.neo.internal.BaseSchemaBuilder;
+import com.exclamationlabs.connid.base.edition.neo.internal.schema.BaseSchemaBuilder;
 import java.util.*;
+
+import com.exclamationlabs.connid.base.edition.neo.internal.search.GetType;
+import com.exclamationlabs.connid.base.edition.neo.internal.search.GetHandler;
+import com.exclamationlabs.connid.base.edition.neo.internal.search.UpdateHandler;
+import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.api.operations.SearchApiOp;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -198,8 +204,11 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   public Uid create(
       final ObjectClass objectClass,
       final Set<Attribute> attributes,
-      final OperationOptions options) {
-    return null;
+      final OperationOptions operationOptions) {
+    Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+    var handler = new UpdateHandler<T>();
+    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
+            objectClass, operationOptions);
   }
 
   @Override
@@ -207,23 +216,34 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final ObjectClass objectClass,
       final Uid uid,
       final Set<AttributeDelta> attributeModifications,
-      final OperationOptions options) {
-    return null;
+      final OperationOptions operationOptions) {
+    Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+    var handler = new UpdateHandler<T>();
+    handler.update(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
+            uid, attributeModifications, objectClass, operationOptions);
+    return attributeModifications;
   }
 
   @Override
   public void delete(
-      final ObjectClass objectClass, final Uid uid, final OperationOptions options) {}
+      final ObjectClass objectClass, final Uid uid, final OperationOptions operationOptions) {
+    Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+    var handler = new UpdateHandler<T>();
+    handler.delete(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
+            uid, objectClass, operationOptions);
+  }
 
   @Override
   public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
-    return null;
+    // TODO: revisit approach
+    return new DefaultFilterTranslator();
   }
 
   @Override
   public ConnectorObject getObject(
       ObjectClass objectClass, Uid uid, OperationOptions operationOptions) {
+    System.out.println("Im here 0");
     return null;
   }
 
@@ -232,7 +252,12 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final ObjectClass objectClass,
       final Filter queryFilter,
       final ResultsHandler resultsHandler,
-      final OperationOptions operationOptions) {}
+      final OperationOptions operationOptions) {
+        Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+        var handler = new GetHandler<T>();
+        handler.get(GetType.EXECUTE_QUERY, configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
+                objectClass, queryFilter, resultsHandler, operationOptions);
+  }
 
   @Override
   public SearchResult search(
@@ -240,6 +265,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Filter filter,
       final ResultsHandler handler,
       final OperationOptions options) {
+    System.out.println("Im here2");
     return null;
   }
 

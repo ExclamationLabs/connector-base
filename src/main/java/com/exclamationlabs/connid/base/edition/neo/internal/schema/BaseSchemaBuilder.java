@@ -1,4 +1,4 @@
-package com.exclamationlabs.connid.base.edition.neo.internal;
+package com.exclamationlabs.connid.base.edition.neo.internal.schema;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;

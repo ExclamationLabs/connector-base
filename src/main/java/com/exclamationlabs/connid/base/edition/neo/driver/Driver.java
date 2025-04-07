@@ -18,7 +18,7 @@ package com.exclamationlabs.connid.base.edition.neo.driver;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import java.util.Map;

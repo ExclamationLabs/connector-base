@@ -1,10 +1,10 @@
 package com.exclamationlabs.connid.base.edition.neo.stub.happy;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
+import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import com.exclamationlabs.connid.base.edition.neo.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.edition.neo.util.ConnectivityTester;
 import com.exclamationlabs.connid.base.edition.neo.util.TestPoint;
@@ -28,30 +28,18 @@ public class HappyDriver implements Driver<StubConfiguration> {
   public void close() {}
 
   @Override
-  public Set<IdentityModel> getAll(
-      StubConfiguration configuration,
-      Class<? extends IdentityModel> identityModelClass,
-      ResultsFilter resultsFilter,
-      ResultsPaginator pagination,
-      Integer resultCap,
-      Map<String, Object> prefetchDataMap)
-      throws ConnectorException {
+  public Set<IdentityModel> getAll(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, ResultsFilter resultsFilter, ResultsPaginator pagination, Integer resultCap, Map<String, Object> prefetchDataMap) throws ConnectorException {
     return Set.of();
   }
 
   @Override
-  public IdentityModel getOne(
-      StubConfiguration configuration,
-      Class<? extends IdentityModel> identityModelClass,
-      String idValue,
-      Map<String, Object> prefetchDataMap)
-      throws ConnectorException {
+  public IdentityModel getOne(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String idValue, Map<String, Object> prefetchDataMap) throws ConnectorException {
     return null;
   }
 
   @Override
-  public Map<String, Object> getPrefetch(
-      StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
+  public Map<String, Object> getPrefetch(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
     return Map.of();
   }
+
 }

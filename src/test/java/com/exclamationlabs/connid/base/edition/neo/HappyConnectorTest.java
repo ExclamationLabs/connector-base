@@ -9,8 +9,15 @@ import com.exclamationlabs.connid.base.edition.neo.stub.happy.HappyConnector;
 import com.exclamationlabs.connid.base.edition.neo.util.ConnectivityTester;
 import com.exclamationlabs.connid.base.edition.neo.util.TestPoint;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.*;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class HappyConnectorTest extends ApiIntegrationTest<StubConfiguration, HappyConnector> {
 
@@ -40,7 +47,7 @@ public class HappyConnectorTest extends ApiIntegrationTest<StubConfiguration, Ha
   }
 
   @Test
-  public void schema() {
+  void schema() {
     var schema = getConnectorFacade().schema();
     assertNotNull(schema);
     var infos = schema.getObjectClassInfo();
@@ -52,19 +59,124 @@ public class HappyConnectorTest extends ApiIntegrationTest<StubConfiguration, Ha
     assertTrue(userInfoLookup.isPresent());
     var userInfo = userInfoLookup.get();
     assertNotNull(userInfo.getAttributeInfo());
-    //        var constrainedLookup =
-    //                userInfo.getAttributeInfo().stream()
-    //                        .filter(
-    //                                it ->
-    //                                        StringUtils.equalsIgnoreCase(
-    //
-    // StubUserAttribute.USER_TEST_MAX_CONSTRAINT.name(), it.getName()))
-    //                        .findFirst();
-    //        assertTrue(constrainedLookup.isPresent());
-    //        assertTrue(
-    //                StringUtils.equalsIgnoreCase(
-    //
-    // "{\"constraints\":[{\"outbound\":true,\"inbound\":false,\"rule\":\"MAX_LENGTH\",\"ruleData\":\"12\"}]}",
-    //                        constrainedLookup.get().getSubtype()));
+    assertEquals(12, userInfo.getAttributeInfo().size());
+
+    var groupInfoLookup =
+            infos.stream()
+                    .filter(it -> StringUtils.equalsIgnoreCase("HappyGroup", it.getType()))
+                    .findFirst();
+    assertTrue(groupInfoLookup.isPresent());
+    var groupInfo = groupInfoLookup.get();
+    assertNotNull(groupInfo.getAttributeInfo());
+    assertEquals(3, groupInfo.getAttributeInfo().size());
   }
+
+
+//  @Test
+//  void testUserGetObject() {
+//    ConnectorObject response =
+//            getConnectorFacade()
+//                    .getObject(
+//                            new ObjectClass("HappyUser"), new Uid("1234"), new OperationOptionsBuilder().build());
+//    assertNotNull(response);
+//    assertTrue(
+//            StringUtils.isNotBlank(response.getAttributeByName(Uid.NAME).getValue().get(0).toString()));
+//    assertTrue(
+//            StringUtils.isNotBlank(
+//                    response.getAttributeByName(Name.NAME).getValue().get(0).toString()));
+//    assertTrue(StubInvocationChecker.isInitializeInvoked());
+//    assertEquals("user getOne", StubInvocationChecker.getMethodInvoked());
+//    assertEquals("1234", StubInvocationChecker.getMethodParameter1().toString());
+//    assertNull(StubInvocationChecker.getMethodParameter2());
+//  }
+
+  @Test
+  void testUserGet() {
+    results = new ArrayList<>();
+    Attribute idAttribute = new AttributeBuilder().setName(Uid.NAME).addValue("1234").build();
+
+    getConnectorFacade()
+            .search(
+                    new ObjectClass("HappyUser"),
+                    new EqualsFilter(idAttribute),
+                    handler,
+                    new OperationOptionsBuilder().build());
+    assertEquals(1, results.size());
+    assertEquals( "1234", results.get(0).getAttributeByName(Uid.NAME).getValue().get(0).toString());
+    assertEquals( "happyuser", results.get(0).getAttributeByName(Name.NAME).getValue().get(0).toString());
+    assertEquals( "Happy", results.get(0).getAttributeByName("firstName").getValue().get(0).toString());
+    assertEquals( "User", results.get(0).getAttributeByName("lastName").getValue().get(0).toString());
+    assertEquals( true, results.get(0).getAttributeByName("IS_ACTIVE").getValue().get(0));
+    assertEquals( 3, results.get(0).getAttributeByName("USER_YEARS").getValue().get(0));
+    assertNull( results.get(0).getAttributeByName("email").getValue());
+    assertEquals( "123 Happy St", results.get(0).getAttributeByName("ADDRESS_STREET").getValue().get(0));
+    assertEquals( "Happyville", results.get(0).getAttributeByName("ADDRESS_CITY").getValue().get(0));
+    assertEquals( "CA", results.get(0).getAttributeByName("ADDRESS_STATE").getValue().get(0));
+    assertEquals( "12345", results.get(0).getAttributeByName("ADDRESS_ZIP").getValue().get(0));
+  }
+
+  @Test
+  void testUserGetNoMatch() {
+    results = new ArrayList<>();
+    Attribute idAttribute = new AttributeBuilder().setName(Uid.NAME).addValue("5678").build();
+
+    getConnectorFacade()
+            .search(
+                    new ObjectClass("HappyUser"),
+                    new EqualsFilter(idAttribute),
+                    handler,
+                    new OperationOptionsBuilder().build());
+    assertEquals(0, results.size());
+  }
+
+  @Test
+  void testUserGetAll() {
+    results = new ArrayList<>();
+    getConnectorFacade()
+            .search(
+                    new ObjectClass("HappyUser"),
+                    null,
+                    handler,
+                    new OperationOptionsBuilder().build());
+    assertEquals(3, results.size());
+  }
+
+  @Test
+  void testCreateFailsForNonFullAccess() {
+    ConnectorException exception = assertThrows(
+            ConnectorException.class,
+            () -> getConnectorFacade().create(new ObjectClass("HappyUser"), Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Invocator HappyUserInvocator does not support full access for Create to HappyUserModel"));
+  }
+
+  @Test
+  void testUpdateFailsForNonFullAccess() {
+    ConnectorException exception = assertThrows(
+            ConnectorException.class,
+            () -> getConnectorFacade().updateDelta(new ObjectClass("HappyUser"), new Uid("1234"),
+                    Collections.emptySet(),
+                    new OperationOptionsBuilder().build()));
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Invocator HappyUserInvocator does not support full access for Update to HappyUserModel"));
+  }
+
+  @Test
+  void testDeleteFailsForNonFullAccess() {
+    ConnectorException exception = assertThrows(
+            ConnectorException.class,
+            () -> getConnectorFacade().delete(new ObjectClass("HappyUser"), new Uid("1234"),
+                    new OperationOptionsBuilder().build()));
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Invocator HappyUserInvocator does not support full access for Delete to HappyUserModel"));
+  }
+
+
 }

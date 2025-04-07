@@ -21,6 +21,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 @Getter
 public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
@@ -32,7 +34,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
   private final Set<Class<? extends IdentityModel>> modelClassList;
 
   @Getter(AccessLevel.NONE)
-  private final Map<Class<IdentityModel>, Invocator<T, ?, ?>> invocatorMap;
+  private final Map<Class<IdentityModel>, Invocator<T, Driver<T>, ?>> invocatorMap;
 
   @Getter(AccessLevel.NONE)
   private final Map<Class<Invocator<?, ?, ?>>, FaultProcessor> invocatorFaultProcessorMap;
@@ -183,7 +185,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
           if (invocatorHasAssignableTypeArguments(
               invocatorClass, configurationType, driver.getClass(), modelClass)) {
             invocatorMap.put(
-                modelClass, (Invocator<T, ?, ?>) invocatorClass.getConstructor().newInstance());
+                modelClass, (Invocator<T, Driver<T>, ?>) invocatorClass.getConstructor().newInstance());
           }
         }
       }
@@ -250,7 +252,16 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
             });
   }
 
-  public Invocator<T, ?, ?> getInvocator(Class<IdentityModel> modelClass) {
+  public Class<? extends IdentityModel> getIdentityModel(ObjectClass objectClass) {
+    return modelClassList.stream()
+        .filter(modelClass ->
+                modelClass.getAnnotation(ModelObjectClass.class).value().equals(objectClass.getObjectClassValue()))
+        .findFirst()
+        .orElseThrow(() -> new ConnectorException(
+                "Unexpected error: model class not found for object class " + objectClass.getObjectClassValue()));
+  }
+
+  public Invocator<T, Driver<T>, ?> getInvocator(Class<? extends IdentityModel> modelClass) {
     return invocatorMap.get(modelClass);
   }
 
