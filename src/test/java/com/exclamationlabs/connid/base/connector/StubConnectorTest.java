@@ -564,9 +564,9 @@ public class StubConnectorTest extends ApiIntegrationTest<StubConfiguration, Stu
       final BaseConnector<?> testConnector, final String expectedConnectorName) {
     ObjectClass userObjectClass = new ObjectClass("user");
     ObjectClass groupObjectClass = new ObjectClass("group");
-    assertNotNull(testConnector.getConnectorFilterTranslator(userObjectClass));
+    assertNotNull(testConnector.getConnectorFilterTranslator(userObjectClass, null));
     assertTrue(
-        testConnector.getConnectorFilterTranslator(userObjectClass)
+        testConnector.getConnectorFilterTranslator(userObjectClass, null)
             instanceof DefaultFilterTranslator);
 
     assertNotNull(testConnector.getAdapter(userObjectClass).getConnectorAttributes());

@@ -25,11 +25,14 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.AlreadyExistsException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriver, StubUser> {
 
   @Override
-  public String create(ComplexStubDriver driver, StubUser model) throws ConnectorException {
+  public String create(ComplexStubDriver driver, StubUser model, OperationOptions options)
+      throws ConnectorException {
     if (StringUtils.equalsIgnoreCase("duplicateId", model.getIdentityNameValue())) {
       StubInvocationChecker.setMethodInvoked("got existing id");
       StubInvocationChecker.setMethodParameter1(model);
@@ -50,7 +53,8 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   }
 
   @Override
-  public void update(ComplexStubDriver driver, String userId, StubUser model)
+  public void update(
+      ComplexStubDriver driver, String userId, StubUser model, OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user update");
     if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
@@ -61,14 +65,21 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   }
 
   @Override
-  public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
+  public void delete(ComplexStubDriver driver, String id, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user delete");
     StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubUser> getAll(
-      ComplexStubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      ComplexStubDriver driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     final int DEFAULT_NUM_RESULTS = 100;
     Set<StubUser> results = new HashSet<>();
@@ -100,7 +111,12 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   }
 
   @Override
-  public StubUser getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
+  public StubUser getOne(
+      ComplexStubDriver driver,
+      String id,
+      Map<String, Object> data,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user getOne");
     StubInvocationChecker.setMethodParameter1(id);
@@ -118,7 +134,8 @@ public class StubComplexUserInvocator implements DriverInvocator<ComplexStubDriv
   }
 
   @Override
-  public StubUser getOneByName(ComplexStubDriver driver, String objectName)
+  public StubUser getOneByName(
+      ComplexStubDriver driver, String objectName, ResultsHandler handler, OperationOptions options)
       throws ConnectorException {
     StubUser user1 = new StubUser();
     user1.setId("dupe");

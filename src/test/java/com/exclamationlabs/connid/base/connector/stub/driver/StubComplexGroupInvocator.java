@@ -23,11 +23,14 @@ import com.exclamationlabs.connid.base.connector.stub.model.StubGroup;
 import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class StubComplexGroupInvocator implements DriverInvocator<ComplexStubDriver, StubGroup> {
 
   @Override
-  public String create(ComplexStubDriver driver, StubGroup model) throws ConnectorException {
+  public String create(ComplexStubDriver driver, StubGroup model, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("group create");
 
     if (model.getSupergroupIds() != null) {
@@ -39,7 +42,8 @@ public class StubComplexGroupInvocator implements DriverInvocator<ComplexStubDri
   }
 
   @Override
-  public void update(ComplexStubDriver driver, String userId, StubGroup model)
+  public void update(
+      ComplexStubDriver driver, String userId, StubGroup model, OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("group update");
     StubInvocationChecker.setMethodParameter1(userId);
@@ -47,14 +51,21 @@ public class StubComplexGroupInvocator implements DriverInvocator<ComplexStubDri
   }
 
   @Override
-  public void delete(ComplexStubDriver driver, String id) throws ConnectorException {
+  public void delete(ComplexStubDriver driver, String id, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("group delete");
     StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubGroup> getAll(
-      ComplexStubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      ComplexStubDriver driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("group getAll");
     StubGroup group1 = new StubGroup();
@@ -68,7 +79,12 @@ public class StubComplexGroupInvocator implements DriverInvocator<ComplexStubDri
   }
 
   @Override
-  public StubGroup getOne(ComplexStubDriver driver, String id, Map<String, Object> data)
+  public StubGroup getOne(
+      ComplexStubDriver driver,
+      String id,
+      Map<String, Object> data,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("group getOne");
     StubInvocationChecker.setMethodParameter1(id);

@@ -23,11 +23,14 @@ import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import java.util.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> {
 
   @Override
-  public String create(StubDriver driver, StubUser model) throws ConnectorException {
+  public String create(StubDriver driver, StubUser model, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user create");
     if (model.getClubIds() != null && !model.getClubIds().isEmpty()) {
       StubInvocationChecker.setMethodInvoked("user create with group and club ids");
@@ -42,7 +45,8 @@ public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> 
   }
 
   @Override
-  public void update(StubDriver driver, String userId, StubUser model) throws ConnectorException {
+  public void update(StubDriver driver, String userId, StubUser model, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user update");
     if (model.getGroupIds() != null && !model.getGroupIds().isEmpty()) {
       StubInvocationChecker.setMethodInvoked("user update with group ids");
@@ -52,14 +56,21 @@ public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> 
   }
 
   @Override
-  public void delete(StubDriver driver, String id) throws ConnectorException {
+  public void delete(StubDriver driver, String id, OperationOptions options)
+      throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user delete");
     StubInvocationChecker.setMethodParameter1(id);
   }
 
   @Override
   public Set<StubUser> getAll(
-      StubDriver driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      StubDriver driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user getAll " + filter);
     StubUser user1 = new StubUser();
@@ -73,7 +84,12 @@ public class StubUserInvocator implements DriverInvocator<StubDriver, StubUser> 
   }
 
   @Override
-  public StubUser getOne(StubDriver driver, String id, Map<String, Object> data)
+  public StubUser getOne(
+      StubDriver driver,
+      String id,
+      Map<String, Object> data,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     StubInvocationChecker.setMethodInvoked("user getOne");
     StubInvocationChecker.setMethodParameter1(id);

@@ -75,7 +75,7 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
       final ObjectClass objectClass,
       final Set<Attribute> attributes,
       final OperationOptions options) {
-    return getAdapter(objectClass).create(attributes);
+    return getAdapter(objectClass).create(attributes, options);
   }
 
   @Override
@@ -84,18 +84,18 @@ public abstract class BaseFullAccessConnector<T extends ConnectorConfiguration>
       final Uid uid,
       final Set<AttributeDelta> attributeModifications,
       final OperationOptions options) {
-    return getAdapter(objectClass).updateDelta(uid, attributeModifications);
+    return getAdapter(objectClass).updateDelta(uid, attributeModifications, options);
   }
 
   @Override
   public void delete(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-    getAdapter(objectClass).delete(uid);
+    getAdapter(objectClass).delete(uid, options);
   }
 
   @Override
   public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
-    return getConnectorFilterTranslator(objectClass);
+    return getConnectorFilterTranslator(objectClass, operationOptions);
   }
 
   @Override

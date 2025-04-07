@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 /**
  * Abstract class for a Driver that should be subclassed for all use cases. This abstract class
@@ -53,40 +55,39 @@ public abstract class BaseDriver<T extends ConnectorConfiguration> implements Dr
   }
 
   @Override
-  public String create(Class<? extends IdentityModel> identityModelClass, IdentityModel model)
+  public String create(
+      Class<? extends IdentityModel> identityModelClass,
+      IdentityModel model,
+      OperationOptions options)
       throws ConnectorException {
-    return getInvocator(identityModelClass).create(this, model);
+    return getInvocator(identityModelClass).create(this, model, options);
   }
 
   @Override
   public void update(
-      Class<? extends IdentityModel> identityModelClass, String id, IdentityModel model)
+      Class<? extends IdentityModel> identityModelClass,
+      String id,
+      IdentityModel model,
+      OperationOptions options)
       throws ConnectorException {
-    getInvocator(identityModelClass).update(this, id, model);
+    getInvocator(identityModelClass).update(this, id, model, options);
   }
 
   @Override
-  public void delete(Class<? extends IdentityModel> modelClass, String id)
+  public void delete(Class<? extends IdentityModel> modelClass, String id, OperationOptions options)
       throws ConnectorException {
-    getInvocator(modelClass).delete(this, id);
+    getInvocator(modelClass).delete(this, id, options);
   }
 
   @Override
   public IdentityModel getOne(
-      Class<? extends IdentityModel> modelClass, String id, Map<String, Object> prefetchDataMap)
-      throws ConnectorException {
-    return getInvocator(modelClass).getOne(this, id, prefetchDataMap);
-  }
-
-  @Override
-  @Deprecated
-  public Set<IdentityModel> getAll(
       Class<? extends IdentityModel> modelClass,
-      ResultsFilter filter,
-      ResultsPaginator paginator,
-      Integer resultCap)
+      String id,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException {
-    return getInvocator(modelClass).getAll(this, filter, paginator, resultCap);
+    return getInvocator(modelClass).getOne(this, id, prefetchDataMap, resultsHandler, options);
   }
 
   @Override
@@ -95,12 +96,16 @@ public abstract class BaseDriver<T extends ConnectorConfiguration> implements Dr
       ResultsFilter filter,
       ResultsPaginator paginator,
       Integer resultCap,
-      Map<String, Object> prefetchDataMap)
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
-    return getInvocator(modelClass).getAll(this, filter, paginator, resultCap, prefetchDataMap);
+    var inv = getInvocator(modelClass);
+    return inv.getAll(this, filter, paginator, resultCap, prefetchDataMap, handler, options);
   }
 
-  public Map<String, Object> getPrefetch(Class<? extends IdentityModel> modelClass)
+  public Map<String, Object> getPrefetch(
+      Class<? extends IdentityModel> modelClass, ResultsHandler handler, OperationOptions options)
       throws ConnectorException {
     return getInvocator(modelClass).getPrefetch(this);
   }

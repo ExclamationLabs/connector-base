@@ -71,11 +71,11 @@ public class SearchExecutor {
     if (filter != null) {
       FilterValidator.validate(filter, adapter);
 
-      if (GetOneExecutor.byUID(this, filter, resultsHandler)) {
+      if (GetOneExecutor.byUID(this, filter, resultsHandler, options)) {
         return new SearchResult(); // Results information not meaningful for single item response
       }
 
-      if (GetOneExecutor.byName(this, filter, resultsHandler)) {
+      if (GetOneExecutor.byName(this, filter, resultsHandler, options)) {
         return new SearchResult(); // Results information not meaningful for single item response
       }
     }
@@ -103,7 +103,7 @@ public class SearchExecutor {
 
     // ImportAll execution
     if (filter == null && (!validPagingValuesSupplied)) {
-      if (ImportAllExecutor.execute(this, resultsHandler)) {
+      if (ImportAllExecutor.execute(this, resultsHandler, options)) {
         return new SearchResult(); // Search Results not relevant for importAll
       }
     }
@@ -139,7 +139,7 @@ public class SearchExecutor {
       OperationOptions options,
       FilterType filterType) {
     Map<String, Object> prefetchData =
-        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass(), resultsHandler, options);
     ResultsPaginator resultsPaginator =
         OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
             ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
@@ -157,10 +157,13 @@ public class SearchExecutor {
                     filterType),
                 resultsPaginator,
                 null,
-                prefetchData);
+                prefetchData,
+                resultsHandler,
+                options);
     matchingResults =
         performManualPaginationIfNeeded(enhancedAdapter, matchingResults, resultsPaginator);
-    processResultsPage(adapter, enhancedAdapter, matchingResults, resultsHandler, prefetchData);
+    processResultsPage(
+        adapter, enhancedAdapter, matchingResults, resultsHandler, prefetchData, options);
     return new SearchResult(
         resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
   }
@@ -168,7 +171,7 @@ public class SearchExecutor {
   protected SearchResult executePaginationOnly(
       ResultsHandler resultsHandler, OperationOptions options) {
     Map<String, Object> prefetchData =
-        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass(), resultsHandler, options);
     if (adapter instanceof PaginationCapableSource) {
       ResultsPaginator resultsPaginator =
           new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset());
@@ -182,9 +185,11 @@ public class SearchExecutor {
                   new ResultsFilter(),
                   resultsPaginator,
                   null,
-                  prefetchData);
+                  prefetchData,
+                  resultsHandler,
+                  options);
       processResultsPage(
-          adapter, enhancedAdapter, pageOfIdentityResults, resultsHandler, prefetchData);
+          adapter, enhancedAdapter, pageOfIdentityResults, resultsHandler, prefetchData, options);
       return new SearchResult(
           resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
     } else {
@@ -200,11 +205,13 @@ public class SearchExecutor {
                   new ResultsFilter(),
                   new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset()),
                   null,
-                  prefetchData);
+                  prefetchData,
+                  resultsHandler,
+                  options);
 
       if (allIdentityResults.size() <= paginationData.getPageSize()) {
         processResultsPage(
-            adapter, enhancedAdapter, allIdentityResults, resultsHandler, prefetchData);
+            adapter, enhancedAdapter, allIdentityResults, resultsHandler, prefetchData, options);
         return new SearchResult(null, -1, true);
       } else {
         if (paginationData.getCurrentOffset() >= allIdentityResults.size()) {
@@ -217,7 +224,8 @@ public class SearchExecutor {
               .skip(correctConnIdOffset(paginationData.getCurrentOffset()))
               .limit(paginationData.getPageSize())
               .forEachOrdered(pageOfResults::add);
-          processResultsPage(adapter, enhancedAdapter, pageOfResults, resultsHandler, prefetchData);
+          processResultsPage(
+              adapter, enhancedAdapter, pageOfResults, resultsHandler, prefetchData, options);
           return new SearchResult(null, -1, false);
         }
       }
@@ -255,7 +263,8 @@ public class SearchExecutor {
       EnhancedPaginationAndFiltering enhancedAdapter,
       Set<IdentityModel> results,
       ResultsHandler resultsHandler,
-      Map<String, Object> prefetchDataMap) {
+      Map<String, Object> prefetchDataMap,
+      OperationOptions options) {
     if (!enhancedAdapter.getSearchResultsContainsAllAttributes()) {
       // IdentityModels do not contain all attributes, need to call getOne for each.
       Set<IdentityModel> pageOfDetailedIdentities = new LinkedHashSet<>();
@@ -265,7 +274,8 @@ public class SearchExecutor {
         // Invoke multiple execution threads to help resolve getOne requests for identities in the
         // set
         pageOfDetailedIdentities =
-            invokeParallelGetOneRequests(adapter, enhancedAdapter, results, prefetchDataMap);
+            invokeParallelGetOneRequests(
+                adapter, enhancedAdapter, results, prefetchDataMap, resultsHandler, options);
       } else {
         for (IdentityModel identity : results) {
           // Place the partial identity object in the data map in case driver/invocator
@@ -277,13 +287,15 @@ public class SearchExecutor {
                   .getOne(
                       adapter.getIdentityModelClass(),
                       identity.getIdentityIdValue(),
-                      prefetchDataMap);
+                      prefetchDataMap,
+                      resultsHandler,
+                      options);
           pageOfDetailedIdentities.add(identityWithDetails);
         }
       }
-      adapter.passSetToResultsHandler(resultsHandler, pageOfDetailedIdentities, false);
+      adapter.passSetToResultsHandler(resultsHandler, pageOfDetailedIdentities, false, options);
     } else {
-      adapter.passSetToResultsHandler(resultsHandler, results, false);
+      adapter.passSetToResultsHandler(resultsHandler, results, false, options);
     }
   }
 
@@ -315,7 +327,9 @@ public class SearchExecutor {
       BaseAdapter<?, ?> adapter,
       EnhancedPaginationAndFiltering enhancedAdapter,
       Set<IdentityModel> identitySet,
-      Map<String, Object> prefetchDataMap) {
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     Set<IdentityModel> resultSet = new LinkedHashSet<>();
     Integer maxConcurrent = enhancedAdapter.getSubsequentRequestThreadCount();
     int ctr = 0;
@@ -327,7 +341,8 @@ public class SearchExecutor {
       for (int xx = ctr; xx < (ctr + currentThrottle); xx++) {
         IdentityModel currentIdentity = iterator.next();
         prefetchDataMap.put(PARTIAL_IDENTITY_KEY, currentIdentity);
-        getOneExecutions.add(getOneExecution(adapter, currentIdentity, prefetchDataMap));
+        getOneExecutions.add(
+            getOneExecution(adapter, currentIdentity, prefetchDataMap, resultsHandler, options));
       }
       for (Future<IdentityModel> oneExecution : getOneExecutions) {
         try {
@@ -350,10 +365,22 @@ public class SearchExecutor {
   }
 
   private static CompletableFuture<IdentityModel> getOneExecution(
-      BaseAdapter<?, ?> adapter, IdentityModel identity, Map<String, Object> prefetchDataMap) {
+      BaseAdapter<?, ?> adapter,
+      IdentityModel identity,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     CompletableFuture<IdentityModel> completableFuture = new CompletableFuture<>();
     Executors.newCachedThreadPool()
-        .submit(() -> getRetryableGetOne(adapter, identity, completableFuture, prefetchDataMap));
+        .submit(
+            () ->
+                getRetryableGetOne(
+                    adapter,
+                    identity,
+                    completableFuture,
+                    prefetchDataMap,
+                    resultsHandler,
+                    options));
     return completableFuture;
   }
 
@@ -361,7 +388,9 @@ public class SearchExecutor {
       BaseAdapter<?, ?> adapter,
       IdentityModel identity,
       CompletableFuture<IdentityModel> completableFuture,
-      Map<String, Object> prefetchDataMap) {
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options) {
     boolean success = false;
     IdentityModel resultIdentity = null;
     try {
@@ -369,7 +398,11 @@ public class SearchExecutor {
           adapter
               .getDriver()
               .getOne(
-                  adapter.getIdentityModelClass(), identity.getIdentityIdValue(), prefetchDataMap);
+                  adapter.getIdentityModelClass(),
+                  identity.getIdentityIdValue(),
+                  prefetchDataMap,
+                  handler,
+                  options);
       success = true;
     } finally {
       if (success && (resultIdentity != null)) {

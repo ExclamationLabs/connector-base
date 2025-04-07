@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.InvalidAttributeValueException;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
@@ -46,7 +47,10 @@ class GetOneExecutor {
   // handler)
   // SAD ERROR OUTCOME: UID value supplied is blank/empty
   protected static boolean byUID(
-      SearchExecutor executor, Filter filter, ResultsHandler resultsHandler)
+      SearchExecutor executor,
+      Filter filter,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws InvalidAttributeValueException {
     boolean executeGetOne = false;
     if (filter instanceof AttributeFilter) {
@@ -70,12 +74,16 @@ class GetOneExecutor {
                     executor
                         .getAdapter()
                         .getDriver()
-                        .getPrefetch(executor.getAdapter().getIdentityModelClass()));
+                        .getPrefetch(
+                            executor.getAdapter().getIdentityModelClass(), resultsHandler, options),
+                    resultsHandler,
+                    options);
         executeGetOne = true;
         if (singleItem != null) {
           executor
               .getAdapter()
-              .passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
+              .passSetToResultsHandler(
+                  resultsHandler, Collections.singleton(singleItem), false, options);
         }
       }
     }
@@ -94,7 +102,10 @@ class GetOneExecutor {
   // Unless error, HAPPY OUTCOME 2: getOneByName is invoked (may or may not have been a match sent
   // to result handler)
   protected static boolean byName(
-      SearchExecutor executor, Filter filter, ResultsHandler resultsHandler)
+      SearchExecutor executor,
+      Filter filter,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws InvalidAttributeValueException {
     boolean executeGetOneByName = false;
     boolean callGetOneByNameAPI = false;
@@ -129,7 +140,8 @@ class GetOneExecutor {
             executor
                 .getAdapter()
                 .getDriver()
-                .getPrefetch(executor.getAdapter().getIdentityModelClass());
+                .getPrefetch(
+                    executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
         if (executeGetOneByName) {
           if (callGetOneByNameAPI) {
             IdentityModel singleItem =
@@ -137,12 +149,16 @@ class GetOneExecutor {
                     .getAdapter()
                     .getDriver()
                     .getOneByName(
-                        executor.getAdapter().getIdentityModelClass(), filterValue, prefetchData);
+                        executor.getAdapter().getIdentityModelClass(),
+                        filterValue,
+                        prefetchData,
+                        resultsHandler,
+                        options);
             if (singleItem != null) {
               executor
                   .getAdapter()
                   .passSetToResultsHandler(
-                      resultsHandler, Collections.singleton(singleItem), false);
+                      resultsHandler, Collections.singleton(singleItem), false, options);
             }
           } else {
             // Find single name using API max results or full import
@@ -154,7 +170,7 @@ class GetOneExecutor {
                       .getImportBatchSize();
               allIdentityResults =
                   ImportAllExecutor.executeMultiPageImportProcess(
-                      executor, importBatchSize, prefetchData, null);
+                      executor, importBatchSize, prefetchData, null, options);
             } else {
 
               allIdentityResults =
@@ -166,7 +182,9 @@ class GetOneExecutor {
                           new ResultsFilter(),
                           SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
                           null,
-                          prefetchData);
+                          prefetchData,
+                          resultsHandler,
+                          options);
             }
             Optional<IdentityModel> match =
                 allIdentityResults.stream()
@@ -185,14 +203,16 @@ class GetOneExecutor {
                         .getOne(
                             executor.getAdapter().getIdentityModelClass(),
                             match.get().getIdentityIdValue(),
-                            prefetchData);
+                            prefetchData,
+                            resultsHandler,
+                            options);
               } else {
                 fetchedIdentity = match.get();
               }
               executor
                   .getAdapter()
                   .passSetToResultsHandler(
-                      resultsHandler, Collections.singleton(fetchedIdentity), false);
+                      resultsHandler, Collections.singleton(fetchedIdentity), false, options);
             }
           }
         }

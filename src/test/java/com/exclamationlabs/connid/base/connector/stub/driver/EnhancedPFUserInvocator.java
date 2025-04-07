@@ -24,6 +24,8 @@ import com.exclamationlabs.connid.base.connector.stub.model.EnhancedPFUser;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver, EnhancedPFUser> {
 
@@ -321,18 +323,21 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
   }
 
   @Override
-  public String create(EnhancedPFDriver driver, EnhancedPFUser model) throws ConnectorException {
-    throw new ConnectorException("not supported");
-  }
-
-  @Override
-  public void update(EnhancedPFDriver driver, String userId, EnhancedPFUser model)
+  public String create(EnhancedPFDriver driver, EnhancedPFUser model, OperationOptions options)
       throws ConnectorException {
     throw new ConnectorException("not supported");
   }
 
   @Override
-  public void delete(EnhancedPFDriver driver, String id) throws ConnectorException {
+  public void update(
+      EnhancedPFDriver driver, String userId, EnhancedPFUser model, OperationOptions options)
+      throws ConnectorException {
+    throw new ConnectorException("not supported");
+  }
+
+  @Override
+  public void delete(EnhancedPFDriver driver, String id, OperationOptions options)
+      throws ConnectorException {
     throw new ConnectorException("not supported");
   }
 
@@ -342,7 +347,9 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
       ResultsFilter filter,
       ResultsPaginator paginator,
       Integer resultCap,
-      Map<String, Object> prefetchDataMap)
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     reset();
     if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
@@ -389,7 +396,11 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
 
   @Override
   public EnhancedPFUser getOne(
-      EnhancedPFDriver driver, String id, Map<String, Object> prefetchDataMap)
+      EnhancedPFDriver driver,
+      String id,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     if (prefetchDataMap == null || prefetchDataMap.size() < 2 || prefetchDataMap.size() > 3) {
       throw new IllegalArgumentException("Prefetch data map propagation not working");
@@ -401,7 +412,11 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
 
   @Override
   public EnhancedPFUser getOneByName(
-      EnhancedPFDriver driver, String objectName, Map<String, Object> prefetchDataMap)
+      EnhancedPFDriver driver,
+      String objectName,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
     if (prefetchDataMap == null || prefetchDataMap.size() != 2) {
       throw new IllegalArgumentException("Prefetch data map propagation not working");
@@ -415,7 +430,7 @@ public class EnhancedPFUserInvocator implements DriverInvocator<EnhancedPFDriver
             .findFirst()
             .orElse(null);
     if (match != null) {
-      return getOne(driver, match.getUserId(), prefetchDataMap);
+      return getOne(driver, match.getUserId(), prefetchDataMap, handler, options);
     } else {
       return null;
     }

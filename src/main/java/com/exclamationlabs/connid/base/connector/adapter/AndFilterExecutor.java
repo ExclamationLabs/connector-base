@@ -134,7 +134,7 @@ class AndFilterExecutor {
         executor
             .getAdapter()
             .getDriver()
-            .getPrefetch(executor.getAdapter().getIdentityModelClass());
+            .getPrefetch(executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
     Set<IdentityModel> filteredResults =
         executor
             .getAdapter()
@@ -144,13 +144,16 @@ class AndFilterExecutor {
                 resultsFilter,
                 resultsPaginator,
                 null,
-                prefetchData);
+                prefetchData,
+                resultsHandler,
+                options);
     SearchExecutor.processResultsPage(
         executor.getAdapter(),
         executor.getEnhancedAdapter(),
         filteredResults,
         resultsHandler,
-        prefetchData);
+        prefetchData,
+        options);
     return new SearchResult(null, -1, false);
   }
 
@@ -164,7 +167,7 @@ class AndFilterExecutor {
         executor
             .getAdapter()
             .getDriver()
-            .getPrefetch(executor.getAdapter().getIdentityModelClass());
+            .getPrefetch(executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
 
     Set<IdentityModel> allResults;
     if (executor.getEnhancedAdapter().getFilteringRequiresFullImport()) {
@@ -173,7 +176,7 @@ class AndFilterExecutor {
           ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
       allResults =
           ImportAllExecutor.executeMultiPageImportProcess(
-              executor, importBatchSize, prefetchData, null);
+              executor, importBatchSize, prefetchData, null, options);
     } else {
       allResults =
           executor
@@ -184,7 +187,9 @@ class AndFilterExecutor {
                   new ResultsFilter(),
                   SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
                   null,
-                  prefetchData);
+                  prefetchData,
+                  resultsHandler,
+                  options);
     }
 
     List<Set<IdentityModel>> filteredResultList = new ArrayList<>();
@@ -233,7 +238,8 @@ class AndFilterExecutor {
         executor.getEnhancedAdapter(),
         exclusiveFilteredResultsPage,
         resultsHandler,
-        prefetchData);
+        prefetchData,
+        options);
     return new SearchResult(null, -1, false);
   }
 

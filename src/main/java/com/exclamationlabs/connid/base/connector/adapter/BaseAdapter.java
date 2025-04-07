@@ -142,17 +142,19 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
    *     destination system for type creation.
    * @return new unique identifier for newly created type
    */
-  public final Uid create(Set<Attribute> attributes) {
+  public final Uid create(Set<Attribute> attributes, OperationOptions options) {
     T model = constructModel(attributes, null, null, true);
     String newId;
 
     try {
-      newId = getDriver().create(getIdentityModelClass(), model);
+      newId = getDriver().create(getIdentityModelClass(), model, options);
     } catch (AlreadyExistsException aee) {
       if (supportsDuplicateErrorReturnsId()) {
         try {
           IdentityModel duplicateModel =
-              getDriver().getOneByName(getIdentityModelClass(), model.getIdentityNameValue());
+              getDriver()
+                  .getOneByName(
+                      getIdentityModelClass(), model.getIdentityNameValue(), null, options);
           if (duplicateModel != null && duplicateModel.getIdentityIdValue() != null) {
             newId = duplicateModel.getIdentityIdValue();
           } else {
@@ -183,7 +185,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
    *     destination system to update the type.
    * @return unique identifier applicable to the type that was just updated
    */
-  public final Set<AttributeDelta> updateDelta(Uid uid, Set<AttributeDelta> attributes) {
+  public final Set<AttributeDelta> updateDelta(
+      Uid uid, Set<AttributeDelta> attributes, OperationOptions options) {
     ConsolidatedValues consolidated = consolidateAttributeValues(attributes);
     T model =
         constructModel(
@@ -191,7 +194,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
             consolidated.addedMultiValues,
             consolidated.removedMultiValues,
             false);
-    getDriver().update(getIdentityModelClass(), uid.getUidValue(), model);
+    getDriver().update(getIdentityModelClass(), uid.getUidValue(), model, options);
     return new HashSet<>();
   }
 
@@ -200,8 +203,8 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
    *
    * @param uid Unique identifier for the data item to be deleted.
    */
-  public final void delete(Uid uid) {
-    getDriver().delete(getIdentityModelClass(), uid.getUidValue());
+  public final void delete(Uid uid, OperationOptions options) {
+    getDriver().delete(getIdentityModelClass(), uid.getUidValue(), options);
   }
 
   /**
@@ -215,7 +218,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
   @SuppressWarnings({"unchecked"})
   public ConnectorObject getObject(Uid uid, OperationOptions options) {
     IdentityModel matchingItem =
-        getDriver().getOne(getIdentityModelClass(), uid.getUidValue(), options.getOptions());
+        getDriver().getOne(getIdentityModelClass(), uid.getUidValue(), null, null, options);
     return matchingItem == null ? null : constructConnectorObject((T) matchingItem);
   }
 
@@ -292,9 +295,11 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
               .getOne(
                   getIdentityModelClass(),
                   queryFilter.getAttribute().getValue().get(0).toString(),
-                  options.getOptions());
+                  null,
+                  resultsHandler,
+                  options);
       if (singleItem != null) {
-        passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
+        passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false, options);
       }
       return;
     }
@@ -311,9 +316,12 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
       IdentityModel singleItem =
           getDriver()
               .getOneByName(
-                  getIdentityModelClass(), queryFilter.getAttribute().getValue().get(0).toString());
+                  getIdentityModelClass(),
+                  queryFilter.getAttribute().getValue().get(0).toString(),
+                  resultsHandler,
+                  options);
       if (singleItem != null) {
-        passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false);
+        passSetToResultsHandler(resultsHandler, Collections.singleton(singleItem), false, options);
       }
       return;
     }
@@ -385,7 +393,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
           String.format(
               "Starting batch import using pagination: %s, deep: %s for type %s",
               paginator, deep, getIdentityModelClass().getSimpleName()));
-      executeBatchImport(resultsHandler, paginator, deep);
+      executeBatchImport(resultsHandler, paginator, deep, options);
     } else {
       Logger.info(
           this,
@@ -394,13 +402,24 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
               paginator, deep, getIdentityModelClass().getSimpleName()));
       // get a single page of results, or get/import all results in one shot
       Set<IdentityModel> dataSet =
-          getDriver().getAll(getIdentityModelClass(), resultsFilter, paginator, null);
-      passSetToResultsHandler(resultsHandler, dataSet, deep);
+          getDriver()
+              .getAll(
+                  getIdentityModelClass(),
+                  resultsFilter,
+                  paginator,
+                  null,
+                  null,
+                  resultsHandler,
+                  options);
+      passSetToResultsHandler(resultsHandler, dataSet, deep, options);
     }
   }
 
   protected void executeBatchImport(
-      ResultsHandler resultsHandler, ResultsPaginator paginator, boolean deep) {
+      ResultsHandler resultsHandler,
+      ResultsPaginator paginator,
+      boolean deep,
+      OperationOptions options) {
 
     while (!paginator.getNoMoreResults()) {
       Logger.info(
@@ -409,7 +428,15 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
               "Processing next batch using pagination %s for type %s, deep=%s",
               paginator, getIdentityModelClass().getSimpleName(), deep));
       Set<IdentityModel> dataSet =
-          getDriver().getAll(getIdentityModelClass(), new ResultsFilter(), paginator, null);
+          getDriver()
+              .getAll(
+                  getIdentityModelClass(),
+                  new ResultsFilter(),
+                  paginator,
+                  null,
+                  null,
+                  null,
+                  options);
       if (dataSet == null || dataSet.isEmpty()) {
         Logger.info(
             this,
@@ -418,7 +445,7 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                 getIdentityModelClass().getSimpleName()));
         paginator.setNoMoreResults(true);
       } else {
-        passSetToResultsHandler(resultsHandler, dataSet, deep);
+        passSetToResultsHandler(resultsHandler, dataSet, deep, options);
         if (!paginator.getNoMoreResults()) {
           paginator.setCurrentOffset(paginator.getCurrentOffset() + dataSet.size());
           paginator.setCurrentPageNumber(paginator.getCurrentPageNumber() + 1);
@@ -429,7 +456,10 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
 
   @SuppressWarnings({"unchecked"})
   protected void passSetToResultsHandler(
-      ResultsHandler resultsHandler, Set<IdentityModel> dataSet, boolean deep) {
+      ResultsHandler resultsHandler,
+      Set<IdentityModel> dataSet,
+      boolean deep,
+      OperationOptions options) {
     if (deep) {
       int passCount = 0;
       for (IdentityModel current : dataSet) {
@@ -439,7 +469,13 @@ public abstract class BaseAdapter<T extends IdentityModel, U extends ConnectorCo
                 "For getAll/import, requesting deep item from driver with uid %s for type %s",
                 current.getIdentityIdValue(), getIdentityModelClass().getSimpleName()));
         IdentityModel fullModel =
-            getDriver().getOne(getIdentityModelClass(), current.getIdentityIdValue(), null);
+            getDriver()
+                .getOne(
+                    getIdentityModelClass(),
+                    current.getIdentityIdValue(),
+                    null,
+                    resultsHandler,
+                    options);
         if (fullModel != null) {
           resultsHandler.handle(constructConnectorObject((T) fullModel));
           passCount++;

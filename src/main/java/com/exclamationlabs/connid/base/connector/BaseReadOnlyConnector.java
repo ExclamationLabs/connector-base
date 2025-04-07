@@ -50,8 +50,8 @@ public abstract class BaseReadOnlyConnector<T extends ConnectorConfiguration>
 
   @Override
   public FilterTranslator<Filter> createFilterTranslator(
-      ObjectClass objectClass, OperationOptions operationOptions) {
-    return getConnectorFilterTranslator(objectClass);
+      ObjectClass objectClass, OperationOptions options) {
+    return getConnectorFilterTranslator(objectClass, options);
   }
 
   @Override

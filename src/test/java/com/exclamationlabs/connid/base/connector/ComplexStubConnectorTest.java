@@ -535,9 +535,9 @@ public class ComplexStubConnectorTest
     connector.init(new ComplexStubConfiguration());
     ObjectClass accountObjectClass = new ObjectClass("user");
     ObjectClass groupObjectClass = new ObjectClass("group");
-    assertNotNull(connector.getConnectorFilterTranslator(accountObjectClass));
+    assertNotNull(connector.getConnectorFilterTranslator(accountObjectClass, null));
     assertTrue(
-        connector.getConnectorFilterTranslator(accountObjectClass)
+        connector.getConnectorFilterTranslator(accountObjectClass, null)
             instanceof DefaultFilterTranslator);
 
     assertNotNull(connector.getAdapter(groupObjectClass).getConnectorAttributes());

@@ -24,6 +24,7 @@ import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import java.util.*;
 import java.util.concurrent.*;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 /**
@@ -53,12 +54,13 @@ public class ImportAllExecutor {
   // - pass items in that group to the results handler
   // - continue until all groups have been processed.
   // For both Scenario 1 and 2, HAPPY OUTCOME 4: getAll perform full import is invoked
-  protected static boolean execute(SearchExecutor executor, ResultsHandler resultsHandler) {
+  protected static boolean execute(
+      SearchExecutor executor, ResultsHandler resultsHandler, OperationOptions options) {
     Map<String, Object> prefetchData =
         executor
             .getAdapter()
             .getDriver()
-            .getPrefetch(executor.getAdapter().getIdentityModelClass());
+            .getPrefetch(executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
     if (executor.getAdapter() instanceof PaginationCapableSource) {
       PaginationCapableSource paginationCheck = (PaginationCapableSource) executor.getAdapter();
       int pageSize =
@@ -67,7 +69,7 @@ public class ImportAllExecutor {
           && paginationCheck.getSearchResultsMaximum() < pageSize) {
         pageSize = paginationCheck.getSearchResultsMaximum();
       }
-      executeMultiPageImportProcess(executor, pageSize, prefetchData, resultsHandler);
+      executeMultiPageImportProcess(executor, pageSize, prefetchData, resultsHandler, options);
 
     } else {
       // API has no pagination capability, manually paginate here
@@ -84,7 +86,9 @@ public class ImportAllExecutor {
                   new ResultsFilter(),
                   new ResultsPaginator(),
                   null,
-                  prefetchData);
+                  prefetchData,
+                  resultsHandler,
+                  options);
       while (!importComplete) {
         if (fullIdentityResults.size() < pageSize
             || (currentOffset + pageSize) >= fullIdentityResults.size()) {
@@ -107,7 +111,8 @@ public class ImportAllExecutor {
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,
             resultsHandler,
-            prefetchData);
+            prefetchData,
+            options);
       } // end while
     }
     return true;
@@ -117,11 +122,12 @@ public class ImportAllExecutor {
       SearchExecutor executor,
       int pageSize,
       Map<String, Object> prefetchData,
-      ResultsHandler resultsHandler) {
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     int throttle = executor.getEnhancedAdapter().getImportUsingPaginationThreadCount();
     if (throttle < 2) {
       return executeMultiPageImportProcessNoMultiThread(
-          executor, pageSize, prefetchData, resultsHandler);
+          executor, pageSize, prefetchData, resultsHandler, options);
     }
     boolean importComplete = false;
     int currentOffset = 0;
@@ -131,7 +137,11 @@ public class ImportAllExecutor {
       for (int xx = 0; xx < throttle; xx++) {
         pageImportExecutions.add(
             importSinglePageExecution(
-                executor, new ResultsPaginator(pageSize, currentOffset), prefetchData));
+                executor,
+                new ResultsPaginator(pageSize, currentOffset),
+                prefetchData,
+                resultsHandler,
+                options));
         currentOffset += pageSize;
       }
       for (Future<Set<IdentityModel>> oneExecution : pageImportExecutions) {
@@ -143,7 +153,8 @@ public class ImportAllExecutor {
                 executor.getEnhancedAdapter(),
                 pageOfIdentityResults,
                 resultsHandler,
-                prefetchData);
+                prefetchData,
+                options);
           } else {
             fullCollectedResults.addAll(pageOfIdentityResults);
           }
@@ -173,11 +184,20 @@ public class ImportAllExecutor {
   private static CompletableFuture<Set<IdentityModel>> importSinglePageExecution(
       SearchExecutor executor,
       ResultsPaginator resultsPaginator,
-      Map<String, Object> prefetchData) {
+      Map<String, Object> prefetchData,
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     CompletableFuture<Set<IdentityModel>> completableFuture = new CompletableFuture<>();
     Executors.newCachedThreadPool()
         .submit(
-            () -> importSinglePage(executor, resultsPaginator, prefetchData, completableFuture));
+            () ->
+                importSinglePage(
+                    executor,
+                    resultsPaginator,
+                    prefetchData,
+                    completableFuture,
+                    resultsHandler,
+                    options));
     return completableFuture;
   }
 
@@ -185,7 +205,9 @@ public class ImportAllExecutor {
       SearchExecutor executor,
       ResultsPaginator paginator,
       Map<String, Object> prefetchData,
-      CompletableFuture<Set<IdentityModel>> completableFuture) {
+      CompletableFuture<Set<IdentityModel>> completableFuture,
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     Set<IdentityModel> resultPage =
         executor
             .getAdapter()
@@ -195,7 +217,9 @@ public class ImportAllExecutor {
                 new ResultsFilter(),
                 paginator,
                 null,
-                prefetchData);
+                prefetchData,
+                resultsHandler,
+                options);
     completableFuture.complete(resultPage);
   }
 
@@ -203,7 +227,8 @@ public class ImportAllExecutor {
       SearchExecutor executor,
       int pageSize,
       Map<String, Object> prefetchData,
-      ResultsHandler resultsHandler) {
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     int currentOffset = 0;
     boolean importComplete = false;
     Set<IdentityModel> collectedResults = new LinkedHashSet<>();
@@ -219,7 +244,9 @@ public class ImportAllExecutor {
                   new ResultsFilter(),
                   currentPaginator,
                   null,
-                  prefetchData);
+                  prefetchData,
+                  resultsHandler,
+                  options);
       if (currentPaginator.getNoMoreResults() || pageOfIdentityResults.size() < pageSize) {
         importComplete = true;
       } else {
@@ -232,7 +259,8 @@ public class ImportAllExecutor {
             executor.getEnhancedAdapter(),
             pageOfIdentityResults,
             resultsHandler,
-            prefetchData);
+            prefetchData,
+            options);
       } else {
         collectedResults.addAll(pageOfIdentityResults);
       }

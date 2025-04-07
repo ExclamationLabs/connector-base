@@ -67,7 +67,8 @@ public class EqualsFilterExecutor {
               executor
                   .getAdapter()
                   .getDriver()
-                  .getPrefetch(executor.getAdapter().getIdentityModelClass());
+                  .getPrefetch(
+                      executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
           ResultsPaginator resultsPaginator =
               OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
                   ? new ResultsPaginator(options.getPageSize(), options.getPagedResultsOffset())
@@ -86,13 +87,16 @@ public class EqualsFilterExecutor {
                           FilterType.ContainsFilter),
                       resultsPaginator,
                       null,
-                      prefetchData);
+                      prefetchData,
+                      resultsHandler,
+                      options);
           SearchExecutor.processResultsPage(
               executor.getAdapter(),
               executor.getEnhancedAdapter(),
               matchingResults,
               resultsHandler,
-              prefetchData);
+              prefetchData,
+              options);
           return new SearchResult(
               resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
         } else {
@@ -137,7 +141,7 @@ public class EqualsFilterExecutor {
           executor
               .getAdapter()
               .getDriver()
-              .getPrefetch(executor.getAdapter().getIdentityModelClass());
+              .getPrefetch(executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
       Set<IdentityModel> allResults;
       if (executor.getEnhancedAdapter().getFilteringRequiresFullImport()) {
         // Perform paginated full import in order to perform equals filter
@@ -145,7 +149,7 @@ public class EqualsFilterExecutor {
             ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
         allResults =
             ImportAllExecutor.executeMultiPageImportProcess(
-                executor, importBatchSize, prefetchData, null);
+                executor, importBatchSize, prefetchData, null, options);
       } else {
         // get all results up to API max and return matches
         allResults =
@@ -157,7 +161,9 @@ public class EqualsFilterExecutor {
                     new ResultsFilter(),
                     SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
                     null,
-                    prefetchData);
+                    prefetchData,
+                    resultsHandler,
+                    options);
       }
       final String filterValue =
           AdapterValueTypeConverter.readSingleAttributeValueAsString(equalsFilter.getAttribute());
@@ -176,7 +182,8 @@ public class EqualsFilterExecutor {
           executor.getEnhancedAdapter(),
           filteredResults,
           resultsHandler,
-          prefetchData);
+          prefetchData,
+          options);
       return new SearchResult(null, -1, false);
     }
   }

@@ -68,7 +68,8 @@ class ContainsFilterExecutor {
               executor
                   .getAdapter()
                   .getDriver()
-                  .getPrefetch(executor.getAdapter().getIdentityModelClass());
+                  .getPrefetch(
+                      executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
           Set<IdentityModel> matchingResults =
               executor
                   .getAdapter()
@@ -82,7 +83,9 @@ class ContainsFilterExecutor {
                           FilterType.EqualsFilter),
                       resultsPaginator,
                       null,
-                      prefetchData);
+                      prefetchData,
+                      resultsHandler,
+                      options);
           matchingResults =
               SearchExecutor.performManualPaginationIfNeeded(
                   executor.getEnhancedAdapter(), matchingResults, resultsPaginator);
@@ -91,7 +94,8 @@ class ContainsFilterExecutor {
               executor.getEnhancedAdapter(),
               matchingResults,
               resultsHandler,
-              prefetchData);
+              prefetchData,
+              options);
           return new SearchResult(
               resultsPaginator.getTokenAsString(), -1, resultsPaginator.getNoMoreResults());
         } else {
@@ -101,7 +105,8 @@ class ContainsFilterExecutor {
                 executor.getEnhancedAdapter(),
                 containsFilter,
                 resultsPaginator,
-                resultsHandler);
+                resultsHandler,
+                options);
           } else if (executor.getEnhancedAdapter().getSearchResultsContainsNameAttribute()
               && StringUtils.equals(Name.NAME, containsFilter.getName())) {
             return performManualNameSearch(
@@ -109,7 +114,8 @@ class ContainsFilterExecutor {
                 executor.getEnhancedAdapter(),
                 containsFilter,
                 resultsPaginator,
-                resultsHandler);
+                resultsHandler,
+                options);
           }
           throw new InvalidAttributeValueException(
               String.format(
@@ -124,7 +130,8 @@ class ContainsFilterExecutor {
               executor.getEnhancedAdapter(),
               containsFilter,
               resultsPaginator,
-              resultsHandler);
+              resultsHandler,
+              options);
         } else if (executor.getEnhancedAdapter().getSearchResultsContainsNameAttribute()
             && StringUtils.equals(Name.NAME, containsFilter.getName())) {
           return performManualNameSearch(
@@ -132,7 +139,8 @@ class ContainsFilterExecutor {
               executor.getEnhancedAdapter(),
               containsFilter,
               resultsPaginator,
-              resultsHandler);
+              resultsHandler,
+              options);
         } else {
           throw new InvalidAttributeValueException(
               String.format(
@@ -159,7 +167,7 @@ class ContainsFilterExecutor {
           executor
               .getAdapter()
               .getDriver()
-              .getPrefetch(executor.getAdapter().getIdentityModelClass());
+              .getPrefetch(executor.getAdapter().getIdentityModelClass(), resultsHandler, options);
       int offset =
           OperationOptionsDataFinder.hasValidPagingOptions(options.getOptions())
               ? resultsPaginator.getCurrentOffset()
@@ -171,7 +179,7 @@ class ContainsFilterExecutor {
             ((ResultsConfiguration) executor.getAdapter().getConfiguration()).getImportBatchSize();
         allResults =
             ImportAllExecutor.executeMultiPageImportProcess(
-                executor, importBatchSize, prefetchData, null);
+                executor, importBatchSize, prefetchData, resultsHandler, options);
       } else {
         // get all results up to API max and return matches
         allResults =
@@ -183,7 +191,9 @@ class ContainsFilterExecutor {
                     new ResultsFilter(),
                     SearchExecutor.getMaximumPageSizePaginator(executor.getAdapter()),
                     null,
-                    prefetchData);
+                    prefetchData,
+                    resultsHandler,
+                    options);
       }
       final String filterValue =
           AdapterValueTypeConverter.readSingleAttributeValueAsString(containsFilter.getAttribute());
@@ -202,7 +212,8 @@ class ContainsFilterExecutor {
           executor.getEnhancedAdapter(),
           filteredResults,
           resultsHandler,
-          prefetchData);
+          prefetchData,
+          options);
       return new SearchResult(null, -1, false);
     }
   }
@@ -212,9 +223,10 @@ class ContainsFilterExecutor {
       EnhancedPaginationAndFiltering enhancedAdapter,
       ContainsFilter containsFilter,
       ResultsPaginator resultsPaginator,
-      ResultsHandler resultsHandler) {
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     Map<String, Object> prefetchData =
-        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass(), resultsHandler, options);
     Set<IdentityModel> matchingResults =
         adapter
             .getDriver()
@@ -223,7 +235,9 @@ class ContainsFilterExecutor {
                 new ResultsFilter(),
                 SearchExecutor.getMaximumPageSizePaginator(adapter),
                 null,
-                prefetchData);
+                prefetchData,
+                resultsHandler,
+                options);
     Set<IdentityModel> filteredResults = new LinkedHashSet<>();
     matchingResults.stream()
         .filter(
@@ -234,7 +248,7 @@ class ContainsFilterExecutor {
         .limit(resultsPaginator.getPageSize())
         .forEachOrdered(filteredResults::add);
     SearchExecutor.processResultsPage(
-        adapter, enhancedAdapter, filteredResults, resultsHandler, prefetchData);
+        adapter, enhancedAdapter, filteredResults, resultsHandler, prefetchData, options);
     return new SearchResult(null, -1, false);
   }
 
@@ -243,9 +257,10 @@ class ContainsFilterExecutor {
       EnhancedPaginationAndFiltering enhancedAdapter,
       ContainsFilter containsFilter,
       ResultsPaginator resultsPaginator,
-      ResultsHandler resultsHandler) {
+      ResultsHandler resultsHandler,
+      OperationOptions options) {
     Map<String, Object> prefetchData =
-        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass());
+        adapter.getDriver().getPrefetch(adapter.getIdentityModelClass(), resultsHandler, options);
     Set<IdentityModel> matchingResults =
         adapter
             .getDriver()
@@ -254,7 +269,9 @@ class ContainsFilterExecutor {
                 new ResultsFilter(),
                 SearchExecutor.getMaximumPageSizePaginator(adapter),
                 null,
-                prefetchData);
+                prefetchData,
+                resultsHandler,
+                options);
     Set<IdentityModel> filteredResults = new LinkedHashSet<>();
     matchingResults.stream()
         .filter(
@@ -265,7 +282,7 @@ class ContainsFilterExecutor {
         .limit(resultsPaginator.getPageSize())
         .forEachOrdered(filteredResults::add);
     SearchExecutor.processResultsPage(
-        adapter, enhancedAdapter, filteredResults, resultsHandler, prefetchData);
+        adapter, enhancedAdapter, filteredResults, resultsHandler, prefetchData, options);
     return new SearchResult(null, -1, false);
   }
 }

@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 /**
  * A DriverInvocator belongs to a Driver and is responsible for making the calls on a destination
@@ -45,7 +47,7 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    * @return String containing new id for the object just created.
    * @throws ConnectorException If creation failed, was invalid or was not permitted.
    */
-  String create(D driver, T model) throws ConnectorException;
+  String create(D driver, T model, OperationOptions options) throws ConnectorException;
 
   /**
    * Update an existing object on the destination system.
@@ -57,7 +59,8 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     to be treated as elements that should remain unchanged on the destination system.
    * @throws ConnectorException If update failed, was invalid or was not permitted.
    */
-  void update(D driver, String userId, T userModel) throws ConnectorException;
+  void update(D driver, String userId, T userModel, OperationOptions options)
+      throws ConnectorException;
 
   /**
    * Delete an existing object on the destination system.
@@ -67,11 +70,16 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    * @param userId String holding the id to match the item being removed on the destination system.
    * @throws ConnectorException If deletion failed, was invalid or was not permitted.
    */
-  void delete(D driver, String userId) throws ConnectorException;
+  void delete(D driver, String userId, OperationOptions options) throws ConnectorException;
 
   @Deprecated
   default Set<T> getAll(
-      D driver, ResultsFilter filter, ResultsPaginator paginator, Integer resultCap)
+      D driver,
+      ResultsFilter filter,
+      ResultsPaginator paginator,
+      Integer resultCap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException {
     throw new UnsupportedOperationException("getAll without prefetch not implemented");
   }
@@ -100,7 +108,9 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
       ResultsFilter filter,
       ResultsPaginator paginator,
       Integer resultCap,
-      Map<String, Object> prefetchDataMap)
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException {
     throw new UnsupportedOperationException("getAll with prefetch not implemented");
   }
@@ -120,7 +130,12 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     system.
    * @throws ConnectorException If get request failed, was invalid or was not permitted.
    */
-  T getOne(D driver, String objectId, Map<String, Object> prefetchDataMap)
+  T getOne(
+      D driver,
+      String objectId,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException;
 
   /**
@@ -138,7 +153,9 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
   }
 
   @Deprecated
-  default T getOneByName(D driver, String objectName) throws ConnectorException {
+  default T getOneByName(
+      D driver, String objectName, ResultsHandler handler, OperationOptions options)
+      throws ConnectorException {
     throw new UnsupportedOperationException("DriverInvocator does not support getOneByName");
   }
 
@@ -160,7 +177,12 @@ public interface DriverInvocator<D extends Driver<?>, T extends IdentityModel> {
    *     destination system.
    * @throws ConnectorException If get request failed, was invalid or was not permitted.
    */
-  default T getOneByName(D driver, String objectName, Map<String, Object> prefetchDataMap)
+  default T getOneByName(
+      D driver,
+      String objectName,
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler resultsHandler,
+      OperationOptions options)
       throws ConnectorException {
     throw new UnsupportedOperationException("DriverInvocator does not support getOneByName");
   }

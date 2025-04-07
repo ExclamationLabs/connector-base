@@ -28,6 +28,8 @@ import com.exclamationlabs.connid.base.connector.stub.model.StubSupergroup;
 import com.exclamationlabs.connid.base.connector.stub.model.StubUser;
 import com.exclamationlabs.connid.base.connector.stub.util.StubInvocationChecker;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
@@ -51,7 +53,7 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
   @Override
   public void test() throws ConnectorException {
-    getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), 7);
+    getAll(StubUser.class, new ResultsFilter(), new ResultsPaginator(), 7, null, null, null);
   }
 
   @Override
@@ -59,9 +61,12 @@ public class ComplexStubDriver extends BaseDriver<ComplexStubConfiguration> {
 
   @Override
   public IdentityModel getOneByName(
-      Class<? extends IdentityModel> identityModelClass, String nameValue)
+      Class<? extends IdentityModel> identityModelClass,
+      String nameValue,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
-    return getInvocator(identityModelClass).getOneByName(this, nameValue);
+    return getInvocator(identityModelClass).getOneByName(this, nameValue, handler, options);
   }
 
   public ComplexStubConfiguration getConfiguration() {

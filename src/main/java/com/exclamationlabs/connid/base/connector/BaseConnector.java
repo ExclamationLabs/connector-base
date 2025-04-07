@@ -227,7 +227,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return getClass().getSimpleName();
   }
 
-  protected FilterTranslator<Filter> getConnectorFilterTranslator(ObjectClass objectClass) {
+  protected FilterTranslator<Filter> getConnectorFilterTranslator(
+      ObjectClass objectClass, OperationOptions options) {
     BaseAdapter<?, T> matchedAdapter = adapterMap.get(objectClass);
     if (matchedAdapter == null) {
       throw new ConnectorException(

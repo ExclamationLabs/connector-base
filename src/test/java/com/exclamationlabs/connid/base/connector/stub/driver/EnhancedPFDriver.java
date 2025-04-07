@@ -23,6 +23,8 @@ import com.exclamationlabs.connid.base.connector.stub.configuration.EnhancedPFCo
 import com.exclamationlabs.connid.base.connector.stub.model.EnhancedPFUser;
 import java.util.Map;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 
 public class EnhancedPFDriver extends BaseDriver<EnhancedPFConfiguration> {
 
@@ -56,9 +58,12 @@ public class EnhancedPFDriver extends BaseDriver<EnhancedPFConfiguration> {
   public IdentityModel getOneByName(
       Class<? extends IdentityModel> identityModelClass,
       String nameValue,
-      Map<String, Object> prefetchDataMap)
+      Map<String, Object> prefetchDataMap,
+      ResultsHandler handler,
+      OperationOptions options)
       throws ConnectorException {
-    return getInvocator(identityModelClass).getOneByName(this, nameValue, prefetchDataMap);
+    return getInvocator(identityModelClass)
+        .getOneByName(this, nameValue, prefetchDataMap, handler, options);
   }
 
   public boolean isContainsOnly() {
