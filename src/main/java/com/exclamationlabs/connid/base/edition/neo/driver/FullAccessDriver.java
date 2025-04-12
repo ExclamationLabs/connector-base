@@ -17,7 +17,7 @@
 package com.exclamationlabs.connid.base.edition.neo.driver;
 
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.model.IdentityModel;
+import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 /**
@@ -50,7 +50,7 @@ public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driv
    * @throws ConnectorException If create operation failed or was invalid.
    */
   String create(
-      T configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model)
+          T configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model)
       throws ConnectorException;
 
   /**

@@ -32,7 +32,8 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
  * @param <M> IdentityModel implementation pertaining to an object type on the destination system.
  */
 public interface FullAccessInvocator<
-    T extends ConnectorConfiguration, D extends FullAccessDriver<T>, M extends IdentityModel> {
+    T extends ConnectorConfiguration, D extends FullAccessDriver<T>, M extends IdentityModel>
+    extends Invocator<T, D, M> {
 
   /**
    * Create a new object on the destination system.

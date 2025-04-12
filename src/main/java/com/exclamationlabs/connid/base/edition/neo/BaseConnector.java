@@ -27,7 +27,7 @@ import java.util.*;
 
 import com.exclamationlabs.connid.base.edition.neo.internal.search.GetType;
 import com.exclamationlabs.connid.base.edition.neo.internal.search.GetHandler;
-import com.exclamationlabs.connid.base.edition.neo.internal.search.UpdateHandler;
+import com.exclamationlabs.connid.base.edition.neo.internal.search.FullAccessHandler;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.api.operations.SearchApiOp;
@@ -206,9 +206,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Set<Attribute> attributes,
       final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
-    var handler = new UpdateHandler<T>();
-    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            objectClass, operationOptions);
+    var handler = new FullAccessHandler<T>();
+    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType), attributes);
   }
 
   @Override
@@ -218,9 +217,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Set<AttributeDelta> attributeModifications,
       final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
-    var handler = new UpdateHandler<T>();
+    var handler = new FullAccessHandler<T>();
     handler.update(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            uid, attributeModifications, objectClass, operationOptions);
+            uid, attributeModifications);
     return attributeModifications;
   }
 
@@ -228,9 +227,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   public void delete(
       final ObjectClass objectClass, final Uid uid, final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
-    var handler = new UpdateHandler<T>();
+    var handler = new FullAccessHandler<T>();
     handler.delete(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            uid, objectClass, operationOptions);
+            uid);
   }
 
   @Override
