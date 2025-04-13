@@ -6,6 +6,7 @@ import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.exclamationlabs.connid.base.edition.neo.internal.ConsolidatedValues;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
+import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +53,7 @@ public class ModelWriter {
         try {
             model = identityModelClass.getDeclaredConstructor().newInstance();
             for (var info : identityModelAccess.getFieldAccessInfoMap().values()) {
-                if (info.getIdentifier() == ConnIdType.UID && "Create".equals(operation)) {
+                if ((info.getIdentifier() == ConnIdType.UID && "Create".equals(operation)) || info.getDirection() == Direction.INBOUND_ONLY) {
                     continue;
                 }
                 Object singleValueRead;

@@ -37,14 +37,4 @@ public class HappyUserModel implements IdentityModel {
   private Boolean active;
 
   @ModelAttributeHolder private HappyUserAddress address;
-
-  @Override
-  public String getIdentityIdValue() {
-    return getUserId();
-  }
-
-  @Override
-  public String getIdentityNameValue() {
-    return getUserName();
-  }
 }

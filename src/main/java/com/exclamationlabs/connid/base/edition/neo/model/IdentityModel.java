@@ -16,8 +16,6 @@
 
 package com.exclamationlabs.connid.base.edition.neo.model;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * Interface to describe model objects belonging to this base connector implementation.
  *
@@ -37,78 +35,4 @@ import org.apache.commons.lang3.StringUtils;
  */
 public interface IdentityModel {
 
-  /**
-   * Implement this method to return the id value applicable to the concrete model object.
-   *
-   * @return String version of Id value recognized by model
-   */
-  String getIdentityIdValue();
-
-  /**
-   * Implement this method to return the name applicable to the concrete model object.
-   *
-   * @return String version of the name recognized by model
-   */
-  String getIdentityNameValue();
-
-  /**
-   * Since Base Connector 4.0, this method MUST be implemented when BaseAdapter
-   * EnhancedPaginationAndFiltering interface is present. See test model EnhancedPFUser for an
-   * example implementation. The purpose of this method is return a String value of Identity model
-   * data based on the input attribute name.
-   *
-   * @param attributeName Attribute name for desired Identity model data to be obtained.
-   * @return Corresponding model value or null if attributeName is not matched/recognized.
-   */
-  default String getValueBySearchableAttributeName(String attributeName) {
-    return null;
-  }
-
-  /**
-   * Utility method to help IdentityModel implementations produce a default toString()
-   * representation of the object. This implementation simply returns the id and name value of the
-   * IdentityModel object.
-   *
-   * @return String containing id and name value of the IdentityModel object, separated by a ';'
-   *     character.
-   *     <p>See test class com.exclamationlabs.connid.base.connector.stub.model.StubUser toString()
-   *     method for an example usage of identityToString.
-   */
-  default String identityToString() {
-    return getIdentityIdValue() + ";" + getIdentityNameValue();
-  }
-
-  /**
-   * Utility method to help IdentityModel implementations produce an equals method for the object.
-   * This equals method behavior makes sure the provided object class of the IdentityModel matches,
-   * and the id values are equal.
-   *
-   * <p>See test class com.exclamationlabs.connid.base.connector.stub.model.StubUser equals() method
-   * for an example usage of identityEquals.
-   *
-   * @param identityClass Concrete class of the IdentityModel to be used for equality comparison.
-   * @param compareSource IdentityModel object of the instance needing to perform an equals
-   *     comparison.
-   * @param compareTo Object passed in to be checked for equality.
-   * @return True if objects are equal, false if not.
-   */
-  default boolean identityEquals(
-      Class<? extends IdentityModel> identityClass, IdentityModel compareSource, Object compareTo) {
-    return identityClass.isInstance(compareTo)
-        && StringUtils.equals(
-            ((IdentityModel) compareTo).getIdentityIdValue(), compareSource.getIdentityIdValue());
-  }
-
-  /**
-   * Utility method to help IdentityModel implementations produce a hashcode method for the object.
-   * This hashcode behavior generates a hash based solely on the id value.
-   *
-   * <p>See test class com.exclamationlabs.connid.base.connector.stub.model.StubUser hashCode()
-   * method for an example usage of identityHashCode.
-   *
-   * @return Integer denoting distinct hash for this IdentityModel, based on id value.
-   */
-  default int identityHashCode() {
-    return getIdentityIdValue().hashCode();
-  }
 }

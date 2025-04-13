@@ -10,14 +10,4 @@ public class NoOcTestModel implements IdentityModel {
 
   private String some;
   private String other;
-
-  @Override
-  public String getIdentityIdValue() {
-    return getSome();
-  }
-
-  @Override
-  public String getIdentityNameValue() {
-    return getOther();
-  }
 }

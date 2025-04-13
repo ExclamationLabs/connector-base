@@ -22,14 +22,4 @@ public class HappyGroupModel implements IdentityModel {
   private String groupDescription;
 
   private String ignoredField;
-
-  @Override
-  public String getIdentityIdValue() {
-    return "";
-  }
-
-  @Override
-  public String getIdentityNameValue() {
-    return "";
-  }
 }

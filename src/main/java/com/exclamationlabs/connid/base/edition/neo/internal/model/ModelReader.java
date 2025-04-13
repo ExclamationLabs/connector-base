@@ -4,6 +4,7 @@ import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.internal.FieldAccessInfo;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
+import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.apache.commons.lang3.BooleanUtils;
 import org.identityconnectors.common.security.GuardedString;
@@ -23,7 +24,8 @@ public class ModelReader {
         for (var attributeName : identityModelAccess.getFieldAccessInfoMap().keySet()) {
             var fieldAccessInfo = identityModelAccess.getFieldAccessInfoMap().get(attributeName);
 
-            if (fieldAccessInfo.getIdentifier() == ConnIdType.UID || fieldAccessInfo.getIdentifier() == ConnIdType.NAME) {
+            if (fieldAccessInfo.getIdentifier() == ConnIdType.UID || fieldAccessInfo.getIdentifier() == ConnIdType.NAME ||
+                fieldAccessInfo.getDirection() == Direction.OUTBOUND_ONLY) {
                 continue;
             }
             Attribute currentAttribute;

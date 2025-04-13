@@ -9,6 +9,7 @@ import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectC
 import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
 import com.exclamationlabs.connid.base.edition.neo.driver.FaultProcessor;
 import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
+import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -329,6 +330,13 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     try {
       setupFields(identityModelClass, infoMap, Collections.emptyList(), Collections.emptyList());
         identityModelAccess.setFieldAccessInfoMap(infoMap);
+        for (var accessInfo : infoMap.values()) {
+          if (accessInfo.getIdentifier() == ConnIdType.UID) {
+            identityModelAccess.setGetUidMethod(accessInfo.getGetterAccess().get(0));
+          } else if (accessInfo.getIdentifier() == ConnIdType.NAME) {
+            identityModelAccess.setGetNameMethod(accessInfo.getGetterAccess().get(0));
+          }
+        }
     } catch(ReflectiveOperationException e) {
       throw new ConfigurationException(
           "Unexpected reflection or instantiation issue with ModelAttribute implementation", e);

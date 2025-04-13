@@ -8,10 +8,12 @@ import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.internal.model.ModelReader;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -98,16 +100,31 @@ public class GetHandler<T extends ConnectorConfiguration> {
 
     private static ConnectorObject constructConnectorObject(ObjectClass objectClass, IdentityModel model,
                                                             IdentityModelAccess identityModelAccess) {
-        ConnectorObjectBuilder builder = getConnectorObjectBuilder(objectClass, model);
+        ConnectorObjectBuilder builder = getConnectorObjectBuilder(objectClass, model, identityModelAccess);
         Set<Attribute> connectorAttributes = ModelReader.execute(model, identityModelAccess);
         connectorAttributes.forEach(builder::addAttribute);
         return builder.build();
     }
 
-    private static ConnectorObjectBuilder getConnectorObjectBuilder(ObjectClass objectClass, IdentityModel identity) {
-        return new ConnectorObjectBuilder()
-                .setObjectClass(objectClass)
-                .setUid(identity.getIdentityIdValue())
-                .setName(identity.getIdentityNameValue());
+    private static ConnectorObjectBuilder getConnectorObjectBuilder(ObjectClass objectClass, IdentityModel identity,
+                                                                    IdentityModelAccess identityModelAccess) {
+        try {
+            Object uidValue = identityModelAccess.getGetUidMethod().invoke(identity);
+            if (uidValue == null) {
+                throw new ConnectorException("UID value is null for identity model " + identityModelAccess.getIdentityModelClass().getSimpleName());
+            }
+
+            Object nameValue = identityModelAccess.getGetNameMethod().invoke(identity);
+            if (nameValue == null) {
+                throw new ConnectorException("Name value is null for identity model " + identityModelAccess.getIdentityModelClass().getSimpleName());
+            }
+            return new ConnectorObjectBuilder()
+                    .setObjectClass(objectClass)
+                    .setUid(uidValue.toString())
+                    .setName(nameValue.toString());
+
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Reflection error while invoking method for UID or Name", e);
+        }
     }
 }
