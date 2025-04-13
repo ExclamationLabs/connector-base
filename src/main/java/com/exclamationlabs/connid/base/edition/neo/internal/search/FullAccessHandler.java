@@ -5,6 +5,7 @@ import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
 import com.exclamationlabs.connid.base.edition.neo.driver.FullAccessDriver;
 import com.exclamationlabs.connid.base.edition.neo.driver.FullAccessInvocator;
 import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
+import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.internal.model.ModelWriter;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -20,11 +21,13 @@ public class FullAccessHandler<T extends ConnectorConfiguration> {
     public Uid create(T configuration,
                       Class<? extends IdentityModel> identityModelClass,
                       Driver<T> driver,
-                      Invocator<T, Driver<T>, ?> invocator, Set<Attribute> attributes) {
+                      Invocator<T, Driver<T>, ?> invocator,
+                      Set<Attribute> attributes,
+                      IdentityModelAccess identityModelAccess) {
         final var OPERATION = "Create";
         checkForFullAccess(identityModelClass, driver, invocator, OPERATION);
         var fullAccessDriver = (FullAccessDriver<T>) driver;
-        IdentityModel identityModel = ModelWriter.execute(identityModelClass, attributes, OPERATION);
+        IdentityModel identityModel = ModelWriter.execute(identityModelClass, attributes, OPERATION, identityModelAccess);
         if (invocator != null) {
             var fullAccessInvocator = (FullAccessInvocator) invocator;
             var idString = fullAccessInvocator.create(fullAccessDriver, configuration, identityModel);
@@ -37,10 +40,11 @@ public class FullAccessHandler<T extends ConnectorConfiguration> {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void update(T configuration, Class<? extends IdentityModel> identityModelClass, Driver<T> driver,
-                       Invocator<T, Driver<T>, ?> invocator, Uid uid, Set<AttributeDelta> attributeModifications) {
+                       Invocator<T, Driver<T>, ?> invocator, Uid uid, Set<AttributeDelta> attributeModifications,
+                       IdentityModelAccess identityModelAccess) {
         final var OPERATION = "Update";
         checkForFullAccess(identityModelClass, driver, invocator, OPERATION);
-        IdentityModel identityModel = ModelWriter.executeUpdateDelta(identityModelClass, attributeModifications, uid.getUidValue());
+        IdentityModel identityModel = ModelWriter.executeUpdateDelta(identityModelClass, attributeModifications, uid.getUidValue(), identityModelAccess);
         var fullAccessDriver = (FullAccessDriver<T>) driver;
         if (invocator != null) {
             var fullAccessInvocator = (FullAccessInvocator) invocator;

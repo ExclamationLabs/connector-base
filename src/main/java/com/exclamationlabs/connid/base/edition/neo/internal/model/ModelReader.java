@@ -1,15 +1,15 @@
 package com.exclamationlabs.connid.base.edition.neo.internal.model;
 
 import com.exclamationlabs.connid.base.connector.logging.Logger;
-import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
-import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
+import com.exclamationlabs.connid.base.edition.neo.internal.FieldAccessInfo;
+import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,80 +17,74 @@ public class ModelReader {
 
     private ModelReader() {}
 
-    public static Set<Attribute> execute(IdentityModel model) {
+    public static Set<Attribute> execute(IdentityModel model, IdentityModelAccess identityModelAccess) {
         Set<Attribute> attributeInfoSet = new HashSet<>();
-        readDepthValues(model, attributeInfoSet);
+
+        for (var attributeName : identityModelAccess.getFieldAccessInfoMap().keySet()) {
+            var fieldAccessInfo = identityModelAccess.getFieldAccessInfoMap().get(attributeName);
+
+            if (fieldAccessInfo.getIdentifier() == ConnIdType.UID || fieldAccessInfo.getIdentifier() == ConnIdType.NAME) {
+                continue;
+            }
+            Attribute currentAttribute;
+            Object readValue = readDepthValue(attributeName, fieldAccessInfo, model);
+            if (readValue == null) {
+                currentAttribute = AttributeBuilder.build(attributeName);
+            } else {
+                switch (fieldAccessInfo.getDataType()) {
+                    case BOOLEAN:
+                        boolean booleanValue;
+                        if (readValue instanceof Boolean) {
+                            booleanValue = BooleanUtils.toBoolean((Boolean) readValue);
+                        } else if (readValue instanceof Integer) {
+                            booleanValue = BooleanUtils.toBoolean((Integer) readValue);
+                        } else {
+                            booleanValue = BooleanUtils.toBoolean(readValue.toString());
+                        }
+                        currentAttribute = AttributeBuilder.build(attributeName, booleanValue);
+                        break;
+                    case INTEGER:
+                        int intValue;
+                        if (readValue instanceof Integer) {
+                            intValue = (Integer) readValue;
+                        } else {
+                            intValue = Integer.parseInt(readValue.toString());
+                        }
+                        currentAttribute = AttributeBuilder.build(attributeName, intValue);
+                        break;
+                    case GUARDED_STRING:
+                        currentAttribute = AttributeBuilder.build(attributeName, new GuardedString(readValue.toString().toCharArray()));
+                        break;
+                    default: // string
+                        currentAttribute = AttributeBuilder.build(attributeName, readValue.toString());
+                        break;
+                }
+            }
+            attributeInfoSet.add(currentAttribute);
+
+        }
         return attributeInfoSet;
     }
 
-    private static void readDepthValues(Object dataObject, Set<Attribute> attributeInfoSet) {
-        for (var field : dataObject.getClass().getDeclaredFields()) {
-            var modelAttribute = field.getAnnotation(ModelAttribute.class);
-            if (modelAttribute != null) {
-                if (modelAttribute.identifier() == ConnIdType.UID || modelAttribute.identifier() == ConnIdType.NAME) {
-                    continue;
-                }
-                final var attributeName =
-                        StringUtils.isNoneBlank(modelAttribute.value())
-                                ? modelAttribute.value()
-                                : field.getName();
-                Attribute currentAttribute;
-                try {
-                    var getterMethodName = "get" + StringUtils.capitalize(field.getName());
-                    var getterMethod = dataObject.getClass().getMethod(getterMethodName);
-                    var readValue = getterMethod.invoke(dataObject);
-                    if (readValue == null) {
-                        currentAttribute = AttributeBuilder.build(attributeName);
-                    } else {
-                        switch (modelAttribute.type()) {
-                            case BOOLEAN:
-                                boolean booleanValue;
-                                if (readValue instanceof Boolean) {
-                                    booleanValue = BooleanUtils.toBoolean((Boolean) readValue);
-                                } else if (readValue instanceof Integer) {
-                                    booleanValue = BooleanUtils.toBoolean((Integer) readValue);
-                                } else {
-                                    booleanValue = BooleanUtils.toBoolean(readValue.toString());
-                                }
-                                currentAttribute = AttributeBuilder.build(attributeName, booleanValue);
-                                break;
-                            case INTEGER:
-                                int intValue;
-                                if (readValue instanceof Integer) {
-                                    intValue = (Integer) readValue;
-                                } else {
-                                    intValue = Integer.parseInt(readValue.toString());
-                                }
-                                currentAttribute = AttributeBuilder.build(attributeName, intValue);
-                                break;
-                            case GUARDED_STRING:
-                                currentAttribute = AttributeBuilder.build(attributeName, new GuardedString(readValue.toString().toCharArray()));
-                                break;
-                            default: // string
-                                currentAttribute = AttributeBuilder.build(attributeName, readValue.toString());
-                                break;
-                        }
-                    }
-                } catch (ReflectiveOperationException ill) {
-                    Logger.warn(ModelReader.class, "Unexpected reflection access issue for field " + field.getName(), ill);
-                    continue;
-                }
-                attributeInfoSet.add(currentAttribute);
-            }
+    private static Object readDepthValue(final String attributeName, FieldAccessInfo fieldAccessInfo, IdentityModel model) {
+        Object rawAttributeValue = null;
 
-            var holderAttribute = field.getAnnotation(ModelAttributeHolder.class);
-            if (holderAttribute != null) {
-                try {
-                    var getterMethodName = "get" + StringUtils.capitalize(field.getName());
-                    var getterMethod = dataObject.getClass().getMethod(getterMethodName);
-                    var readValue = getterMethod.invoke(dataObject);
+        Object depthDataObject = model;
 
-                    readDepthValues(readValue, attributeInfoSet);
-                } catch (ReflectiveOperationException ill) {
-                    Logger.warn(ModelReader.class, "Unexpected reflection access issue for holder data", ill);
+        for (var getterMethod : fieldAccessInfo.getGetterAccess()) {
+            try {
+                Object obtainedValue = getterMethod.invoke(depthDataObject);
+                if (obtainedValue == null) {
+                    rawAttributeValue = null;
+                    break;
+                } else {
+                    depthDataObject = obtainedValue;
+                    rawAttributeValue = obtainedValue;
                 }
-
+            } catch (ReflectiveOperationException ill) {
+                Logger.warn(ModelReader.class, "Unexpected reflection access issue for get of attribute" + attributeName, ill);
             }
         }
+        return rawAttributeValue;
     }
 }

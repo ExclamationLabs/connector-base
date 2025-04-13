@@ -3,6 +3,8 @@ package com.exclamationlabs.connid.base.edition.neo.internal;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
+import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
+import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
 import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
 import com.exclamationlabs.connid.base.edition.neo.driver.FaultProcessor;
@@ -12,6 +14,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -31,7 +36,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
   private Authenticator<T> authenticator;
   private FaultProcessor driverFaultProcessor;
 
-  private final Set<Class<? extends IdentityModel>> modelClassList;
+  private final Set<Class<? extends IdentityModel>> modelClassSet;
+  private final Map<ObjectClass, IdentityModelAccess> identityModelAccessMap;
 
   @Getter(AccessLevel.NONE)
   private final Map<Class<IdentityModel>, Invocator<T, Driver<T>, ?>> invocatorMap;
@@ -48,9 +54,10 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
   public BaseConnectorTypeFactory(Class<?> implementationClass, Class<T> configurationType) {
     this.configurationType = configurationType;
     this.implementationClass = implementationClass;
-    modelClassList = new HashSet<>();
+    modelClassSet = new HashSet<>();
     invocatorMap = new HashMap<>();
     invocatorFaultProcessorMap = new HashMap<>();
+    identityModelAccessMap = new HashMap<>();
     objectMapper = new ObjectMapper();
   }
 
@@ -60,6 +67,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     loadAuthenticator(); // per connector - optional
     loadInvocators(); // per model - optional
     loadDriverFaultProcessor(); // per driver - optional
+    setupIdentityModelAccessMap();
   }
 
   @SuppressWarnings("unchecked")
@@ -132,7 +140,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
                   currentModelClass.getSimpleName()));
         }
       }
-      this.modelClassList.addAll(identityModelClassList);
+      this.modelClassSet.addAll(identityModelClassList);
     }
   }
 
@@ -179,7 +187,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
             .scan()) {
       List<Class<?>> allInvocatorClasses =
           scanResult.getClassesImplementing(Invocator.class.getName()).loadClasses();
-      for (Class<?> currentModelClass : modelClassList) {
+      for (Class<?> currentModelClass : modelClassSet) {
         Class<IdentityModel> modelClass = (Class<IdentityModel>) currentModelClass;
         for (Class<?> invocatorClass : allInvocatorClasses) {
           if (invocatorHasAssignableTypeArguments(
@@ -253,7 +261,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
   }
 
   public Class<? extends IdentityModel> getIdentityModel(ObjectClass objectClass) {
-    return modelClassList.stream()
+    return modelClassSet.stream()
         .filter(modelClass ->
                 modelClass.getAnnotation(ModelObjectClass.class).value().equals(objectClass.getObjectClassValue()))
         .findFirst()
@@ -276,7 +284,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
         "Authenticator", authenticator != null ? authenticator.getClass().getSimpleName() : "None");
 
     output.put(
-        "Models", modelClassList.stream().map(Class::getSimpleName).collect(Collectors.toList()));
+        "Models", modelClassSet.stream().map(Class::getSimpleName).collect(Collectors.toList()));
     output.put(
         "Invocators",
         invocatorMap.keySet().stream().map(Class::getSimpleName).collect(Collectors.toList()));
@@ -296,5 +304,96 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       Logger.warn(this, MSG, e);
       return MSG;
     }
+  }
+
+  private void setupIdentityModelAccessMap() {
+    for (var currentModelType : modelClassSet) {
+      setupIdentityModelAccess(currentModelType);
+    }
+  }
+
+  private void setupIdentityModelAccess(Class<? extends IdentityModel> identityModelClass) {
+    // Read object class
+    var objectClass = identityModelClass.getAnnotation(ModelObjectClass.class);
+    if (objectClass == null) {
+      throw new ConfigurationException(
+          String.format(
+              "Model class %s does not have a ModelObjectClass annotation",
+                  identityModelClass.getSimpleName()));
+    }
+    var identityModelAccess = new IdentityModelAccess();
+    var objectClassForModel = new ObjectClass(objectClass.value());
+    var infoMap = new HashMap<String, FieldAccessInfo>();
+    identityModelAccess.setIdentityModelClass(identityModelClass);
+
+    try {
+      setupFields(identityModelClass, infoMap, Collections.emptyList(), Collections.emptyList());
+        identityModelAccess.setFieldAccessInfoMap(infoMap);
+    } catch(ReflectiveOperationException e) {
+      throw new ConfigurationException(
+          "Unexpected reflection or instantiation issue with ModelAttribute implementation", e);
+    }
+
+    identityModelAccessMap.put(objectClassForModel, identityModelAccess);
+  }
+
+  private static void setupFields(Class<?> fieldClass, Map<String, FieldAccessInfo> infoMap,
+                           List<Method> parentGetterList,
+                           List<Method> parentSetterList) throws ReflectiveOperationException {
+    for (var field : fieldClass.getDeclaredFields()) {
+      var modelAttribute = field.getAnnotation(ModelAttribute.class);
+      var holderAttribute = field.getAnnotation(ModelAttributeHolder.class);
+      if (modelAttribute == null && holderAttribute == null) {
+        continue;
+      }
+      if (modelAttribute != null) {
+        final var definedName =
+                StringUtils.isNoneBlank(modelAttribute.value())
+                        ? modelAttribute.value()
+                        : field.getName();
+        infoMap.put(definedName,
+                constructFieldAccessInfo(definedName, field, modelAttribute, parentGetterList, parentSetterList));
+
+      } else {
+        var getterMethodName = "get" + StringUtils.capitalize(field.getName());
+        var setterMethodName = "set" + StringUtils.capitalize(field.getName());
+        List<Method> depthParentGetterList = parentGetterList.isEmpty() ? new ArrayList<>() : parentGetterList;
+        List<Method> depthParentSetterList = parentGetterList.isEmpty() ? new ArrayList<>() : parentSetterList;
+        depthParentGetterList.add(fieldClass.getMethod(getterMethodName));
+        depthParentSetterList.add(fieldClass.getMethod(setterMethodName, field.getType()));
+        // recurse and scan holder class for attribute fields
+        setupFields(field.getType(), infoMap, depthParentGetterList, depthParentSetterList);
+      }
+
+    }
+  }
+
+  private static FieldAccessInfo constructFieldAccessInfo(String attributeName, Field field,
+                                                   ModelAttribute modelAttribute, List<Method> parentGetterList,
+                                                          List<Method> parentSetterList) throws NoSuchMethodException {
+    var accessInfo = new FieldAccessInfo();
+    accessInfo.setAttributeName(attributeName);
+    var getterMethodName = "get" + StringUtils.capitalize(field.getName());
+    var setterMethodName = "set" + StringUtils.capitalize(field.getName());
+    var getterMethod = field.getDeclaringClass().getMethod(getterMethodName);
+    var setterMethod = field.getDeclaringClass().getMethod(setterMethodName, field.getType());
+    if (parentGetterList.isEmpty()) {
+      accessInfo.setGetterAccess(Collections.singletonList(getterMethod));
+      accessInfo.setSetterAccess(Collections.singletonList(setterMethod));
+    } else {
+      var depthGetterList = new ArrayList<>(parentGetterList); depthGetterList.add(getterMethod);
+      var depthSetterList = new ArrayList<>(parentSetterList); depthSetterList.add(setterMethod);
+      accessInfo.setGetterAccess(depthGetterList);
+      accessInfo.setSetterAccess(depthSetterList);
+    }
+
+    accessInfo.setFieldClass(field.getType());
+    accessInfo.setDataType(modelAttribute.type());
+    accessInfo.setDirection(modelAttribute.direction());
+    accessInfo.setIdentifier(modelAttribute.identifier());
+    accessInfo.setFlags(modelAttribute.flags());
+    accessInfo.setNativeName(modelAttribute.nativeName());
+    accessInfo.setMetaInfoJson(modelAttribute.metaInfoJson());
+    return accessInfo;
   }
 }

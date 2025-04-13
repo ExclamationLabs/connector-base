@@ -5,6 +5,7 @@ import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
 import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
+import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.internal.model.ModelReader;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.common.objects.*;
@@ -21,18 +22,19 @@ public class GetHandler<T extends ConnectorConfiguration> {
                                                               Class<? extends IdentityModel> identityModelClass,
                                                               Driver<T> driver,
                     Invocator<T, Driver<T>, ?> invocator, ObjectClass objectClass, Filter queryFilter,
+          IdentityModelAccess identityModelAccess,
           ResultsHandler resultsHandler, OperationOptions operationOptions) {
 
           GetStrategy getStrategy = deduceStrategy(getType, configuration, identityModelClass, queryFilter);
           switch (getStrategy.getType()) {
                 case GET_ONE_BY_ID:
-                    getOneById(configuration, driver, invocator, objectClass, getStrategy, resultsHandler);
+                    getOneById(configuration, driver, invocator, objectClass, getStrategy, resultsHandler, identityModelAccess);
                     break;
                 case GET_ONE_BY_NAME:
                     // getOne by NAME
                     break;
                 case GET_ALL:
-                    getAll(configuration, driver, invocator, objectClass, getStrategy, resultsHandler);
+                    getAll(configuration, driver, invocator, objectClass, getStrategy, resultsHandler, identityModelAccess);
                     break;
                 case IMPORT_ALL:
                     // importAll
@@ -63,7 +65,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
 
     private void getOneById(T configuration, Driver<T> driver,
                             Invocator<T, Driver<T>, ?> invocator, ObjectClass objectClass, GetStrategy strategy,
-                            ResultsHandler resultsHandler ) {
+                            ResultsHandler resultsHandler, IdentityModelAccess identityModelAccess) {
         IdentityModel match = null;
         if (invocator == null) {
             match = driver.getOne(configuration, strategy.getIdentityModelClass(), strategy.getMatchValue(), Collections.emptyMap());
@@ -71,14 +73,14 @@ public class GetHandler<T extends ConnectorConfiguration> {
             match = invocator.getOne(driver, configuration, strategy.getMatchValue(), Collections.emptyMap());
         }
         if (match != null) {
-            resultsHandler.handle(constructConnectorObject(objectClass, match));
+            resultsHandler.handle(constructConnectorObject(objectClass, match, identityModelAccess));
         }
     }
 
     @SuppressWarnings("unchecked")
     private void getAll(T configuration, Driver<T> driver,
                             Invocator<T, Driver<T>, ?> invocator, ObjectClass objectClass, GetStrategy strategy,
-                            ResultsHandler resultsHandler ) {
+                            ResultsHandler resultsHandler, IdentityModelAccess identityModelAccess ) {
         Set<IdentityModel> results;
         var resultsFilter = new ResultsFilter();
         var resultPaginator = new ResultsPaginator();
@@ -90,13 +92,14 @@ public class GetHandler<T extends ConnectorConfiguration> {
                     resultPaginator, -1, Collections.emptyMap());
         }
         if (results != null) {
-            results.forEach(match -> resultsHandler.handle(constructConnectorObject(objectClass, match)));
+            results.forEach(match -> resultsHandler.handle(constructConnectorObject(objectClass, match, identityModelAccess)));
         }
     }
 
-    private static ConnectorObject constructConnectorObject(ObjectClass objectClass, IdentityModel model) {
+    private static ConnectorObject constructConnectorObject(ObjectClass objectClass, IdentityModel model,
+                                                            IdentityModelAccess identityModelAccess) {
         ConnectorObjectBuilder builder = getConnectorObjectBuilder(objectClass, model);
-        Set<Attribute> connectorAttributes = ModelReader.execute(model);
+        Set<Attribute> connectorAttributes = ModelReader.execute(model, identityModelAccess);
         connectorAttributes.forEach(builder::addAttribute);
         return builder.build();
     }

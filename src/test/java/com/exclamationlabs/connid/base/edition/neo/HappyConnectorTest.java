@@ -9,7 +9,6 @@ import com.exclamationlabs.connid.base.edition.neo.stub.happy.HappyConnector;
 import com.exclamationlabs.connid.base.edition.neo.util.ConnectivityTester;
 import com.exclamationlabs.connid.base.edition.neo.util.TestPoint;
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;

@@ -4,8 +4,12 @@ import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribu
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import lombok.Getter;
+import lombok.Setter;
 
 @ModelObjectClass("HappyGroup")
+@Getter
+@Setter
 public class HappyGroupModel implements IdentityModel {
 
   @ModelAttribute(value = "GROUP_ID", identifier = ConnIdType.UID)

@@ -77,6 +77,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   protected Class<T> configurationType;
 
   protected BaseSchemaBuilder<T> schemaBuilder;
+  protected Schema schema;
 
   public BaseConnector(Class<T> configurationType) {
     this(configurationType, false);
@@ -112,6 +113,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     }
     this.configuration = (T) configuration;
     typeFactory.init();
+    var examine = typeFactory.getIdentityModelAccessMap();
+
     Authenticator<T> authenticator = typeFactory.getAuthenticator();
     Logger.debug(
         this,
@@ -193,7 +196,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
 
   @Override
   public Schema schema() {
-    return schemaBuilder.build(this, configuration, typeFactory.getModelClassList());
+    if (schema == null) {
+      schema = schemaBuilder.build(this, configuration, typeFactory);
+    }
+    return schema;
   }
 
   public String getName() {
@@ -207,7 +213,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new FullAccessHandler<T>();
-    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType), attributes);
+    var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
+    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType), attributes, identityModelAccess);
   }
 
   @Override
@@ -218,8 +225,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new FullAccessHandler<T>();
+    var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
     handler.update(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            uid, attributeModifications);
+            uid, attributeModifications, identityModelAccess);
     return attributeModifications;
   }
 
@@ -254,8 +262,9 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final OperationOptions operationOptions) {
         Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
         var handler = new GetHandler<T>();
+        var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
         handler.get(GetType.EXECUTE_QUERY, configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-                objectClass, queryFilter, resultsHandler, operationOptions);
+                objectClass, queryFilter, identityModelAccess, resultsHandler, operationOptions);
   }
 
   @Override

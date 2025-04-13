@@ -4,11 +4,9 @@ import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfigur
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.BaseConnector;
-import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
-import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
-import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
-import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
-import java.util.Collection;
+import com.exclamationlabs.connid.base.edition.neo.internal.BaseConnectorTypeFactory;
+import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,120 +18,104 @@ import org.identityconnectors.framework.spi.operations.SyncOp;
 public class BaseSchemaBuilder<T extends ConnectorConfiguration> {
 
   public Schema build(
-      final BaseConnector<T> connector,
-      final T configuration,
-      final Collection<Class<? extends IdentityModel>> identityModelSet) {
+          final BaseConnector<T> connector,
+          final T configuration,
+          final BaseConnectorTypeFactory<T> connectorTypeFactory
+  ) {
     Logger.info(this, String.format("Building schema for connector %s ...", connector.getName()));
+    var accessMap =
+            connectorTypeFactory.getIdentityModelAccessMap();
 
     var connIdSchemaBuilder = new SchemaBuilder(connector.getClass());
 
-    for (var identityModelClass : identityModelSet) {
-      var objectClass =
-          new ObjectClass(identityModelClass.getAnnotation(ModelObjectClass.class).value());
+    for (var identityObjectClass : accessMap.keySet()) {
+      var identityModelAccess = accessMap.get(identityObjectClass);
       Logger.info(
-          this,
-          String.format(
-              "Begin scanning schema elements for model %s, object class %s ...",
-              identityModelSet.getClass().getSimpleName(), objectClass.getObjectClassValue()));
-      connIdSchemaBuilder.defineObjectClass(buildObjectClassInfo(objectClass, identityModelClass));
+              this,
+              String.format(
+                      "Begin scanning schema elements for model %s, object class %s ...",
+                      identityModelAccess.getIdentityModelClass().getSimpleName(), identityObjectClass.getObjectClassValue()));
+      connIdSchemaBuilder.defineObjectClass(buildObjectClassInfo(identityObjectClass, identityModelAccess));
     }
     if (configuration instanceof ResultsConfiguration) {
       Logger.trace(
-          this,
-          String.format(
-              "Setup Schema OperationOptions for paging capability for %s ...",
-              connector.getName()));
+              this,
+              String.format(
+                      "Setup Schema OperationOptions for paging capability for %s ...",
+                      connector.getName()));
       setupOperationOptionsPagingDefinitions(connIdSchemaBuilder);
     }
 
     return connIdSchemaBuilder.build();
   }
-
   private static ObjectClassInfo buildObjectClassInfo(
-      final ObjectClass objectClass, final Class<? extends IdentityModel> identityModelClass) {
+          final ObjectClass objectClass, final IdentityModelAccess identityModelAccess) {
     var builder = new ObjectClassInfoBuilder();
     builder.setType(objectClass.getObjectClassValue());
 
-    int total = scanClassForModelAttributes(identityModelClass, builder);
-    // TODO: support collections and nesting for model!
+    int total = scanClassForModelAttributes(identityModelAccess, builder);
+    // TODO: support list/collection child types and assignment identifiers for model!
 
     Logger.info(
         BaseSchemaBuilder.class,
         String.format(
             "Completed scanning for object class %s. %d attributes registered.",
-            identityModelClass.getSimpleName(), total));
+                objectClass.getObjectClassValue(), total));
 
     return builder.build();
   }
 
   private static int scanClassForModelAttributes(
-      Class<?> identityModelClass, ObjectClassInfoBuilder builder) {
+      IdentityModelAccess identityModelAccess, ObjectClassInfoBuilder builder) {
     // scan model for all attribute info for schema
-    int attributeCount = 0;
-    var attributeInfoSet = new HashSet<AttributeInfo>();
-    for (var field : identityModelClass.getDeclaredFields()) {
-      var modelAttribute = field.getAnnotation(ModelAttribute.class);
-      if (modelAttribute != null) {
-        final var definedName =
-            StringUtils.isNoneBlank(modelAttribute.value())
-                ? modelAttribute.value()
-                : field.getName();
-        String attributeName, nativeName;
-        switch (modelAttribute.identifier()) {
+    var attributeInfoSet = new HashSet<AttributeInfo>(); // use set to avoid duplicates
+
+    for (var attributeName : identityModelAccess.getFieldAccessInfoMap().keySet()) {
+        var fieldAccessInfo = identityModelAccess.getFieldAccessInfoMap().get(attributeName);
+        String nativeName;
+        switch (fieldAccessInfo.getIdentifier()) {
           case UID:
             attributeName = Uid.NAME;
-            nativeName = definedName;
+            nativeName = attributeName;
             break;
           case NAME:
             attributeName = Name.NAME;
-            nativeName = definedName;
+            nativeName = attributeName;
             break;
           default:
-            attributeName = definedName;
             nativeName =
-                StringUtils.isNoneBlank(modelAttribute.nativeName())
-                    ? modelAttribute.nativeName()
-                    : attributeName;
+                StringUtils.defaultIfBlank(fieldAccessInfo.getNativeName(), attributeName);
             break;
         }
         var attributeInfo =
             new AttributeInfoBuilder(attributeName)
                 .setNativeName(nativeName)
-                .setType(modelAttribute.type().getClassType())
+                .setType(fieldAccessInfo.getDataType().getClassType())
                 .setSubtype(
-                    StringUtils.isNotBlank(modelAttribute.metaInfoJson())
-                        ? modelAttribute.metaInfoJson()
-                        : null)
+                    StringUtils.trimToNull(fieldAccessInfo.getMetaInfoJson()))
                 .setFlags(
-                    modelAttribute.flags().length > 0
-                        ? Set.of(modelAttribute.flags())
+                        fieldAccessInfo.getFlags().length > 0
+                        ? Set.of(fieldAccessInfo.getFlags())
                         : Collections.emptySet())
                 .build();
         Logger.info(
             BaseSchemaBuilder.class,
             String.format(
                 "Attribute %s successfully registered for object class %s.",
-                attributeInfo.getName(), identityModelClass.getSimpleName()));
+                attributeInfo.getName(), identityModelAccess.getIdentityModelClass().getSimpleName()));
         Logger.trace(
             BaseSchemaBuilder.class,
             String.format(
                 "Attribute %s attribute schema (XML form) is: %s",
                 attributeInfo.getName(), attributeInfo));
         attributeInfoSet.add(attributeInfo);
-      }
-
-      var holderAttribute = field.getAnnotation(ModelAttributeHolder.class);
-      if (holderAttribute != null) {
-        attributeCount += scanClassForModelAttributes(field.getType(), builder);
-      }
     }
 
     if (!attributeInfoSet.isEmpty()) {
       builder.addAllAttributeInfo(attributeInfoSet);
-      attributeCount += attributeInfoSet.size();
     }
 
-    return attributeCount;
+    return attributeInfoSet.size();
   }
 
   private static void setupOperationOptionsPagingDefinitions(SchemaBuilder schemaBuilder) {
