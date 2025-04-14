@@ -3,6 +3,7 @@ package com.exclamationlabs.connid.base.edition.neo.internal.model;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.internal.FieldAccessInfo;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
+import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
@@ -53,6 +54,10 @@ public class ModelReader {
                             intValue = Integer.parseInt(readValue.toString());
                         }
                         currentAttribute = AttributeBuilder.build(attributeName, intValue);
+                        break;
+                    case ASSIGNMENT_IDENTIFIER:
+                        var assignmentType = (AssignmentType) readValue;
+                        currentAttribute = AttributeBuilder.build(attributeName, assignmentType.getCurrentInboundAssignments());
                         break;
                     case GUARDED_STRING:
                         currentAttribute = AttributeBuilder.build(attributeName, new GuardedString(readValue.toString().toCharArray()));

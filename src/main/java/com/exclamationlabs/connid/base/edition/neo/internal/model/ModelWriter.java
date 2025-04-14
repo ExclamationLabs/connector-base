@@ -5,6 +5,7 @@ import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.exclamationlabs.connid.base.edition.neo.internal.ConsolidatedValues;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
+import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.identityconnectors.framework.common.objects.AttributeInfo.Flags.MULTIVALUED;
 
@@ -47,8 +49,6 @@ public class ModelWriter {
     private static IdentityModel populateValues(Class<? extends IdentityModel> identityModelClass, ConsolidatedValues consolidatedValues,
                                                 String operation, String uidValue, IdentityModelAccess identityModelAccess) {
 
-        // TODO: figure out what to do w/ multivalue adds/removes
-
         IdentityModel model;
         try {
             model = identityModelClass.getDeclaredConstructor().newInstance();
@@ -70,31 +70,71 @@ public class ModelWriter {
                                     && attr.getValue().get(0) != null
                                     && StringUtils.isNotBlank(attr.getValue().get(0).toString()))
                             .findFirst();
+                    List<Attribute> addedAttributes = Collections.emptyList();
+                    List<Attribute> removedAttributes = Collections.emptyList();
+                    if (info.getDataType() == ConnectorAttributeDataType.ASSIGNMENT_IDENTIFIER) {
+                        if ("Create".equals(operation)) {
+                            addedAttributes = consolidatedValues.modifiedValues.stream()
+                                    .filter(attr -> attr.getName().equals(info.getAttributeName())
+                                            && attr.getValue() != null && !attr.getValue().isEmpty())
+                                    .collect(Collectors.toList());
+                        } else {
+                            addedAttributes = consolidatedValues.addedMultiValues.stream()
+                                    .filter(attr -> attr.getName().equals(info.getAttributeName())
+                                            && attr.getValue() != null && !attr.getValue().isEmpty())
+                                    .collect(Collectors.toList());
+                            removedAttributes = consolidatedValues.removedMultiValues.stream()
+                                    .filter(attr -> attr.getName().equals(info.getAttributeName())
+                                            && attr.getValue() != null && !attr.getValue().isEmpty())
+                                    .collect(Collectors.toList());
+                        }
+                    }
 
-                    if (attribute.isEmpty()) {
+                    if (attribute.isEmpty() && addedAttributes.isEmpty() && removedAttributes.isEmpty()) {
                         continue;
                     }
-                    singleValueRead = attribute.get().getValue().get(0);
-                    if (info.getSetterAccess().size() == 1) {
-                        // No depth, simply invoke setter method
+                    if ((!addedAttributes.isEmpty()) || (!removedAttributes.isEmpty())) {
+                        // Presume AssignmentType adds/removes
+                        Set<Object> assignmentIdsToAddObject = addedAttributes.stream()
+                                .flatMap(attr -> attr.getValue().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> assignmentIdsToAdd = assignmentIdsToAddObject.stream()
+                                .map(Object::toString)
+                                .collect(Collectors.toSet());
+
+                        Set<Object> assignmentIdsToRemoveObject = removedAttributes.stream()
+                                .flatMap(attr -> attr.getValue().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> assignmentIdsToRemove = assignmentIdsToRemoveObject.stream()
+                                .map(Object::toString)
+                                .collect(Collectors.toSet());
+                        var assignmentType = new AssignmentType();
+                        assignmentType.setAddedOutboundAssignments(assignmentIdsToAdd);
+                        assignmentType.setRemovedOutboundAssignments(assignmentIdsToRemove);
+                        singleValueRead = assignmentType;
                         setterMethod = info.getSetterAccess().get(0);
                     } else {
-                        setterMethod = info.getGetterAccess().get(0);
-                        for (int idx = 0; idx < info.getGetterAccess().size() - 1; idx++) {
-                             var currentMethod = info.getGetterAccess().get(idx);
-                             Object nextInvokeTarget = currentMethod.invoke(setterInvokeTarget);
-                             if (nextInvokeTarget == null) {
-                                 // Need to create new instance of the next level
-                                 nextInvokeTarget = currentMethod.getReturnType().getDeclaredConstructor().newInstance();
-                                 var depthSetterMethod = info.getSetterAccess().get(idx);
-                                 depthSetterMethod.invoke(setterInvokeTarget, nextInvokeTarget);
-                                 setterInvokeTarget = nextInvokeTarget;
-                             } else {
-                                 setterInvokeTarget = nextInvokeTarget;
-                             }
-                            setterMethod = info.getSetterAccess().get(idx+1);
+                        singleValueRead = attribute.get().getValue().get(0);
+                        if (info.getSetterAccess().size() == 1) {
+                            // No depth, simply invoke setter method
+                            setterMethod = info.getSetterAccess().get(0);
+                        } else {
+                            setterMethod = info.getGetterAccess().get(0);
+                            for (int idx = 0; idx < info.getGetterAccess().size() - 1; idx++) {
+                                var currentMethod = info.getGetterAccess().get(idx);
+                                Object nextInvokeTarget = currentMethod.invoke(setterInvokeTarget);
+                                if (nextInvokeTarget == null) {
+                                    // Need to create new instance of the next level
+                                    nextInvokeTarget = currentMethod.getReturnType().getDeclaredConstructor().newInstance();
+                                    var depthSetterMethod = info.getSetterAccess().get(idx);
+                                    depthSetterMethod.invoke(setterInvokeTarget, nextInvokeTarget);
+                                    setterInvokeTarget = nextInvokeTarget;
+                                } else {
+                                    setterInvokeTarget = nextInvokeTarget;
+                                }
+                                setterMethod = info.getSetterAccess().get(idx + 1);
+                            }
                         }
-
                     }
 
                 }
@@ -133,6 +173,10 @@ public class ModelWriter {
                 var unguardedString = singleValueRead instanceof GuardedString
                         ? GuardedStringUtil.read((GuardedString) singleValueRead) : singleValueRead.toString();
                 setterMethod.invoke(dataObject, unguardedString);
+                break;
+            case ASSIGNMENT_IDENTIFIER:
+                var assignmentType = (AssignmentType) singleValueRead;
+                setterMethod.invoke(dataObject, assignmentType);
                 break;
             default: // string
                 setterMethod.invoke(dataObject, singleValueRead.toString());

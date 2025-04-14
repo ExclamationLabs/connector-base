@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +65,7 @@ public class HappyFAConnectorTest extends ApiIntegrationTest<StubConfiguration, 
     assertTrue(userInfoLookup.isPresent());
     var userInfo = userInfoLookup.get();
     assertNotNull(userInfo.getAttributeInfo());
-    assertEquals(12, userInfo.getAttributeInfo().size());
+    assertEquals(13, userInfo.getAttributeInfo().size());
 
     var groupInfoLookup =
             infos.stream()
@@ -99,6 +100,7 @@ public class HappyFAConnectorTest extends ApiIntegrationTest<StubConfiguration, 
     assertEquals( "Happyville", results.get(0).getAttributeByName("ADDRESS_CITY").getValue().get(0));
     assertEquals( "CA", results.get(0).getAttributeByName("ADDRESS_STATE").getValue().get(0));
     assertEquals( "12345", results.get(0).getAttributeByName("ADDRESS_ZIP").getValue().get(0));
+    assertEquals(2, results.get(0).getAttributeByName("GROUP_IDS").getValue().size());
   }
 
   @Test
@@ -141,6 +143,7 @@ public class HappyFAConnectorTest extends ApiIntegrationTest<StubConfiguration, 
     attributes.add(new AttributeBuilder().setName("ADDRESS_STATE").addValue("NE").build());
     attributes.add(new AttributeBuilder().setName("ADDRESS_ZIP").addValue("68104").build());
     attributes.add(new AttributeBuilder().setName("ADDRESS_TYPE").addValue("Home").build());
+    attributes.add(new AttributeBuilder().setName("GROUP_IDS").addValue(List.of("1001", "1002", "1003", "1004", "1005")).build());
     Uid newId =
             getConnectorFacade().create(oClass, attributes, new OperationOptionsBuilder().build());
     assertNotNull(newId);
@@ -156,7 +159,10 @@ public class HappyFAConnectorTest extends ApiIntegrationTest<StubConfiguration, 
             new AttributeDeltaBuilder().setName("email").addValueToReplace("johnsmith@yahoo.com").build());
     attributes.add(
             new AttributeDeltaBuilder().setName("ADDRESS_TYPE").addValueToReplace("Temporary").build());
-
+    attributes.add(
+            new AttributeDeltaBuilder().setName("GROUP_IDS").addValueToRemove(List.of("1002", "1003")).build());
+    attributes.add(
+            new AttributeDeltaBuilder().setName("GROUP_IDS").addValueToAdd(List.of("1006", "1007")).build());
     Set<AttributeDelta> response =
             getConnectorFacade()
                     .updateDelta(

@@ -1,5 +1,6 @@
 package com.exclamationlabs.connid.base.edition.neo.internal.schema;
 
+import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.configuration.basetypes.ResultsConfiguration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
@@ -10,6 +11,8 @@ import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.framework.common.objects.*;
 import org.identityconnectors.framework.spi.operations.SearchOp;
@@ -54,7 +57,6 @@ public class BaseSchemaBuilder<T extends ConnectorConfiguration> {
     builder.setType(objectClass.getObjectClassValue());
 
     int total = scanClassForModelAttributes(identityModelAccess, builder);
-    // TODO: support list/collection child types and assignment identifiers for model!
 
     Logger.info(
         BaseSchemaBuilder.class,
@@ -87,10 +89,13 @@ public class BaseSchemaBuilder<T extends ConnectorConfiguration> {
                 StringUtils.defaultIfBlank(fieldAccessInfo.getNativeName(), attributeName);
             break;
         }
+        var dataType = fieldAccessInfo.getDataType().getClassType().equals(AssignmentType.class)
+            ? ConnectorAttributeDataType.STRING
+            : fieldAccessInfo.getDataType();
         var attributeInfo =
             new AttributeInfoBuilder(attributeName)
                 .setNativeName(nativeName)
-                .setType(fieldAccessInfo.getDataType().getClassType())
+                .setType(dataType.getClassType())
                 .setSubtype(
                     StringUtils.trimToNull(fieldAccessInfo.getMetaInfoJson()))
                 .setFlags(

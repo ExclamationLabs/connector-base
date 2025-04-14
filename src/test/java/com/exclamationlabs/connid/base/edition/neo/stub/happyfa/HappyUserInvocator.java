@@ -3,6 +3,7 @@ package com.exclamationlabs.connid.base.edition.neo.stub.happyfa;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.edition.neo.driver.FullAccessInvocator;
+import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.edition.neo.stub.happyfa.model.HappyUserAddress;
 import com.exclamationlabs.connid.base.edition.neo.stub.happyfa.model.HappyUserAddressType;
@@ -64,6 +65,10 @@ public class HappyUserInvocator
         addressType.setDescription("Home Address");
         address.setAddressType(addressType);
         user.setAddress(address);
+        Set<String> groupIdSet = Set.of("1001", "1002");
+        AssignmentType assignmentType = new AssignmentType();
+        assignmentType.setCurrentInboundAssignments(groupIdSet);
+        user.setGroupIds(assignmentType);
         return user;
 
     }

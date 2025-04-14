@@ -4,6 +4,7 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDat
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
+import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import lombok.Getter;
@@ -34,6 +35,10 @@ public class HappyUserModel implements IdentityModel {
 
   @ModelAttribute(value = "IS_ACTIVE", type = ConnectorAttributeDataType.BOOLEAN)
   private Boolean active;
+
+  @ModelAttribute(value="GROUP_IDS", type = ConnectorAttributeDataType.ASSIGNMENT_IDENTIFIER,
+          flags = {AttributeInfo.Flags.MULTIVALUED})
+  private AssignmentType groupIds;
 
   @ModelAttributeHolder private HappyUserAddress address;
 }
