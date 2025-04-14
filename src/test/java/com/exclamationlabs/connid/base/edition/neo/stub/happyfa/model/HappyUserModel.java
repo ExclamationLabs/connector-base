@@ -29,15 +29,19 @@ public class HappyUserModel implements IdentityModel {
   @ModelAttribute(nativeName = "USER_EMAIL")
   private String email;
 
-  @ModelAttribute(value = "USER_YEARS", type = ConnectorAttributeDataType.INTEGER,
-          flags = {AttributeInfo.Flags.NOT_CREATABLE, AttributeInfo.Flags.NOT_UPDATEABLE})
+  @ModelAttribute(
+      value = "USER_YEARS",
+      type = ConnectorAttributeDataType.INTEGER,
+      flags = {AttributeInfo.Flags.NOT_CREATABLE, AttributeInfo.Flags.NOT_UPDATEABLE})
   private Integer yearsOfService;
 
   @ModelAttribute(value = "IS_ACTIVE", type = ConnectorAttributeDataType.BOOLEAN)
   private Boolean active;
 
-  @ModelAttribute(value="GROUP_IDS", type = ConnectorAttributeDataType.ASSIGNMENT_IDENTIFIER,
-          flags = {AttributeInfo.Flags.MULTIVALUED})
+  @ModelAttribute(
+      value = "GROUP_IDS",
+      type = ConnectorAttributeDataType.ASSIGNMENT_IDENTIFIER,
+      flags = {AttributeInfo.Flags.MULTIVALUED})
   private AssignmentType groupIds;
 
   @ModelAttributeHolder private HappyUserAddress address;

@@ -24,18 +24,30 @@ public class NoModelsDriver implements Driver<StubConfiguration> {
   public void close() {}
 
   @Override
-  public Set<IdentityModel> getAll(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, ResultsFilter resultsFilter, ResultsPaginator pagination, Integer resultCap, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public Set<IdentityModel> getAll(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      ResultsFilter resultsFilter,
+      ResultsPaginator pagination,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return Set.of();
   }
 
   @Override
-  public IdentityModel getOne(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String idValue, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public IdentityModel getOne(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      String idValue,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return null;
   }
 
   @Override
-  public Map<String, Object> getPrefetch(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
+  public Map<String, Object> getPrefetch(
+      StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
     return Map.of();
   }
-
 }

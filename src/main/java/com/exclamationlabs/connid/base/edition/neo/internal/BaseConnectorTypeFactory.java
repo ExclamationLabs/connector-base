@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -194,7 +193,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
           if (invocatorHasAssignableTypeArguments(
               invocatorClass, configurationType, driver.getClass(), modelClass)) {
             invocatorMap.put(
-                modelClass, (Invocator<T, Driver<T>, ?>) invocatorClass.getConstructor().newInstance());
+                modelClass,
+                (Invocator<T, Driver<T>, ?>) invocatorClass.getConstructor().newInstance());
           }
         }
       }
@@ -263,11 +263,18 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
 
   public Class<? extends IdentityModel> getIdentityModel(ObjectClass objectClass) {
     return modelClassSet.stream()
-        .filter(modelClass ->
-                modelClass.getAnnotation(ModelObjectClass.class).value().equals(objectClass.getObjectClassValue()))
+        .filter(
+            modelClass ->
+                modelClass
+                    .getAnnotation(ModelObjectClass.class)
+                    .value()
+                    .equals(objectClass.getObjectClassValue()))
         .findFirst()
-        .orElseThrow(() -> new ConnectorException(
-                "Unexpected error: model class not found for object class " + objectClass.getObjectClassValue()));
+        .orElseThrow(
+            () ->
+                new ConnectorException(
+                    "Unexpected error: model class not found for object class "
+                        + objectClass.getObjectClassValue()));
   }
 
   public Invocator<T, Driver<T>, ?> getInvocator(Class<? extends IdentityModel> modelClass) {
@@ -320,7 +327,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       throw new ConfigurationException(
           String.format(
               "Model class %s does not have a ModelObjectClass annotation",
-                  identityModelClass.getSimpleName()));
+              identityModelClass.getSimpleName()));
     }
     var identityModelAccess = new IdentityModelAccess();
     var objectClassForModel = new ObjectClass(objectClass.value());
@@ -329,15 +336,15 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
 
     try {
       setupFields(identityModelClass, infoMap, Collections.emptyList(), Collections.emptyList());
-        identityModelAccess.setFieldAccessInfoMap(infoMap);
-        for (var accessInfo : infoMap.values()) {
-          if (accessInfo.getIdentifier() == ConnIdType.UID) {
-            identityModelAccess.setGetUidMethod(accessInfo.getGetterAccess().get(0));
-          } else if (accessInfo.getIdentifier() == ConnIdType.NAME) {
-            identityModelAccess.setGetNameMethod(accessInfo.getGetterAccess().get(0));
-          }
+      identityModelAccess.setFieldAccessInfoMap(infoMap);
+      for (var accessInfo : infoMap.values()) {
+        if (accessInfo.getIdentifier() == ConnIdType.UID) {
+          identityModelAccess.setGetUidMethod(accessInfo.getGetterAccess().get(0));
+        } else if (accessInfo.getIdentifier() == ConnIdType.NAME) {
+          identityModelAccess.setGetNameMethod(accessInfo.getGetterAccess().get(0));
         }
-    } catch(ReflectiveOperationException e) {
+      }
+    } catch (ReflectiveOperationException e) {
       throw new ConfigurationException(
           "Unexpected reflection or instantiation issue with ModelAttribute implementation", e);
     }
@@ -345,9 +352,12 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     identityModelAccessMap.put(objectClassForModel, identityModelAccess);
   }
 
-  private static void setupFields(Class<?> fieldClass, Map<String, FieldAccessInfo> infoMap,
-                           List<Method> parentGetterList,
-                           List<Method> parentSetterList) throws ReflectiveOperationException {
+  private static void setupFields(
+      Class<?> fieldClass,
+      Map<String, FieldAccessInfo> infoMap,
+      List<Method> parentGetterList,
+      List<Method> parentSetterList)
+      throws ReflectiveOperationException {
     for (var field : fieldClass.getDeclaredFields()) {
       var modelAttribute = field.getAnnotation(ModelAttribute.class);
       var holderAttribute = field.getAnnotation(ModelAttributeHolder.class);
@@ -356,29 +366,36 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       }
       if (modelAttribute != null) {
         final var definedName =
-                StringUtils.isNoneBlank(modelAttribute.value())
-                        ? modelAttribute.value()
-                        : field.getName();
-        infoMap.put(definedName,
-                constructFieldAccessInfo(definedName, field, modelAttribute, parentGetterList, parentSetterList));
+            StringUtils.isNoneBlank(modelAttribute.value())
+                ? modelAttribute.value()
+                : field.getName();
+        infoMap.put(
+            definedName,
+            constructFieldAccessInfo(
+                definedName, field, modelAttribute, parentGetterList, parentSetterList));
 
       } else {
         var getterMethodName = "get" + StringUtils.capitalize(field.getName());
         var setterMethodName = "set" + StringUtils.capitalize(field.getName());
-        List<Method> depthParentGetterList = parentGetterList.isEmpty() ? new ArrayList<>() : parentGetterList;
-        List<Method> depthParentSetterList = parentGetterList.isEmpty() ? new ArrayList<>() : parentSetterList;
+        List<Method> depthParentGetterList =
+            parentGetterList.isEmpty() ? new ArrayList<>() : parentGetterList;
+        List<Method> depthParentSetterList =
+            parentGetterList.isEmpty() ? new ArrayList<>() : parentSetterList;
         depthParentGetterList.add(fieldClass.getMethod(getterMethodName));
         depthParentSetterList.add(fieldClass.getMethod(setterMethodName, field.getType()));
         // recurse and scan holder class for attribute fields
         setupFields(field.getType(), infoMap, depthParentGetterList, depthParentSetterList);
       }
-
     }
   }
 
-  private static FieldAccessInfo constructFieldAccessInfo(String attributeName, Field field,
-                                                   ModelAttribute modelAttribute, List<Method> parentGetterList,
-                                                          List<Method> parentSetterList) throws NoSuchMethodException {
+  private static FieldAccessInfo constructFieldAccessInfo(
+      String attributeName,
+      Field field,
+      ModelAttribute modelAttribute,
+      List<Method> parentGetterList,
+      List<Method> parentSetterList)
+      throws NoSuchMethodException {
     var accessInfo = new FieldAccessInfo();
     accessInfo.setAttributeName(attributeName);
     var getterMethodName = "get" + StringUtils.capitalize(field.getName());
@@ -389,8 +406,10 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       accessInfo.setGetterAccess(Collections.singletonList(getterMethod));
       accessInfo.setSetterAccess(Collections.singletonList(setterMethod));
     } else {
-      var depthGetterList = new ArrayList<>(parentGetterList); depthGetterList.add(getterMethod);
-      var depthSetterList = new ArrayList<>(parentSetterList); depthSetterList.add(setterMethod);
+      var depthGetterList = new ArrayList<>(parentGetterList);
+      depthGetterList.add(getterMethod);
+      var depthSetterList = new ArrayList<>(parentSetterList);
+      depthSetterList.add(setterMethod);
       accessInfo.setGetterAccess(depthGetterList);
       accessInfo.setSetterAccess(depthSetterList);
     }

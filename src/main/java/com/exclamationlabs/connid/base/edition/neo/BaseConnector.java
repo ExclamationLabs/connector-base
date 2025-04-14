@@ -23,12 +23,11 @@ import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.annotation.connector.ReadOnly;
 import com.exclamationlabs.connid.base.edition.neo.internal.BaseConnectorTypeFactory;
 import com.exclamationlabs.connid.base.edition.neo.internal.schema.BaseSchemaBuilder;
-import java.util.*;
-
-import com.exclamationlabs.connid.base.edition.neo.internal.search.GetType;
-import com.exclamationlabs.connid.base.edition.neo.internal.search.GetHandler;
 import com.exclamationlabs.connid.base.edition.neo.internal.search.FullAccessHandler;
+import com.exclamationlabs.connid.base.edition.neo.internal.search.GetHandler;
+import com.exclamationlabs.connid.base.edition.neo.internal.search.GetType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import java.util.*;
 import org.identityconnectors.framework.api.operations.GetApiOp;
 import org.identityconnectors.framework.api.operations.SearchApiOp;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -214,7 +213,13 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new FullAccessHandler<T>();
     var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
-    return handler.create(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType), attributes, identityModelAccess);
+    return handler.create(
+        configuration,
+        modelType,
+        typeFactory.getDriver(),
+        typeFactory.getInvocator(modelType),
+        attributes,
+        identityModelAccess);
   }
 
   @Override
@@ -226,8 +231,14 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new FullAccessHandler<T>();
     var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
-    handler.update(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            uid, attributeModifications, identityModelAccess);
+    handler.update(
+        configuration,
+        modelType,
+        typeFactory.getDriver(),
+        typeFactory.getInvocator(modelType),
+        uid,
+        attributeModifications,
+        identityModelAccess);
     return attributeModifications;
   }
 
@@ -236,8 +247,12 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final ObjectClass objectClass, final Uid uid, final OperationOptions operationOptions) {
     Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new FullAccessHandler<T>();
-    handler.delete(configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-            uid);
+    handler.delete(
+        configuration,
+        modelType,
+        typeFactory.getDriver(),
+        typeFactory.getInvocator(modelType),
+        uid);
   }
 
   @Override
@@ -260,11 +275,20 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Filter queryFilter,
       final ResultsHandler resultsHandler,
       final OperationOptions operationOptions) {
-        Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
-        var handler = new GetHandler<T>();
-        var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
-        handler.get(GetType.EXECUTE_QUERY, configuration, modelType, typeFactory.getDriver(), typeFactory.getInvocator(modelType),
-                objectClass, queryFilter, identityModelAccess, resultsHandler, operationOptions);
+    Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+    var handler = new GetHandler<T>();
+    var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
+    handler.get(
+        GetType.EXECUTE_QUERY,
+        configuration,
+        modelType,
+        typeFactory.getDriver(),
+        typeFactory.getInvocator(modelType),
+        objectClass,
+        queryFilter,
+        identityModelAccess,
+        resultsHandler,
+        operationOptions);
   }
 
   @Override

@@ -33,6 +33,4 @@ package com.exclamationlabs.connid.base.edition.neo.model;
  * implementing this logic, or write your own if needed. Commonly only the id would need to be
  * evaluated in order to provide a hashcode.
  */
-public interface IdentityModel {
-
-}
+public interface IdentityModel {}

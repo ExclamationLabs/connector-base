@@ -4,5 +4,4 @@ import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectC
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 
 @ModelObjectClass("Testing")
-public class AuthWrongConfigModel implements IdentityModel {
-}
+public class AuthWrongConfigModel implements IdentityModel {}

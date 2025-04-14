@@ -7,9 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetStrategy {
-    private GetStrategyType type;
-    private String matchValue;
-    private Class<? extends IdentityModel> identityModelClass;
-
-
+  private GetStrategyType type;
+  private String matchValue;
+  private Class<? extends IdentityModel> identityModelClass;
 }

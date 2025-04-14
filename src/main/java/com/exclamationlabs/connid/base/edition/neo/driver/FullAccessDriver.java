@@ -50,7 +50,7 @@ public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driv
    * @throws ConnectorException If create operation failed or was invalid.
    */
   String create(
-          T configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model)
+      T configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model)
       throws ConnectorException;
 
   /**

@@ -8,10 +8,9 @@ import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import com.exclamationlabs.connid.base.edition.neo.stub.configuration.StubConfiguration;
 import com.exclamationlabs.connid.base.edition.neo.util.ConnectivityTester;
 import com.exclamationlabs.connid.base.edition.neo.util.TestPoint;
-import org.identityconnectors.framework.common.exceptions.ConnectorException;
-
 import java.util.Map;
 import java.util.Set;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class HappyDriver implements FullAccessDriver<StubConfiguration> {
 
@@ -29,32 +28,54 @@ public class HappyDriver implements FullAccessDriver<StubConfiguration> {
   public void close() {}
 
   @Override
-  public Set<IdentityModel> getAll(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, ResultsFilter resultsFilter, ResultsPaginator pagination, Integer resultCap, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public Set<IdentityModel> getAll(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      ResultsFilter resultsFilter,
+      ResultsPaginator pagination,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return Set.of();
   }
 
   @Override
-  public IdentityModel getOne(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String idValue, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public IdentityModel getOne(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      String idValue,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return null;
   }
 
   @Override
-  public Map<String, Object> getPrefetch(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
+  public Map<String, Object> getPrefetch(
+      StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
     return Map.of();
   }
 
   @Override
-  public String create(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model) throws ConnectorException {
+  public String create(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      IdentityModel model)
+      throws ConnectorException {
     return "";
   }
 
   @Override
-  public void update(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String objectId, IdentityModel userModel) throws ConnectorException {
-
-  }
+  public void update(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      String objectId,
+      IdentityModel userModel)
+      throws ConnectorException {}
 
   @Override
-  public void delete(StubConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String objectId) throws ConnectorException {
-
-  }
+  public void delete(
+      StubConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      String objectId)
+      throws ConnectorException {}
 }

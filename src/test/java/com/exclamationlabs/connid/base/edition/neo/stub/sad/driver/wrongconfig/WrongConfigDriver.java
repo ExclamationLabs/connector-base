@@ -24,18 +24,30 @@ public class WrongConfigDriver implements Driver<OtherConfiguration> {
   public void close() {}
 
   @Override
-  public Set<IdentityModel> getAll(OtherConfiguration configuration, Class<? extends IdentityModel> identityModelClass, ResultsFilter resultsFilter, ResultsPaginator pagination, Integer resultCap, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public Set<IdentityModel> getAll(
+      OtherConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      ResultsFilter resultsFilter,
+      ResultsPaginator pagination,
+      Integer resultCap,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return Set.of();
   }
 
   @Override
-  public IdentityModel getOne(OtherConfiguration configuration, Class<? extends IdentityModel> identityModelClass, String idValue, Map<String, Object> prefetchDataMap) throws ConnectorException {
+  public IdentityModel getOne(
+      OtherConfiguration configuration,
+      Class<? extends IdentityModel> identityModelClass,
+      String idValue,
+      Map<String, Object> prefetchDataMap)
+      throws ConnectorException {
     return null;
   }
 
   @Override
-  public Map<String, Object> getPrefetch(OtherConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
+  public Map<String, Object> getPrefetch(
+      OtherConfiguration configuration, Class<? extends IdentityModel> identityModelClass) {
     return Map.of();
   }
-
 }
