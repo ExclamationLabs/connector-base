@@ -7,7 +7,6 @@ import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribu
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
 import com.exclamationlabs.connid.base.edition.neo.driver.Driver;
-import com.exclamationlabs.connid.base.edition.neo.driver.FaultProcessor;
 import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
@@ -34,16 +33,12 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
 
   private Driver<T> driver;
   private Authenticator<T> authenticator;
-  private FaultProcessor driverFaultProcessor;
 
   private final Set<Class<? extends IdentityModel>> modelClassSet;
   private final Map<ObjectClass, IdentityModelAccess> identityModelAccessMap;
 
   @Getter(AccessLevel.NONE)
   private final Map<Class<IdentityModel>, Invocator<T, Driver<T>, ?>> invocatorMap;
-
-  @Getter(AccessLevel.NONE)
-  private final Map<Class<Invocator<?, ?, ?>>, FaultProcessor> invocatorFaultProcessorMap;
 
   private final Class<?> implementationClass;
   private final Class<T> configurationType;
@@ -56,7 +51,6 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     this.implementationClass = implementationClass;
     modelClassSet = new HashSet<>();
     invocatorMap = new HashMap<>();
-    invocatorFaultProcessorMap = new HashMap<>();
     identityModelAccessMap = new HashMap<>();
     objectMapper = new ObjectMapper();
   }
@@ -66,7 +60,6 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     loadModelClasses(); // at least 1 required
     loadAuthenticator(); // per connector - optional
     loadInvocators(); // per model - optional
-    loadDriverFaultProcessor(); // per driver - optional
     setupIdentityModelAccessMap();
   }
 
@@ -204,33 +197,6 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private void loadDriverFaultProcessor() throws ConfigurationException {
-    try (ScanResult scanResult =
-        new ClassGraph()
-            .enableAllInfo()
-            .acceptPackages(implementationClass.getPackageName())
-            .scan()) {
-
-      List<Class<?>> faultProcessorClassList =
-          scanResult.getClassesImplementing(FaultProcessor.class.getName()).loadClasses();
-      for (Class<?> currentClass : faultProcessorClassList) {
-        Class<FaultProcessor> faultProcessorClass = (Class<FaultProcessor>) currentClass;
-
-        FaultProcessor processor = faultProcessorClass.getConstructor().newInstance();
-
-        if (processor.forInvocator() != null) {
-          invocatorFaultProcessorMap.put(processor.forInvocator(), processor);
-        } else {
-          driverFaultProcessor = processor;
-        }
-      }
-    } catch (ReflectiveOperationException e) {
-      throw new ConfigurationException(
-          "Unexpected reflection or instantiation issue with FaultProcessor implementation", e);
-    }
-  }
-
   private static boolean isMissingAssignableTypeArgument(Class<?> holdingClass, Class<?> heldType) {
 
     return Arrays.stream(holdingClass.getGenericInterfaces())
@@ -281,10 +247,6 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     return invocatorMap.get(modelClass);
   }
 
-  public FaultProcessor getInvocatorFaultProcessor(Class<Invocator<T, ?, ?>> invocatorClass) {
-    return invocatorFaultProcessorMap.get(invocatorClass);
-  }
-
   public String getConstruction() {
     Map<String, Object> output = new LinkedHashMap<>();
     output.put("Driver", driver.getClass().getSimpleName());
@@ -296,14 +258,6 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     output.put(
         "Invocators",
         invocatorMap.keySet().stream().map(Class::getSimpleName).collect(Collectors.toList()));
-    output.put(
-        "DriverFaultProcessor",
-        driverFaultProcessor != null ? driverFaultProcessor.getClass().getSimpleName() : "None");
-    output.put(
-        "InvocatorFaultProcessors",
-        invocatorFaultProcessorMap.values().stream()
-            .map(inv -> inv.getClass().getSimpleName())
-            .collect(Collectors.toList()));
 
     try {
       return objectMapper.writeValueAsString(output);
