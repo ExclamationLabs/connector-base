@@ -6,7 +6,8 @@ import org.identityconnectors.framework.common.exceptions.ConnectorSecurityExcep
 
 public class RestAuthenticator implements Authenticator<RestTestConfiguration> {
   @Override
-  public String authenticate(RestTestConfiguration configuration) throws ConnectorSecurityException {
+  public String authenticate(RestTestConfiguration configuration)
+      throws ConnectorSecurityException {
     return "HAPPY-REST";
   }
 }

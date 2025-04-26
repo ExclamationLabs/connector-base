@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class RestTestResponseTypeTest {
 
-    private String customTestResponse;
+  private String customTestResponse;
 }

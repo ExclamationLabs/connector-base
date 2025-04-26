@@ -22,4 +22,5 @@ public class RestUserModel implements IdentityModel {
 
   @ModelAttribute private String lastName;
 
+  @ModelAttribute private String email;
 }

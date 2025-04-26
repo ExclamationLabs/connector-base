@@ -1,5 +1,7 @@
 package com.exclamationlabs.connid.base.edition.neo.internal.search;
 
+import static com.exclamationlabs.connid.base.edition.neo.internal.search.GetType.GET_OBJECT;
+
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
@@ -17,7 +19,7 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 
 public class GetHandler<T extends ConnectorConfiguration> {
 
-  public void get(
+  public ConnectorObject get(
       GetType getType,
       T configuration,
       Class<? extends IdentityModel> identityModelClass,
@@ -29,9 +31,16 @@ public class GetHandler<T extends ConnectorConfiguration> {
       ResultsHandler resultsHandler,
       OperationOptions operationOptions) {
 
+    ConnectorObject result = null;
+
     GetStrategy getStrategy =
         deduceStrategy(getType, configuration, identityModelClass, queryFilter);
     switch (getStrategy.getType()) {
+      case GET_OBJECT:
+        result =
+            getObject(
+                configuration, driver, invocator, objectClass, getStrategy, identityModelAccess);
+        break;
       case GET_ONE_BY_ID:
         getOneById(
             configuration,
@@ -59,6 +68,8 @@ public class GetHandler<T extends ConnectorConfiguration> {
         // importAll
         break;
     }
+
+    return result;
   }
 
   private GetStrategy deduceStrategy(
@@ -68,7 +79,9 @@ public class GetHandler<T extends ConnectorConfiguration> {
       Filter queryFilter) {
     GetStrategy strategy = new GetStrategy();
     strategy.setIdentityModelClass(identityModelClass);
-    if (queryFilter == null) {
+    if (getType == GET_OBJECT) {
+      strategy.setType(GetStrategyType.GET_OBJECT);
+    } else if (queryFilter == null) {
       strategy.setType(GetStrategyType.GET_ALL);
     } else {
       if (queryFilter instanceof EqualsFilter) {
@@ -83,6 +96,33 @@ public class GetHandler<T extends ConnectorConfiguration> {
     return strategy;
   }
 
+  private ConnectorObject getObject(
+      T configuration,
+      Driver<T> driver,
+      Invocator<T, Driver<T>, ?> invocator,
+      ObjectClass objectClass,
+      GetStrategy strategy,
+      IdentityModelAccess identityModelAccess) {
+    ConnectorObject result = null;
+    IdentityModel match;
+    if (invocator == null) {
+      match =
+          driver.getOne(
+              configuration,
+              strategy.getIdentityModelClass(),
+              strategy.getMatchValue(),
+              Collections.emptyMap());
+    } else {
+      match =
+          invocator.getOne(driver, configuration, strategy.getMatchValue(), Collections.emptyMap());
+    }
+    if (match != null) {
+      result = constructConnectorObject(objectClass, match, identityModelAccess);
+    }
+
+    return result;
+  }
+
   private void getOneById(
       T configuration,
       Driver<T> driver,
@@ -91,7 +131,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
       GetStrategy strategy,
       ResultsHandler resultsHandler,
       IdentityModelAccess identityModelAccess) {
-    IdentityModel match = null;
+    IdentityModel match;
     if (invocator == null) {
       match =
           driver.getOne(

@@ -182,7 +182,7 @@ public class HappyFAConnectorTest extends ApiIntegrationTest<StubConfiguration, 
             .updateDelta(
                 oClass, new Uid("123456"), attributes, new OperationOptionsBuilder().build());
     assertNotNull(response);
-    assertFalse(response.isEmpty());
+    assertTrue(response.isEmpty());
   }
 
   @Test

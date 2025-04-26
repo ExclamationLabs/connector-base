@@ -239,7 +239,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         uid,
         attributeModifications,
         identityModelAccess);
-    return attributeModifications;
+    return Collections.emptySet();
   }
 
   @Override
@@ -265,8 +265,20 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   @Override
   public ConnectorObject getObject(
       ObjectClass objectClass, Uid uid, OperationOptions operationOptions) {
-    System.out.println("Im here 0");
-    return null;
+    var modelType = typeFactory.getIdentityModel(objectClass);
+    var handler = new GetHandler<T>();
+    var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
+    return handler.get(
+        GetType.GET_OBJECT,
+        configuration,
+        modelType,
+        typeFactory.getDriver(),
+        typeFactory.getInvocator(modelType),
+        objectClass,
+        null,
+        identityModelAccess,
+        null,
+        operationOptions);
   }
 
   @Override
@@ -275,7 +287,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Filter queryFilter,
       final ResultsHandler resultsHandler,
       final OperationOptions operationOptions) {
-    Class<? extends IdentityModel> modelType = typeFactory.getIdentityModel(objectClass);
+    var modelType = typeFactory.getIdentityModel(objectClass);
     var handler = new GetHandler<T>();
     var identityModelAccess = typeFactory.getIdentityModelAccessMap().get(objectClass);
     handler.get(
@@ -297,8 +309,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final Filter filter,
       final ResultsHandler handler,
       final OperationOptions options) {
-    System.out.println("Im here2");
-    return null;
+    executeQuery(objectClass, filter, handler, options);
+    return new SearchResult();
   }
 
   public String getConstruction() {
