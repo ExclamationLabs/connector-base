@@ -40,7 +40,6 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
  * most cases, your constructor should make calls to addInvocator() to notify the Driver of the
  * invocators it should register.
  */
-@SuppressWarnings("rawtypes")
 public interface Driver<T extends ConnectorConfiguration> {
 
   /**
@@ -122,14 +121,16 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
    *     records found (an empty or null list) is not considered an exception condition.
    */
-  Set<IdentityModel> getAll(
+  default Set<IdentityModel> getAll(
       T configuration,
       Class<? extends IdentityModel> identityModelClass,
       ResultsFilter resultsFilter,
       ResultsPaginator pagination,
       Integer resultCap,
       Map<String, Object> prefetchDataMap)
-      throws ConnectorException;
+      throws ConnectorException {
+    throw new UnsupportedOperationException("Driver does not support getAll");
+  }
 
   /**
    * Process a request to get a single object of a particular type from the destination system,
@@ -147,12 +148,14 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
    *     matching record for the given id is not considered an exception condition.
    */
-  IdentityModel getOne(
+  default IdentityModel getOne(
       T configuration,
       Class<? extends IdentityModel> identityModelClass,
       String idValue,
       Map<String, Object> prefetchDataMap)
-      throws ConnectorException;
+      throws ConnectorException {
+    throw new UnsupportedOperationException("Driver does not support getOne");
+  }
 
   /**
    * Gives the ability for an Invocator to provide custom prefetched data prior to the execution of
@@ -165,8 +168,10 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @return Map of prefetched data that is understood by Invocators of that Identity Model.
    *     Defaults to an empty Map if no custom data is applicable to Invocator implementation.
    */
-  Map<String, Object> getPrefetch(
-      T configuration, Class<? extends IdentityModel> identityModelClass);
+  default Map<String, Object> getPrefetch(
+      T configuration, Class<? extends IdentityModel> identityModelClass) {
+    return Map.of();
+  }
 
   /**
    * Process a request to get a single object of a particular type from the destination system,

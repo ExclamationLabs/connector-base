@@ -112,7 +112,6 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     }
     this.configuration = (T) configuration;
     typeFactory.init();
-    var examine = typeFactory.getIdentityModelAccessMap();
 
     Authenticator<T> authenticator = typeFactory.getAuthenticator();
     Logger.debug(
@@ -127,6 +126,13 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         String.format(
             "Connector %s successfully authenticated using %s",
             this.getName(), authenticator.getClass().getSimpleName()));
+
+    typeFactory.getDriver().initialize(this.configuration, authenticator);
+    Logger.info(
+        this,
+        String.format(
+            "Driver %s successfully initialized using configuration and authenticator",
+            this.getName()));
   }
 
   /**

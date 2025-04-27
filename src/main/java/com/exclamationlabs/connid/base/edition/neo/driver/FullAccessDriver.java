@@ -49,9 +49,12 @@ public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driv
    * @return The new id for the object just created
    * @throws ConnectorException If create operation failed or was invalid.
    */
-  String create(
+  default String create(
       T configuration, Class<? extends IdentityModel> identityModelClass, IdentityModel model)
-      throws ConnectorException;
+      throws ConnectorException {
+    throw new UnsupportedOperationException(
+        "Create operation not supported by driver: " + this.getClass().getName());
+  }
 
   /**
    * Process a request to update an object on the destination system.
@@ -66,12 +69,15 @@ public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driv
    *     system.
    * @throws ConnectorException If update operation failed or was invalid.
    */
-  void update(
+  default void update(
       T configuration,
       Class<? extends IdentityModel> identityModelClass,
       String objectId,
       IdentityModel userModel)
-      throws ConnectorException;
+      throws ConnectorException {
+    throw new UnsupportedOperationException(
+        "Update operation not supported by driver: " + this.getClass().getName());
+  }
 
   /**
    * Process a request to delete an object on the destination system.
@@ -83,6 +89,10 @@ public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driv
    * @param objectId String containing the id pertaining to the item to be deleted
    * @throws ConnectorException If delete operation failed or was invalid
    */
-  void delete(T configuration, Class<? extends IdentityModel> identityModelClass, String objectId)
-      throws ConnectorException;
+  default void delete(
+      T configuration, Class<? extends IdentityModel> identityModelClass, String objectId)
+      throws ConnectorException {
+    throw new UnsupportedOperationException(
+        "Delete operation not supported by driver: " + this.getClass().getName());
+  }
 }

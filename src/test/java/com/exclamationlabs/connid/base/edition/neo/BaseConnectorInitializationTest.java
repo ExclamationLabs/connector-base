@@ -32,7 +32,7 @@ public class BaseConnectorInitializationTest {
     // Initialize and verify construction of components
     connector.init(new StubConfiguration());
     var expectedJson =
-        "{\"Driver\":\"HappyDriver\",\"Authenticator\":\"HappyAuthenticator\",\"Models\":[\"HappyGroupModel\",\"HappyUserModel\"],\"Invocators\":[\"HappyGroupModel\",\"HappyUserModel\"]}";
+        "{\"Driver\":\"HappyDriver\",\"Authenticator\":\"HappyAuthenticator\",\"Models\":[\"HappyUserModel\",\"HappyGroupModel\"],\"Invocators\":[\"HappyUserModel\",\"HappyGroupModel\"]}";
     assertEquals(expectedJson, connector.getConstruction());
   }
 
