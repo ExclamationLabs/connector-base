@@ -1,12 +1,14 @@
 package com.exclamationlabs.connid.base.connector.util.annotationFramework;
 
 import com.exclamationlabs.connid.base.connector.adapter.EnhancedPaginationAndFiltering;
+import com.exclamationlabs.connid.base.connector.adapter.PaginationCapableSource;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import java.util.Set;
 
 public class AnnotationAdapterWithPaging<
         T extends AnnotatedIdentityModel, U extends ConnectorConfiguration>
-    extends AnnotationAdapter<T, U> implements EnhancedPaginationAndFiltering {
+    extends AnnotationAdapter<T, U> implements EnhancedPaginationAndFiltering,
+    PaginationCapableSource {
 
   public AnnotationAdapterWithPaging(Class<T> AnnotatedIdentityModelClass) {
     super(AnnotatedIdentityModelClass);
@@ -39,11 +41,21 @@ public class AnnotationAdapterWithPaging<
 
   @Override
   public Integer getSubsequentRequestThreadCount() {
-    return EnhancedPaginationAndFiltering.super.getSubsequentRequestThreadCount();
+    return settings.threadCount();
   }
 
   @Override
   public Integer getImportUsingPaginationThreadCount() {
-    return EnhancedPaginationAndFiltering.super.getImportUsingPaginationThreadCount();
+    return settings.threadCount();
+  }
+
+  @Override
+  public boolean hasSearchResultsMaximum() {
+    return settings.hasSearchResultMax();
+  }
+
+  @Override
+  public Integer getSearchResultsMaximum() {
+   return settings.searchResultMax();
   }
 }

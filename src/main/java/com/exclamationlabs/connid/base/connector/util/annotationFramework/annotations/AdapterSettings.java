@@ -19,4 +19,7 @@ public @interface AdapterSettings {
   public boolean filteringRequiresFullImport() default true;
 
   public boolean logAttributes() default false;
+  public int threadCount() default 1;
+  public boolean hasSearchResultMax() default false;
+  public int searchResultMax() default Integer.MAX_VALUE;
 }

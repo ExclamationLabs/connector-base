@@ -47,6 +47,8 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeInfo.Flags;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.Uid;
 
 public class AttributeUtils {
 
@@ -122,11 +124,23 @@ public class AttributeUtils {
             type = getDataType(field, hasAnnotation(field, AttributedGuarded.class));
           }
           if (flags.isEmpty()) {
+            if(hasAnnotation(field, AttributeIdentityValue.class)) {
+              result.add(new ConnectorAttribute(Uid.NAME,attributeName, type));
+            }else if(hasAnnotation(field, AttributeNameValue.class)) {
+              result.add(new ConnectorAttribute(Name.NAME,attributeName, type));
+            }else{
             result.add(new ConnectorAttribute(attributeName, type));
+            }
           } else {
             var flagsArray = new Flags[flags.size()];
             flags.toArray(flagsArray);
-            result.add(new ConnectorAttribute(attributeName, type, flagsArray));
+            if(hasAnnotation(field, AttributeIdentityValue.class)) {
+              result.add(new ConnectorAttribute(Uid.NAME,attributeName, type,flagsArray));
+            }else if(hasAnnotation(field, AttributeNameValue.class)) {
+              result.add(new ConnectorAttribute(Name.NAME,attributeName, type,flagsArray));
+            }else{
+              result.add(new ConnectorAttribute(attributeName, type,flagsArray));
+            }
           }
         }
       }
