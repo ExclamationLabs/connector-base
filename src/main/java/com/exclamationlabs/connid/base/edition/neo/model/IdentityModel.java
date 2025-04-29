@@ -17,20 +17,10 @@
 package com.exclamationlabs.connid.base.edition.neo.model;
 
 /**
- * Interface to describe model objects belonging to this base connector implementation.
+ * Market interface to describe model objects belonging to this base connector implementation.
  *
- * <p>To guarantee uniqueness and make items identifiable in the framework, all classes that
- * implement IdentityModel should not only implement methods as required by the interface, but also
- * do the following:
- *
- * <p>1) Override the toString() method. You can make a call to identityToString() method to
- * generate default id and name output for the IdentityModel, or implement your own method as
- * needed. 2) Override the equals() method in order to see if two IdentityModel objects are equal or
- * not. You can make a call to identityEquals() method to assist with implementing the equals
- * method, or write your own if needed. Commonly only the id would needed to compare if IAM would
- * deem two objects as equals. 3) Override the hashcode() method in order to provide a hash used to
- * uniquely identify this object. You can make a call to identityHashCode() method to assist with
- * implementing this logic, or write your own if needed. Commonly only the id would need to be
- * evaluated in order to provide a hashcode.
+ * <p>Classes that implement this interface should correspond to object classes, and you need to
+ * establish this linkage by using the ModelObjectClass annotation on the IdentityModel
+ * implementation class.
  */
 public interface IdentityModel {}

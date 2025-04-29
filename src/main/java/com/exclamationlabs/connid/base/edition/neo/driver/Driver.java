@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2025 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -34,11 +34,24 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
  * you to delete a user, or assign him to a group). In those cases, implementations should throw
  * UnsupportedOperationException to indicate it's not supported.
  *
- * <p>A driver must consist of one to many DriverInvocator objects. Invocator objects instruct the
- * driver how each IdentityModel type should interact with the destination system. These
- * DriverInvocator objects should be registered to the driver using the addInvocator() method. In
- * most cases, your constructor should make calls to addInvocator() to notify the Driver of the
- * invocators it should register.
+ * <p>If an invocator is present that uses the applicable object class, its methods will be used for
+ * all CRUD operations (getAll, getOne, create, update, delete). If no invocator is present, the
+ * driver will be used directly for all CRUD operations.
+ *
+ * <p>Driver is however exclusively responsible for receiving the authenticator and performing
+ * initialization, as well as supporting the test() method to check the connection to the
+ * destination system.
+ *
+ * <p>All driver methods take the connector's ConnectorConfiguration as a parameter so that
+ * configuration values are readily available for implementations.
+ *
+ * <p>IMPORTANT NOTES: - There should be only one driver implementation per connector. - For each
+ * object class supported by the connector, either the driver or an invocator implementation must be
+ * able to support the getAll() and getOne() methods. If an invocator is found for the applicable
+ * object class, it takes precedences will be used for getOne() and getAll(). - If your connector
+ * required create, update or delete for any object classes, implement the FullAccessDriver
+ * interface instead. Implementing only Driver infers that your connector is limited to read-only
+ * (getAll/getOne) operations.
  */
 public interface Driver<T extends ConnectorConfiguration> {
 
@@ -102,7 +115,8 @@ public interface Driver<T extends ConnectorConfiguration> {
   void close();
 
   /**
-   * Process a request to get all objects of a particular type from the destination system.
+   * Process a request to get all objects of a particular type from the destination system. If
+   * pagination and/or filters are detected, a subset of all items may be returned.
    *
    * @param configuration Reference to Configuration object so that this driver has access to
    *     configuration properties and the access token.
@@ -114,8 +128,8 @@ public interface Driver<T extends ConnectorConfiguration> {
    *     results are processed for the connector.
    * @param resultCap The maximum number of results that should be returned by getAll. This can be
    *     null but if present will override the pagination pageSize.
-   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
-   *     understood by the invocator.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may need
+   *     to be carried over between multiple requests in special use cases.
    * @return A set of IdentityModel instances representing all the objects of a particular type. Or
    *     null or an empty set if no objects for this type were found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
@@ -141,8 +155,8 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
    *     the get request.
    * @param idValue String containing the id for the record to be retrieved.
-   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
-   *     understood by the invocator.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may need
+   *     * to be carried over between multiple requests in special use cases.
    * @return An IdentityModel instance representing the object for the given id. Or null if a record
    *     was not found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no
@@ -158,15 +172,15 @@ public interface Driver<T extends ConnectorConfiguration> {
   }
 
   /**
-   * Gives the ability for an Invocator to provide custom prefetched data prior to the execution of
-   * any getAll/getOne/getOneByName call. For requests where a string of get requests is required
-   * (particularly the getAll), the prefetch will only be performed once and carried forward.
+   * Gives the ability for an driver to provide custom prefetched data prior to the execution of
+   * repetitive getAll/getOne/getOneByName call. This should be used in cases where you have a set
+   * of data that remains unchanging and needs to be reused for an indefinite number of requests.
+   * The prefetch will only be performed once and carried forward.
    *
    * @param configuration Reference to Configuration object so that this driver has access to
    *     configuration properties and the access token.
    * @param identityModelClass Class of IdentityModel applicable to the potential prefetch behavior.
-   * @return Map of prefetched data that is understood by Invocators of that Identity Model.
-   *     Defaults to an empty Map if no custom data is applicable to Invocator implementation.
+   * @return Map of prefetched data that is understood and used by the driver.
    */
   default Map<String, Object> getPrefetch(
       T configuration, Class<? extends IdentityModel> identityModelClass) {
@@ -185,8 +199,8 @@ public interface Driver<T extends ConnectorConfiguration> {
    * @param identityModelClass Class reference pertaining to the IdentityModel object applicable for
    *     the get request.
    * @param nameValue String containing the id for the record to be retrieved.
-   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may be
-   *     understood by the invocator.
+   * @param prefetchDataMap Map of prefetch data applicable to the Identity Model and that may need
+   *     * to be carried over between multiple requests in special use cases.
    * @return An IdentityModel instance representing the object for the given id. Or null if a record
    *     was not found.
    * @throws ConnectorException If get operation failed or was invalid. Note: A request returning no

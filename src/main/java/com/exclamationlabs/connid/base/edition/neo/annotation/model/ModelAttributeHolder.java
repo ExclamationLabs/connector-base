@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to indicate that this field is a nested object that should be scanned for its own
- * ModelAttribute annotations.
+ * ModelAttribute annotations placed on fields.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

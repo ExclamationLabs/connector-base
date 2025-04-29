@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2025 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@ import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 /**
- * A DriverInvocator belongs to a Driver and is responsible for making the calls on a destination
- * system to read, create, update and delete objects of a particular data type on the destination
- * system. Note: Not all of the operations have to necessarily be supported (example, if the
- * destination system does not support or permit deletion of that object type, having a no-op or
- * throwing an exception is acceptable).
+ * A FullAccessInvocator works in tandem with a FullAccessDriver and is responsible for making the
+ * calls on a destination system to perform some or all data manipulation operations (create,
+ * update, and delete) on the destination system for a particular object class. Note: Not all the
+ * operations have to necessarily be supported (example, if the destination system does not support
+ * or permit deletion of that object type, having a no-op or throwing an exception is acceptable).
  *
- * @param <T> Concrete Configuration implementation pertaining to this Invocator.
- * @param <D> Concrete Driver implementation pertaining to this Invocator.
+ * <p>Please see the important notes on the Invocator interface for more information.
+ *
+ * @param <T> Concrete Configuration implementation pertaining to this connector.
+ * @param <D> Driver implementation pertaining to this connector.
  * @param <M> IdentityModel implementation pertaining to an object type on the destination system.
  */
 public interface FullAccessInvocator<
@@ -40,7 +42,7 @@ public interface FullAccessInvocator<
    *
    * @param driver Driver belonging to this Invocator and providing interaction with the applicable
    *     destination system.
-   * @param configuration Reference to Configuration object so that this driver has access to
+   * @param configuration Reference to Configuration object so that this invocator has access to
    *     configuration properties and the access token.
    * @param model Model holding the data for the object to be created.
    * @return String containing new id for the object just created.
@@ -53,7 +55,7 @@ public interface FullAccessInvocator<
    *
    * @param driver Driver belonging to this Invocator and providing interaction with the applicable
    *     destination system.
-   * @param configuration Reference to Configuration object so that this driver has access to
+   * @param configuration Reference to Configuration object so that this invocator has access to
    *     configuration properties and the access token.
    * @param userId String holding the id to match the item being updated on the destination system.
    * @param userModel Model holding the data for the object to be updated. Null fields present are
@@ -67,7 +69,7 @@ public interface FullAccessInvocator<
    *
    * @param driver Driver belonging to this Invocator and providing interaction with the applicable
    *     destination system.
-   * @param configuration Reference to Configuration object so that this driver has access to
+   * @param configuration Reference to Configuration object so that this invocator has access to
    *     configuration properties and the access token.
    * @param userId String holding the id to match the item being removed on the destination system.
    * @throws ConnectorException If deletion failed, was invalid or was not permitted.

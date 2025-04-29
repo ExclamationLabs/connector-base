@@ -25,7 +25,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.identityconnectors.framework.common.objects.AttributeInfo;
 
-/** Annotation to define a model attribute for data to be represented in the IGA system. */
+/**
+ * Annotation to define a model attribute for data to be represented in the IGA system. This should
+ * be placed on fields that should be mapped to attributes in the IGA system.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ModelAttribute {

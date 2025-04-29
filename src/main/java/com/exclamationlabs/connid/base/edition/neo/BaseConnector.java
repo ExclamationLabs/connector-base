@@ -20,7 +20,6 @@ import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
-import com.exclamationlabs.connid.base.edition.neo.annotation.connector.ReadOnly;
 import com.exclamationlabs.connid.base.edition.neo.internal.BaseConnectorTypeFactory;
 import com.exclamationlabs.connid.base.edition.neo.internal.schema.BaseSchemaBuilder;
 import com.exclamationlabs.connid.base.edition.neo.internal.search.FullAccessHandler;
@@ -48,16 +47,13 @@ import org.identityconnectors.framework.spi.operations.*;
  * <p>{@literal @}ConnectorClass(displayNameKey = "test.display", configurationClass =
  * StubConfiguration.class)
  *
- * <p>In most cases, you should subclass one of these abstract classes instead of this one, based on
- * your connector's need: BaseFullAccessConnector - full create/read/update/delete access to the
- * destination system BaseReadOnlyConnector - read-only access to the destination system
- * BaseWriteOnlyConnector - write-only access to the destination system
+ * <p>In most cases, subclasses only need to define the constructor and the ConnectorClass
+ * annotation. * The configuration class must extend ConnectorConfiguration, and the same class
+ * should be used for the configurationClass parameter in the ConnectorClass annotation and the
+ * class definition.
  *
- * <p>The constructor for your concrete class should also call these setters... MANDATORY:
- * setDriver(); setAdapters();
- *
- * <p>OPTIONAL: setAuthenticator(); setConnectorSchemaBuilder(); setEnhancedFiltering();
- * setFilterAttributes();
+ * <p>It's quite rare to override all other methods, unless there is a very special use case that
+ * requires it and exceeds what the base connector framework is capable of.
  */
 public abstract class BaseConnector<T extends ConnectorConfiguration>
     implements PoolableConnector,
@@ -78,10 +74,31 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   protected BaseSchemaBuilder<T> schemaBuilder;
   protected Schema schema;
 
+  public BaseConnector() {
+    // enforce use of a parameterized constructor
+    throw new ConnectorException(
+        "Connector implementation cannot be constructed using default constructor.");
+  }
+  ;
+
+  /**
+   * Constructor for BaseConnector implementation. This constructor is used when the connector does
+   * not need commonsLogging configuration is not used (default is false).
+   *
+   * @param configurationType The configuration type pertaining to this connector.
+   */
   public BaseConnector(Class<T> configurationType) {
     this(configurationType, false);
   }
 
+  /**
+   * Constructor for BaseConnector implementation.
+   *
+   * @param configurationType The configuration type pertaining to this connector.
+   * @param commonsLogging Whether to use commons logging or not for logging output from connector.
+   *     If true, commons logging API will be used. If false, ConnId's logging apparatus will be
+   *     used.
+   */
   public BaseConnector(Class<T> configurationType, boolean commonsLogging) {
     Logger.setCommonsLogging(commonsLogging);
     this.configurationType = configurationType;
@@ -95,7 +112,8 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   }
 
   /**
-   * MidPoint calls this method to initialize a connector on startup.
+   * Required by ConnId Connector interface. MidPoint calls this method to initialize a connector on
+   * startup.
    *
    * @param configuration Configuration concrete class (Midpoint determines this by looking at
    *     configurationClass of {@literal @}ConnectorClass annotation on your concrete connector
@@ -135,54 +153,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
             this.getName()));
   }
 
-  /**
-   * Identifies if this connector is able to read items on the destination system.
-   *
-   * @return true if read on the destination system is allowed, false if it is prohibited.
-   */
-  protected boolean readEnabled() {
-    return true;
-  }
-
-  /**
-   * Identifies whether or not this connector is able to update items on the destination system.
-   *
-   * @return true if update on the destination system is allowed, false if it is prohibited.
-   */
-  protected boolean updateEnabled() {
-    return !this.getClass().isAnnotationPresent(ReadOnly.class);
-  }
-
-  /**
-   * Identifies whether or not this connector is able to delete items on the destination system.
-   *
-   * @return true if delete on the destination system is allowed, false if it is prohibited.
-   */
-  protected boolean deleteEnabled() {
-    return !this.getClass().isAnnotationPresent(ReadOnly.class);
-  }
-
-  /**
-   * Identifies whether or not this connector is able to create items on the destination system.
-   *
-   * @return true if create on the destination system is allowed, false if it is prohibited.
-   */
-  protected boolean createEnabled() {
-    return !this.getClass().isAnnotationPresent(ReadOnly.class);
-  }
-
-  protected boolean isReadOnly() {
-    return readEnabled() && !updateEnabled() && !deleteEnabled() && !createEnabled();
-  }
-
-  protected boolean isWriteOnly() {
-    return !readEnabled() && updateEnabled() && deleteEnabled() && createEnabled();
-  }
-
-  protected boolean isCrud() {
-    return readEnabled() && updateEnabled() && deleteEnabled() && createEnabled();
-  }
-
+  /** Required by ConnId PoolableConnector interface. */
   @Override
   public void checkAlive() {
     test();
@@ -194,11 +165,16 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return configuration;
   }
 
+  /** Required for ConnId Connector interface */
   @Override
   public void dispose() {
     typeFactory.getDriver().close();
   }
 
+  /**
+   * Required by ConnId SchemaOp interface to construct a Schema type that represent all object
+   * classes and attributes supported by each object class.
+   */
   @Override
   public Schema schema() {
     if (schema == null) {
@@ -207,10 +183,19 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return schema;
   }
 
+  /**
+   * Convenience method to get the simple name for this connector.
+   *
+   * @return The simple name of the connector class.
+   */
   public String getName() {
     return getClass().getSimpleName();
   }
 
+  /**
+   * Required by ConnId CreateOp interface. Note that the create operation may not be supported for
+   * this object class or by the connector as a whole.
+   */
   @Override
   public Uid create(
       final ObjectClass objectClass,
@@ -228,6 +213,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         identityModelAccess);
   }
 
+  /**
+   * Required by ConnId UpdateDeltaOp interface. Note that the updateDelta operation may not be
+   * supported for this object class or by the connector as a whole.
+   */
   @Override
   public Set<AttributeDelta> updateDelta(
       final ObjectClass objectClass,
@@ -248,6 +237,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return Collections.emptySet();
   }
 
+  /**
+   * Required by ConnId DeleteOp interface. Note that the delete operation may not be supported for
+   * this object class or by the connector as a whole.
+   */
   @Override
   public void delete(
       final ObjectClass objectClass, final Uid uid, final OperationOptions operationOptions) {
@@ -261,6 +254,10 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         uid);
   }
 
+  /**
+   * Required by the ConnId SearchOp interface in order to receive possible filter information for
+   * requests.
+   */
   @Override
   public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
@@ -268,6 +265,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return new DefaultFilterTranslator();
   }
 
+  /** Required by the ConnId GetApiOp interface in order to retrieve a single object */
   @Override
   public ConnectorObject getObject(
       ObjectClass objectClass, Uid uid, OperationOptions operationOptions) {
@@ -287,6 +285,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         operationOptions);
   }
 
+  /** Required by the ConnId SearchOp interface in order to execute a search query */
   @Override
   public void executeQuery(
       final ObjectClass objectClass,
@@ -309,6 +308,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
         operationOptions);
   }
 
+  /** Required by the ConnId SearchApiOp interface in order to execute a search query */
   @Override
   public SearchResult search(
       final ObjectClass objectClass,
@@ -319,11 +319,17 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
     return new SearchResult();
   }
 
+  /**
+   * Diagnostic method to check the connector's construction via the type factory and return a short
+   * JSON response as a String.
+   *
+   * @return JSON string representation of the connector's construction.
+   */
   public String getConstruction() {
     return typeFactory.getConstruction();
   }
 
-  /** Standard connector test method per ConnId interface. */
+  /** Standard connector test method per ConnId TestOp interface. */
   @Override
   public void test() {
     Logger.debug(

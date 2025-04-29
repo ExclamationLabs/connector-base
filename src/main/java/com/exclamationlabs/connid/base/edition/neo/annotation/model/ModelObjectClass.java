@@ -6,9 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define the name of the model object class represented as a String. If needed, you can use
+ * Annotation to define a model's object class represented as a String. If needed, you can use
  * ObjectClass.createSpecialName("ACCOUNT") or ObjectClass.createSpecialName("GROUP") to create a
  * standard name for User or Group object class type.
+ *
+ * <p>This annotation should only be placed on classes that implement the IdentityModel marker
+ * interface.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

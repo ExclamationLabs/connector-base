@@ -1,5 +1,5 @@
 /*
-    Copyright 2020 Exclamation Labs
+    Copyright 2025 Exclamation Labs
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,19 +21,12 @@ import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 /**
- * Classes that implement Driver should be able to connect to some kind of destination system and be
- * able to perform user and group CRUD operations, and may also have the ability to assign a user to
- * a group or remove him from a group.
+ * Classes that implement FullAccessDriver should be able to connect to some kind of destination
+ * system and be able to perform some or all data manipulation operations (create, update, and
+ * delete) in additional to the getOne/getAll implementations required by the Driver interface for
+ * at least one of the supported object classes.
  *
- * <p>Some drivers may not be able to support all methods (for example, some systems may not allow
- * you to delete a user, or assign him to a group). In those cases, implementations should throw
- * UnsupportedOperationException to indicate it's not supported.
- *
- * <p>A driver must consist of one to many DriverInvocator objects. Invocator objects instruct the
- * driver how each IdentityModel type should interact with the destination system. These
- * DriverInvocator objects should be registered to the driver using the addInvocator() method. In
- * most cases, your constructor should make calls to addInvocator() to notify the Driver of the
- * invocators it should register.
+ * <p>Read the important notes included in the Driver interface for more information.
  */
 @SuppressWarnings("rawtypes")
 public interface FullAccessDriver<T extends ConnectorConfiguration> extends Driver<T> {
