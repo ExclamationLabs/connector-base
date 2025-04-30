@@ -290,10 +290,10 @@ public class AttributeUtils {
             } else {
               if(hasAnnotation(field, AttributeNameValue.class)||hasAnnotation(field,AttributeIdentityValue.class)) {
                 if(hasAnnotation(field, AttributeNameValue.class)){
-                  attributes.add(AttributeBuilder.build(Name.NAME, val));
+                  //attributes.add(AttributeBuilder.build(Name.NAME, val));
                 }
                 if(hasAnnotation(field, AttributeIdentityValue.class)){
-                  attributes.add(AttributeBuilder.build(Uid.NAME, val));
+                  //attributes.add(AttributeBuilder.build(Uid.NAME, val));
                 }
               }else{
                 attributes.add(AttributeBuilder.build(attributeName, val));
