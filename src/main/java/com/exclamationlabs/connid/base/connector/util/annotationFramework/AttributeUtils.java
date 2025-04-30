@@ -288,7 +288,16 @@ public class AttributeUtils {
               Collection collection = (Collection) val;
               attributes.add(AttributeBuilder.build(attributeName, collection));
             } else {
-              attributes.add(AttributeBuilder.build(attributeName, val));
+              if(hasAnnotation(field, AttributeNameValue.class)||hasAnnotation(field,AttributeIdentityValue.class)) {
+                if(hasAnnotation(field, AttributeNameValue.class)){
+                  attributes.add(AttributeBuilder.build(Name.NAME, val));
+                }
+                if(hasAnnotation(field, AttributeIdentityValue.class)){
+                  attributes.add(AttributeBuilder.build(Uid.NAME, val));
+                }
+              }else{
+                attributes.add(AttributeBuilder.build(attributeName, val));
+              }
             }
           }
         }
@@ -387,7 +396,15 @@ public class AttributeUtils {
     if (o != null && combinedAttributes != null) {
       for (var attributeName : combinedAttributes) {
         String cleanedAttributeName = attributeName.getName();
-        String fieldString = attributeNameToFieldName(cleanedAttributeName,prefix);
+        String fieldString="";
+        if(cleanedAttributeName.equals(Name.NAME)){
+          fieldString=getFieldNameForNameField(o.getClass());
+        }
+        else if(cleanedAttributeName.equals(Uid.NAME)){
+          fieldString=getFieldNameForIdentityField(o.getClass());
+        }else{
+          fieldString = attributeNameToFieldName(cleanedAttributeName,prefix);
+        }
         try {
           var field = o.getClass().getDeclaredField(fieldString);
           if (field != null
@@ -965,6 +982,24 @@ public class AttributeUtils {
       }
     }
     return schemaMetaJson;
+  }
+  public static String getFieldNameForIdentityField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)
+          && hasAnnotation(field, AttributeIdentityValue.class)) {
+       return field.getName();
+      }
+    }
+    return null;
+  }
+  public static String getFieldNameForNameField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field)
+          && hasAnnotation(field, AttributeNameValue.class)) {
+        return field.getName();
+      }
+    }
+    return null;
   }
   public static String getAttributeNameForIdentityField(Class<?> clazz) {
     for (var field : clazz.getDeclaredFields()) {
