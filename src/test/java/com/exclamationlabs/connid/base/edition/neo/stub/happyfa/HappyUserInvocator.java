@@ -17,6 +17,11 @@ public class HappyUserInvocator
     implements FullAccessInvocator<StubConfiguration, HappyDriver, HappyUserModel> {
 
   @Override
+  public boolean supportsNativePagination(StubConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public Set<HappyUserModel> getAll(
       HappyDriver driver,
       StubConfiguration configuration,

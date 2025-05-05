@@ -13,6 +13,11 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 public class WrongConfigDriver implements Driver<OtherConfiguration> {
 
   @Override
+  public boolean supportsNativePagination(OtherConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public void initialize(
       OtherConfiguration configuration, Authenticator<OtherConfiguration> authenticator)
       throws ConnectorException {}

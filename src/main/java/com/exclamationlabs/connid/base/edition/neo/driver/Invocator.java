@@ -45,6 +45,22 @@ public interface Invocator<
     T extends ConnectorConfiguration, D extends Driver<T>, M extends IdentityModel> {
 
   /**
+   * This method needs to be implemented to inform the framework if the invocator supports native
+   * pagination. 'true' should only be returned if destination API supports pagination using page
+   * size and offset as integers. If the destination API doesn't support pagination at all, or it
+   * has pagination strategies that use cookies, links, et al. (which this framework cannot
+   * support), 'false' should be returned. If 'true' is returned, the invocator will be relied upon
+   * to handle pagination for its getAll() requests using the ResultsPagination object. If 'false'
+   * is returned, the framework will handle pagination internally.
+   *
+   * @param configuration Reference to Configuration object so that this invocator has access to
+   *     configuration properties and values if needed.
+   * @return True if the driver supports native pagination (using page size and numeric offset),
+   *     false if it does not.
+   */
+  boolean supportsNativePagination(T configuration);
+
+  /**
    * Get all existing objects of a particular object class type on the destination system, using
    * supplied filter attribute and value. Unless overriden, default behavior is to presume filtering
    * is not supported, and simply execute the getAll method.

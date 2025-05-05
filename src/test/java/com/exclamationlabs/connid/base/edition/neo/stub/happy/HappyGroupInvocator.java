@@ -13,6 +13,11 @@ public class HappyGroupInvocator
     implements Invocator<StubConfiguration, HappyDriver, HappyGroupModel> {
 
   @Override
+  public boolean supportsNativePagination(StubConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public Set<HappyGroupModel> getAll(
       HappyDriver driver,
       StubConfiguration configuration,

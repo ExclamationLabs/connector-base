@@ -43,6 +43,11 @@ public class RestDriver implements FullAccessDriver<RestTestConfiguration> {
       throws ConnectorException {}
 
   @Override
+  public boolean supportsNativePagination(RestTestConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public void initialize(
       RestTestConfiguration configuration, Authenticator<RestTestConfiguration> authenticator)
       throws ConnectorException {}

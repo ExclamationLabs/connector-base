@@ -16,22 +16,12 @@
 
 package com.exclamationlabs.connid.base.edition.neo.internal;
 
-import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
+import org.identityconnectors.framework.common.objects.filter.AttributeFilter;
 
-@Getter
-@Setter
-public class IdentityModelAccess {
-  private Class<? extends IdentityModel> identityModelClass;
-  private Map<String, FieldAccessInfo> fieldAccessInfoMap;
-  private Method getUidMethod;
-  private Method getNameMethod;
-
-  public IdentityModelAccess() {
-    fieldAccessInfoMap = new HashMap<>();
+public class NonValidatingFilterTranslator extends DefaultFilterTranslator {
+  @Override
+  protected void validateAttributeName(AttributeFilter filter) {
+    // No validation needed
   }
 }

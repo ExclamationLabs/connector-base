@@ -69,26 +69,6 @@ public class HappyConnectorTest extends ApiIntegrationTest<StubConfiguration, Ha
     assertEquals(3, groupInfo.getAttributeInfo().size());
   }
 
-  //  @Test
-  //  void testUserGetObject() {
-  //    ConnectorObject response =
-  //            getConnectorFacade()
-  //                    .getObject(
-  //                            new ObjectClass("HappyUser"), new Uid("1234"), new
-  // OperationOptionsBuilder().build());
-  //    assertNotNull(response);
-  //    assertTrue(
-  //
-  // StringUtils.isNotBlank(response.getAttributeByName(Uid.NAME).getValue().get(0).toString()));
-  //    assertTrue(
-  //            StringUtils.isNotBlank(
-  //                    response.getAttributeByName(Name.NAME).getValue().get(0).toString()));
-  //    assertTrue(StubInvocationChecker.isInitializeInvoked());
-  //    assertEquals("user getOne", StubInvocationChecker.getMethodInvoked());
-  //    assertEquals("1234", StubInvocationChecker.getMethodParameter1().toString());
-  //    assertNull(StubInvocationChecker.getMethodParameter2());
-  //  }
-
   @Test
   void testUserGet() {
     results = new ArrayList<>();
@@ -133,11 +113,26 @@ public class HappyConnectorTest extends ApiIntegrationTest<StubConfiguration, Ha
   }
 
   @Test
-  void testUserGetAll() {
+  void testUserGetAllFilterWorking() {
+    results = new ArrayList<>();
+    var filter =
+        new EqualsFilter(new AttributeBuilder().setName("firstName").addValue("Grumpy").build());
+    getConnectorFacade()
+        .search(
+            new ObjectClass("HappyUser"), filter, handler, new OperationOptionsBuilder().build());
+    assertEquals(1, results.size());
+  }
+
+  @Test
+  void testUserGetAllPaginationWorking() {
     results = new ArrayList<>();
     getConnectorFacade()
-        .search(new ObjectClass("HappyUser"), null, handler, new OperationOptionsBuilder().build());
-    assertEquals(3, results.size());
+        .search(
+            new ObjectClass("HappyUser"),
+            null,
+            handler,
+            new OperationOptionsBuilder().setPageSize(2).setPagedResultsOffset(1).build());
+    assertEquals(2, results.size());
   }
 
   @Test

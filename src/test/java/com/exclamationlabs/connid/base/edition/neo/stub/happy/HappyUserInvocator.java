@@ -1,5 +1,6 @@
 package com.exclamationlabs.connid.base.edition.neo.stub.happy;
 
+import com.exclamationlabs.connid.base.connector.filter.FilterType;
 import com.exclamationlabs.connid.base.connector.results.ResultsFilter;
 import com.exclamationlabs.connid.base.connector.results.ResultsPaginator;
 import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
@@ -16,6 +17,11 @@ public class HappyUserInvocator
     implements Invocator<StubConfiguration, HappyDriver, HappyUserModel> {
 
   @Override
+  public boolean supportsNativePagination(StubConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public Set<HappyUserModel> getAll(
       HappyDriver driver,
       StubConfiguration configuration,
@@ -24,6 +30,24 @@ public class HappyUserInvocator
       Integer resultCap,
       Map<String, Object> prefetchDataMap)
       throws ConnectorException {
+    if (filter.hasFilter()) {
+      var filterType = filter.getFilterType();
+      if (filterType != null && filterType != FilterType.EqualsFilter) {
+        throw new ConnectorException("Filter type should be EQUALS");
+      }
+      if (!"firstName".equals(filter.getAttribute())) {
+        throw new ConnectorException("Wrong filter attribute name!");
+      }
+      if (!"Grumpy".equals(filter.getValue())) {
+        throw new ConnectorException("Wrong filter attribute value!");
+      }
+    }
+    if (paginator.hasPagination()) {
+      if (2 != paginator.getPageSize()) {
+        throw new ConnectorException("Paginator page size should be 2");
+      }
+    }
+
     return Set.of(
         buildTestUserModel("1234", "happy"),
         buildTestUserModel("1235", "sneezy"),

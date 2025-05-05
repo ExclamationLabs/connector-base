@@ -1,3 +1,19 @@
+/*
+    Copyright 2025 Exclamation Labs
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
 package com.exclamationlabs.connid.base.edition.neo.internal;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
@@ -254,10 +270,14 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
         "Authenticator", authenticator != null ? authenticator.getClass().getSimpleName() : "None");
 
     output.put(
-        "Models", modelClassSet.stream().map(Class::getSimpleName).collect(Collectors.toList()));
+        "Models",
+        modelClassSet.stream().map(Class::getSimpleName).sorted().collect(Collectors.toList()));
     output.put(
         "Invocators",
-        invocatorMap.keySet().stream().map(Class::getSimpleName).collect(Collectors.toList()));
+        invocatorMap.values().stream()
+            .map(invocator -> invocator.getClass().getSimpleName())
+            .sorted()
+            .collect(Collectors.toList()));
 
     try {
       return objectMapper.writeValueAsString(output);
@@ -367,7 +387,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       accessInfo.setGetterAccess(depthGetterList);
       accessInfo.setSetterAccess(depthSetterList);
     }
-
+    accessInfo.setField(field);
     accessInfo.setFieldClass(field.getType());
     accessInfo.setDataType(modelAttribute.type());
     accessInfo.setDirection(modelAttribute.direction());
@@ -375,6 +395,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     accessInfo.setFlags(modelAttribute.flags());
     accessInfo.setNativeName(modelAttribute.nativeName());
     accessInfo.setMetaInfoJson(modelAttribute.metaInfoJson());
+    accessInfo.setSupportsNativeEqualsFilter(modelAttribute.supportsNativeEqualsFilter());
+    accessInfo.setSupportsNativeContainsFilter(modelAttribute.supportsNativeContainsFilter());
     return accessInfo;
   }
 }

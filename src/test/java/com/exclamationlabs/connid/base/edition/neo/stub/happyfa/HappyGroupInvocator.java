@@ -28,6 +28,11 @@ public class HappyGroupInvocator
       throws ConnectorException {}
 
   @Override
+  public boolean supportsNativePagination(StubConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public Set<HappyGroupModel> getAll(
       HappyDriver driver,
       StubConfiguration configuration,

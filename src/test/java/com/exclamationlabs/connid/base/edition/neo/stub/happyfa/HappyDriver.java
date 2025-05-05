@@ -15,6 +15,11 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 public class HappyDriver implements FullAccessDriver<StubConfiguration> {
 
   @Override
+  public boolean supportsNativePagination(StubConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public void initialize(
       StubConfiguration configuration, Authenticator<StubConfiguration> authenticator)
       throws ConnectorException {}

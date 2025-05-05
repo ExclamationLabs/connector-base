@@ -56,6 +56,22 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 public interface Driver<T extends ConnectorConfiguration> {
 
   /**
+   * This method needs to be implemented to inform the framework if the driver supports native
+   * pagination. 'true' should only be returned if destination API supports pagination using page
+   * size and offset as integers. If the destination API doesn't support pagination at all, or it
+   * has pagination strategies that use cookies, links, et al. (which this framework cannot
+   * support), 'false' should be returned. If 'true' is returned, the driver will be relied upon to
+   * handle pagination for its getAll() requests using the ResultsPagination object. If 'false' is
+   * returned, the framework will handle pagination internally.
+   *
+   * @param configuration Reference to Configuration object so that this driver has access to
+   *     configuration properties and values if needed.
+   * @return True if the driver supports native pagination (using page size and numeric offset),
+   *     false if it does not.
+   */
+  boolean supportsNativePagination(T configuration);
+
+  /**
    * Receives the configuration and authenticator objects that may be needed by the driver. In this
    * method, any additional initialization that needs to be done to prep the Driver for repeated
    * usage should also be done.
@@ -213,5 +229,15 @@ public interface Driver<T extends ConnectorConfiguration> {
       Map<String, Object> prefetchDataMap)
       throws ConnectorException {
     throw new UnsupportedOperationException("Driver does not support getOneByName");
+  }
+
+  /**
+   * Get the number of execution threads to execute when importing all records for a given object
+   * classs. The default is a single thread.
+   *
+   * @return The number of threads to use for import operations. Should be 1 or higher.
+   */
+  default short getImportThreadCount() {
+    return 1;
   }
 }

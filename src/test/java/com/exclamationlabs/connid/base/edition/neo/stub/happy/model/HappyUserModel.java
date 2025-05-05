@@ -21,7 +21,7 @@ public class HappyUserModel implements IdentityModel {
   @ModelAttribute(value = "USER_NAME", identifier = ConnIdType.NAME)
   private String userName;
 
-  @ModelAttribute private String firstName;
+  @ModelAttribute public String firstName;
 
   @ModelAttribute private String lastName;
 

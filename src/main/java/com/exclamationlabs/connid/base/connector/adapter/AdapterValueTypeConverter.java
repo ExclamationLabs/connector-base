@@ -137,7 +137,7 @@ public class AdapterValueTypeConverter {
     return readAttributeValue(input, true);
   }
 
-  static String readSingleAttributeValueAsString(Attribute input) {
+  public static String readSingleAttributeValueAsString(Attribute input) {
     Object value = readAttributeValue(input, true);
     return value == null ? null : value.toString();
   }

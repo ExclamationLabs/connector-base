@@ -18,9 +18,9 @@ package com.exclamationlabs.connid.base.edition.neo;
 
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
-import com.exclamationlabs.connid.base.connector.filter.DefaultFilterTranslator;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.internal.BaseConnectorTypeFactory;
+import com.exclamationlabs.connid.base.edition.neo.internal.NonValidatingFilterTranslator;
 import com.exclamationlabs.connid.base.edition.neo.internal.schema.BaseSchemaBuilder;
 import com.exclamationlabs.connid.base.edition.neo.internal.search.FullAccessHandler;
 import com.exclamationlabs.connid.base.edition.neo.internal.search.GetHandler;
@@ -261,8 +261,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
   @Override
   public FilterTranslator<Filter> createFilterTranslator(
       ObjectClass objectClass, OperationOptions operationOptions) {
-    // TODO: revisit approach
-    return new DefaultFilterTranslator();
+    return new NonValidatingFilterTranslator();
   }
 
   /** Required by the ConnId GetApiOp interface in order to retrieve a single object */

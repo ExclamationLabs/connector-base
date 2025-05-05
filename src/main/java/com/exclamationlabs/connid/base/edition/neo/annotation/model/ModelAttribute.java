@@ -91,4 +91,29 @@ public @interface ModelAttribute {
    *     AttributeConstraint objects
    */
   String metaInfoJson() default "";
+
+  /**
+   * Specify whether the destination system is able to filter on this attribute using an equals
+   * condition when multiple records are being returned. Example: For a model attribute named TITLE,
+   * a filter is received asking to return only records with TITLE = "Manager" exactly. Returning
+   * 'true' indicates that your destination API can accommodate this filter, and that
+   * driver/invocator involved will facilitate this filtering (using supplied ResultsFilter object).
+   * The default of false is presumed if not supplied.
+   *
+   * @return true if this attribute supports equals filter natively, false otherwise.
+   */
+  boolean supportsNativeEqualsFilter() default false;
+
+  /**
+   * Specify whether the destination system is able to filter on this attribute using a contains
+   * condition when multiple records are being returned. Example: For a model attribute named TITLE,
+   * a filter is received asking to return only records with TITLE containing the String "Manager",
+   * such that "Store Manager", "Manager of IT" and "Senior Manager of Materials" would all match.
+   * Returning 'true' indicates that your destination API can accommodate this filter, and that
+   * driver/invocator involved will facilitate this filtering (using supplied ResultsFilter object).
+   * The default of false is presumed if not supplied.
+   *
+   * @return true if this attribute supports contains filter natively, false otherwise.
+   */
+  boolean supportsNativeContainsFilter() default false;
 }

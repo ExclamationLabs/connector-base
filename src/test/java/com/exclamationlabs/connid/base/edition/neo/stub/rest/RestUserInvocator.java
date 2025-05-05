@@ -42,6 +42,11 @@ public class RestUserInvocator
   }
 
   @Override
+  public boolean supportsNativePagination(RestTestConfiguration configuration) {
+    return false;
+  }
+
+  @Override
   public Set<RestUserModel> getAll(
       RestDriver driver,
       RestTestConfiguration configuration,
