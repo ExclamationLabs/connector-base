@@ -29,6 +29,7 @@ import com.exclamationlabs.connid.base.edition.neo.driver.Invocator;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.internal.model.ModelReader;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -54,7 +55,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
     ConnectorObject result = null;
 
     GetStrategy getStrategy =
-        deduceStrategy(getType, configuration, identityModelClass, queryFilter, operationOptions);
+        deduceStrategy(getType, identityModelClass, queryFilter, operationOptions);
     switch (getStrategy.getType()) {
       case GET_OBJECT:
         result =
@@ -87,7 +88,6 @@ public class GetHandler<T extends ConnectorConfiguration> {
             driver,
             invocator,
             objectClass,
-            getStrategy,
             resultsHandler,
             identityModelAccess,
             operationOptions,
@@ -105,7 +105,6 @@ public class GetHandler<T extends ConnectorConfiguration> {
 
   private GetStrategy deduceStrategy(
       GetType getType,
-      T configuration,
       Class<? extends IdentityModel> identityModelClass,
       Filter queryFilter,
       OperationOptions operationOptions) {
@@ -233,7 +232,6 @@ public class GetHandler<T extends ConnectorConfiguration> {
       Driver<T> driver,
       Invocator<T, Driver<T>, ?> invocator,
       ObjectClass objectClass,
-      GetStrategy strategy,
       ResultsHandler resultsHandler,
       IdentityModelAccess identityModelAccess,
       OperationOptions operationOptions,
@@ -333,6 +331,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
                               identityModel
                                   .getClass()
                                   .getDeclaredField(fieldAccessInfo.getField().getName());
+                          matchingField.setAccessible(true); // Allow access to private fields
                           var attributeValue = matchingField.get(identityModel);
                           return resultsFilter.getValue().equals(attributeValue.toString());
 
@@ -340,7 +339,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
                           return false;
                         }
                       })
-                  .collect(Collectors.toSet());
+                  .collect(Collectors.toCollection(LinkedHashSet::new));
         }
       }
     }
@@ -357,7 +356,7 @@ public class GetHandler<T extends ConnectorConfiguration> {
             resultsForPagination.stream()
                 .skip(paginator.getCurrentOffset())
                 .limit(paginator.getPageSize())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
       }
     }
 

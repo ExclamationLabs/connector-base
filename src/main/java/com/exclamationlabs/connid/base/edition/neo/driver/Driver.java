@@ -105,7 +105,7 @@ public interface Driver<T extends ConnectorConfiguration> {
    * to verify the driver is fully functional and can connect to the source system utilizing the
    * user connection information provided in the configuration.
    *
-   * <p>In order to provide an accurate and hollistic connection test, the driver may need to make
+   * <p>In order to provide an accurate and holistic connection test, the driver may need to make
    * additional calls to the source system to ensure appropriate access and permissions to the
    * various required resource endpoints These calls may include:
    *
@@ -188,7 +188,7 @@ public interface Driver<T extends ConnectorConfiguration> {
   }
 
   /**
-   * Gives the ability for an driver to provide custom prefetched data prior to the execution of
+   * Gives the ability for a driver to provide custom prefetched data prior to the execution of
    * repetitive getAll/getOne/getOneByName call. This should be used in cases where you have a set
    * of data that remains unchanging and needs to be reused for an indefinite number of requests.
    * The prefetch will only be performed once and carried forward.
@@ -233,7 +233,8 @@ public interface Driver<T extends ConnectorConfiguration> {
 
   /**
    * Get the number of execution threads to execute when importing all records for a given object
-   * classs. The default is a single thread.
+   * class. The default is a single thread.  Note that this value will only be meaningful if
+   * supportsNativePagination() is true.
    *
    * @return The number of threads to use for import operations. Should be 1 or higher.
    */
