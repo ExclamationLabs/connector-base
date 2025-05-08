@@ -55,6 +55,8 @@ import org.identityconnectors.framework.spi.operations.*;
  * <p>It's quite rare to override all other methods, unless there is a very special use case that
  * requires it and exceeds what the base connector framework is capable of.
  */
+// TODO: Research adding DiscoverConfigurationOp support (current impediment is cannot incorporate
+// this without using Evolveum Nexus dependency location
 public abstract class BaseConnector<T extends ConnectorConfiguration>
     implements PoolableConnector,
         SchemaOp,
@@ -129,7 +131,7 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
               configuration.getClass().getName(), configurationType.getName()));
     }
     this.configuration = (T) configuration;
-    typeFactory.init();
+    typeFactory.init(this.configuration, this);
 
     Authenticator<T> authenticator = typeFactory.getAuthenticator();
     Logger.debug(
@@ -316,6 +318,19 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
       final OperationOptions options) {
     executeQuery(objectClass, filter, handler, options);
     return new SearchResult();
+  }
+
+  /**
+   * Override this method if your connector has a need to conditionally provide support for
+   * attributes only if mode information matches.
+   *
+   * @param configuration Configuration object
+   * @param modesFromAttribute Modes from the attribute. Could be null or empty.
+   * @return True if mode matching is not applicable or used, false if the modes obtained from
+   *     connector/configuration do not match the required modes from the attribute.
+   */
+  public boolean allowedForModes(T configuration, String[] modesFromAttribute) {
+    return true;
   }
 
   /**

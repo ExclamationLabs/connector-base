@@ -19,6 +19,7 @@ package com.exclamationlabs.connid.base.edition.neo.internal;
 import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
+import com.exclamationlabs.connid.base.edition.neo.BaseConnector;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
@@ -71,12 +72,12 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     objectMapper = new ObjectMapper();
   }
 
-  public void init() throws ConfigurationException {
+  public void init(T configuration, BaseConnector<T> connector) throws ConfigurationException {
     loadDriver(); // exactly 1 required
     loadModelClasses(); // at least 1 required
     loadAuthenticator(); // per connector - optional
     loadInvocators(); // per model - optional
-    setupIdentityModelAccessMap();
+    setupIdentityModelAccessMap(configuration, connector);
   }
 
   @SuppressWarnings("unchecked")
@@ -288,13 +289,16 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     }
   }
 
-  private void setupIdentityModelAccessMap() {
+  private void setupIdentityModelAccessMap(T configuration, BaseConnector<T> connector) {
     for (var currentModelType : modelClassSet) {
-      setupIdentityModelAccess(currentModelType);
+      setupIdentityModelAccess(currentModelType, configuration, connector);
     }
   }
 
-  private void setupIdentityModelAccess(Class<? extends IdentityModel> identityModelClass) {
+  private void setupIdentityModelAccess(
+      Class<? extends IdentityModel> identityModelClass,
+      T configuration,
+      BaseConnector<T> connector) {
     // Read object class
     var objectClass = identityModelClass.getAnnotation(ModelObjectClass.class);
     if (objectClass == null) {
@@ -309,7 +313,13 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     identityModelAccess.setIdentityModelClass(identityModelClass);
 
     try {
-      setupFields(identityModelClass, infoMap, Collections.emptyList(), Collections.emptyList());
+      setupFields(
+          identityModelClass,
+          infoMap,
+          Collections.emptyList(),
+          Collections.emptyList(),
+          configuration,
+          connector);
       identityModelAccess.setFieldAccessInfoMap(infoMap);
       for (var accessInfo : infoMap.values()) {
         if (accessInfo.getIdentifier() == ConnIdType.UID) {
@@ -326,11 +336,13 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
     identityModelAccessMap.put(objectClassForModel, identityModelAccess);
   }
 
-  private static void setupFields(
+  private void setupFields(
       Class<?> fieldClass,
       Map<String, FieldAccessInfo> infoMap,
       List<Method> parentGetterList,
-      List<Method> parentSetterList)
+      List<Method> parentSetterList,
+      T configuration,
+      BaseConnector<T> connector)
       throws ReflectiveOperationException {
     for (var field : fieldClass.getDeclaredFields()) {
       var modelAttribute = field.getAnnotation(ModelAttribute.class);
@@ -338,7 +350,15 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       if (modelAttribute == null && holderAttribute == null) {
         continue;
       }
+
       if (modelAttribute != null) {
+        if (modelAttribute.modes() != null && modelAttribute.modes().length > 0) {
+          // skip if modes do not match as needed for connector implementation
+          if (!connector.allowedForModes(configuration, modelAttribute.modes())) {
+            continue;
+          }
+        }
+
         final var definedName =
             StringUtils.isNoneBlank(modelAttribute.value())
                 ? modelAttribute.value()
@@ -358,7 +378,13 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
         depthParentGetterList.add(fieldClass.getMethod(getterMethodName));
         depthParentSetterList.add(fieldClass.getMethod(setterMethodName, field.getType()));
         // recurse and scan holder class for attribute fields
-        setupFields(field.getType(), infoMap, depthParentGetterList, depthParentSetterList);
+        setupFields(
+            field.getType(),
+            infoMap,
+            depthParentGetterList,
+            depthParentSetterList,
+            configuration,
+            connector);
       }
     }
   }

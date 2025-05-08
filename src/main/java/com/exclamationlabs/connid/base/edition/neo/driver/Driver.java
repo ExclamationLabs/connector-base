@@ -233,7 +233,7 @@ public interface Driver<T extends ConnectorConfiguration> {
 
   /**
    * Get the number of execution threads to execute when importing all records for a given object
-   * class. The default is a single thread.  Note that this value will only be meaningful if
+   * class. The default is a single thread. Note that this value will only be meaningful if
    * supportsNativePagination() is true.
    *
    * @return The number of threads to use for import operations. Should be 1 or higher.
