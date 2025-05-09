@@ -354,7 +354,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       if (modelAttribute != null) {
         if (modelAttribute.modes() != null && modelAttribute.modes().length > 0) {
           // skip if modes do not match as needed for connector implementation
-          if (!connector.allowedForModes(configuration, modelAttribute.modes())) {
+          if (!connector.allowedForModes(
+              configuration, modelAttribute.modes(), modelAttribute.forType())) {
             continue;
           }
         }

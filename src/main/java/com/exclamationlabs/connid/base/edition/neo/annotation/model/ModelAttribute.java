@@ -17,6 +17,7 @@
 package com.exclamationlabs.connid.base.edition.neo.annotation.model;
 
 import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDataType;
+import com.exclamationlabs.connid.base.edition.neo.IamType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import java.lang.annotation.ElementType;
@@ -125,4 +126,11 @@ public @interface ModelAttribute {
    * @return Array of String modes that this attribute is required to match fully.
    */
   String[] modes() default {};
+
+  /**
+   * The applicable object type that this attribute is associated with. Default is UNDEFINED.
+   *
+   * @return IamType of the attribute (UNDEFINED is default if not specified)
+   */
+  IamType forType() default IamType.UNDEFINED;
 }

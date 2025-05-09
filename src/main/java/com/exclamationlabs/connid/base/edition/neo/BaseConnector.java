@@ -326,10 +326,11 @@ public abstract class BaseConnector<T extends ConnectorConfiguration>
    *
    * @param configuration Configuration object
    * @param modesFromAttribute Modes from the attribute. Could be null or empty.
+   * @param iamType The applicable IamType for this mode check.
    * @return True if mode matching is not applicable or used, false if the modes obtained from
    *     connector/configuration do not match the required modes from the attribute.
    */
-  public boolean allowedForModes(T configuration, String[] modesFromAttribute) {
+  public boolean allowedForModes(T configuration, String[] modesFromAttribute, IamType iamType) {
     return true;
   }
 
