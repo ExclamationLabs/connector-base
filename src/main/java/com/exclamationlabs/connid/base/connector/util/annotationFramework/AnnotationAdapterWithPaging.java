@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class AnnotationAdapterWithPaging<
         T extends AnnotatedIdentityModel, U extends ConnectorConfiguration>
-    extends AnnotationAdapter<T, U> implements EnhancedPaginationAndFiltering,
-    PaginationCapableSource {
+    extends AnnotationAdapter<T, U>
+    implements EnhancedPaginationAndFiltering, PaginationCapableSource {
 
   public AnnotationAdapterWithPaging(Class<T> AnnotatedIdentityModelClass) {
     super(AnnotatedIdentityModelClass);
@@ -56,6 +56,6 @@ public class AnnotationAdapterWithPaging<
 
   @Override
   public Integer getSearchResultsMaximum() {
-   return settings.searchResultMax();
+    return settings.searchResultMax();
   }
 }

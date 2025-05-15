@@ -2,5 +2,4 @@ package com.exclamationlabs.connid.base.connector.util.annotationFramework.annot
 
 public @interface AttributeSchemaMetaInfo {
   public int maxLength() default 255;
-
 }

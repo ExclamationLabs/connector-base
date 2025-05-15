@@ -37,10 +37,9 @@ dependencies {
     api 'net.tirasa.connid:connector-test-common:1.5.0.0'
     api 'com.auth0:java-jwt:3.19.4'
 
-    api ("org.springframework.boot:spring-boot-starter-validation:${spring_boot_version}") {
-        exclude group: "org.yaml", module: "snakeyaml"
 
-    }
+    implementation ("org.hibernate.validator:hibernate-validator:6.2.5.Final")
+    implementation("org.apache.tomcat:tomcat-jasper-el:9.0.83")
     api 'org.yaml:snakeyaml:2.0'
     ////// End - Vital dependencies for Base Connector
 
@@ -55,13 +54,6 @@ dependencies {
 
     implementation 'ch.qos.logback:logback-classic:1.2.13'
     implementation 'ch.qos.logback:logback-core:1.2.13'
-
-    // Pass vulnerability scans and make sure 5.3.39 is evicted
-    implementation('org.springframework:spring-expression') {
-        version {
-            strictly '5.3.39'
-        }
-    }
 
     // SOAP support
     // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'

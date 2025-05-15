@@ -88,21 +88,24 @@ public class AttributeUtils {
         clazz,
         false);
   }
+
   public static void createAttributesFromAnnotations(Class clazz, Set<ConnectorAttribute> result) {
     createAttributesFromAnnotations("", clazz, result);
   }
+
   /**
    * This is used in Annotation Adapter to output the Attributes;
    *
    * @param clazz class of Identity Model
    * @param result Set of connector attributes to put output.
    */
-  public static void createAttributesFromAnnotations(String prefix,Class clazz, Set<ConnectorAttribute> result) {
+  public static void createAttributesFromAnnotations(
+      String prefix, Class clazz, Set<ConnectorAttribute> result) {
 
     for (var field : clazz.getDeclaredFields()) {
       if (isValidType(field)
           || (field.getType() == List.class && hasAnnotation(field, AttributeMultiValue.class))) {
-        String attributeName = prefix+fieldNameToAttribute(field.getName());
+        String attributeName = prefix + fieldNameToAttribute(field.getName());
         if (!hasAnnotation(field, AttributeIgnore.class)) {
           ArrayList<Flags> flags = new ArrayList<>();
           if (hasAnnotation(field, AttributeNotCreateable.class)) {
@@ -124,22 +127,22 @@ public class AttributeUtils {
             type = getDataType(field, hasAnnotation(field, AttributedGuarded.class));
           }
           if (flags.isEmpty()) {
-            if(hasAnnotation(field, AttributeIdentityValue.class)) {
-              result.add(new ConnectorAttribute(Uid.NAME,attributeName, type));
-            }else if(hasAnnotation(field, AttributeNameValue.class)) {
-              result.add(new ConnectorAttribute(Name.NAME,attributeName, type));
-            }else{
-            result.add(new ConnectorAttribute(attributeName, type));
+            if (hasAnnotation(field, AttributeIdentityValue.class)) {
+              result.add(new ConnectorAttribute(Uid.NAME, attributeName, type));
+            } else if (hasAnnotation(field, AttributeNameValue.class)) {
+              result.add(new ConnectorAttribute(Name.NAME, attributeName, type));
+            } else {
+              result.add(new ConnectorAttribute(attributeName, type));
             }
           } else {
             var flagsArray = new Flags[flags.size()];
             flags.toArray(flagsArray);
-            if(hasAnnotation(field, AttributeIdentityValue.class)) {
-              result.add(new ConnectorAttribute(Uid.NAME,attributeName, type,flagsArray));
-            }else if(hasAnnotation(field, AttributeNameValue.class)) {
-              result.add(new ConnectorAttribute(Name.NAME,attributeName, type,flagsArray));
-            }else{
-              result.add(new ConnectorAttribute(attributeName, type,flagsArray));
+            if (hasAnnotation(field, AttributeIdentityValue.class)) {
+              result.add(new ConnectorAttribute(Uid.NAME, attributeName, type, flagsArray));
+            } else if (hasAnnotation(field, AttributeNameValue.class)) {
+              result.add(new ConnectorAttribute(Name.NAME, attributeName, type, flagsArray));
+            } else {
+              result.add(new ConnectorAttribute(attributeName, type, flagsArray));
             }
           }
         }
@@ -258,10 +261,12 @@ public class AttributeUtils {
     }
     return STRING;
   }
+
   public static Set<Attribute> constructAttributesFromAnnotations(
       Object o, Set<Attribute> attributes) {
     return constructAttributesFromAnnotations("", o, attributes);
   }
+
   /**
    * Used in AnnotationAdpater to construct Attributes from Object
    *
@@ -275,7 +280,7 @@ public class AttributeUtils {
       for (var field : clazz.getDeclaredFields()) {
         if (isValidType(field)
             || (field.getType() == List.class && hasAnnotation(field, AttributeMultiValue.class))) {
-          String attributeName = prefix+fieldNameToAttribute(field.getName());
+          String attributeName = prefix + fieldNameToAttribute(field.getName());
           if (!hasAnnotation(field, AttributeIgnore.class)) {
             Object val = null;
             try {
@@ -288,14 +293,15 @@ public class AttributeUtils {
               Collection collection = (Collection) val;
               attributes.add(AttributeBuilder.build(attributeName, collection));
             } else {
-              if(hasAnnotation(field, AttributeNameValue.class)||hasAnnotation(field,AttributeIdentityValue.class)) {
-                if(hasAnnotation(field, AttributeNameValue.class)){
-                  //attributes.add(AttributeBuilder.build(Name.NAME, val));
+              if (hasAnnotation(field, AttributeNameValue.class)
+                  || hasAnnotation(field, AttributeIdentityValue.class)) {
+                if (hasAnnotation(field, AttributeNameValue.class)) {
+                  // attributes.add(AttributeBuilder.build(Name.NAME, val));
                 }
-                if(hasAnnotation(field, AttributeIdentityValue.class)){
-                  //attributes.add(AttributeBuilder.build(Uid.NAME, val));
+                if (hasAnnotation(field, AttributeIdentityValue.class)) {
+                  // attributes.add(AttributeBuilder.build(Uid.NAME, val));
                 }
-              }else{
+              } else {
                 attributes.add(AttributeBuilder.build(attributeName, val));
               }
             }
@@ -374,14 +380,17 @@ public class AttributeUtils {
       System.out.println("\r\n");
     }
   }
+
   public static void constructModelFromAnnotations(
       Set<Attribute> attributes,
       Set<Attribute> addedMultiValueAttributes,
       Set<Attribute> removedMultiValueAttributes,
       boolean isCreate,
-      AnnotatedIdentityModel o){
-    constructModelFromAnnotations("",attributes,addedMultiValueAttributes,removedMultiValueAttributes,isCreate,o);
+      AnnotatedIdentityModel o) {
+    constructModelFromAnnotations(
+        "", attributes, addedMultiValueAttributes, removedMultiValueAttributes, isCreate, o);
   }
+
   public static void constructModelFromAnnotations(
       String prefix,
       Set<Attribute> attributes,
@@ -390,20 +399,19 @@ public class AttributeUtils {
       boolean isCreate,
       AnnotatedIdentityModel o) {
     Set<Attribute> combinedAttributes = new HashSet<>();
-    if(addedMultiValueAttributes!=null)combinedAttributes.addAll(addedMultiValueAttributes);
-    if(removedMultiValueAttributes!=null)combinedAttributes.addAll(removedMultiValueAttributes);
-    if(attributes!=null)combinedAttributes.addAll(attributes);
+    if (addedMultiValueAttributes != null) combinedAttributes.addAll(addedMultiValueAttributes);
+    if (removedMultiValueAttributes != null) combinedAttributes.addAll(removedMultiValueAttributes);
+    if (attributes != null) combinedAttributes.addAll(attributes);
     if (o != null && combinedAttributes != null) {
       for (var attributeName : combinedAttributes) {
         String cleanedAttributeName = attributeName.getName();
-        String fieldString="";
-        if(cleanedAttributeName.equals(Name.NAME)){
-          fieldString=getFieldNameForNameField(o.getClass());
-        }
-        else if(cleanedAttributeName.equals(Uid.NAME)){
-          fieldString=getFieldNameForIdentityField(o.getClass());
-        }else{
-          fieldString = attributeNameToFieldName(cleanedAttributeName,prefix);
+        String fieldString = "";
+        if (cleanedAttributeName.equals(Name.NAME)) {
+          fieldString = getFieldNameForNameField(o.getClass());
+        } else if (cleanedAttributeName.equals(Uid.NAME)) {
+          fieldString = getFieldNameForIdentityField(o.getClass());
+        } else {
+          fieldString = attributeNameToFieldName(cleanedAttributeName, prefix);
         }
         try {
           var field = o.getClass().getDeclaredField(fieldString);
@@ -784,9 +792,10 @@ public class AttributeUtils {
       if (roles != null) {
         findAndSetField(o, removeFieldName, roles);
       }
-      roles = AdapterValueTypeConverter.getMultipleAttributeValueNoEnum(
-          List.class, attributes, attributeName);
-      if(roles != null) {
+      roles =
+          AdapterValueTypeConverter.getMultipleAttributeValueNoEnum(
+              List.class, attributes, attributeName);
+      if (roles != null) {
         findAndSetField(o, listField, roles);
       }
     }
@@ -965,6 +974,7 @@ public class AttributeUtils {
       Logger.info(o, "Attribute: " + attribute.getName() + ", Value: " + attribute.getValue());
     }
   }
+
   public static Map<String, AttributeMetaInfo> getSchemaAttributeInfo(Class<?> clazz) {
     Map<String, AttributeMetaInfo> schemaMetaJson = new HashMap<>();
     for (var field : clazz.getDeclaredFields()) {
@@ -972,8 +982,10 @@ public class AttributeUtils {
         String attributeName = fieldNameToAttribute(field.getName());
         if (!hasAnnotation(field, AttributeIgnore.class)) {
           if (hasAnnotation(field, AttributeSchemaMetaInfo.class)) {
-            int maxLength = ((AttributeSchemaMetaInfo) Objects.requireNonNull(
-                getAnnotation(field, AttributeSchemaMetaInfo.class))).maxLength();
+            int maxLength =
+                ((AttributeSchemaMetaInfo)
+                        Objects.requireNonNull(getAnnotation(field, AttributeSchemaMetaInfo.class)))
+                    .maxLength();
             if (maxLength < 255) {
               schemaMetaJson.put(attributeName, addMaxLengthConstraint(maxLength));
             }
@@ -983,44 +995,45 @@ public class AttributeUtils {
     }
     return schemaMetaJson;
   }
+
   public static String getFieldNameForIdentityField(Class<?> clazz) {
     for (var field : clazz.getDeclaredFields()) {
-      if (isValidType(field)
-          && hasAnnotation(field, AttributeIdentityValue.class)) {
-       return field.getName();
-      }
-    }
-    return null;
-  }
-  public static String getFieldNameForNameField(Class<?> clazz) {
-    for (var field : clazz.getDeclaredFields()) {
-      if (isValidType(field)
-          && hasAnnotation(field, AttributeNameValue.class)) {
+      if (isValidType(field) && hasAnnotation(field, AttributeIdentityValue.class)) {
         return field.getName();
       }
     }
     return null;
   }
+
+  public static String getFieldNameForNameField(Class<?> clazz) {
+    for (var field : clazz.getDeclaredFields()) {
+      if (isValidType(field) && hasAnnotation(field, AttributeNameValue.class)) {
+        return field.getName();
+      }
+    }
+    return null;
+  }
+
   public static String getAttributeNameForIdentityField(Class<?> clazz) {
     for (var field : clazz.getDeclaredFields()) {
-      if (isValidType(field)
-          && hasAnnotation(field, AttributeIdentityValue.class)) {
+      if (isValidType(field) && hasAnnotation(field, AttributeIdentityValue.class)) {
         String attributeName = fieldNameToAttribute(field.getName());
         return attributeName;
       }
     }
     return null;
   }
+
   public static String getAttributeNameForNameField(Class<?> clazz) {
     for (var field : clazz.getDeclaredFields()) {
-      if (isValidType(field)
-          && hasAnnotation(field, AttributeNameValue.class)) {
+      if (isValidType(field) && hasAnnotation(field, AttributeNameValue.class)) {
         String attributeName = fieldNameToAttribute(field.getName());
         return attributeName;
       }
     }
     return null;
   }
+
   public static AttributeMetaInfo addMaxLengthConstraint(int maxLength) {
     AttributeConstraint constraint = new AttributeConstraint();
     constraint.setDirection(AttributeConstraintDirection.OUTBOUND);
