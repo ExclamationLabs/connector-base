@@ -27,4 +27,15 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface ModelAttributeHolder {}
+public @interface ModelAttributeHolder {
+
+  /**
+   * Will only include attributes belonging to this class in the schema and perform
+   * serialization/deserialization if (1) no modes are defined (default) or (2) the connector's
+   * defined mode array (using Connector modesFor() method) contains all the required modes defined
+   * by this method.
+   *
+   * @return Array of String modes that this attribute is required to match fully.
+   */
+  String[] modes() default {};
+}

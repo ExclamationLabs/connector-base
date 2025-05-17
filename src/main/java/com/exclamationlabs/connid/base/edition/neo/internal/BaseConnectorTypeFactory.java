@@ -20,6 +20,7 @@ import com.exclamationlabs.connid.base.connector.authenticator.Authenticator;
 import com.exclamationlabs.connid.base.connector.configuration.ConnectorConfiguration;
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.edition.neo.BaseConnector;
+import com.exclamationlabs.connid.base.edition.neo.IamType;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttribute;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelAttributeHolder;
 import com.exclamationlabs.connid.base.edition.neo.annotation.model.ModelObjectClass;
@@ -319,7 +320,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
           Collections.emptyList(),
           Collections.emptyList(),
           configuration,
-          connector);
+          connector,
+          objectClass.forType());
       identityModelAccess.setFieldAccessInfoMap(infoMap);
       for (var accessInfo : infoMap.values()) {
         if (accessInfo.getIdentifier() == ConnIdType.UID) {
@@ -342,7 +344,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       List<Method> parentGetterList,
       List<Method> parentSetterList,
       T configuration,
-      BaseConnector<T> connector)
+      BaseConnector<T> connector,
+      IamType iamType)
       throws ReflectiveOperationException {
     for (var field : fieldClass.getDeclaredFields()) {
       var modelAttribute = field.getAnnotation(ModelAttribute.class);
@@ -354,8 +357,7 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
       if (modelAttribute != null) {
         if (modelAttribute.modes() != null && modelAttribute.modes().length > 0) {
           // skip if modes do not match as needed for connector implementation
-          if (!connector.allowedForModes(
-              configuration, modelAttribute.modes(), modelAttribute.forType())) {
+          if (!connector.allowedForModes(configuration, modelAttribute.modes(), iamType)) {
             continue;
           }
         }
@@ -370,6 +372,10 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
                 definedName, field, modelAttribute, parentGetterList, parentSetterList));
 
       } else {
+        // skip holder object if modes do not match as needed for connector implementation
+        if (!connector.allowedForModes(configuration, holderAttribute.modes(), iamType)) {
+          continue;
+        }
         var getterMethodName = "get" + StringUtils.capitalize(field.getName());
         var setterMethodName = "set" + StringUtils.capitalize(field.getName());
         List<Method> depthParentGetterList =
@@ -385,7 +391,8 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
             depthParentGetterList,
             depthParentSetterList,
             configuration,
-            connector);
+            connector,
+            iamType);
       }
     }
   }
