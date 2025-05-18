@@ -164,7 +164,12 @@ public final class BaseConnectorTypeFactory<T extends ConnectorConfiguration> {
             .scan()) {
 
       List<Class<?>> authenticatorClassList =
-          scanResult.getClassesImplementing(Authenticator.class.getName()).loadClasses();
+          scanResult.getClassesImplementing(Authenticator.class.getName()).loadClasses().stream()
+              .filter(
+                  clazz ->
+                      StringUtils.equals(
+                          implementationClass.getPackageName(), clazz.getPackageName()))
+              .collect(Collectors.toList());
       if (authenticatorClassList.size() > 1) {
         throw new ConfigurationException(
             String.format(

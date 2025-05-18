@@ -23,12 +23,16 @@ import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 public class ModelReader {
 
@@ -48,29 +52,39 @@ public class ModelReader {
       }
       Attribute currentAttribute;
       Object readValue = readDepthValue(attributeName, fieldAccessInfo, model);
+      boolean readMultiValue =
+          Arrays.stream(fieldAccessInfo.getFlags())
+                  .anyMatch(it -> it == AttributeInfo.Flags.MULTIVALUED)
+              && readValue instanceof Iterable;
       if (readValue == null) {
         currentAttribute = AttributeBuilder.build(attributeName);
       } else {
         switch (fieldAccessInfo.getDataType()) {
           case BOOLEAN:
-            boolean booleanValue;
-            if (readValue instanceof Boolean) {
-              booleanValue = BooleanUtils.toBoolean((Boolean) readValue);
-            } else if (readValue instanceof Integer) {
-              booleanValue = BooleanUtils.toBoolean((Integer) readValue);
+            if (readMultiValue) {
+              List<Boolean> booleanValues = new ArrayList<>();
+              for (Object currentValue : (Iterable<?>) readValue) {
+                if (currentValue != null) {
+                  booleanValues.add(readBooleanValue(currentValue));
+                }
+              }
+              currentAttribute = AttributeBuilder.build(attributeName, booleanValues);
             } else {
-              booleanValue = BooleanUtils.toBoolean(readValue.toString());
+              currentAttribute = AttributeBuilder.build(attributeName, readBooleanValue(readValue));
             }
-            currentAttribute = AttributeBuilder.build(attributeName, booleanValue);
             break;
           case INTEGER:
-            int intValue;
-            if (readValue instanceof Integer) {
-              intValue = (Integer) readValue;
+            if (readMultiValue) {
+              List<Integer> intValues = new ArrayList<>();
+              for (Object currentValue : (Iterable<?>) readValue) {
+                if (currentValue != null) {
+                  intValues.add(readIntegerValue(currentValue));
+                }
+              }
+              currentAttribute = AttributeBuilder.build(attributeName, intValues);
             } else {
-              intValue = Integer.parseInt(readValue.toString());
+              currentAttribute = AttributeBuilder.build(attributeName, readIntegerValue(readValue));
             }
-            currentAttribute = AttributeBuilder.build(attributeName, intValue);
             break;
           case ASSIGNMENT_IDENTIFIER:
             var assignmentType = (AssignmentType) readValue;
@@ -83,8 +97,18 @@ public class ModelReader {
                 AttributeBuilder.build(
                     attributeName, new GuardedString(readValue.toString().toCharArray()));
             break;
-          default: // string
-            currentAttribute = AttributeBuilder.build(attributeName, readValue.toString());
+          default: // string/toString()
+            if (readMultiValue) {
+              List<String> stringValues = new ArrayList<>();
+              for (Object currentValue : (Iterable<?>) readValue) {
+                if (currentValue != null) {
+                  stringValues.add(currentValue.toString());
+                }
+              }
+              currentAttribute = AttributeBuilder.build(attributeName, stringValues);
+            } else {
+              currentAttribute = AttributeBuilder.build(attributeName, readValue.toString());
+            }
             break;
         }
       }
@@ -98,10 +122,11 @@ public class ModelReader {
     Object rawAttributeValue = null;
 
     Object depthDataObject = model;
+    Object obtainedValue = null;
 
     for (var getterMethod : fieldAccessInfo.getGetterAccess()) {
       try {
-        Object obtainedValue = getterMethod.invoke(depthDataObject);
+        obtainedValue = getterMethod.invoke(depthDataObject);
         if (obtainedValue == null) {
           rawAttributeValue = null;
           break;
@@ -109,13 +134,36 @@ public class ModelReader {
           depthDataObject = obtainedValue;
           rawAttributeValue = obtainedValue;
         }
-      } catch (ReflectiveOperationException ill) {
+      } catch (IllegalArgumentException illE) {
+        Logger.warn(
+            ModelReader.class,
+            "Unexpected reflection access for get of attribute" + attributeName,
+            illE);
+      } catch (ReflectiveOperationException roe) {
         Logger.warn(
             ModelReader.class,
             "Unexpected reflection access issue for get of attribute" + attributeName,
-            ill);
+            roe);
       }
     }
     return rawAttributeValue;
+  }
+
+  private static boolean readBooleanValue(Object readValue) {
+    if (readValue instanceof Boolean) {
+      return BooleanUtils.toBoolean((Boolean) readValue);
+    } else if (readValue instanceof Integer) {
+      return BooleanUtils.toBoolean((Integer) readValue);
+    } else {
+      return BooleanUtils.toBoolean(readValue.toString());
+    }
+  }
+
+  private static int readIntegerValue(Object readValue) {
+    if (readValue instanceof Integer) {
+      return (Integer) readValue;
+    } else {
+      return Integer.parseInt(readValue.toString());
+    }
   }
 }

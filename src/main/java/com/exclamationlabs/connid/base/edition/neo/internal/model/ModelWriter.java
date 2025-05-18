@@ -207,41 +207,57 @@ public class ModelWriter {
       Object singleValueRead,
       ConnectorAttributeDataType dataType)
       throws ReflectiveOperationException {
-    switch (dataType) {
-      case BOOLEAN:
-        boolean booleanValue;
-        if (singleValueRead instanceof Boolean) {
-          booleanValue = BooleanUtils.toBoolean((Boolean) singleValueRead);
-        } else if (singleValueRead instanceof Integer) {
-          booleanValue = BooleanUtils.toBoolean((Integer) singleValueRead);
-        } else {
-          booleanValue = BooleanUtils.toBoolean(singleValueRead.toString());
-        }
-        setterMethod.invoke(dataObject, booleanValue);
-        break;
-      case INTEGER:
-        int intValue;
-        if (singleValueRead instanceof Integer) {
-          intValue = (Integer) singleValueRead;
-        } else {
-          intValue = Integer.parseInt(singleValueRead.toString());
-        }
-        setterMethod.invoke(dataObject, intValue);
-        break;
-      case GUARDED_STRING:
-        var unguardedString =
-            singleValueRead instanceof GuardedString
-                ? GuardedStringUtil.read((GuardedString) singleValueRead)
-                : singleValueRead.toString();
-        setterMethod.invoke(dataObject, unguardedString);
-        break;
-      case ASSIGNMENT_IDENTIFIER:
-        var assignmentType = (AssignmentType) singleValueRead;
-        setterMethod.invoke(dataObject, assignmentType);
-        break;
-      default: // string
-        setterMethod.invoke(dataObject, singleValueRead.toString());
-        break;
+    try {
+      switch (dataType) {
+        case BOOLEAN:
+          boolean booleanValue;
+          if (singleValueRead instanceof Boolean) {
+            booleanValue = BooleanUtils.toBoolean((Boolean) singleValueRead);
+          } else if (singleValueRead instanceof Integer) {
+            booleanValue = BooleanUtils.toBoolean((Integer) singleValueRead);
+          } else {
+            booleanValue = BooleanUtils.toBoolean(singleValueRead.toString());
+          }
+          setterMethod.invoke(dataObject, booleanValue);
+          break;
+        case INTEGER:
+          int intValue;
+          if (singleValueRead instanceof Integer) {
+            intValue = (Integer) singleValueRead;
+          } else {
+            intValue = Integer.parseInt(singleValueRead.toString());
+          }
+          setterMethod.invoke(dataObject, intValue);
+          break;
+        case GUARDED_STRING:
+          var unguardedString =
+              singleValueRead instanceof GuardedString
+                  ? GuardedStringUtil.read((GuardedString) singleValueRead)
+                  : singleValueRead.toString();
+          setterMethod.invoke(dataObject, unguardedString);
+          break;
+        case ASSIGNMENT_IDENTIFIER:
+          var assignmentType = (AssignmentType) singleValueRead;
+          setterMethod.invoke(dataObject, assignmentType);
+          break;
+        default: // string
+          setterMethod.invoke(dataObject, singleValueRead.toString());
+          break;
+      }
+    } catch (IllegalArgumentException ille) {
+      throw new RuntimeException(
+          "Illegal Argument Error writing model for operation: "
+              + setterMethod.getName()
+              + " with value: "
+              + singleValueRead,
+          ille);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(
+          "Error writing model for operation: "
+              + setterMethod.getName()
+              + " with value: "
+              + singleValueRead,
+          e);
     }
   }
 

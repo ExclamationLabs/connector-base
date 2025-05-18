@@ -527,7 +527,7 @@ public class RestClient<T extends RestConfiguration> {
     headers.put("Accept", behavior.getAcceptType());
     headers.put("Content-Type", behavior.getContentType());
     if (behavior.usesBearerAuthentication()
-        && (!StringUtils.isNotBlank(configuration.getCurrentToken()))) {
+        && StringUtils.isNotBlank(configuration.getCurrentToken())) {
       headers.put("Authorization", "Bearer " + configuration.getCurrentToken());
     }
     if (behavior.getAdditionalHeaders(configuration) != null
