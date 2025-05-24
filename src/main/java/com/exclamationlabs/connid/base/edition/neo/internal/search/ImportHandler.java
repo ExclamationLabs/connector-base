@@ -124,6 +124,7 @@ public class ImportHandler<T extends ConnectorConfiguration> extends GetHandler<
           objectClass,
           pageSize,
           resultsHandler);
+      return;
     }
     boolean importComplete = false;
     int currentOffset = 0;

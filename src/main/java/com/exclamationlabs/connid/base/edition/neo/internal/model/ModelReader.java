@@ -149,7 +149,7 @@ public class ModelReader {
     return rawAttributeValue;
   }
 
-  private static boolean readBooleanValue(Object readValue) {
+  static boolean readBooleanValue(Object readValue) {
     if (readValue instanceof Boolean) {
       return BooleanUtils.toBoolean((Boolean) readValue);
     } else if (readValue instanceof Integer) {
@@ -159,7 +159,7 @@ public class ModelReader {
     }
   }
 
-  private static int readIntegerValue(Object readValue) {
+  static int readIntegerValue(Object readValue) {
     if (readValue instanceof Integer) {
       return (Integer) readValue;
     } else {

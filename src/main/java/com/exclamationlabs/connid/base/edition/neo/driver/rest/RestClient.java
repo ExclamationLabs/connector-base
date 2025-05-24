@@ -308,7 +308,7 @@ public class RestClient<T extends RestConfiguration> {
    */
   public <U> RestResponse<U> delete(
       String uri, Class<U> responseType, Map<String, String> additionalHeaders) {
-    HttpRequest request = constructCoreRequest(uri, additionalHeaders).GET().build();
+    HttpRequest request = constructCoreRequest(uri, additionalHeaders).DELETE().build();
     return executeRequest(request, responseType);
   }
 

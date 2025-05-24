@@ -22,12 +22,18 @@ import com.exclamationlabs.connid.base.connector.attribute.ConnectorAttributeDat
 import com.exclamationlabs.connid.base.connector.logging.Logger;
 import com.exclamationlabs.connid.base.connector.util.GuardedStringUtil;
 import com.exclamationlabs.connid.base.edition.neo.internal.ConsolidatedValues;
+import com.exclamationlabs.connid.base.edition.neo.internal.FieldAccessInfo;
 import com.exclamationlabs.connid.base.edition.neo.internal.IdentityModelAccess;
 import com.exclamationlabs.connid.base.edition.neo.model.AssignmentType;
 import com.exclamationlabs.connid.base.edition.neo.model.ConnIdType;
 import com.exclamationlabs.connid.base.edition.neo.model.Direction;
 import com.exclamationlabs.connid.base.edition.neo.model.IdentityModel;
+import com.exclamationlabs.connid.base.edition.neo.model.JsonDeserializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,12 +41,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
 
 public class ModelWriter {
 
@@ -103,7 +109,9 @@ public class ModelWriter {
               consolidatedValues.modifiedValues.stream()
                   .filter(
                       attr ->
-                          attr.getName().equals(info.getAttributeName())
+                          (attr.getName().equals(info.getAttributeName())
+                                  || (info.getIdentifier() == ConnIdType.NAME
+                                      && attr.getName().equals("__NAME__")))
                               && attr.getValue() != null
                               && !attr.getValue().isEmpty()
                               && attr.getValue().get(0) != null
@@ -167,7 +175,11 @@ public class ModelWriter {
             singleValueRead = assignmentType;
             setterMethod = info.getSetterAccess().get(0);
           } else {
-            singleValueRead = attribute.get().getValue().get(0);
+            boolean isMultiValue =
+                Arrays.stream(info.getFlags())
+                    .anyMatch(it -> it == AttributeInfo.Flags.MULTIVALUED);
+            singleValueRead =
+                isMultiValue ? attribute.get().getValue() : attribute.get().getValue().get(0);
             if (info.getSetterAccess().size() == 1) {
               // No depth, simply invoke setter method
               setterMethod = info.getSetterAccess().get(0);
@@ -191,8 +203,7 @@ public class ModelWriter {
             }
           }
         }
-        setIdentityModelValue(
-            setterInvokeTarget, setterMethod, singleValueRead, info.getDataType());
+        setIdentityModelValue(setterInvokeTarget, setterMethod, singleValueRead, info);
       }
 
     } catch (ReflectiveOperationException e) {
@@ -201,33 +212,50 @@ public class ModelWriter {
     return model;
   }
 
+  @SuppressWarnings("unchecked")
   private static void setIdentityModelValue(
-      Object dataObject,
-      Method setterMethod,
-      Object singleValueRead,
-      ConnectorAttributeDataType dataType)
+      Object dataObject, Method setterMethod, Object singleValueRead, FieldAccessInfo info)
       throws ReflectiveOperationException {
     try {
+      var getIdx = info.getGetterAccess().size() - 1;
+      var dataType = info.getDataType();
+      boolean readMultiValue =
+          Arrays.stream(info.getFlags()).anyMatch(it -> it == AttributeInfo.Flags.MULTIVALUED)
+              && singleValueRead instanceof Iterable;
       switch (dataType) {
         case BOOLEAN:
-          boolean booleanValue;
-          if (singleValueRead instanceof Boolean) {
-            booleanValue = BooleanUtils.toBoolean((Boolean) singleValueRead);
-          } else if (singleValueRead instanceof Integer) {
-            booleanValue = BooleanUtils.toBoolean((Integer) singleValueRead);
+          if (readMultiValue) {
+            List<Boolean> listRef =
+                (List<Boolean>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            if (listRef == null) {
+              info.getSetterAccess().get(getIdx).invoke(dataObject, new ArrayList<>());
+              listRef = (List<Boolean>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            }
+            for (var currentValue : (Iterable<?>) singleValueRead) {
+              if (currentValue != null) {
+                listRef.add(ModelReader.readBooleanValue(currentValue));
+              }
+            }
           } else {
-            booleanValue = BooleanUtils.toBoolean(singleValueRead.toString());
+            setterMethod.invoke(dataObject, ModelReader.readBooleanValue(singleValueRead));
           }
-          setterMethod.invoke(dataObject, booleanValue);
           break;
         case INTEGER:
-          int intValue;
-          if (singleValueRead instanceof Integer) {
-            intValue = (Integer) singleValueRead;
+          if (readMultiValue) {
+            List<Integer> listRef =
+                (List<Integer>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            if (listRef == null) {
+              info.getSetterAccess().get(getIdx).invoke(dataObject, new ArrayList<>());
+              listRef = (List<Integer>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            }
+            for (var currentValue : (Iterable<?>) singleValueRead) {
+              if (currentValue != null) {
+                listRef.add(ModelReader.readIntegerValue(currentValue));
+              }
+            }
           } else {
-            intValue = Integer.parseInt(singleValueRead.toString());
+            setterMethod.invoke(dataObject, ModelReader.readIntegerValue(singleValueRead));
           }
-          setterMethod.invoke(dataObject, intValue);
           break;
         case GUARDED_STRING:
           var unguardedString =
@@ -240,8 +268,23 @@ public class ModelWriter {
           var assignmentType = (AssignmentType) singleValueRead;
           setterMethod.invoke(dataObject, assignmentType);
           break;
-        default: // string
-          setterMethod.invoke(dataObject, singleValueRead.toString());
+        default: // string or other
+          if (readMultiValue) {
+            List<?> listRef = (List<?>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            if (listRef == null) {
+              info.getSetterAccess().get(getIdx).invoke(dataObject, new ArrayList<>());
+              listRef = (List<?>) info.getGetterAccess().get(getIdx).invoke(dataObject);
+            }
+            setStringOrJsonDeserializableValue(
+                singleValueRead, info, listRef, dataObject, setterMethod);
+          } else {
+            Object objectDataType = info.getGetterAccess().get(getIdx).invoke(dataObject);
+            if (objectDataType instanceof JsonDeserializable) {
+              ((JsonDeserializable) objectDataType).fromString(singleValueRead.toString());
+            } else {
+              setterMethod.invoke(dataObject, singleValueRead.toString());
+            }
+          }
           break;
       }
     } catch (IllegalArgumentException ille) {
@@ -258,6 +301,51 @@ public class ModelWriter {
               + " with value: "
               + singleValueRead,
           e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void setStringOrJsonDeserializableValue(
+      Object singleValueRead,
+      FieldAccessInfo info,
+      List<?> listRef,
+      Object dataObject,
+      Method setterMethod)
+      throws NoSuchMethodException,
+          InvocationTargetException,
+          InstantiationException,
+          IllegalAccessException {
+    for (Object currentValue : (Iterable<?>) singleValueRead) {
+      if (currentValue != null) {
+        if (info.getField().getDeclaringClass() == String.class) {
+          // Handle String class directly
+          ((List<String>) listRef).add(currentValue.toString());
+          continue;
+        } else {
+          var resolved = false;
+          var genericType = info.getField().getGenericType();
+          if (genericType instanceof ParameterizedType) {
+            // Get the parameterized type arguments
+            Type[] typeArguments = ((ParameterizedType) genericType).getActualTypeArguments();
+
+            // Ensure the first type argument is a Class
+            if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?>) {
+              Class<?> parameterizedTypeClass = (Class<?>) typeArguments[0];
+              if (JsonDeserializable.class.isAssignableFrom(parameterizedTypeClass)) {
+                JsonDeserializable newData =
+                    (JsonDeserializable)
+                        parameterizedTypeClass.getDeclaredConstructor().newInstance();
+                newData.fromString(currentValue.toString());
+                ((List<JsonDeserializable>) listRef).add(newData);
+                resolved = true;
+              }
+            }
+          }
+          if (!resolved) {
+            throw new RuntimeException("Unsupported type for serialization: " + genericType);
+          }
+        }
+      }
     }
   }
 
