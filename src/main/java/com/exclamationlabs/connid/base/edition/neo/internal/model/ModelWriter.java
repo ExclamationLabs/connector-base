@@ -275,12 +275,12 @@ public class ModelWriter {
               info.getSetterAccess().get(getIdx).invoke(dataObject, new ArrayList<>());
               listRef = (List<?>) info.getGetterAccess().get(getIdx).invoke(dataObject);
             }
-            setStringOrJsonDeserializableValue(
-                singleValueRead, info, listRef, dataObject, setterMethod);
+            setStringOrJsonDeserializableValue(singleValueRead, info, listRef);
           } else {
-            Object objectDataType = info.getGetterAccess().get(getIdx).invoke(dataObject);
-            if (objectDataType instanceof JsonDeserializable) {
-              ((JsonDeserializable) objectDataType).fromString(singleValueRead.toString());
+            if (JsonDeserializable.class.isAssignableFrom(info.getFieldClass())) {
+              JsonDeserializable newData =
+                  (JsonDeserializable) info.getFieldClass().getDeclaredConstructor().newInstance();
+              newData.fromString(singleValueRead.toString());
             } else {
               setterMethod.invoke(dataObject, singleValueRead.toString());
             }
@@ -306,11 +306,7 @@ public class ModelWriter {
 
   @SuppressWarnings("unchecked")
   private static void setStringOrJsonDeserializableValue(
-      Object singleValueRead,
-      FieldAccessInfo info,
-      List<?> listRef,
-      Object dataObject,
-      Method setterMethod)
+      Object singleValueRead, FieldAccessInfo info, List<?> listRef)
       throws NoSuchMethodException,
           InvocationTargetException,
           InstantiationException,
