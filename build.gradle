@@ -39,7 +39,7 @@ dependencyLocking {
 dependencies {
 
     ////// Begin - Vital dependencies for Base Connector
-    api 'org.apache.commons:commons-lang3:3.15.0'
+    api 'org.apache.commons:commons-lang3:3.18.0'
     api 'net.tirasa.connid:connector-test-common:1.5.2.0'
     jwtApi 'com.auth0:java-jwt:3.19.4'
 
@@ -56,8 +56,8 @@ dependencies {
 
 
     // PEM Private key support
-    cryptographyApi 'org.bouncycastle:bcpkix-jdk18on:1.78'
-    compileOnly 'org.bouncycastle:bcpkix-jdk18on:1.78'
+    cryptographyApi 'org.bouncycastle:bcpkix-jdk18on:1.85'
+    compileOnly 'org.bouncycastle:bcpkix-jdk18on:1.85'
 
     // SOAP support
     // implementation 'com.sun.xml.ws:jaxws-ri:2.3.2'
